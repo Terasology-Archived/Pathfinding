@@ -1,3 +1,18 @@
+/*
+ * Copyright 2013 MovingBlocks
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.terasology.pathfinding.maze;
 
 import java.util.Arrays;
@@ -16,8 +31,8 @@ public class MazeGenerator {
 
     public MazeGenerator(int x, int y, Random random) {
         this.random = random;
-        this.x = (x-1)/3;
-        this.y = (y-1)/3;
+        this.x = (x - 1) / 3;
+        this.y = (y - 1) / 3;
         maze = new int[x][y];
         generateMaze(0, 0);
     }
@@ -26,27 +41,27 @@ public class MazeGenerator {
         for (int i = 0; i < y; i++) {
             // draw the north edge
             for (int j = 0; j < x; j++) {
-                if( (maze[j][i] & 1) == 0 ) {
-                    target[i*3].set(j*3);
-                    target[i*3].set(j*3+1);
-                    target[i*3].set(j*3+2);
+                if ((maze[j][i] & 1) == 0) {
+                    target[i * 3].set(j * 3);
+                    target[i * 3].set(j * 3 + 1);
+                    target[i * 3].set(j * 3 + 2);
                 } else {
-                    target[i*3].set(j*3);
+                    target[i * 3].set(j * 3);
                 }
             }
             // draw the west edge
             for (int j = 0; j < x; j++) {
-                if( (maze[j][i] & 8) == 0 ) {
-                    target[i*3+1].set(j*3);
-                    target[i*3+2].set(j*3);
+                if ((maze[j][i] & 8) == 0) {
+                    target[i * 3 + 1].set(j * 3);
+                    target[i * 3 + 2].set(j * 3);
                 }
             }
-            target[i*3].set(x*3);
-            target[i*3+1].set(x*3);
-            target[i*3+2].set(x*3);
+            target[i * 3].set(x * 3);
+            target[i * 3 + 1].set(x * 3);
+            target[i * 3 + 2].set(x * 3);
         }
         // draw the bottom line
-        target[y*3].set(0, x * 3+1);
+        target[y * 3].set(0, x * 3 + 1);
 
     }
 
@@ -57,7 +72,7 @@ public class MazeGenerator {
             int nx = cx + dir.dx;
             int ny = cy + dir.dy;
             if (between(nx, x) && between(ny, y)
-                    && (maze[nx][ny] == 0)) {
+                && (maze[nx][ny] == 0)) {
                 maze[cx][cy] |= dir.bit;
                 maze[nx][ny] |= dir.opposite.bit;
                 generateMaze(nx, ny);
@@ -89,5 +104,7 @@ public class MazeGenerator {
             this.dx = dx;
             this.dy = dy;
         }
-    };
+    }
+
+    ;
 }

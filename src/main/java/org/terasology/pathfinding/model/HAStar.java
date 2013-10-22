@@ -1,3 +1,18 @@
+/*
+ * Copyright 2013 MovingBlocks
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.terasology.pathfinding.model;
 
 import org.slf4j.Logger;
@@ -18,7 +33,7 @@ import java.util.Set;
  */
 public class HAStar {
     private static final Logger logger = LoggerFactory.getLogger(HAStar.class);
-    private static final int MAX_NODES = 64*1024;
+    private static final int MAX_NODES = 64 * 1024;
     private Path localPath;
     private HAStar localAStar;
 
@@ -31,7 +46,7 @@ public class HAStar {
     private int localPathsUsed;
     private BinaryHeap openList;
 
-    private BitSet closedList = new BitSet(16*1024);
+    private BitSet closedList = new BitSet(16 * 1024);
     private boolean useContour;
 
     private class Node {
@@ -46,6 +61,7 @@ public class HAStar {
     public HAStar() {
         this(true);
     }
+
     public HAStar(boolean useContour) {
         this.useContour = useContour;
         openList = new BinaryHeap(new Comparator<Integer>() {
@@ -53,10 +69,10 @@ public class HAStar {
             public int compare(Integer a, Integer b) {
                 float fA = nodes.get(a).f;
                 float fB = nodes.get(b).f;
-                return -(fA < fB ? -1 : ( fA > fB ? 1 : 0 ));
+                return -(fA < fB ? -1 : (fA > fB ? 1 : 0));
             }
         }, MAX_NODES, MAX_NODES);
-        if( useContour ) {
+        if (useContour) {
             localAStar = new HAStar(false);
         }
     }
@@ -71,7 +87,7 @@ public class HAStar {
 
     private int create(WalkableBlock block) {
         Integer id = nodeMap.get(block);
-        if(id!=null) {
+        if (id != null) {
             return id;
         }
         Node node = new Node();
@@ -82,7 +98,7 @@ public class HAStar {
         return node.id;
     }
 
-    public boolean run( WalkableBlock start, WalkableBlock end ) {
+    public boolean run(WalkableBlock start, WalkableBlock end) {
         reset();
         this.start = create(start);
         this.end = create(end);
@@ -93,21 +109,21 @@ public class HAStar {
         int current = -1;
         while (!openList.isEmpty()) {
             current = openList.removeMin();
-            if( current==this.end ) {
+            if (current == this.end) {
                 break;
             }
-            if( nodes.size()>MAX_NODES-MAX_NODES/10 ){
-                logger.info("stop hpa*... nodes: "+nodes.size());
+            if (nodes.size() > MAX_NODES - MAX_NODES / 10) {
+                logger.info("stop hpa*... nodes: " + nodes.size());
                 break;
             }
-            expand( current );
+            expand(current);
             closedList.set(current);
 
-            if( openList.getSize()>maxSize ) {
+            if (openList.getSize() > maxSize) {
                 maxSize = openList.getSize();
             }
         }
-        return current==this.end;
+        return current == this.end;
     }
 
     public Path getPath() {
@@ -115,10 +131,10 @@ public class HAStar {
         Path path = new Path();
         Node start = nodes.get(this.start);
         Node current = nodes.get(end);
-        while (current!=start && current!=null) {
-            if( current.path!=null ) {
+        while (current != start && current != null) {
+            if (current.path != null) {
                 path.addAll(current.path);
-                localPathsUsed ++;
+                localPathsUsed++;
             } else {
                 path.add(current.block);
             }
@@ -127,16 +143,16 @@ public class HAStar {
         return path;
     }
 
-    protected void expand( int current ) {
+    protected void expand(int current) {
         Node currentNode = nodes.get(current);
         Floor currentFloor = currentNode.block.floor;
         Set<WalkableBlock> neighbors = new HashSet<WalkableBlock>();
         boolean onEndHeightMap = nodes.get(end).block.floor.heightMap == currentFloor.heightMap;
         boolean onStartHeightMap = nodes.get(start).block.floor.heightMap == currentFloor.heightMap;
-        if( !useContour || onEndHeightMap || onStartHeightMap ) {
+        if (!useContour || onEndHeightMap || onStartHeightMap) {
             // normal A* if on start or end height map
             for (WalkableBlock neighbor : currentNode.block.neighbors) {
-                if( neighbor==null ) {
+                if (neighbor == null) {
                     continue;
                 }
                 neighbors.add(neighbor);
@@ -157,12 +173,12 @@ public class HAStar {
 
     private void expandNeighbor(int current, Node currentNode, WalkableBlock neighbor) {
         int successor = create(neighbor);
-        if( closedList.get(successor) ) {
+        if (closedList.get(successor)) {
             return;
         }
         float tentativeG = currentNode.g + c(current, successor);
         Node successorNode = nodes.get(successor);
-        if( openList.contains(successor) && tentativeG>=successorNode.g) {
+        if (openList.contains(successor) && tentativeG >= successorNode.g) {
             return;
         }
         successorNode.path = localPath;
@@ -170,60 +186,60 @@ public class HAStar {
         successorNode.g = tentativeG;
         successorNode.f = tentativeG + h(successor);
 
-        if( openList.contains(successor) ) {
+        if (openList.contains(successor)) {
             openList.update(successor);
         } else {
             openList.insert(successor);
         }
     }
 
-    protected float c( int from, int to ) {
+    protected float c(int from, int to) {
         localPath = null;
         Node fromNode = nodes.get(from);
         Node toNode = nodes.get(to);
         Vector3i fromPos = fromNode.block.getBlockPosition();
         Vector3i toPos = toNode.block.getBlockPosition();
-        int diffX = Math.abs(fromPos.x- toPos.x);
-        int diffY = Math.abs(fromPos.y- toPos.y);
-        int diffZ = Math.abs(fromPos.z- toPos.z);
-        if( toNode.block.hasNeighbor(fromNode.block) ) {
-            if( diffX+diffZ==1 ) {
+        int diffX = Math.abs(fromPos.x - toPos.x);
+        int diffY = Math.abs(fromPos.y - toPos.y);
+        int diffZ = Math.abs(fromPos.z - toPos.z);
+        if (toNode.block.hasNeighbor(fromNode.block)) {
+            if (diffX + diffZ == 1) {
                 return 1;
             } else {
                 return BitMap.SQRT_2;
             }
         }
-        if( fromNode.block.floor.heightMap.pathCache.hasPath(fromNode.block, toNode.block)) {
-            cacheHits ++;
+        if (fromNode.block.floor.heightMap.pathCache.hasPath(fromNode.block, toNode.block)) {
+            cacheHits++;
         }
         localPath = fromNode.block.floor.heightMap.pathCache.findPath(
             fromNode.block, toNode.block, new PathCache.Callback() {
             @Override
             public Path run(WalkableBlock from, WalkableBlock to) {
                 localAStar.reset();
-                if( localAStar.run(from, to) ) {
+                if (localAStar.run(from, to)) {
                     return localAStar.getPath();
                 }
                 return Path.INVALID;
             }
         });
-        if( localPath==null || localPath==Path.INVALID ) {
-            throw new IllegalStateException(fromNode+", "+toNode+ " no costs found!");
+        if (localPath == null || localPath == Path.INVALID) {
+            throw new IllegalStateException(fromNode + ", " + toNode + " no costs found!");
         }
 
         return localPath.size();
     }
 
-    protected float h( int current ) {
+    protected float h(int current) {
         Node fromNode = nodes.get(current);
         Node toNode = nodes.get(end);
         Vector3i fromPos = fromNode.block.getBlockPosition();
         Vector3i toPos = toNode.block.getBlockPosition();
-        return (float) Math.abs(fromPos.x-toPos.x) + Math.abs(fromPos.y-toPos.y) + Math.abs(fromPos.z-toPos.z);
+        return (float) Math.abs(fromPos.x - toPos.x) + Math.abs(fromPos.y - toPos.y) + Math.abs(fromPos.z - toPos.z);
     }
 
     @Override
     public String toString() {
-        return "closed list size="+closedList.cardinality()+", cache hits="+cacheHits+", local paths used="+localPathsUsed;
+        return "closed list size=" + closedList.cardinality() + ", cache hits=" + cacheHits + ", local paths used=" + localPathsUsed;
     }
 }

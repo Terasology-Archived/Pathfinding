@@ -1,3 +1,18 @@
+/*
+ * Copyright 2013 MovingBlocks
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.terasology.pathfinding.model;
 
 import java.util.ArrayList;
@@ -27,38 +42,38 @@ public class AStar {
         gMap = new float[graph.getNumberOfNodes()];
         fMap = new float[graph.getNumberOfNodes()];
         pMap = new int[graph.getNumberOfNodes()];
-        openList = new BinaryHeap( new Comparator<Integer>() {
+        openList = new BinaryHeap(new Comparator<Integer>() {
             public int compare(Integer a, Integer b) {
                 float fA = fMap[a];
                 float fB = fMap[b];
-                return -(fA < fB ? -1 : ( fA > fB ? 1 : 0 ));
+                return -(fA < fB ? -1 : (fA > fB ? 1 : 0));
             }
         }, 1024, graph.getNumberOfNodes());
     }
 
     public void reset() {
-        Arrays.fill( gMap, 0);
-        Arrays.fill( fMap, 0);
-        Arrays.fill( pMap, 0);
+        Arrays.fill(gMap, 0);
+        Arrays.fill(fMap, 0);
+        Arrays.fill(pMap, 0);
         closedList.clear();
         openList.clear();
     }
 
-    public boolean run( int start, int end ) {
+    public boolean run(int start, int end) {
         reset();
         this.start = start;
-        this.end   = end;
+        this.end = end;
 
         fMap[start] = 0;
         openList.insert(start);
 
-        while( !openList.isEmpty() ) {
+        while (!openList.isEmpty()) {
             int current = openList.removeMin();
-            if( current==end ) {
+            if (current == end) {
                 return true;
             }
-            expand( current );
-            closedList.add( current );
+            expand(current);
+            closedList.add(current);
         }
         return false;
     }
@@ -69,48 +84,48 @@ public class AStar {
         getPath(path);
         int id = 0;
         String text = "";
-        for( int y=0; y<graph.getHeight(); y++ ) {
-            for( int x=0; x<graph.getWidth(); x++ ) {
+        for (int y = 0; y < graph.getHeight(); y++) {
+            for (int x = 0; x < graph.getWidth(); x++) {
                 char ch = ' ';
-                if( !graph.isPassable(id) ) {
+                if (!graph.isPassable(id)) {
                     ch = 'X';
                 }
-                if( path.contains(id) ) {
+                if (path.contains(id)) {
                     ch = '*';
                 }
                 text += ch;
-                id ++;
+                id++;
             }
             text += "\n";
         }
         return text;
     }
 
-    public List<Integer> getPath( ) {
+    public List<Integer> getPath() {
         ArrayList<Integer> result = new ArrayList<Integer>();
         getPath(result);
         return result;
     }
 
-    public void getPath( List<Integer> list ) {
+    public void getPath(List<Integer> list) {
         int current = end;
-        while (current!=start && current!=0) {
-            list.add( current );
+        while (current != start && current != 0) {
+            list.add(current);
             current = pMap[current];
         }
         list.add(start);
     }
 
-    protected void expand( int current ) {
+    protected void expand(int current) {
         successors.clear();
-        graph.getSuccessors( current, successors );
+        graph.getSuccessors(current, successors);
         for (Integer successor : successors) {
-            if( closedList.contains(successor) ) {
+            if (closedList.contains(successor)) {
                 continue;
             }
 
-            float tentativeG = gMap[ current ] + c(current, successor);
-            if( openList.contains(successor) && tentativeG >= gMap[successor] ) {
+            float tentativeG = gMap[current] + c(current, successor);
+            if (openList.contains(successor) && tentativeG >= gMap[successor]) {
                 continue;
             }
 
@@ -118,7 +133,7 @@ public class AStar {
             gMap[successor] = tentativeG;
             fMap[successor] = tentativeG + h(successor);
 
-            if( openList.contains(successor) ) {
+            if (openList.contains(successor)) {
                 openList.update(successor);
             } else {
                 openList.insert(successor);
@@ -126,12 +141,12 @@ public class AStar {
         }
     }
 
-    protected float c( int from, int to ) {
-        return graph.exactDistance( from, to );
+    protected float c(int from, int to) {
+        return graph.exactDistance(from, to);
     }
 
-    protected float h( int current ) {
-        return graph.fastDistance( current, end );
+    protected float h(int current) {
+        return graph.fastDistance(current, end);
     }
 
     public float getG(int id) {

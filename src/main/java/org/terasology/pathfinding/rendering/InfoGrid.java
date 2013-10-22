@@ -1,3 +1,18 @@
+/*
+ * Copyright 2013 MovingBlocks
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.terasology.pathfinding.rendering;
 
 import org.lwjgl.BufferUtils;
@@ -32,6 +47,7 @@ public class InfoGrid {
         private Vector3i position;
         private HashMap<String, String> entries = new HashMap<String, String>();
     }
+
     private class Category {
         private String name;
         private Color color;
@@ -47,9 +63,9 @@ public class InfoGrid {
         colors.push(Color.darkGray);
     }
 
-    private GridPosition create( Vector3i pos ) {
+    private GridPosition create(Vector3i pos) {
         GridPosition gp = grid.get(pos);
-        if( gp==null ) {
+        if (gp == null) {
             gp = new GridPosition();
             gp.position = pos;
             grid.put(pos, gp);
@@ -57,9 +73,9 @@ public class InfoGrid {
         return gp;
     }
 
-    public Category addCategory( String name ) {
+    public Category addCategory(String name) {
         for (Category category : categories) {
-            if( category.name.equals(name) ) {
+            if (category.name.equals(name)) {
                 return category;
             }
         }
@@ -70,10 +86,11 @@ public class InfoGrid {
         return category;
     }
 
-    public void removeInfo( Vector3i pos, String category) {
+    public void removeInfo(Vector3i pos, String category) {
         GridPosition gridPosition = create(pos);
         gridPosition.entries.remove(category);
     }
+
     public void removeCategory(String category) {
         for (GridPosition gridPosition : grid.values()) {
             gridPosition.entries.remove(category);
@@ -81,7 +98,8 @@ public class InfoGrid {
         Category category1 = addCategory(category);
         categories.remove(category1);
     }
-    public void addInfo( Vector3i pos, String category, String info ) {
+
+    public void addInfo(Vector3i pos, String category, String info) {
         GridPosition gridPosition = create(pos);
         gridPosition.entries.put(category, info);
         addCategory(category);
@@ -102,7 +120,7 @@ public class InfoGrid {
 
             for (Category category : categories) {
                 String text = gp.entries.get(category.name);
-                if( text!=null ) {
+                if (text != null) {
                     for (String line : text.split("\n")) {
                         font.drawString(0, pos, line, categories.get(cat).color);
                         pos += height;
@@ -116,16 +134,16 @@ public class InfoGrid {
         }
     }
 
-    private void renderBillboardBegin(int textureId, Vector3f position, Vector3f offset, Vector3f scale){
+    private void renderBillboardBegin(int textureId, Vector3f position, Vector3f offset, Vector3f scale) {
 
         glDisable(GL11.GL_CULL_FACE);
 
-        if( textureId>=0 ){
+        if (textureId >= 0) {
             ShaderManager.getInstance().enableDefaultTextured();
             glBindTexture(GL11.GL_TEXTURE_2D, textureId);
         }
 
-        glDepthMask (false);
+        glDepthMask(false);
         glEnable(GL11.GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -135,23 +153,24 @@ public class InfoGrid {
         glPushMatrix();
         applyOrientation();
 
-        if(offset != null){
+        if (offset != null) {
             glTranslatef(offset.x, offset.y, offset.z);
         }
 
-        if(scale != null){
+        if (scale != null) {
             glScalef(scale.x, scale.y, scale.z);
         }
     }
 
-    private void renderBillboardEnd(){
+    private void renderBillboardEnd() {
         glPopMatrix();
         glPopMatrix();
         glDisable(GL11.GL_BLEND);
-        glDepthMask ( true );
+        glDepthMask(true);
         glEnable(GL11.GL_CULL_FACE);
     }
-    private void applyOrientation(){
+
+    private void applyOrientation() {
         // Fetch the current modelview matrix
         final FloatBuffer model = BufferUtils.createFloatBuffer(16);
         GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, model);

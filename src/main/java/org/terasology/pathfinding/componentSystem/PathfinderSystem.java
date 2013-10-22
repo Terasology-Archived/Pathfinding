@@ -1,3 +1,18 @@
+/*
+ * Copyright 2013 MovingBlocks
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.terasology.pathfinding.componentSystem;
 
 import com.google.common.collect.Sets;
@@ -37,11 +52,11 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * This systems helps finding a path through the game world.
- *
+ * <p/>
  * Since path finding takes some time, it completely runs in a background thread. So, a requested path is not
  * available in the moment it is requested. Instead you need to use a callback interface (PathRequest) which methods
  * gets called on the normal game update thread, once the path is ready.
- *
+ * <p/>
  * In addition, paths may change or even get invalid. In such cases the callback interface is called too.
  *
  * @author synopia
@@ -61,7 +76,7 @@ public class PathfinderSystem implements EventHandlerSystem, UpdateSubscriberSys
          * @param path the found path. null if path cannot be requested, since world changes too much. Path.INVALID
          *             if no path can be found between start and target.
          */
-        void onPathReady( Path path );
+        void onPathReady(Path path);
 
         /**
          * Is called once this requested path gets invalid. Invalid paths are processed in background. Once its
@@ -112,7 +127,7 @@ public class PathfinderSystem implements EventHandlerSystem, UpdateSubscriberSys
             WalkableBlock start = pathfinder.getBlock(this.start);
             WalkableBlock target = pathfinder.getBlock(this.target);
             path = null;
-            if( start!=null && target!=null ) {
+            if (start != null && target != null) {
                 path = pathfinder.findPath(target, start);
             }
             processed = true;
@@ -159,11 +174,11 @@ public class PathfinderSystem implements EventHandlerSystem, UpdateSubscriberSys
         return task;
     }
 
-    public HeightMap getHeightMap( Vector3i chunkPos ) {
+    public HeightMap getHeightMap(Vector3i chunkPos) {
         return maps.get(chunkPos);
     }
 
-    public WalkableBlock getBlock( Vector3i pos ) {
+    public WalkableBlock getBlock(Vector3i pos) {
         return pathfinder.getBlock(pos);
     }
 
@@ -183,7 +198,7 @@ public class PathfinderSystem implements EventHandlerSystem, UpdateSubscriberSys
                     while (running) {
                         try {
                             UpdateChunkTask task = updateChunkQueue.poll(1, TimeUnit.SECONDS);
-                            if( task!=null ) {
+                            if (task != null) {
                                 task.process();
                                 monitor.increment(0);
                             } else {
@@ -214,29 +229,29 @@ public class PathfinderSystem implements EventHandlerSystem, UpdateSubscriberSys
         int invalid = 0;
         int processed = 0;
         for (FindPathTask pathTask : tasks) {
-            if( pathTask !=null ) {
+            if (pathTask != null) {
                 processed++;
-                if( pathTask.processed ) {
+                if (pathTask.processed) {
                     continue;
                 }
-                if( pathTask.pathRequest==null ) {
+                if (pathTask.pathRequest == null) {
                     continue;
                 }
-                count ++;
+                count++;
                 pathTask.process();
-                if( pathTask.path==null ) {
-                    invalid ++;
+                if (pathTask.path == null) {
+                    invalid++;
                 }
-                if( pathTask.path== Path.INVALID ) {
-                    notFound ++;
+                if (pathTask.path == Path.INVALID) {
+                    notFound++;
                 }
                 monitor.increment(1);
             }
         }
         float ms = (System.nanoTime() - time) / 1000 / 1000f;
-        if( count>0 ) {
-            logger.info("Searching "+count+" pathes took "+ ms +" ms ("
-                +(1000f/ms*count)+" pps), processed="+processed+", invalid="+invalid+", not found="+notFound);
+        if (count > 0) {
+            logger.info("Searching " + count + " pathes took " + ms + " ms ("
+                + (1000f / ms * count) + " pps), processed=" + processed + ", invalid=" + invalid + ", not found=" + notFound);
         }
     }
 
@@ -244,7 +259,7 @@ public class PathfinderSystem implements EventHandlerSystem, UpdateSubscriberSys
     public void update(float delta) {
         while (!outputQueue.isEmpty()) {
             FindPathTask task = outputQueue.poll();
-            if( task.pathRequest!=null ) {
+            if (task.pathRequest != null) {
                 task.pathRequest.onPathReady(task.path);
             }
         }

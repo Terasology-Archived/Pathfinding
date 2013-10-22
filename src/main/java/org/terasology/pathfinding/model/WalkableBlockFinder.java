@@ -1,3 +1,18 @@
+/*
+ * Copyright 2013 MovingBlocks
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.terasology.pathfinding.model;
 
 import org.terasology.math.Vector3i;
@@ -16,20 +31,20 @@ public class WalkableBlockFinder {
     }
 
     public void findWalkableBlocks(HeightMap map) {
-        int []airMap = new int[HeightMap.SIZE_X*HeightMap.SIZE_Z];
+        int[] airMap = new int[HeightMap.SIZE_X * HeightMap.SIZE_Z];
         Vector3i blockPos = new Vector3i();
         map.walkableBlocks.clear();
         Vector3i worldPos = map.worldPos;
-        for (int y = HeightMap.SIZE_Y-1; y >= 0; y--) {
+        for (int y = HeightMap.SIZE_Y - 1; y >= 0; y--) {
             for (int z = 0; z < HeightMap.SIZE_Z; z++) {
                 for (int x = 0; x < HeightMap.SIZE_X; x++) {
-                    blockPos.set(x+worldPos.x, y+worldPos.y, z+worldPos.z);
+                    blockPos.set(x + worldPos.x, y + worldPos.y, z + worldPos.z);
                     Block block = world.getBlock(blockPos);
                     int offset = x + z * Chunk.SIZE_Z;
-                    if( block.isPenetrable() ) {
+                    if (block.isPenetrable()) {
                         airMap[offset]++;
                     } else {
-                        if( airMap[offset]>=2 ) {
+                        if (airMap[offset] >= 2) {
                             WalkableBlock walkableBlock = new WalkableBlock(blockPos.x, blockPos.z, blockPos.y);
                             map.cells[offset].addBlock(walkableBlock);
                             map.walkableBlocks.add(walkableBlock);
@@ -66,7 +81,7 @@ public class WalkableBlockFinder {
         int dy = HeightMap.DIRECTIONS[direction][1];
         int nx = x + dx;
         int nz = z + dy;
-        if( nx<0 || nz<0 || nx>= HeightMap.SIZE_X || nz>=HeightMap.SIZE_Z ) {
+        if (nx < 0 || nz < 0 || nx >= HeightMap.SIZE_X || nz >= HeightMap.SIZE_Z) {
             map.borderBlocks.add(block);
             return;
         }
@@ -75,28 +90,29 @@ public class WalkableBlockFinder {
             connectBlocks(block, neighborBlock, direction);
         }
     }
-    private void connectBlocks( WalkableBlock block, WalkableBlock neighborBlock, int direction ) {
+
+    private void connectBlocks(WalkableBlock block, WalkableBlock neighborBlock, int direction) {
         int heightDiff = block.height() - neighborBlock.height();
-        boolean diagonal = (direction%2)==1;
-        if( heightDiff==0 ) {
-            if( !diagonal ) {
+        boolean diagonal = (direction % 2) == 1;
+        if (heightDiff == 0) {
+            if (!diagonal) {
                 block.neighbors[direction] = neighborBlock;
             } else {
-                int dx = block.x()-neighborBlock.x();
-                int dz = block.z()-neighborBlock.z();
-                boolean free1 = world.getBlock(block.x()-dx, block.height()+1, block.z()).isPenetrable();
-                free1 &= world.getBlock(block.x()-dx, block.height()+2, block.z()).isPenetrable();
-                boolean free2 = world.getBlock(block.x(), block.height()+1, block.z()-dz).isPenetrable();
-                free2 &= world.getBlock(block.x(), block.height()+2, block.z()-dz).isPenetrable();
-                if( free1&&free2 ) {
+                int dx = block.x() - neighborBlock.x();
+                int dz = block.z() - neighborBlock.z();
+                boolean free1 = world.getBlock(block.x() - dx, block.height() + 1, block.z()).isPenetrable();
+                free1 &= world.getBlock(block.x() - dx, block.height() + 2, block.z()).isPenetrable();
+                boolean free2 = world.getBlock(block.x(), block.height() + 1, block.z() - dz).isPenetrable();
+                free2 &= world.getBlock(block.x(), block.height() + 2, block.z() - dz).isPenetrable();
+                if (free1 && free2) {
                     block.neighbors[direction] = neighborBlock;
                 }
             }
-        } else if( Math.abs(heightDiff)<2 && !diagonal ) {
+        } else if (Math.abs(heightDiff) < 2 && !diagonal) {
             WalkableBlock lower = heightDiff < 0 ? block : neighborBlock;
             WalkableBlock higher = heightDiff < 0 ? neighborBlock : block;
-            Block jumpCheck = world.getBlock(lower.x(), lower.height()+3, lower.z());
-            if( jumpCheck.isPenetrable() ) {
+            Block jumpCheck = world.getBlock(lower.x(), lower.height() + 3, lower.z());
+            if (jumpCheck.isPenetrable()) {
                 block.neighbors[direction] = neighborBlock;
             }
         }

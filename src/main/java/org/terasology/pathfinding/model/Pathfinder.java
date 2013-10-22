@@ -1,3 +1,18 @@
+/*
+ * Copyright 2013 MovingBlocks
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.terasology.pathfinding.model;
 
 import org.slf4j.Logger;
@@ -38,7 +53,7 @@ public class Pathfinder {
                 WalkableBlock refTo = getBlock(to.getBlockPosition());
                 haStar.reset();
                 Path path;
-                if( haStar.run(refFrom, refTo) ) {
+                if (haStar.run(refFrom, refTo)) {
                     path = haStar.getPath();
                     path.add(refFrom);
                 } else {
@@ -49,17 +64,17 @@ public class Pathfinder {
         });
     }
 
-    public HeightMap init( Vector3i chunkPos ) {
+    public HeightMap init(Vector3i chunkPos) {
         clearCache();
         HeightMap heightMap = heightMaps.get(chunkPos);
-        if( heightMap==null ) {
+        if (heightMap == null) {
             long time = System.nanoTime();
             heightMap = new HeightMap(world, chunkPos);
             heightMap.update();
 //            logger.info("Update chunk " + chunkPos + " took " + ((System.nanoTime() - time) / 1000 / 1000f) + " ms");
 //            logger.info("Found " + heightMap);
             heightMaps.put(chunkPos, heightMap);
-            heightMap.connectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1), getNeighbor(chunkPos, 1,0), getNeighbor(chunkPos, 0,1));
+            heightMap.connectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1), getNeighbor(chunkPos, 1, 0), getNeighbor(chunkPos, 0, 1));
         }
         return heightMap;
     }
@@ -70,10 +85,10 @@ public class Pathfinder {
         return heightMaps.get(neighborPos);
     }
 
-    public HeightMap update( Vector3i chunkPos ) {
+    public HeightMap update(Vector3i chunkPos) {
         HeightMap heightMap = heightMaps.remove(chunkPos);
-        if( heightMap!=null ) {
-            heightMap.disconnectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1), getNeighbor(chunkPos, 1,0), getNeighbor(chunkPos, 0,1));
+        if (heightMap != null) {
+            heightMap.disconnectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1), getNeighbor(chunkPos, 1, 0), getNeighbor(chunkPos, 0, 1));
             heightMap.cells = null;
         }
         return init(chunkPos);
@@ -82,7 +97,7 @@ public class Pathfinder {
     public WalkableBlock getBlock(Vector3i pos) {
         Vector3i chunkPos = TeraMath.calcChunkPos(pos);
         HeightMap heightMap = heightMaps.get(chunkPos);
-        if( heightMap!=null ) {
+        if (heightMap != null) {
             return heightMap.getBlock(pos.x, pos.y, pos.z);
         } else {
             return null;

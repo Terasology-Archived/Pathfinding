@@ -1,12 +1,27 @@
+/*
+ * Copyright 2013 MovingBlocks
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.terasology.pathfinding.model;
 
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.terasology.math.Vector3i;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author synopia
@@ -18,77 +33,79 @@ public class HAStarTest {
     @Test
     public void stairs2() {
         executeExample(new String[]{
-                "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXX XXXXX|         |         |XXXXX XXX",
-                "XXX XXXXX|   X     |         |XXX XXXXX|     X   |         |XXXXX XXX",
-                "XXX XXXXX|         |   X     |XXX XXXXX|         |     X   |XXXXX XXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXX XXXXX|         |         |XXXXX XXX",
+            "XXX XXXXX|   X     |         |XXX XXXXX|     X   |         |XXXXX XXX",
+            "XXX XXXXX|         |   X     |XXX XXXXX|         |     X   |XXXXX XXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
         }, new String[]{
-                "?        |         |         |         |         |         |         ",
-                " 1       |         |         |         |         |         |         ",
-                "  2      |         |         |         |         |         |         ",
-                "   3     |         |         |    89   |         |         |         ",
-                "         |   4     |         |    7    |     0   |         |         ",
-                "         |         |   5     |    6    |         |     a   |      b  ",
-                "         |         |         |         |         |         |       c ",
-                "         |         |         |         |         |         |        !",
+            "?        |         |         |         |         |         |         ",
+            " 1       |         |         |         |         |         |         ",
+            "  2      |         |         |         |         |         |         ",
+            "   3     |         |         |    89   |         |         |         ",
+            "         |   4     |         |    7    |     0   |         |         ",
+            "         |         |   5     |    6    |         |     a   |      b  ",
+            "         |         |         |         |         |         |       c ",
+            "         |         |         |         |         |         |        !",
         });
     }
+
     @Test
     public void stairsClosed2() {
         executeExample(new String[]{
-                "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXX XXXXX|         |         |XXXXX XXX",
-                "XXX XXXXX|   X     |         |XXX XXXXX|     X   |         |XXXXX XXX",
-                "XXX XXXXX|         |   X     |XXXXXXXXX|         |     X   |XXXXX XXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXX XXXXX|         |         |XXXXX XXX",
+            "XXX XXXXX|   X     |         |XXX XXXXX|     X   |         |XXXXX XXX",
+            "XXX XXXXX|         |   X     |XXXXXXXXX|         |     X   |XXXXX XXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
         }, new String[]{
-                "?        |         |         |         |         |         |         ",
-                "         |         |         |         |         |         |         ",
-                "         |         |         |         |         |         |         ",
-                "         |         |         |         |         |         |         ",
-                "         |         |         |         |         |         |         ",
-                "         |         |         |         |         |         |         ",
-                "         |         |         |         |         |         |         ",
-                "         |         |         |         |         |         |        !",
+            "?        |         |         |         |         |         |         ",
+            "         |         |         |         |         |         |         ",
+            "         |         |         |         |         |         |         ",
+            "         |         |         |         |         |         |         ",
+            "         |         |         |         |         |         |         ",
+            "         |         |         |         |         |         |         ",
+            "         |         |         |         |         |         |         ",
+            "         |         |         |         |         |         |        !",
         });
     }
+
     @Test
     public void simple() {
-        executeExample( new String[]{
-                "XXX",
-                "XXX",
-                "XXX",
+        executeExample(new String[]{
+            "XXX",
+            "XXX",
+            "XXX",
         }, new String[]{
-                "?  ",
-                " 1 ",
-                "  !"
+            "?  ",
+            " 1 ",
+            "  !"
         });
-        executeExample( new String[]{
-                "XXXXXXXXXXXXXXXX",
-                "             XXX",
-                "XXXXXXXXXXXXXXXX",
-                "XXX             ",
-                "XXXXXXXXXXXXXXXX",
-                "             XXX",
+        executeExample(new String[]{
+            "XXXXXXXXXXXXXXXX",
+            "             XXX",
+            "XXXXXXXXXXXXXXXX",
+            "XXX             ",
+            "XXXXXXXXXXXXXXXX",
+            "             XXX",
         }, new String[]{
-                "?1234567890ab   ",
-                "             c  ",
-                "   mlkjihgfed  ",
-                "  n             ",
-                "   opqrstuvwxyz ",
-                "               !",
+            "?1234567890ab   ",
+            "             c  ",
+            "   mlkjihgfed  ",
+            "  n             ",
+            "   opqrstuvwxyz ",
+            "               !",
         });
 
     }
 
-    private void executeExample( String[] ground, String[] pathData ) {
+    private void executeExample(String[] ground, String[] pathData) {
         final TestHelper helper = new TestHelper();
         helper.setGround(ground);
         helper.map.update();
@@ -105,14 +122,14 @@ public class HAStarTest {
                         end = helper.map.getBlock(x, y, z);
                         break;
                     default:
-                        if( value=='0') {
+                        if (value == '0') {
                             expected.put(10, helper.map.getBlock(x, y, z).getBlockPosition());
-                        } else  if( value>'0' && value<='9') {
-                            expected.put(value-'0', helper.map.getBlock(x, y, z).getBlockPosition());
-                        } else if( value>='a' && value<='z') {
-                            expected.put(value-'a'+11, helper.map.getBlock(x, y, z).getBlockPosition());
-                        } else if( value>='A' && value<='Z') {
-                            expected.put(value-'A'+11+27, helper.map.getBlock(x, y, z).getBlockPosition());
+                        } else if (value > '0' && value <= '9') {
+                            expected.put(value - '0', helper.map.getBlock(x, y, z).getBlockPosition());
+                        } else if (value >= 'a' && value <= 'z') {
+                            expected.put(value - 'a' + 11, helper.map.getBlock(x, y, z).getBlockPosition());
+                        } else if (value >= 'A' && value <= 'Z') {
+                            expected.put(value - 'A' + 11 + 27, helper.map.getBlock(x, y, z).getBlockPosition());
                         }
                         break;
                 }

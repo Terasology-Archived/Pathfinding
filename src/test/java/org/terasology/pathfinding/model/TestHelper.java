@@ -1,10 +1,26 @@
+/*
+ * Copyright 2013 MovingBlocks
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.terasology.pathfinding.model;
 
 import org.terasology.config.Config;
 import org.terasology.game.CoreRegistry;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
-import org.terasology.world.*;
+import org.terasology.world.WorldBiomeProvider;
+import org.terasology.world.WorldProvider;
 import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockUri;
 import org.terasology.world.block.family.SymmetricFamily;
@@ -32,17 +48,19 @@ public class TestHelper {
     public TestHelper() {
         this(null);
     }
+
     public TestHelper(ChunkGenerator generator) {
         CoreRegistry.put(Config.class, new Config());
         world = new TestWorld(generator);
-        map = new HeightMap(world, new Vector3i(0,0,0));
+        map = new HeightMap(world, new Vector3i(0, 0, 0));
     }
 
     public void setGround(int x, int y, int z) {
-        world.setBlock(x,y,z, world.ground, null);
+        world.setBlock(x, y, z, world.ground, null);
     }
+
     public void setAir(int x, int y, int z) {
-        world.setBlock(x,y,z, world.air, null);
+        world.setBlock(x, y, z, world.air, null);
     }
 
     public void setGround(String... lines) {
@@ -54,7 +72,7 @@ public class TestHelper {
                         setGround(x, y, z);
                         break;
                     case ' ':
-                        setAir(x,y,z);
+                        setAir(x, y, z);
                         break;
                 }
                 return 0;
@@ -63,15 +81,16 @@ public class TestHelper {
     }
 
     public String[] evaluate(Runner runner) {
-        return evaluate(runner, 0,0,0, sizeX, sizeY, sizeZ);
+        return evaluate(runner, 0, 0, 0, sizeX, sizeY, sizeZ);
     }
+
     public String[] evaluate(Runner runner, int xs, int ys, int zs, int sizeX, int sizeY, int sizeZ) {
         String[][] table = new String[sizeY][sizeZ];
         for (int y = 0; y < sizeY; y++) {
             for (int z = 0; z < sizeZ; z++) {
                 StringBuilder line = new StringBuilder();
                 for (int x = 0; x < sizeX; x++) {
-                    char value = runner.run(x+xs, y+ys, z+zs, (char) 0);
+                    char value = runner.run(x + xs, y + ys, z + zs, (char) 0);
                     line.append(value);
                 }
                 table[y][z] = line.toString();
@@ -85,26 +104,26 @@ public class TestHelper {
     }
 
     public void parse(Runner runner, String... lines) {
-        String[][] expected  = split("\\|", lines);
-        sizeX=0;
-        sizeY=0;
-        sizeZ=0;
+        String[][] expected = split("\\|", lines);
+        sizeX = 0;
+        sizeY = 0;
+        sizeZ = 0;
 
-        for( int y = 0; y < expected.length; y++ ) {
-            if( y>sizeY ) {
-                sizeY=y;
+        for (int y = 0; y < expected.length; y++) {
+            if (y > sizeY) {
+                sizeY = y;
             }
             for (int z = 0; z < expected[y].length; z++) {
-                if( z>sizeZ ) {
-                    sizeZ=z;
+                if (z > sizeZ) {
+                    sizeZ = z;
                 }
                 String line = expected[y][z];
                 for (int x = 0; x < line.length(); x++) {
-                    if( x>sizeX ) {
-                        sizeX=x;
+                    if (x > sizeX) {
+                        sizeX = x;
                     }
                     char c = line.charAt(x);
-                    runner.run(x,y,z,c);
+                    runner.run(x, y, z, c);
                 }
             }
         }
@@ -113,10 +132,10 @@ public class TestHelper {
         sizeZ++;
     }
 
-    public static String[][] split(String separator, String ...lines) {
+    public static String[][] split(String separator, String... lines) {
         List<List<String>> table = new ArrayList<List<String>>();
         for (String line : lines) {
-            if( line==null || line.length()==0 ) {
+            if (line == null || line.length() == 0) {
                 continue;
             }
             String[] parts = line.split(separator);
@@ -137,12 +156,12 @@ public class TestHelper {
         return result;
     }
 
-    public static String[] combine( String separator, String[][] table ) {
+    public static String[] combine(String separator, String[][] table) {
         String[] result = new String[table[0].length];
         for (int z = 0; z < table[0].length; z++) {
             StringBuilder line = new StringBuilder();
             for (int y = 0; y < table.length; y++) {
-                if( y!=0 ) {
+                if (y != 0) {
                     line.append(separator);
                 }
                 line.append(table[y][z]);
@@ -166,10 +185,11 @@ public class TestHelper {
             ground = new Block();
             ground.setPenetrable(false);
 
-            BlockManager.getInstance().addBlockFamily(new SymmetricFamily(new BlockUri("air"), air) );
-            BlockManager.getInstance().addBlockFamily(new SymmetricFamily(new BlockUri("ground"), ground) );
+            BlockManager.getInstance().addBlockFamily(new SymmetricFamily(new BlockUri("air"), air));
+            BlockManager.getInstance().addBlockFamily(new SymmetricFamily(new BlockUri("ground"), ground));
 
         }
+
         public TestWorld(ChunkGenerator chunkGenerator) {
             this();
             this.chunkGenerator = chunkGenerator;
@@ -209,17 +229,17 @@ public class TestHelper {
         @Override
         public Block getBlock(Vector3i pos) {
             Block block = blocks.get(pos);
-            if( block!=null ) {
+            if (block != null) {
                 return block;
             }
             Vector3i chunkPos = TeraMath.calcChunkPos(pos);
             Chunk chunk = chunks.get(chunkPos);
-            if( chunk==null && chunkGenerator !=null ) {
+            if (chunk == null && chunkGenerator != null) {
                 chunk = new Chunk(chunkPos);
                 chunkGenerator.generateChunk(chunk);
                 chunks.put(chunkPos, chunk);
             }
-            if( chunk!=null ) {
+            if (chunk != null) {
                 return chunk.getBlock(TeraMath.calcBlockPos(pos.x, pos.y, pos.z));
             }
             return air;
@@ -324,7 +344,7 @@ public class TestHelper {
 
         @Override
         public Block getBlock(int x, int y, int z) {
-            return getBlock(new Vector3i(x,y,z));
+            return getBlock(new Vector3i(x, y, z));
         }
 
         @Override
@@ -365,15 +385,14 @@ public class TestHelper {
         }
 
         @Override
-        public  float getFog(float x, float z) {
+        public float getFog(float x, float z) {
             return 0.0f;
         }
     }
 
     public interface Runner {
-        public char run( int x, int y, int z, char value );
+        public char run(int x, int y, int z, char value);
     }
-
 
 
 }

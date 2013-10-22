@@ -1,3 +1,18 @@
+/*
+ * Copyright 2013 MovingBlocks
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.terasology.pathfinding.componentSystem;
 
 import com.google.common.collect.Sets;
@@ -13,7 +28,7 @@ import java.util.Set;
 
 /**
  * This class helps finding and maintaining the shortest path between a start position and a list of target positions.
- *
+ * <p/>
  * A path is requested for each target. Once the shortest of all possible paths is found, the callback is informed.
  * Also, if (and only if) the current path is invalidated, the callback is informed, too.
  *
@@ -34,16 +49,16 @@ public class FindShortestPath {
         this.pathRequest = pathRequest;
     }
 
-    public void updateRequests( Vector3i newStart, List<Vector3i> newTargets ) {
-        if( !newStart.equals(start) ) {
+    public void updateRequests(Vector3i newStart, List<Vector3i> newTargets) {
+        if (!newStart.equals(start)) {
             start = newStart;
             kill();
         }
         Set<Vector3i> currentTasks = Sets.newHashSet(targets.keySet());
-        if( newTargets!=null && newTargets.size()>0 ) {
+        if (newTargets != null && newTargets.size() > 0) {
             for (final Vector3i newTarget : newTargets) {
-                if( !currentTasks.remove(newTarget) ) {
-                    logger.info("Request path "+newStart+" -> "+newTarget);
+                if (!currentTasks.remove(newTarget)) {
+                    logger.info("Request path " + newStart + " -> " + newTarget);
                     targets.put(newTarget, pathfinder.requestPath(start, newTarget, new PathfinderSystem.PathRequest() {
                         @Override
                         public void onPathReady(Path path) {
@@ -52,7 +67,7 @@ public class FindShortestPath {
                             currentPath = null;
                             for (Map.Entry<Vector3i, Path> entry : results.entrySet()) {
                                 Path p = entry.getValue();
-                                if( currentPath==null || currentPath==Path.INVALID || (p!=Path.INVALID && currentPath.size()> p.size()) ) {
+                                if (currentPath == null || currentPath == Path.INVALID || (p != Path.INVALID && currentPath.size() > p.size())) {
                                     currentPath = p;
                                 }
                             }
@@ -61,7 +76,7 @@ public class FindShortestPath {
 
                         @Override
                         public void invalidate() {
-                            if( newTarget.equals(newTarget) ) {
+                            if (newTarget.equals(newTarget)) {
                                 currentPath = null;
                                 pathRequest.invalidate();
                             }
@@ -73,7 +88,7 @@ public class FindShortestPath {
         }
         for (Vector3i currentTask : currentTasks) {
             targets.remove(currentTask).kill();
-            if( results.remove(currentTask)==currentPath) {
+            if (results.remove(currentTask) == currentPath) {
                 currentPath = null;
                 pathRequest.invalidate();
             }

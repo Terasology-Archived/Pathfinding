@@ -1,3 +1,18 @@
+/*
+ * Copyright 2013 MovingBlocks
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.terasology.pathfinding.model;
 
 import junit.framework.Assert;
@@ -30,7 +45,7 @@ public class MazeTest {
             for (int j = 0; j < 100; j++) {
                 for (int i = 0; i <= 160; i++) {
                     WalkableBlock block = pathfinder.getBlock(new Vector3i(i, l, j));
-                    if( block!=null ) {
+                    if (block != null) {
                         sb.append(block.floor.isEntrance(block) ? 'C' : ' ');
                     } else {
                         sb.append(world.getBlock(i, l, j).isPenetrable() ? ' ' : 'X');
@@ -40,7 +55,7 @@ public class MazeTest {
             }
         }
         System.out.println(sb);
-        Assert.assertTrue(pathfinder.findPath(start,target).size()>0);
+        Assert.assertTrue(pathfinder.findPath(start, target).size() > 0);
     }
 
 
@@ -51,12 +66,12 @@ public class MazeTest {
         BlockManager.getInstance().addBlockFamily(new SymmetricFamily(new BlockUri("engine:Dirt"), dirt));
         int width = 160;
         int height = 100;
-        helper = new TestHelper(new MazeChunkGenerator(width, height,4,0, 20));
+        helper = new TestHelper(new MazeChunkGenerator(width, height, 4, 0, 20));
         world = helper.world;
         pathfinder = new Pathfinder(world);
-        for (int x = 0; x < width /16+1; x++) {
-            for (int z = 0; z < height /16+1; z++) {
-                 pathfinder.init(new Vector3i(x,0,z));
+        for (int x = 0; x < width / 16 + 1; x++) {
+            for (int z = 0; z < height / 16 + 1; z++) {
+                pathfinder.init(new Vector3i(x, 0, z));
             }
         }
     }

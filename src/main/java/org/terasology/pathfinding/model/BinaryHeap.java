@@ -1,3 +1,18 @@
+/*
+ * Copyright 2013 MovingBlocks
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.terasology.pathfinding.model;
 
 import java.util.Arrays;
@@ -9,13 +24,13 @@ import java.util.Comparator;
 public class BinaryHeap {
     private static final int DEFAULT_CAPACITY = 1000;
     private static final int DEFAULT_INDEX_SIZE = 1024;
-    private int []heap;
-    private int []itemToIndex;
+    private int[] heap;
+    private int[] itemToIndex;
     private int size;
     private Comparator<Integer> comparator;
 
     public BinaryHeap(Comparator<Integer> comparator) {
-        this( comparator, DEFAULT_CAPACITY, DEFAULT_INDEX_SIZE );
+        this(comparator, DEFAULT_CAPACITY, DEFAULT_INDEX_SIZE);
     }
 
     public BinaryHeap(Comparator<Integer> comparator, int capacity, int indexSize) {
@@ -31,24 +46,24 @@ public class BinaryHeap {
     }
 
     public boolean isEmpty() {
-        return getSize()==0;
+        return getSize() == 0;
     }
 
-    public boolean contains( int item ) {
-        return itemToIndex[item]>-1;
+    public boolean contains(int item) {
+        return itemToIndex[item] > -1;
     }
 
-    public void update( int item ) {
+    public void update(int item) {
         resortUp(itemToIndex[item]);
     }
 
-    public void insert( int item ) {
-        if( heap.length <= size ) {
-            enlarge( heap.length * 2 );
+    public void insert(int item) {
+        if (heap.length <= size) {
+            enlarge(heap.length * 2);
         }
 
         int last = size;
-        size ++;
+        size++;
         heap[last] = item;
         itemToIndex[item] = last;
         resortUp(last);
@@ -56,21 +71,21 @@ public class BinaryHeap {
 
     public int removeMin() {
         int min = heap[0];
-        heap[0] = heap[size-1];
+        heap[0] = heap[size - 1];
         itemToIndex[min] = -1;
         resortDown(0);
         size--;
         return min;
     }
 
-    protected void resortDown( int index ) {
+    protected void resortDown(int index) {
         int value = heap[index];
-        while( index*2+1<size ) {
+        while (index * 2 + 1 < size) {
             int child = index * 2 + 1;
-            if( child<size-1 && comparator.compare(heap[child+1], heap[child])>0 ) {
-                child ++;
+            if (child < size - 1 && comparator.compare(heap[child + 1], heap[child]) > 0) {
+                child++;
             }
-            if( comparator.compare(heap[child], value)>0 ) {
+            if (comparator.compare(heap[child], value) > 0) {
                 heap[index] = heap[child];
                 itemToIndex[heap[child]] = index;
             } else {
@@ -84,18 +99,18 @@ public class BinaryHeap {
 
     protected void resortUp(int index) {
         int value = heap[index];
-        while( index>0 && comparator.compare(heap[index/2], value)<0 ) {
-            heap[index] = heap[index/2];
-            itemToIndex[heap[index/2]] = index;
+        while (index > 0 && comparator.compare(heap[index / 2], value) < 0) {
+            heap[index] = heap[index / 2];
+            itemToIndex[heap[index / 2]] = index;
             index /= 2;
         }
         heap[index] = value;
         itemToIndex[value] = index;
     }
 
-    protected void enlarge( int newSize ) {
+    protected void enlarge(int newSize) {
         int[] array = new int[newSize];
-        System.arraycopy( heap, 0, array, 0, size );
+        System.arraycopy(heap, 0, array, 0, size);
         heap = array;
 
     }
