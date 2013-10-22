@@ -1,7 +1,0 @@
-{
-    "id" : "pathfinding",
-    "displayName" : "Pathfinding",
-    "author" : "synopia",
-    "description" : "",
-    "dependencies" : []
-}
