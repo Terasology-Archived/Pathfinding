@@ -19,10 +19,10 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 import org.terasology.asset.Assets;
-import org.terasology.game.CoreRegistry;
-import org.terasology.logic.manager.ShaderManager;
+import org.terasology.engine.CoreRegistry;
 import org.terasology.math.Vector3i;
-import org.terasology.rendering.assets.Font;
+import org.terasology.rendering.ShaderManager;
+import org.terasology.rendering.assets.font.Font;
 import org.terasology.rendering.world.WorldRenderer;
 
 import javax.vecmath.Vector3f;
@@ -139,7 +139,7 @@ public class InfoGrid {
         glDisable(GL11.GL_CULL_FACE);
 
         if (textureId >= 0) {
-            ShaderManager.getInstance().enableDefaultTextured();
+            CoreRegistry.get(ShaderManager.class).enableDefaultTextured();
             glBindTexture(GL11.GL_TEXTURE_2D, textureId);
         }
 

@@ -18,15 +18,14 @@ package org.terasology.pathfinding;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terasology.engine.CoreRegistry;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.maze.MazeGenerator;
 import org.terasology.world.WorldBiomeProvider;
-import org.terasology.world.WorldView;
 import org.terasology.world.block.Block;
-import org.terasology.world.block.management.BlockManager;
+import org.terasology.world.block.BlockManager;
 import org.terasology.world.chunks.Chunk;
-import org.terasology.world.generator.ChunkGenerator;
-import org.terasology.world.generator.SecondPassChunkGenerator;
+import org.terasology.world.generator.FirstPassGenerator;
 
 import java.util.BitSet;
 import java.util.List;
@@ -36,12 +35,13 @@ import java.util.Random;
 /**
  * @author synopia
  */
-public class MazeChunkGenerator implements ChunkGenerator, SecondPassChunkGenerator {
+public class MazeChunkGenerator implements FirstPassGenerator {
     private static final Logger logger = LoggerFactory.getLogger(MazeChunkGenerator.class);
 
-    public Block air = BlockManager.getInstance().getAir();
-    public Block ground = BlockManager.getInstance().getBlock("engine:Dirt");
-    public Block torch = BlockManager.getInstance().getBlock("engine:Torch.top");
+    public BlockManager blockManager = CoreRegistry.get(BlockManager.class);
+    public Block air = BlockManager.getAir();
+    public Block ground = blockManager.getBlock("engine:Dirt");
+    public Block torch = blockManager.getBlock("engine:Torch.top");
 
     private int width;
     private int height;
@@ -105,22 +105,6 @@ public class MazeChunkGenerator implements ChunkGenerator, SecondPassChunkGenera
         MazeGenerator generator = new MazeGenerator(width, height, random);
         generator.display(maze);
         return maze;
-    }
-
-    @Override
-    public void postProcessChunk(Vector3i chunkPos, WorldView view) {
-//        placeBlockInBounds(view, chunkPos, 1, 50, 1, start);
-//        placeBlockInBounds(view, chunkPos, width-2, 50, height-2, target);
-    }
-
-    private void placeBlockInBounds(WorldView view, Vector3i chunkPos, int x, int y, int z, Block block) {
-        int cpx = x - (chunkPos.x << Chunk.POWER_X);
-        int cpz = z - (chunkPos.z << Chunk.POWER_Z);
-        if (cpx >= 0 && cpx < Chunk.SIZE_X && cpz >= 0 && cpz < Chunk.SIZE_Z) {
-            Vector3i blockPosition = new Vector3i(cpx, y, cpz);
-            view.setBlock(blockPosition, air, view.getBlock(blockPosition));
-//            CoreRegistry.get(BlockEntityRegistry.class).getOrCreateBlockEntityAt(blockPosition);
-        }
     }
 
     @Override

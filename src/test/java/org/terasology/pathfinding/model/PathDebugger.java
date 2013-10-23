@@ -18,10 +18,6 @@ package org.terasology.pathfinding.model;
 import com.google.common.collect.Sets;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.MazeChunkGenerator;
-import org.terasology.world.block.Block;
-import org.terasology.world.block.BlockUri;
-import org.terasology.world.block.family.SymmetricFamily;
-import org.terasology.world.block.management.BlockManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,7 +31,6 @@ import java.util.Set;
  * @author synopia
  */
 public class PathDebugger extends JFrame {
-    private TestHelper.TestWorld world;
     private Pathfinder pathfinder;
     private TestHelper helper;
     private final int mapWidth;
@@ -198,15 +193,11 @@ public class PathDebugger extends JFrame {
     }
 
     public PathDebugger() throws HeadlessException {
-        Block dirt = new Block();
-        dirt.setPenetrable(false);
-        BlockManager.getInstance().addBlockFamily(new SymmetricFamily(new BlockUri("engine:Dirt"), dirt));
         mapWidth = 160;
         mapHeight = 100;
         helper = new TestHelper(new MazeChunkGenerator(mapWidth, mapHeight, 4, 0, 20));
 //        helper = new TestHelper(new PathfinderTestGenerator(true));
-        world = helper.world;
-        pathfinder = new Pathfinder(world);
+        pathfinder = new Pathfinder(helper.world);
         for (int x = 0; x < mapWidth / 16 + 1; x++) {
             for (int z = 0; z < mapHeight / 16 + 1; z++) {
                 pathfinder.init(new Vector3i(x, 0, z));

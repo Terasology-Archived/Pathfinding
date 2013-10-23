@@ -20,16 +20,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.MazeChunkGenerator;
-import org.terasology.world.block.Block;
-import org.terasology.world.block.BlockUri;
-import org.terasology.world.block.family.SymmetricFamily;
-import org.terasology.world.block.management.BlockManager;
+import org.terasology.world.WorldProvider;
 
 /**
  * @author synopia
  */
 public class MazeTest {
-    private TestHelper.TestWorld world;
+    private WorldProvider world;
     private Pathfinder pathfinder;
     private TestHelper helper;
 
@@ -61,9 +58,6 @@ public class MazeTest {
 
     @Before
     public void setup() {
-        Block dirt = new Block();
-        dirt.setPenetrable(false);
-        BlockManager.getInstance().addBlockFamily(new SymmetricFamily(new BlockUri("engine:Dirt"), dirt));
         int width = 160;
         int height = 100;
         helper = new TestHelper(new MazeChunkGenerator(width, height, 4, 0, 20));

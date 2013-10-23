@@ -15,11 +15,12 @@
  */
 package org.terasology.pathfinding;
 
+import org.terasology.engine.CoreRegistry;
 import org.terasology.world.WorldBiomeProvider;
 import org.terasology.world.block.Block;
-import org.terasology.world.block.management.BlockManager;
+import org.terasology.world.block.BlockManager;
 import org.terasology.world.chunks.Chunk;
-import org.terasology.world.generator.ChunkGenerator;
+import org.terasology.world.generator.FirstPassGenerator;
 
 import java.util.Map;
 
@@ -28,9 +29,9 @@ import java.util.Map;
  *
  * @author synopia
  */
-public class PathfinderTestGenerator implements ChunkGenerator {
-    public Block air = BlockManager.getInstance().getAir();
-    public Block ground = BlockManager.getInstance().getBlock("engine:Dirt");
+public class PathfinderTestGenerator implements FirstPassGenerator {
+    public Block air = BlockManager.getAir();
+    public Block ground = CoreRegistry.get(BlockManager.class).getBlock("engine:Dirt");
     public boolean generateStairs;
 
     public PathfinderTestGenerator() {

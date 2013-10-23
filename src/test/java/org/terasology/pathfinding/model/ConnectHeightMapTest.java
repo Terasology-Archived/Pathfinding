@@ -18,12 +18,9 @@ package org.terasology.pathfinding.model;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.terasology.TerasologyTestingEnvironment;
 import org.terasology.math.Vector3i;
-import org.terasology.pathfinding.PathfinderTestGenerator;
-import org.terasology.world.block.Block;
-import org.terasology.world.block.BlockUri;
-import org.terasology.world.block.family.SymmetricFamily;
-import org.terasology.world.block.management.BlockManager;
+import org.terasology.world.WorldProvider;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -31,9 +28,8 @@ import java.util.Set;
 /**
  * @author synopia
  */
-public class ConnectHeightMapTest {
-
-    private TestHelper.TestWorld world;
+public class ConnectHeightMapTest extends TerasologyTestingEnvironment {
+    private WorldProvider world;
     private TestHelper helper;
 
     public static String[] contourExpected = new String[]{
@@ -121,11 +117,7 @@ public class ConnectHeightMapTest {
 
     @Before
     public void setup() {
-        Block dirt = new Block();
-        dirt.setPenetrable(false);
-        BlockManager.getInstance().addBlockFamily(new SymmetricFamily(new BlockUri("engine:Dirt"), dirt));
-        helper = new TestHelper(new PathfinderTestGenerator(false));
-        world = helper.world;
+        helper = new TestHelper();
     }
 
     private void assertCenter(HeightMap center, HeightMap left, HeightMap up, HeightMap right, HeightMap down) {

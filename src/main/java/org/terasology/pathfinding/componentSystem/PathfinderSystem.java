@@ -18,26 +18,22 @@ package org.terasology.pathfinding.componentSystem;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.componentSystem.UpdateSubscriberSystem;
-import org.terasology.components.world.WorldComponent;
-import org.terasology.entitySystem.EntityRef;
-import org.terasology.entitySystem.EventHandlerSystem;
-import org.terasology.entitySystem.In;
-import org.terasology.entitySystem.ReceiveEvent;
-import org.terasology.entitySystem.RegisterComponentSystem;
-import org.terasology.game.CoreRegistry;
+import org.terasology.engine.CoreRegistry;
+import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.entitySystem.event.ReceiveEvent;
+import org.terasology.entitySystem.systems.In;
+import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
-import org.terasology.monitoring.ThreadMonitor;
-import org.terasology.monitoring.impl.SingleThreadMonitor;
 import org.terasology.pathfinding.model.HeightMap;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.Pathfinder;
 import org.terasology.pathfinding.model.WalkableBlock;
-import org.terasology.world.BlockChangedEvent;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.block.BlockComponent;
-import org.terasology.world.chunks.ChunkReadyEvent;
+import org.terasology.world.chunks.remoteChunkProvider.ChunkReadyListener;
+import org.terasology.world.propagation.BlockChange;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -61,8 +57,8 @@ import java.util.concurrent.TimeUnit;
  *
  * @author synopia
  */
-@RegisterComponentSystem
-public class PathfinderSystem implements EventHandlerSystem, UpdateSubscriberSystem {
+@RegisterSystem
+public class PathfinderSystem implements ChunkReadyListener, UpdateSubscriberSystem {
     private static final Logger logger = LoggerFactory.getLogger(PathfinderSystem.class);
 
     /**
@@ -124,11 +120,11 @@ public class PathfinderSystem implements EventHandlerSystem, UpdateSubscriberSys
          * This method should be called from a thread only, it may take long.
          */
         public void process() {
-            WalkableBlock start = pathfinder.getBlock(this.start);
-            WalkableBlock target = pathfinder.getBlock(this.target);
+            WalkableBlock startBlock = pathfinder.getBlock(this.start);
+            WalkableBlock targetBlock = pathfinder.getBlock(this.target);
             path = null;
             if (start != null && target != null) {
-                path = pathfinder.findPath(target, start);
+                path = pathfinder.findPath(targetBlock, startBlock);
             }
             processed = true;
             outputQueue.offer(this);
@@ -191,36 +187,29 @@ public class PathfinderSystem implements EventHandlerSystem, UpdateSubscriberSys
         inputThreads.execute(new Runnable() {
             @Override
             public void run() {
-                final SingleThreadMonitor monitor = ThreadMonitor.create("Pathfinder.Requests", "Update", "FindPath");
-                try {
-                    boolean running = true;
-                    Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-                    while (running) {
-                        try {
-                            UpdateChunkTask task = updateChunkQueue.poll(1, TimeUnit.SECONDS);
-                            if (task != null) {
-                                task.process();
-                                monitor.increment(0);
-                            } else {
-                                findPaths(monitor, Sets.newHashSet(taskMap));
-                            }
-                        } catch (InterruptedException e) {
-                            monitor.addError(e);
-                            logger.error("Thread interrupted", e);
-                        } catch (Exception e) {
-                            monitor.addError(e);
-                            logger.error("Error in thread", e);
+
+                boolean running = true;
+                Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+                while (running) {
+                    try {
+                        UpdateChunkTask task = updateChunkQueue.poll(1, TimeUnit.SECONDS);
+                        if (task != null) {
+                            task.process();
+                        } else {
+                            findPaths(Sets.newHashSet(taskMap));
                         }
+                    } catch (InterruptedException e) {
+                        logger.error("Thread interrupted", e);
+                    } catch (Exception e) {
+                        logger.error("Error in thread", e);
                     }
-                    logger.debug("Thread shutdown safely");
-                } finally {
-                    monitor.setActive(false);
                 }
+                logger.debug("Thread shutdown safely");
             }
         });
     }
 
-    private void findPaths(SingleThreadMonitor monitor, Set<FindPathTask> tasks) {
+    private void findPaths(Set<FindPathTask> tasks) {
         pathfinder.clearCache();
 
         int count = 0;
@@ -245,7 +234,6 @@ public class PathfinderSystem implements EventHandlerSystem, UpdateSubscriberSys
                 if (pathTask.path == Path.INVALID) {
                     notFound++;
                 }
-                monitor.increment(1);
             }
         }
         float ms = (System.nanoTime() - time) / 1000 / 1000f;
@@ -271,15 +259,14 @@ public class PathfinderSystem implements EventHandlerSystem, UpdateSubscriberSys
     }
 
     @ReceiveEvent(components = BlockComponent.class)
-    public void blockChanged(BlockChangedEvent event, EntityRef entity) {
-        Vector3i chunkPos = TeraMath.calcChunkPos(event.getBlockPosition());
+    public void blockChanged(BlockChange event, EntityRef entity) {
+        Vector3i chunkPos = TeraMath.calcChunkPos(event.getPosition());
         invalidateChunk(chunkPos);
         updateChunkQueue.offer(new UpdateChunkTask(chunkPos));
     }
 
-    @ReceiveEvent(components = WorldComponent.class)
-    public void chunkReady(ChunkReadyEvent event, EntityRef worldEntity) {
-        Vector3i chunkPos = new Vector3i(event.getChunkPos());
+    @Override
+    public void onChunkReady(Vector3i chunkPos) {
         invalidateChunk(chunkPos);
         updateChunkQueue.offer(new UpdateChunkTask(chunkPos));
     }

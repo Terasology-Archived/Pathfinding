@@ -20,17 +20,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.PathfinderTestGenerator;
-import org.terasology.world.block.Block;
-import org.terasology.world.block.BlockUri;
-import org.terasology.world.block.family.SymmetricFamily;
-import org.terasology.world.block.management.BlockManager;
 import org.terasology.world.chunks.Chunk;
 
 /**
  * @author synopia
  */
 public class PathfinderTest {
-    private TestHelper.TestWorld world;
     private Pathfinder pathfinder;
     private TestHelper helper;
 
@@ -98,12 +93,8 @@ public class PathfinderTest {
 
     @Before
     public void setup() {
-        Block dirt = new Block();
-        dirt.setPenetrable(false);
-        BlockManager.getInstance().addBlockFamily(new SymmetricFamily(new BlockUri("engine:Dirt"), dirt));
         helper = new TestHelper(new PathfinderTestGenerator(true));
-        world = helper.world;
-        pathfinder = new Pathfinder(world);
+        pathfinder = new Pathfinder(helper.world);
     }
 
 }

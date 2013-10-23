@@ -15,21 +15,22 @@
  */
 package org.terasology.pathfinding.model;
 
-import org.terasology.config.Config;
-import org.terasology.game.CoreRegistry;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
+import org.terasology.world.ChunkView;
 import org.terasology.world.WorldBiomeProvider;
+import org.terasology.world.WorldChangeListener;
 import org.terasology.world.WorldProvider;
+import org.terasology.world.WorldProviderCore;
 import org.terasology.world.block.Block;
-import org.terasology.world.block.BlockUri;
-import org.terasology.world.block.family.SymmetricFamily;
-import org.terasology.world.block.management.BlockManager;
+import org.terasology.world.block.BlockManager;
 import org.terasology.world.chunks.Chunk;
-import org.terasology.world.generator.ChunkGenerator;
+import org.terasology.world.generator.FirstPassGenerator;
+import org.terasology.world.internal.WorldInfo;
+import org.terasology.world.internal.WorldProviderWrapper;
 import org.terasology.world.liquid.LiquidData;
+import org.terasology.world.time.WorldTime;
 
-import javax.vecmath.Vector3f;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,27 +41,32 @@ import java.util.Map;
  */
 public class TestHelper {
     public HeightMap map;
-    public TestWorld world;
+    public WorldProvider world;
     public int sizeX;
     public int sizeY;
     public int sizeZ;
+    public Block ground;
 
     public TestHelper() {
         this(null);
     }
 
-    public TestHelper(ChunkGenerator generator) {
-        CoreRegistry.put(Config.class, new Config());
-        world = new TestWorld(generator);
+    public TestHelper(FirstPassGenerator generator) {
+//        Block dirt = new Block();
+//        dirt.setPenetrable(false);
+//        CoreRegistry.get(BlockManager.class).addBlockFamily(new SymmetricFamily(new BlockUri("engine:Dirt"), dirt));
+
+        WorldProviderCore worldStub = new TestWorld(BlockManager.getAir(), generator);
+        world = new WorldProviderWrapper(worldStub);
         map = new HeightMap(world, new Vector3i(0, 0, 0));
     }
 
     public void setGround(int x, int y, int z) {
-        world.setBlock(x, y, z, world.ground, null);
+        world.setBlock(new Vector3i(x, y, z), ground);
     }
 
     public void setAir(int x, int y, int z) {
-        world.setBlock(x, y, z, world.air, null);
+        world.setBlock(new Vector3i(x, y, z), BlockManager.getAir());
     }
 
     public void setGround(String... lines) {
@@ -133,7 +139,7 @@ public class TestHelper {
     }
 
     public static String[][] split(String separator, String... lines) {
-        List<List<String>> table = new ArrayList<List<String>>();
+        List<List<String>> table = new ArrayList<>();
         for (String line : lines) {
             if (line == null || line.length() == 0) {
                 continue;
@@ -171,63 +177,48 @@ public class TestHelper {
         return result;
     }
 
-    public static class TestWorld implements WorldProvider {
-        private Map<Vector3i, Block> blocks = new HashMap<Vector3i, Block>();
-        private Map<Vector3i, Chunk> chunks = new HashMap<Vector3i, Chunk>();
-        private ChunkGenerator chunkGenerator;
-        public Block air;
-        public Block ground;
+    public static class TestWorld implements WorldProviderCore {
+        private Map<Vector3i, Block> blocks = new HashMap<>();
+        private Map<Vector3i, Chunk> chunks = new HashMap<>();
+        private FirstPassGenerator chunkGenerator;
+        private Block air;
 
-        public TestWorld() {
-            air = new Block();
-            air.setPenetrable(true);
-
-            ground = new Block();
-            ground.setPenetrable(false);
-
-            BlockManager.getInstance().addBlockFamily(new SymmetricFamily(new BlockUri("air"), air));
-            BlockManager.getInstance().addBlockFamily(new SymmetricFamily(new BlockUri("ground"), ground));
-
-        }
-
-        public TestWorld(ChunkGenerator chunkGenerator) {
-            this();
+        public TestWorld(Block air, FirstPassGenerator chunkGenerator) {
+            this.air = air;
             this.chunkGenerator = chunkGenerator;
         }
 
         @Override
-        public boolean isBlockActive(Vector3i pos) {
-            return true;
+        public void processPropagation() {
         }
 
         @Override
-        public boolean isBlockActive(Vector3f pos) {
-            return true;
+        public void registerListener(WorldChangeListener listener) {
         }
 
         @Override
-        public boolean setBlock(Vector3i pos, Block type, Block oldType) {
-            blocks.put(pos, type);
-            return true;
+        public void unregisterListener(WorldChangeListener listener) {
         }
 
         @Override
-        public boolean setLiquid(Vector3i pos, LiquidData state, LiquidData oldState) {
+        public boolean isBlockRelevant(int x, int y, int z) {
             return false;
         }
 
         @Override
-        public LiquidData getLiquid(Vector3i blockPos) {
-            return null;
+        public Block setBlock(Vector3i pos, Block type) {
+            return blocks.put(pos, type);
         }
 
         @Override
-        public Block getBlock(Vector3f pos) {
-            return getBlock(new Vector3i((int) pos.x, (int) pos.y, (int) pos.z));
+        public float getFog(float x, float y, float z) {
+            return 0;
         }
 
+
         @Override
-        public Block getBlock(Vector3i pos) {
+        public Block getBlock(int x, int y, int z) {
+            Vector3i pos = new Vector3i(x, y, z);
             Block block = blocks.get(pos);
             if (block != null) {
                 return block;
@@ -246,36 +237,6 @@ public class TestHelper {
         }
 
         @Override
-        public byte getLight(Vector3f pos) {
-            return 0;
-        }
-
-        @Override
-        public byte getSunlight(Vector3f pos) {
-            return 0;
-        }
-
-        @Override
-        public byte getTotalLight(Vector3f pos) {
-            return 0;
-        }
-
-        @Override
-        public byte getLight(Vector3i pos) {
-            return 0;
-        }
-
-        @Override
-        public byte getSunlight(Vector3i pos) {
-            return 0;
-        }
-
-        @Override
-        public byte getTotalLight(Vector3i pos) {
-            return 0;
-        }
-
-        @Override
         public String getTitle() {
             return "";
         }
@@ -288,6 +249,7 @@ public class TestHelper {
         @Override
         public WorldInfo getWorldInfo() {
             return null;
+
         }
 
         @Override
@@ -296,41 +258,15 @@ public class TestHelper {
         }
 
         @Override
-        public WorldView getLocalView(Vector3i chunk) {
+        public ChunkView getLocalView(Vector3i chunk) {
             return null;
         }
 
         @Override
-        public WorldView getWorldViewAround(Vector3i chunk) {
+        public ChunkView getWorldViewAround(Vector3i chunk) {
             return null;
         }
 
-        @Override
-        public boolean isBlockActive(int x, int y, int z) {
-            return true;
-        }
-
-        @Override
-        public boolean setBlocks(BlockUpdate... updates) {
-            for (BlockUpdate update : updates) {
-                setBlock(update.getPosition(), update.getNewType(), update.getOldType());
-            }
-            return true;
-        }
-
-        @Override
-        public boolean setBlocks(Iterable<BlockUpdate> updates) {
-            for (BlockUpdate update : updates) {
-                setBlock(update.getPosition(), update.getNewType(), update.getOldType());
-            }
-            return true;
-        }
-
-        @Override
-        public boolean setBlock(int x, int y, int z, Block type, Block oldType) {
-            setBlock(new Vector3i(x, y, z), type, oldType);
-            return true;
-        }
 
         @Override
         public boolean setLiquid(int x, int y, int z, LiquidData newData, LiquidData oldData) {
@@ -340,11 +276,6 @@ public class TestHelper {
         @Override
         public LiquidData getLiquid(int x, int y, int z) {
             return null;
-        }
-
-        @Override
-        public Block getBlock(int x, int y, int z) {
-            return getBlock(new Vector3i(x, y, z));
         }
 
         @Override
@@ -363,35 +294,17 @@ public class TestHelper {
         }
 
         @Override
-        public long getTime() {
-            return 0;
-        }
-
-        @Override
-        public void setTime(long time) {
-        }
-
-        @Override
-        public float getTimeInDays() {
-            return 0;
-        }
-
-        @Override
-        public void setTimeInDays(float time) {
+        public WorldTime getTime() {
+            return null;
         }
 
         @Override
         public void dispose() {
         }
-
-        @Override
-        public float getFog(float x, float z) {
-            return 0.0f;
-        }
     }
 
     public interface Runner {
-        public char run(int x, int y, int z, char value);
+        char run(int x, int y, int z, char value);
     }
 
 
