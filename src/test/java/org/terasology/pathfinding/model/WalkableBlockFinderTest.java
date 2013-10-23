@@ -25,6 +25,8 @@ public class WalkableBlockFinderTest {
     @Test
     public void testNeighbors4() {
         TestHelper helper = new TestHelper();
+        helper.init();
+
         helper.setGround(
             "XXX|   |   |",
             "XXX|X  |X  |",
@@ -42,6 +44,8 @@ public class WalkableBlockFinderTest {
     @Test
     public void testNeighbors3() {
         TestHelper helper = new TestHelper();
+        helper.init();
+
         helper.setGround(
             "XXXXXX|      |      |      |XXXXXX|",
             "XX    |  X   |   X  |    X |  X  X|",
@@ -59,6 +63,8 @@ public class WalkableBlockFinderTest {
     @Test
     public void testNeighbors2() {
         TestHelper helper = new TestHelper();
+        helper.init();
+
         helper.setGround(
             " X ",
             "X X",
@@ -157,6 +163,8 @@ public class WalkableBlockFinderTest {
 
     private void assertNeighbors3x3(String... data) {
         final TestHelper helper = new TestHelper();
+        helper.init();
+
         helper.setGround(data);
         WalkableBlockFinder finder = new WalkableBlockFinder(helper.world);
         finder.findWalkableBlocks(helper.map);
@@ -195,6 +203,8 @@ public class WalkableBlockFinderTest {
 
     private void assertWalkableBlocks(String[] data, String[] walkable) {
         final TestHelper helper = new TestHelper();
+        helper.init();
+
         helper.setGround(data);
         WalkableBlockFinder finder = new WalkableBlockFinder(helper.world);
         finder.findWalkableBlocks(helper.map);

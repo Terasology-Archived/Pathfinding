@@ -17,6 +17,7 @@ package org.terasology.pathfinding.model;
 
 import junit.framework.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.MazeChunkGenerator;
@@ -30,6 +31,7 @@ public class MazeTest {
     private Pathfinder pathfinder;
     private TestHelper helper;
 
+    @Ignore
     @Test
     public void test() {
         WalkableBlock start = pathfinder.getBlock(new Vector3i(55, 6, 1));
@@ -60,7 +62,8 @@ public class MazeTest {
     public void setup() {
         int width = 160;
         int height = 100;
-        helper = new TestHelper(new MazeChunkGenerator(width, height, 4, 0, 20));
+        helper = new TestHelper();
+        helper.init(new MazeChunkGenerator(width, height, 4, 0, 20));
         world = helper.world;
         pathfinder = new Pathfinder(world);
         for (int x = 0; x < width / 16 + 1; x++) {

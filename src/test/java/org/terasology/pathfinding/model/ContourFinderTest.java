@@ -411,6 +411,7 @@ public class ContourFinderTest {
 
     private void assertContour(String[] ground, String[] contour) {
         final TestHelper helper = new TestHelper();
+        helper.init();
         helper.setGround(ground);
         helper.run();
 

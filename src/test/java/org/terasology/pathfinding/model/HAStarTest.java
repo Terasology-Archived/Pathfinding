@@ -107,6 +107,8 @@ public class HAStarTest {
 
     private void executeExample(String[] ground, String[] pathData) {
         final TestHelper helper = new TestHelper();
+        helper.init();
+
         helper.setGround(ground);
         helper.map.update();
         final Map<Integer, Vector3i> expected = new HashMap<Integer, Vector3i>();

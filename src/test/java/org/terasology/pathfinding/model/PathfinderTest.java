@@ -93,7 +93,8 @@ public class PathfinderTest {
 
     @Before
     public void setup() {
-        helper = new TestHelper(new PathfinderTestGenerator(true));
+        helper = new TestHelper();
+        helper.init(new PathfinderTestGenerator(true));
         pathfinder = new Pathfinder(helper.world);
     }
 

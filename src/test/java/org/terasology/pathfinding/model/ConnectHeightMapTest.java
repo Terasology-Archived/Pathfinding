@@ -18,8 +18,8 @@ package org.terasology.pathfinding.model;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.terasology.TerasologyTestingEnvironment;
 import org.terasology.math.Vector3i;
+import org.terasology.pathfinding.PathfinderTestGenerator;
 import org.terasology.world.WorldProvider;
 
 import java.util.HashSet;
@@ -28,7 +28,7 @@ import java.util.Set;
 /**
  * @author synopia
  */
-public class ConnectHeightMapTest extends TerasologyTestingEnvironment {
+public class ConnectHeightMapTest {
     private WorldProvider world;
     private TestHelper helper;
 
@@ -73,8 +73,6 @@ public class ConnectHeightMapTest extends TerasologyTestingEnvironment {
         center.update();
         center.connectNeighborMaps(left, up, right, down);
         assertCenter(center, left, up, right, down, contourExpected);
-
-
     }
 
     @Test
@@ -118,6 +116,8 @@ public class ConnectHeightMapTest extends TerasologyTestingEnvironment {
     @Before
     public void setup() {
         helper = new TestHelper();
+        helper.init(new PathfinderTestGenerator());
+        world = helper.world;
     }
 
     private void assertCenter(HeightMap center, HeightMap left, HeightMap up, HeightMap right, HeightMap down) {

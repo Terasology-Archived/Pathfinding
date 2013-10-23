@@ -149,6 +149,8 @@ public class RegionFinderTest {
 
     private void assertRegions(String[] data, String[] regions, int[][] connections) {
         final TestHelper helper = new TestHelper();
+        helper.init();
+
         helper.setGround(
             data
         );

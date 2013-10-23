@@ -307,6 +307,7 @@ public class FloorFinderTest {
 
     private void assertFloors(String[] data, String[] floors, String[] contour, int[][] connections) {
         final TestHelper helper = new TestHelper();
+        helper.init();
         helper.setGround(
             data
         );

@@ -15,6 +15,8 @@
  */
 package org.terasology.pathfinding.model;
 
+import org.terasology.config.Config;
+import org.terasology.engine.CoreRegistry;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
 import org.terasology.world.ChunkView;
@@ -24,6 +26,8 @@ import org.terasology.world.WorldProvider;
 import org.terasology.world.WorldProviderCore;
 import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockManager;
+import org.terasology.world.block.BlockUri;
+import org.terasology.world.block.family.BlockFamily;
 import org.terasology.world.chunks.Chunk;
 import org.terasology.world.generator.FirstPassGenerator;
 import org.terasology.world.internal.WorldInfo;
@@ -48,17 +52,118 @@ public class TestHelper {
     public Block ground;
 
     public TestHelper() {
-        this(null);
+        CoreRegistry.put(Config.class, new Config());
+        ground = new Block();
+        ground.setPenetrable(false);
+        ground.setUri(new BlockUri("test:ground"));
+        ground.setId((short) 1);
+        CoreRegistry.put(BlockManager.class, new BlockManager() {
+            @Override
+            public List<BlockUri> resolveBlockUri(String uri) {
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public Map<String, Short> getBlockIdMap() {
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public Iterable<BlockUri> getBlockFamiliesWithCategory(String category) {
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public Iterable<String> getBlockCategories() {
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public BlockFamily getBlockFamily(String uri) {
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public BlockFamily getBlockFamily(BlockUri uri) {
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public Block getBlock(String uri) {
+                return ground;
+            }
+
+            @Override
+            public Block getBlock(BlockUri uri) {
+                return ground;
+            }
+
+            @Override
+            public Block getBlock(short id) {
+                return id == 0 ? getAir() : ground;
+            }
+
+            @Override
+            public Iterable<BlockUri> listRegisteredBlockUris() {
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public Iterable<BlockFamily> listRegisteredBlockFamilies() {
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public Iterable<BlockUri> listFreeformBlockUris() {
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public boolean isFreeformFamily(BlockUri familyUri) {
+                return false;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public Iterable<BlockFamily> listAvailableBlockFamilies() {
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public BlockFamily getAvailableBlockFamily(BlockUri uri) {
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public Iterable<BlockUri> listAvailableBlockUris() {
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public int getBlockFamilyCount() {
+                return 0;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public boolean hasBlockFamily(BlockUri uri) {
+                return false;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public Iterable<Block> listRegisteredBlocks() {
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+        });
     }
 
-    public TestHelper(FirstPassGenerator generator) {
-//        Block dirt = new Block();
-//        dirt.setPenetrable(false);
-//        CoreRegistry.get(BlockManager.class).addBlockFamily(new SymmetricFamily(new BlockUri("engine:Dirt"), dirt));
+    public void init() {
+        init(null);
+    }
 
+    public void init(FirstPassGenerator generator) {
         WorldProviderCore worldStub = new TestWorld(BlockManager.getAir(), generator);
         world = new WorldProviderWrapper(worldStub);
         map = new HeightMap(world, new Vector3i(0, 0, 0));
+
     }
 
     public void setGround(int x, int y, int z) {
