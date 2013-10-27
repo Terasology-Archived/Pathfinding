@@ -1,0 +1,14 @@
+{
+    "parent" : "engine:iconItem",
+    "Item" : {
+        "name" : "Red Pawn Spawn",
+        "icon" : "scissors",
+		"usage" : "ON_BLOCK"
+    },
+  	"PlaySoundAction" : {
+    	sounds = "engine:click"
+  	},
+    "Spawner" : {
+        "prefab" = "Pathfinding:redPawn"
+    }
+}

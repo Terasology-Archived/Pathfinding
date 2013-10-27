@@ -15,33 +15,12 @@
  */
 package org.terasology.minion;
 
-import org.terasology.entitySystem.event.Event;
-import org.terasology.math.Vector3i;
-import org.terasology.pathfinding.model.Path;
+import org.terasology.entitySystem.Component;
+import org.terasology.entitySystem.prefab.Prefab;
 
 /**
  * @author synopia
  */
-public class MovingPathFinishedEvent implements Event {
-    private final int pathId;
-    private final Vector3i target;
-    private final Path path;
-
-    public MovingPathFinishedEvent(int pathId, Vector3i target, Path path) {
-        this.pathId = pathId;
-        this.target = target;
-        this.path = path;
-    }
-
-    public Vector3i getTarget() {
-        return target;
-    }
-
-    public int getPathId() {
-        return pathId;
-    }
-
-    public Path getPath() {
-        return path;
-    }
+public class SpawnerComponent implements Component {
+    public Prefab prefab;
 }

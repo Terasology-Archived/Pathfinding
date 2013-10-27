@@ -94,16 +94,24 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
          */
         public void process() {
             WalkableBlock[] startBlocks = new WalkableBlock[start.length];
+            int startCount = 0;
             for (int i = 0; i < start.length; i++) {
-                startBlocks[i] = pathfinder.getBlock(this.start[i]);
+                if (this.start[i] != null) {
+                    startBlocks[i] = pathfinder.getBlock(this.start[i]);
+                    startCount++;
+                }
             }
             WalkableBlock targetBlock = pathfinder.getBlock(this.target);
             paths = null;
-            if (start != null && target != null) {
+            if (targetBlock != null && startCount > 0) {
                 paths = pathfinder.findPath(targetBlock, startBlocks);
             }
             processed = true;
             entity.send(new PathReadyEvent(pathId, paths, targetBlock, startBlocks));
+        }
+
+        public void cancel() {
+            entity.send(new PathReadyEvent(pathId, null, null, null));
         }
     }
 
@@ -111,7 +119,7 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
     private WorldProvider world;
 
     private BlockingQueue<UpdateChunkTask> updateChunkQueue = new ArrayBlockingQueue<>(100);
-    private BlockingQueue<FindPathTask> findPathTasks = new ArrayBlockingQueue<>(100);
+    private BlockingQueue<FindPathTask> findPathTasks = new ArrayBlockingQueue<>(1000);
     private Set<Vector3i> invalidChunks = Collections.synchronizedSet(new HashSet<Vector3i>());
 
     private ExecutorService inputThreads;
@@ -124,25 +132,23 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
         CoreRegistry.put(PathfinderSystem.class, this);
     }
 
-    public int requestPath(EntityRef requestor, Vector3f target, Vector3f... starts ) {
+    public int requestPath(EntityRef requestor, Vector3f target, Vector3f... starts) {
         Vector3i[] _starts = new Vector3i[starts.length];
         WalkableBlock block;
         for (int i = 0; i < starts.length; i++) {
             block = getBlock(starts[i]);
-            if( block!=null ) {
+            if (block != null) {
                 _starts[i] = block.getBlockPosition();
-            } else {
-                throw new IllegalArgumentException(starts[i]+" is no valid walkable block");
             }
         }
         block = getBlock(target);
-        if( block!=null ) {
-            return requestPath(requestor, block.getBlockPosition(), _starts );
-        } else {
-            throw new IllegalArgumentException(target+" is no valid walkable block");
+        if (block != null) {
+            return requestPath(requestor, block.getBlockPosition(), _starts);
         }
+        return -1;
     }
-    public int requestPath(EntityRef requestor, Vector3i target, Vector3i... start ) {
+
+    public int requestPath(EntityRef requestor, Vector3i target, Vector3i... start) {
         FindPathTask task = new FindPathTask(start, target, requestor);
         findPathTasks.add(task);
         return task.pathId;
@@ -157,12 +163,12 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
     }
 
     public WalkableBlock getBlock(Vector3f pos) {
-        Vector3i blockPos = new Vector3i(pos.x+0.5f, pos.y, pos.z+0.5f);
+        Vector3i blockPos = new Vector3i(pos.x + 0.25f, pos.y, pos.z + 0.25f);
 
         WalkableBlock block = pathfinder.getBlock(blockPos);
-        if( block == null ) {
-            blockPos.y+=2;
-            while (blockPos.y>0 && (block=pathfinder.getBlock(blockPos))==null ) {
+        if (block == null) {
+            blockPos.y += 1;
+            while (blockPos.y >= (int) pos.y - 1 && (block = pathfinder.getBlock(blockPos)) == null) {
                 blockPos.y--;
             }
         }
@@ -210,10 +216,10 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
                 continue;
             }
             pathTask.process();
-            count ++;
+            count++;
         }
         float ms = (System.nanoTime() - time) / 1000 / 1000f;
-        if( count>0 ) {
+        if (count > 0) {
             logger.info("Searching " + count + " paths took " + ms + " ms");
         }
     }
@@ -228,6 +234,10 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
         Vector3i chunkPos = TeraMath.calcChunkPos(pos);
         invalidChunks.add(chunkPos);
         updateChunkQueue.offer(new UpdateChunkTask(chunkPos));
+        for (FindPathTask task : findPathTasks) {
+            task.cancel();
+        }
+        findPathTasks.clear();
     }
 
     @ReceiveEvent(components = WorldComponent.class)
