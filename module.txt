@@ -5,5 +5,5 @@
     "displayName" : "Pathfinding framework",
     "description" : "A pathfinding module mainly meant as a library/framework for other modules",
     "dependencies" : [],
-    "isServersideOnly" : true
+    "isServerSideOnly" : true
 }
