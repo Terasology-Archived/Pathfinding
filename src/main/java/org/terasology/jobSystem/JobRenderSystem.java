@@ -1,4 +1,4 @@
-package org.terasology.jobs;
+package org.terasology.jobSystem;
 
 import org.terasology.engine.CoreRegistry;
 import org.terasology.entitySystem.entity.EntityManager;

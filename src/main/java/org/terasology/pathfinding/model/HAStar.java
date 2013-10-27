@@ -15,6 +15,8 @@
  */
 package org.terasology.pathfinding.model;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.math.Vector3i;
@@ -37,9 +39,9 @@ public class HAStar {
     private Path localPath;
     private HAStar localAStar;
 
-    private List<Node> nodes = new ArrayList<Node>();
+    private List<Node> nodes = Lists.newArrayList();
 
-    private Map<WalkableBlock, Integer> nodeMap = new HashMap<WalkableBlock, Integer>();
+    private Map<WalkableBlock, Integer> nodeMap = Maps.newHashMap();
     private int start;
     private int end;
     private int cacheHits;
@@ -99,7 +101,6 @@ public class HAStar {
     }
 
     public boolean run(WalkableBlock start, WalkableBlock end) {
-        reset();
         this.start = create(start);
         this.end = create(end);
 
@@ -216,6 +217,7 @@ public class HAStar {
             fromNode.block, toNode.block, new PathCache.Callback() {
             @Override
             public Path run(WalkableBlock from, WalkableBlock to) {
+
                 localAStar.reset();
                 if (localAStar.run(from, to)) {
                     return localAStar.getPath();

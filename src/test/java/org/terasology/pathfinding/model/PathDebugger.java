@@ -75,7 +75,7 @@ public class PathDebugger extends JFrame {
                     } else {
                         if (target == null) {
                             target = block;
-                            path = pathfinder.findPath(start, target);
+                            path = pathfinder.findPath(target, start)[0];
                             System.out.println(pathfinder.toString());
                         } else {
                             start = block;

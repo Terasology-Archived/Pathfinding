@@ -9,22 +9,22 @@ import org.terasology.pathfinding.model.WalkableBlock;
  */
 public class PathReadyEvent implements Event {
     private final int pathId;
-    private final WalkableBlock start;
+    private final WalkableBlock[] start;
     private final WalkableBlock target;
-    private final Path path;
+    private final Path[] path;
 
-    public PathReadyEvent(int pathId, WalkableBlock start, WalkableBlock target, Path path) {
+    public PathReadyEvent(int pathId, Path[] path, WalkableBlock target, WalkableBlock[] start) {
         this.pathId = pathId;
-        this.start = start;
-        this.target = target;
         this.path = path;
+        this.target = target;
+        this.start = start;
     }
 
     public int getPathId() {
         return pathId;
     }
 
-    public WalkableBlock getStart() {
+    public WalkableBlock[] getStart() {
         return start;
     }
 
@@ -32,7 +32,7 @@ public class PathReadyEvent implements Event {
         return target;
     }
 
-    public Path getPath() {
+    public Path[] getPath() {
         return path;
     }
 }

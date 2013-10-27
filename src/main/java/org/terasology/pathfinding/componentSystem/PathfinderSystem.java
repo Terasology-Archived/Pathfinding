@@ -40,9 +40,9 @@ import java.util.*;
 import java.util.concurrent.*;
 
 /**
- * This systems helps finding a path through the game world.
+ * This systems helps finding a paths through the game world.
  * <p/>
- * Since path finding takes some time, it completely runs in a background thread. So, a requested path is not
+ * Since paths finding takes some time, it completely runs in a background thread. So, a requested paths is not
  * available in the moment it is requested. Instead you need to listen for a PathReadyEvent.
  *
  * @author synopia
@@ -70,17 +70,17 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
     }
 
     /**
-     * Task to find a path.
+     * Task to find a paths.
      */
     private class FindPathTask {
         public EntityRef entity;
-        public Path path;
-        public Vector3i start;
-        public Vector3i[] target;
+        public Path[] paths;
+        public Vector3i[] start;
+        public Vector3i target;
         public boolean processed;
         public int pathId;
 
-        private FindPathTask(Vector3i start, Vector3i[] target, EntityRef entity) {
+        private FindPathTask(Vector3i[] start, Vector3i target, EntityRef entity) {
             this.start = start;
             this.target = target;
             this.entity = entity;
@@ -89,18 +89,21 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
         }
 
         /**
-         * Does the actual path finding. When its done, the outputQueue is filled with the result.
+         * Does the actual paths finding. When its done, the outputQueue is filled with the result.
          * This method should be called from a thread only, it may take long.
          */
         public void process() {
-            WalkableBlock startBlock = pathfinder.getBlock(this.start);
-            WalkableBlock targetBlock = pathfinder.getBlock(this.target[0]);
-            path = null;
+            WalkableBlock[] startBlocks = new WalkableBlock[start.length];
+            for (int i = 0; i < start.length; i++) {
+                startBlocks[i] = pathfinder.getBlock(this.start[i]);
+            }
+            WalkableBlock targetBlock = pathfinder.getBlock(this.target);
+            paths = null;
             if (start != null && target != null) {
-                path = pathfinder.findPath(targetBlock, startBlock);
+                paths = pathfinder.findPath(targetBlock, startBlocks);
             }
             processed = true;
-            entity.send(new PathReadyEvent(pathId, startBlock, targetBlock, path));
+            entity.send(new PathReadyEvent(pathId, paths, targetBlock, startBlocks));
         }
     }
 
@@ -121,25 +124,25 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
         CoreRegistry.put(PathfinderSystem.class, this);
     }
 
-    public int requestPath(EntityRef requestor, Vector3f start, Vector3f... targets) {
-        Vector3i[] _targets = new Vector3i[targets.length];
+    public int requestPath(EntityRef requestor, Vector3f target, Vector3f... starts ) {
+        Vector3i[] _starts = new Vector3i[starts.length];
         WalkableBlock block;
-        for (int i = 0; i < targets.length; i++) {
-            block = getBlock(targets[i]);
+        for (int i = 0; i < starts.length; i++) {
+            block = getBlock(starts[i]);
             if( block!=null ) {
-                _targets[i] = block.getBlockPosition();
+                _starts[i] = block.getBlockPosition();
             } else {
-                throw new IllegalArgumentException(targets[i]+" is no valid walkable block");
+                throw new IllegalArgumentException(starts[i]+" is no valid walkable block");
             }
         }
-        block = getBlock(start);
+        block = getBlock(target);
         if( block!=null ) {
-            return requestPath(requestor, block.getBlockPosition(), _targets);
+            return requestPath(requestor, block.getBlockPosition(), _starts );
         } else {
-            throw new IllegalArgumentException(start+" is no valid walkable block");
+            throw new IllegalArgumentException(target+" is no valid walkable block");
         }
     }
-    public int requestPath(EntityRef requestor, Vector3i start, Vector3i... target) {
+    public int requestPath(EntityRef requestor, Vector3i target, Vector3i... start ) {
         FindPathTask task = new FindPathTask(start, target, requestor);
         findPathTasks.add(task);
         return task.pathId;
@@ -154,7 +157,8 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
     }
 
     public WalkableBlock getBlock(Vector3f pos) {
-        Vector3i blockPos = new Vector3i(pos);
+        Vector3i blockPos = new Vector3i(pos.x+0.5f, pos.y, pos.z+0.5f);
+
         WalkableBlock block = pathfinder.getBlock(blockPos);
         if( block == null ) {
             blockPos.y+=2;
@@ -198,30 +202,19 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
     }
 
     private void findPaths() {
-        int count = 0;
         long time = System.nanoTime();
-        int notFound = 0;
-        int invalid = 0;
-        int processed = 0;
+        int count = 0;
         while (!findPathTasks.isEmpty()) {
             FindPathTask pathTask = findPathTasks.poll();
-            processed++;
             if (pathTask.processed) {
                 continue;
             }
-            count++;
             pathTask.process();
-            if (pathTask.path == null) {
-                invalid++;
-            }
-            if (pathTask.path == Path.INVALID) {
-                notFound++;
-            }
+            count ++;
         }
         float ms = (System.nanoTime() - time) / 1000 / 1000f;
-        if (count > 0) {
-            logger.info("Searching " + count + " pathes took " + ms + " ms ("
-                + (1000f / ms * count) + " pps), processed=" + processed + ", invalid=" + invalid + ", not found=" + notFound);
+        if( count>0 ) {
+            logger.info("Searching " + count + " paths took " + ms + " ms");
         }
     }
 

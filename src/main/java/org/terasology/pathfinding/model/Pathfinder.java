@@ -45,23 +45,29 @@ public class Pathfinder {
         cache.clear();
     }
 
-    public Path findPath(final WalkableBlock start, final WalkableBlock end) {
-        return cache.findPath(start, end, new PathCache.Callback() {
-            @Override
-            public Path run(WalkableBlock from, WalkableBlock to) {
-                WalkableBlock refFrom = getBlock(from.getBlockPosition());
-                WalkableBlock refTo = getBlock(to.getBlockPosition());
-                haStar.reset();
-                Path path;
-                if (haStar.run(refFrom, refTo)) {
-                    path = haStar.getPath();
-                    path.add(refFrom);
-                } else {
-                    path = Path.INVALID;
+    public Path[] findPath(final WalkableBlock target, final WalkableBlock... starts) {
+        Path[] result = new Path[starts.length];
+        haStar.reset();
+        for (int i = 0; i < starts.length; i++) {
+            WalkableBlock start = starts[i];
+            result[i] = cache.findPath(start, target, new PathCache.Callback() {
+                @Override
+                public Path run(WalkableBlock from, WalkableBlock to) {
+                    WalkableBlock refFrom = getBlock(from.getBlockPosition());
+                    WalkableBlock refTo = getBlock(to.getBlockPosition());
+
+                    Path path;
+                    if (haStar.run(refFrom, refTo)) {
+                        path = haStar.getPath();
+                        path.add(refFrom);
+                    } else {
+                        path = Path.INVALID;
+                    }
+                    return path;
                 }
-                return path;
-            }
-        });
+            });
+        }
+        return result;
     }
 
     public HeightMap init(Vector3i chunkPos) {

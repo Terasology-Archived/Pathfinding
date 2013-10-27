@@ -15,6 +15,9 @@
  */
 package org.terasology.pathfinding.model;
 
+import com.google.common.collect.Maps;
+import org.terasology.math.Vector3i;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +25,7 @@ import java.util.Map;
  * @author synopia
  */
 public class PathCache {
-    private Map<WalkableBlock, Map<WalkableBlock, Path>> paths = new HashMap<WalkableBlock, Map<WalkableBlock, Path>>();
+    private Map<WalkableBlock, Map<WalkableBlock, Path>> paths = Maps.newHashMap();
 
     public interface Callback {
         Path run(WalkableBlock from, WalkableBlock to);
@@ -39,7 +42,7 @@ public class PathCache {
     private void insert(WalkableBlock from, WalkableBlock to, Path path) {
         Map<WalkableBlock, Path> fromMap = paths.get(from);
         if (fromMap == null) {
-            fromMap = new HashMap<WalkableBlock, Path>();
+            fromMap = new HashMap<>();
             paths.put(from, fromMap);
         }
         fromMap.put(to, path);
@@ -54,7 +57,7 @@ public class PathCache {
         if (path == null) {
             path = callback.run(from, to);
             insert(from, to, path);
-//        insert(to, from, path);
+//        insert(to, from, paths);
         }
         return path;
     }

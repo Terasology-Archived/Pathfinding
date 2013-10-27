@@ -42,22 +42,21 @@ public class MinionPathSystem implements ComponentSystem, UpdateSubscriberSystem
             }
             switch (pathComponent.pathState) {
                 case NEW_TARGET:
-                    pathComponent.pathId = pathfinderSystem.requestPath(entity, location.getWorldPosition(), pathComponent.targetBlock.toVector3f());
+                    pathComponent.pathId = pathfinderSystem.requestPath(entity, pathComponent.targetBlock.toVector3f(), location.getWorldPosition());
                     pathComponent.pathState = MinionPathComponent.PathState.PATH_REQUESTED;
                     entity.saveComponent(pathComponent);
                     break;
                 case MOVING_PATH:
                     if( move.targetBlock==null ) {
-                        if( pathComponent.pathStep>=pathComponent.path.size() ) {
+                        if( pathComponent.pathStep<0 ) {
                             pathComponent.pathState = MinionPathComponent.PathState.FINISHED_MOVING;
                             pathComponent.targetBlock = null;
                             entity.saveComponent(pathComponent);
                             entity.send(new MovingPathFinishedEvent(pathComponent.pathId, pathComponent.targetBlock));
                         } else {
-
                             WalkableBlock target = pathComponent.path.get(pathComponent.pathStep);
                             move.targetBlock = target.getBlockPosition();
-                            pathComponent.pathStep++;
+                            pathComponent.pathStep--;
                             entity.saveComponent(pathComponent);
                             entity.saveComponent(move);
                         }
@@ -69,17 +68,17 @@ public class MinionPathSystem implements ComponentSystem, UpdateSubscriberSystem
 
     @ReceiveEvent(components = {MinionPathComponent.class, MinionMoveComponent.class})
     public void onPathReady( PathReadyEvent event, EntityRef minion) {
-        logger.info("Minion received path "+event.getPathId()+" from "+minion.getComponent(LocationComponent.class).getWorldPosition()+" to "+event.getTarget().getBlockPosition());
+        logger.info("Minion received paths "+event.getPathId()+" from "+minion.getComponent(LocationComponent.class).getWorldPosition()+" to "+event.getTarget().getBlockPosition());
 
         MinionMoveComponent move = minion.getComponent(MinionMoveComponent.class);
         move.targetBlock = null;
         minion.saveComponent(move);
 
         final MinionPathComponent pathComponent = minion.getComponent(MinionPathComponent.class);
-        pathComponent.path = event.getPath();
-        if( pathComponent.path!=Path.INVALID ) {
+        pathComponent.path = event.getPath()[0];
+        if( pathComponent.path !=Path.INVALID ) {
             pathComponent.pathState = MinionPathComponent.PathState.MOVING_PATH;
-            pathComponent.pathStep = 0;
+            pathComponent.pathStep = pathComponent.path.size()-1;
         } else {
             pathComponent.pathState = MinionPathComponent.PathState.IDLE;
         }
