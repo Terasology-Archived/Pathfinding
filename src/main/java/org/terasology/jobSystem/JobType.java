@@ -13,24 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.jobSystem.jobs;
+package org.terasology.jobSystem;
 
-import org.terasology.jobSystem.Job;
+import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.math.Vector3i;
+
+import java.util.List;
 
 /**
+ * Defines a job on a block.
+ *
  * @author synopia
  */
-public enum JobType {
-    WALK_ON_BLOCK(new WalkOnBlock()),
-    BUILD_BLOCK(new BuildBlock());
+public interface JobType {
+    /**
+     * Returns list of positions that are valid to work on this job.
+     */
+    List<Vector3i> getTargetPositions(EntityRef block);
 
-    private Job job;
+    boolean canMinionWork(EntityRef block, EntityRef minion);
 
-    private JobType(Job job) {
-        this.job = job;
-    }
+    boolean isAssignable(EntityRef block);
 
-    public Job getJob() {
-        return job;
-    }
+    void letMinionWork(EntityRef block, EntityRef minion);
+
+    boolean isRequestable(EntityRef block);
 }

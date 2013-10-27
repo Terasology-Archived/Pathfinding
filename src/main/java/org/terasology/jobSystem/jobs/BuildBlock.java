@@ -18,7 +18,7 @@ package org.terasology.jobSystem.jobs;
 import com.google.common.collect.Lists;
 import org.terasology.engine.CoreRegistry;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.jobSystem.Job;
+import org.terasology.jobSystem.JobType;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
@@ -34,10 +34,10 @@ import java.util.List;
 /**
  * @author synopia
  */
-public class BuildBlock implements Job {
+public class BuildBlock implements JobType {
 
     private final PathfinderSystem pathfinderSystem;
-    private final static float[][] neighbors = new float[][]{{-1, -1}, {1, -1}, {-1, 1}, {1, 1}};
+    private final static int[][] neighbors = new int[][]{{-1, -1}, {1, -1}, {-1, 1}, {1, 1}};
     private final WorldProvider worldProvider;
     private final Block blockType;
 
@@ -51,12 +51,20 @@ public class BuildBlock implements Job {
     public List<Vector3i> getTargetPositions(EntityRef block) {
         List<Vector3i> result = Lists.newArrayList();
 
-        Vector3f worldPos = block.getComponent(LocationComponent.class).getWorldPosition();
+        Vector3i worldPos = block.getComponent(BlockComponent.class).getPosition();
         WalkableBlock walkableBlock;
-        Vector3f pos = new Vector3f();
-        for (float[] neighbor : neighbors) {
+        Vector3i pos = new Vector3i();
+        for (int[] neighbor : neighbors) {
             pos.set(worldPos.x + neighbor[0], worldPos.y, worldPos.z + neighbor[1]);
             walkableBlock = pathfinderSystem.getBlock(pos);
+            if (walkableBlock == null) {
+                pos.y = worldPos.y - 1;
+                walkableBlock = pathfinderSystem.getBlock(pos);
+            }
+            if (walkableBlock == null) {
+                pos.y = worldPos.y + 1;
+                walkableBlock = pathfinderSystem.getBlock(pos);
+            }
             if (walkableBlock != null) {
                 result.add(walkableBlock.getBlockPosition());
             }
@@ -80,8 +88,18 @@ public class BuildBlock implements Job {
     }
 
     @Override
-    public boolean isValidBlock(EntityRef block) {
-        Block type = worldProvider.getBlock(block.getComponent(BlockComponent.class).getPosition());
+    public boolean isAssignable(EntityRef block) {
+        Vector3i position = new Vector3i(block.getComponent(BlockComponent.class).getPosition());
+        Block type = worldProvider.getBlock(position);
         return type.isPenetrable();
+    }
+
+    @Override
+    public boolean isRequestable(EntityRef block) {
+        Vector3i position = new Vector3i(block.getComponent(BlockComponent.class).getPosition());
+        position.y--;
+        Block below = worldProvider.getBlock(position);
+        return !below.isPenetrable();
+
     }
 }

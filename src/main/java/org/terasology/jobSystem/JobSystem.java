@@ -25,18 +25,13 @@ import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.In;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
-import org.terasology.jobSystem.jobs.JobType;
-import org.terasology.logic.characters.CharacterComponent;
 import org.terasology.logic.location.LocationComponent;
-import org.terasology.math.Region3i;
 import org.terasology.math.Vector3i;
 import org.terasology.minion.MinionPathComponent;
 import org.terasology.minion.MovingPathFinishedEvent;
 import org.terasology.pathfinding.componentSystem.PathReadyEvent;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.Path;
-import org.terasology.selection.ApplyBlockSelectionEvent;
-import org.terasology.world.BlockEntityRegistry;
 
 import javax.vecmath.Vector3f;
 import java.util.Collections;
@@ -58,11 +53,11 @@ public class JobSystem implements ComponentSystem, UpdateSubscriberSystem {
     private static final Logger logger = LoggerFactory.getLogger(JobSystem.class);
 
     @In
-    private BlockEntityRegistry blockEntityRegistry;
-    @In
     private PathfinderSystem pathfinderSystem;
     @In
     private EntityManager entityManager;
+    @In
+    private JobBoard jobBoard;
 
     private List<Integer> pathRequests = Lists.newArrayList();
     private List<EntityRef> unassignedEntities;
@@ -103,10 +98,10 @@ public class JobSystem implements ComponentSystem, UpdateSubscriberSystem {
         block.saveComponent(jobBlock);
         minion.saveComponent(job);
 
-        if (jobBlock.jobType.getJob().canMinionWork(block, minion)) {
+        if (jobBlock.jobType.canMinionWork(block, minion)) {
             logger.info("Reached target, remove job");
-            jobBlock.jobType.getJob().letMinionWork(block, minion);
-            block.removeComponent(JobBlockComponent.class);
+            jobBlock.jobType.letMinionWork(block, minion);
+            jobBoard.removeJob(block);
         }
     }
 
@@ -178,7 +173,7 @@ public class JobSystem implements ComponentSystem, UpdateSubscriberSystem {
                 jobBlock.state = JobBlockComponent.JobBlockState.PATHS_REQUESTED;
                 entity.saveComponent(jobBlock);
 
-                List<Vector3i> targetPositions = jobBlock.getTargetPositions(entity);
+                List<Vector3i> targetPositions = jobBlock.jobType.getTargetPositions(entity);
                 for (Vector3i targetPosition : targetPositions) {
                     int id = pathfinderSystem.requestPath(entity, targetPosition.toVector3f(), startPositions);
                     pathRequests.add(id);
@@ -221,26 +216,6 @@ public class JobSystem implements ComponentSystem, UpdateSubscriberSystem {
         candidate.minion.saveComponent(path);
     }
 
-    @ReceiveEvent(components = {LocationComponent.class, CharacterComponent.class})
-    public void onSelectionChanged(ApplyBlockSelectionEvent event, EntityRef entity) {
-        event.getSelectedItemEntity();
-        Region3i selection = event.getSelection();
-        Vector3i size = selection.size();
-        Vector3i block = new Vector3i();
-        JobType jobType = JobType.BUILD_BLOCK;
-        for (int z = 0; z < size.z; z++) {
-            for (int y = 0; y < size.y; y++) {
-                for (int x = 0; x < size.x; x++) {
-                    block.set(x, y, z);
-                    block.add(selection.min());
-                    EntityRef blockEntity = blockEntityRegistry.getBlockEntityAt(block);
-                    if (jobType.getJob().isValidBlock(blockEntity)) {
-                        blockEntity.addComponent(new JobBlockComponent(jobType));
-                    }
-                }
-            }
-        }
-    }
 
     @Override
     public void initialise() {

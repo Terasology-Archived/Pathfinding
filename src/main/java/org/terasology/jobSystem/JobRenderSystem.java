@@ -1,3 +1,18 @@
+/*
+ * Copyright 2013 MovingBlocks
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.terasology.jobSystem;
 
 import org.terasology.engine.CoreRegistry;
@@ -38,7 +53,12 @@ public class JobRenderSystem implements RenderSystem {
             LocationComponent location = entityRef.getComponent(LocationComponent.class);
             Vector3f worldPosition = location.getWorldPosition();
             pos.set((int) worldPosition.x, (int) worldPosition.y, (int) worldPosition.z);
-            selectionRenderer.renderMark(pos, cameraPosition);
+            JobBlockComponent job = entityRef.getComponent(JobBlockComponent.class);
+            if (job.jobType.getJobType().isRequestable(entityRef)) {
+                selectionRenderer.renderMark(pos, cameraPosition);
+            } else if (job.jobType.getJobType().isAssignable(entityRef)) {
+                selectionRenderer.renderMark2(pos, cameraPosition);
+            }
         }
         selectionRenderer.endRenderOverlay();
     }

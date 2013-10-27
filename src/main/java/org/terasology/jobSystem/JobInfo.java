@@ -16,24 +16,33 @@
 package org.terasology.jobSystem;
 
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.math.Vector3i;
-
-import java.util.List;
 
 /**
- * Defines a job on a block.
- *
  * @author synopia
  */
-public interface Job {
-    /**
-     * Returns list of positions that are valid to work on this job.
-     */
-    List<Vector3i> getTargetPositions(EntityRef block);
+public class JobInfo {
+    private final JobType type;
+    private final EntityRef block;
+    private EntityRef assignee;
 
-    boolean canMinionWork(EntityRef block, EntityRef minion);
+    public JobInfo(EntityRef block) {
+        this.type = block.getComponent(JobBlockComponent.class).jobType;
+        this.block = block;
+    }
 
-    boolean isValidBlock(EntityRef block);
+    public EntityRef getAssignee() {
+        return assignee;
+    }
 
-    void letMinionWork(EntityRef block, EntityRef minion);
+    public void setAssignee(EntityRef assignee) {
+        this.assignee = assignee;
+    }
+
+    public JobType getType() {
+        return type;
+    }
+
+    public EntityRef getBlock() {
+        return block;
+    }
 }

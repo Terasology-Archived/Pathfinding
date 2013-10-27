@@ -15,17 +15,13 @@
  */
 package org.terasology.jobSystem;
 
-import com.google.common.collect.Lists;
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.jobSystem.jobs.JobType;
-import org.terasology.math.Vector3i;
+import org.terasology.jobSystem.jobs.JobTypeImpl;
 import org.terasology.world.block.ForceBlockActive;
 
-import java.util.List;
-
 /**
- * Job's block component. Using this component, jobs can be assigned to individual blocks
+ * JobType's block component. Using this component, jobs can be assigned to individual blocks
  *
  * @author synopia
  */
@@ -37,7 +33,7 @@ public class JobBlockComponent implements Component {
         ASSIGNED
     }
 
-    public JobType jobType;
+    public JobTypeImpl jobType = JobTypeImpl.IDLE;
     public transient EntityRef assignedMinion;
 
     public transient JobBlockState state = JobBlockComponent.JobBlockState.UNASSIGNED;
@@ -45,14 +41,7 @@ public class JobBlockComponent implements Component {
     public JobBlockComponent() {
     }
 
-    public JobBlockComponent(JobType jobType) {
+    public JobBlockComponent(JobTypeImpl jobType) {
         this.jobType = jobType;
-    }
-
-    public List<Vector3i> getTargetPositions(EntityRef block) {
-        if (jobType == null) {
-            return Lists.newArrayList();
-        }
-        return jobType.getJob().getTargetPositions(block);
     }
 }

@@ -16,57 +16,77 @@
 package org.terasology.jobSystem.jobs;
 
 import com.google.common.collect.Lists;
-import org.terasology.engine.CoreRegistry;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.jobSystem.JobType;
-import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Vector3i;
-import org.terasology.pathfinding.componentSystem.PathfinderSystem;
-import org.terasology.pathfinding.model.WalkableBlock;
 
-import javax.vecmath.Vector3f;
 import java.util.List;
 
 /**
  * @author synopia
  */
-public class WalkOnBlock implements JobType {
+public enum JobTypeImpl implements JobType {
+    IDLE(new JobType() {
+        @Override
+        public List<Vector3i> getTargetPositions(EntityRef block) {
+            return Lists.newArrayList();
+        }
 
-    private final PathfinderSystem pathfinderSystem;
+        @Override
+        public boolean canMinionWork(EntityRef block, EntityRef minion) {
+            return false;
+        }
 
-    public WalkOnBlock() {
-        pathfinderSystem = CoreRegistry.get(PathfinderSystem.class);
+        @Override
+        public boolean isAssignable(EntityRef block) {
+            return false;
+        }
+
+        @Override
+        public void letMinionWork(EntityRef block, EntityRef minion) {
+        }
+
+        @Override
+        public boolean isRequestable(EntityRef block) {
+            return false;
+        }
+    }),
+    WALK_ON_BLOCK(new WalkOnBlock()),
+    BUILD_BLOCK(new BuildBlock());
+
+    private JobType jobType;
+
+    private JobTypeImpl(JobType jobType) {
+        this.jobType = jobType;
     }
 
+    public JobType getJobType() {
+        return jobType;
+    }
+
+
+    @Override
     public List<Vector3i> getTargetPositions(EntityRef block) {
-        List<Vector3i> targetPositions = Lists.newArrayList();
-        Vector3f position = block.getComponent(LocationComponent.class).getWorldPosition();
-        targetPositions.add(new Vector3i(position.x, position.y, position.z));
-        return targetPositions;
+        return jobType.getTargetPositions(block);
     }
 
     @Override
     public boolean canMinionWork(EntityRef block, EntityRef minion) {
-        Vector3f worldPosition = minion.getComponent(LocationComponent.class).getWorldPosition();
-        WalkableBlock actualBlock = pathfinderSystem.getBlock(worldPosition);
-        WalkableBlock expectedBlock = pathfinderSystem.getBlock(block.getComponent(LocationComponent.class).getWorldPosition());
-
-        return actualBlock == expectedBlock;
+        return jobType.canMinionWork(block, minion);
     }
 
     @Override
     public boolean isAssignable(EntityRef block) {
-        WalkableBlock walkableBlock = pathfinderSystem.getBlock(block.getComponent(LocationComponent.class).getWorldPosition());
-        return walkableBlock != null;
+        return jobType.isAssignable(block);
     }
 
     @Override
     public void letMinionWork(EntityRef block, EntityRef minion) {
-
+        jobType.letMinionWork(block, minion);
     }
 
     @Override
     public boolean isRequestable(EntityRef block) {
-        return true;
+        return jobType.isRequestable(block);
     }
 }
