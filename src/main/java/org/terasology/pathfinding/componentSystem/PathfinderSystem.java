@@ -15,71 +15,41 @@
  */
 package org.terasology.pathfinding.componentSystem;
 
-import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.engine.CoreRegistry;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
+import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.In;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.model.HeightMap;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.Pathfinder;
 import org.terasology.pathfinding.model.WalkableBlock;
+import org.terasology.world.WorldChangeListener;
+import org.terasology.world.WorldComponent;
 import org.terasology.world.WorldProvider;
-import org.terasology.world.block.BlockComponent;
-import org.terasology.world.chunks.remoteChunkProvider.ChunkReadyListener;
-import org.terasology.world.propagation.BlockChange;
+import org.terasology.world.block.Block;
+import org.terasology.world.chunks.event.OnChunkLoaded;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import javax.vecmath.Vector3f;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * This systems helps finding a path through the game world.
  * <p/>
  * Since path finding takes some time, it completely runs in a background thread. So, a requested path is not
- * available in the moment it is requested. Instead you need to use a callback interface (PathRequest) which methods
- * gets called on the normal game update thread, once the path is ready.
- * <p/>
- * In addition, paths may change or even get invalid. In such cases the callback interface is called too.
+ * available in the moment it is requested. Instead you need to listen for a PathReadyEvent.
  *
  * @author synopia
  */
 @RegisterSystem
-public class PathfinderSystem implements ChunkReadyListener, UpdateSubscriberSystem {
+public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(PathfinderSystem.class);
-
-    /**
-     * Callback interface for path requests
-     */
-    public interface PathRequest {
-        /**
-         * Is called when a requested path is available. This code runs in the game update thread (this systems update
-         * method).
-         *
-         * @param path the found path. null if path cannot be requested, since world changes too much. Path.INVALID
-         *             if no path can be found between start and target.
-         */
-        void onPathReady(Path path);
-
-        /**
-         * Is called once this requested path gets invalid. Invalid paths are processed in background. Once its
-         * available again, onPathReady is called.
-         */
-        void invalidate();
-    }
 
     /**
      * Task to update a chunk
@@ -95,24 +65,27 @@ public class PathfinderSystem implements ChunkReadyListener, UpdateSubscriberSys
             maps.remove(chunkPos);
             HeightMap map = pathfinder.update(chunkPos);
             maps.put(chunkPos, map);
+            pathfinder.clearCache();
         }
     }
 
     /**
-     * Task to find a path. Tasks live until they get killed using kill(). As long as a task lives, it will inform
-     * its associated callback, when path is available or gets invalid.
+     * Task to find a path.
      */
-    public class FindPathTask {
+    private class FindPathTask {
+        public EntityRef entity;
         public Path path;
-        public PathRequest pathRequest;
         public Vector3i start;
-        public Vector3i target;
+        public Vector3i[] target;
         public boolean processed;
+        public int pathId;
 
-        private FindPathTask(Vector3i start, Vector3i target, PathRequest pathRequest) {
-            this.pathRequest = pathRequest;
+        private FindPathTask(Vector3i start, Vector3i[] target, EntityRef entity) {
             this.start = start;
             this.target = target;
+            this.entity = entity;
+            this.pathId = nextId;
+            nextId++;
         }
 
         /**
@@ -121,53 +94,55 @@ public class PathfinderSystem implements ChunkReadyListener, UpdateSubscriberSys
          */
         public void process() {
             WalkableBlock startBlock = pathfinder.getBlock(this.start);
-            WalkableBlock targetBlock = pathfinder.getBlock(this.target);
+            WalkableBlock targetBlock = pathfinder.getBlock(this.target[0]);
             path = null;
             if (start != null && target != null) {
                 path = pathfinder.findPath(targetBlock, startBlock);
             }
             processed = true;
-            outputQueue.offer(this);
-        }
-
-        /**
-         * Kills this task. Stops updating this path request.
-         */
-        public void kill() {
-            taskMap.remove(this);
-            pathRequest = null;
-            path = null;
-        }
-
-        /**
-         * Invalidates the path request, after the world or at least a chunk part of this path has changed.
-         */
-        public void invalidate() {
-            processed = false;
-            pathRequest.invalidate();
+            entity.send(new PathReadyEvent(pathId, startBlock, targetBlock, path));
         }
     }
 
-    private BlockingQueue<UpdateChunkTask> updateChunkQueue = new ArrayBlockingQueue<UpdateChunkTask>(100);
-    private BlockingQueue<FindPathTask> outputQueue = new ArrayBlockingQueue<FindPathTask>(100);
-    private Set<FindPathTask> taskMap = Collections.synchronizedSet(new HashSet<FindPathTask>());
+    @In
+    private WorldProvider world;
+
+    private BlockingQueue<UpdateChunkTask> updateChunkQueue = new ArrayBlockingQueue<>(100);
+    private BlockingQueue<FindPathTask> findPathTasks = new ArrayBlockingQueue<>(100);
     private Set<Vector3i> invalidChunks = Collections.synchronizedSet(new HashSet<Vector3i>());
 
     private ExecutorService inputThreads;
 
-    private Map<Vector3i, HeightMap> maps = new HashMap<Vector3i, HeightMap>();
+    private Map<Vector3i, HeightMap> maps = new HashMap<>();
     private Pathfinder pathfinder;
-    @In
-    private WorldProvider world;
+    private int nextId;
 
     public PathfinderSystem() {
         CoreRegistry.put(PathfinderSystem.class, this);
     }
 
-    public FindPathTask requestPath(Vector3i start, Vector3i target, PathRequest pathRequest) {
-        FindPathTask task = new FindPathTask(start, target, pathRequest);
-        taskMap.add(task);
-        return task;
+    public int requestPath(EntityRef requestor, Vector3f start, Vector3f... targets) {
+        Vector3i[] _targets = new Vector3i[targets.length];
+        WalkableBlock block;
+        for (int i = 0; i < targets.length; i++) {
+            block = getBlock(targets[i]);
+            if( block!=null ) {
+                _targets[i] = block.getBlockPosition();
+            } else {
+                throw new IllegalArgumentException(targets[i]+" is no valid walkable block");
+            }
+        }
+        block = getBlock(start);
+        if( block!=null ) {
+            return requestPath(requestor, block.getBlockPosition(), _targets);
+        } else {
+            throw new IllegalArgumentException(start+" is no valid walkable block");
+        }
+    }
+    public int requestPath(EntityRef requestor, Vector3i start, Vector3i... target) {
+        FindPathTask task = new FindPathTask(start, target, requestor);
+        findPathTasks.add(task);
+        return task.pathId;
     }
 
     public HeightMap getHeightMap(Vector3i chunkPos) {
@@ -178,8 +153,21 @@ public class PathfinderSystem implements ChunkReadyListener, UpdateSubscriberSys
         return pathfinder.getBlock(pos);
     }
 
+    public WalkableBlock getBlock(Vector3f pos) {
+        Vector3i blockPos = new Vector3i(pos);
+        WalkableBlock block = pathfinder.getBlock(blockPos);
+        if( block == null ) {
+            blockPos.y+=2;
+            while (blockPos.y>0 && (block=pathfinder.getBlock(blockPos))==null ) {
+                blockPos.y--;
+            }
+        }
+        return block;
+    }
+
     @Override
     public void initialise() {
+        world.registerListener(this);
         pathfinder = new Pathfinder(world);
         logger.info("Pathfinder started");
 
@@ -196,7 +184,7 @@ public class PathfinderSystem implements ChunkReadyListener, UpdateSubscriberSys
                         if (task != null) {
                             task.process();
                         } else {
-                            findPaths(Sets.newHashSet(taskMap));
+                            findPaths();
                         }
                     } catch (InterruptedException e) {
                         logger.error("Thread interrupted", e);
@@ -209,31 +197,25 @@ public class PathfinderSystem implements ChunkReadyListener, UpdateSubscriberSys
         });
     }
 
-    private void findPaths(Set<FindPathTask> tasks) {
-        pathfinder.clearCache();
-
+    private void findPaths() {
         int count = 0;
         long time = System.nanoTime();
         int notFound = 0;
         int invalid = 0;
         int processed = 0;
-        for (FindPathTask pathTask : tasks) {
-            if (pathTask != null) {
-                processed++;
-                if (pathTask.processed) {
-                    continue;
-                }
-                if (pathTask.pathRequest == null) {
-                    continue;
-                }
-                count++;
-                pathTask.process();
-                if (pathTask.path == null) {
-                    invalid++;
-                }
-                if (pathTask.path == Path.INVALID) {
-                    notFound++;
-                }
+        while (!findPathTasks.isEmpty()) {
+            FindPathTask pathTask = findPathTasks.poll();
+            processed++;
+            if (pathTask.processed) {
+                continue;
+            }
+            count++;
+            pathTask.process();
+            if (pathTask.path == null) {
+                invalid++;
+            }
+            if (pathTask.path == Path.INVALID) {
+                notFound++;
             }
         }
         float ms = (System.nanoTime() - time) / 1000 / 1000f;
@@ -244,38 +226,20 @@ public class PathfinderSystem implements ChunkReadyListener, UpdateSubscriberSys
     }
 
     @Override
-    public void update(float delta) {
-        while (!outputQueue.isEmpty()) {
-            FindPathTask task = outputQueue.poll();
-            if (task.pathRequest != null) {
-                task.pathRequest.onPathReady(task.path);
-            }
-        }
-    }
-
-    @Override
     public void shutdown() {
         inputThreads.shutdown();
     }
 
-    @ReceiveEvent(components = BlockComponent.class)
-    public void blockChanged(BlockChange event, EntityRef entity) {
-        Vector3i chunkPos = TeraMath.calcChunkPos(event.getPosition());
-        invalidateChunk(chunkPos);
-        updateChunkQueue.offer(new UpdateChunkTask(chunkPos));
-    }
-
     @Override
-    public void onChunkReady(Vector3i chunkPos) {
-        invalidateChunk(chunkPos);
+    public void onBlockChanged(Vector3i pos, Block newBlock, Block originalBlock) {
+        Vector3i chunkPos = TeraMath.calcChunkPos(pos);
+        invalidChunks.add(chunkPos);
         updateChunkQueue.offer(new UpdateChunkTask(chunkPos));
     }
 
-    private void invalidateChunk(Vector3i chunkPos) {
-        invalidChunks.add(chunkPos);
-        Set<FindPathTask> tasks = Sets.newHashSet(this.taskMap);
-        for (FindPathTask task : tasks) {
-            task.invalidate();
-        }
+    @ReceiveEvent(components = WorldComponent.class)
+    public void chunkReady(OnChunkLoaded event, EntityRef worldEntity) {
+        invalidChunks.add(event.getChunkPos());
+        updateChunkQueue.offer(new UpdateChunkTask(event.getChunkPos()));
     }
 }

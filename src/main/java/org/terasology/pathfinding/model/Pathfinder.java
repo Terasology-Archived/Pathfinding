@@ -31,7 +31,7 @@ public class Pathfinder {
     private static final Logger logger = LoggerFactory.getLogger(Pathfinder.class);
 
     private WorldProvider world;
-    private Map<Vector3i, HeightMap> heightMaps = new HashMap<Vector3i, HeightMap>();
+    private Map<Vector3i, HeightMap> heightMaps = new HashMap<>();
     private HAStar haStar;
     private PathCache cache;
 
@@ -68,11 +68,8 @@ public class Pathfinder {
         clearCache();
         HeightMap heightMap = heightMaps.get(chunkPos);
         if (heightMap == null) {
-            long time = System.nanoTime();
             heightMap = new HeightMap(world, chunkPos);
             heightMap.update();
-//            logger.info("Update chunk " + chunkPos + " took " + ((System.nanoTime() - time) / 1000 / 1000f) + " ms");
-//            logger.info("Found " + heightMap);
             heightMaps.put(chunkPos, heightMap);
             heightMap.connectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1), getNeighbor(chunkPos, 1, 0), getNeighbor(chunkPos, 0, 1));
         }
