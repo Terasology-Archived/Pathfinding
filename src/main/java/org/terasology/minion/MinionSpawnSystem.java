@@ -53,7 +53,7 @@ public class MinionSpawnSystem implements ComponentSystem, UpdateSubscriberSyste
             return;
         }
         SpawnerComponent spawner = itemEntity.getComponent(SpawnerComponent.class);
-        entityManager.create(spawner.prefab, event.getHitPosition());
+        entityManager.create(spawner.nextPrefab(itemEntity), event.getHitPosition());
         cooldown = COOLDOWN;
     }
 

@@ -15,12 +15,27 @@
  */
 package org.terasology.minion;
 
+import com.google.common.collect.Lists;
+import org.terasology.asset.Assets;
 import org.terasology.entitySystem.Component;
+import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.prefab.Prefab;
+
+import java.util.List;
 
 /**
  * @author synopia
  */
 public class SpawnerComponent implements Component {
-    public Prefab prefab;
+    public List<String> prefabs = Lists.newArrayList();
+    public int nextSpawnedPrefab;
+
+    public Prefab nextPrefab(EntityRef entity) {
+        String name = prefabs.get(nextSpawnedPrefab);
+        nextSpawnedPrefab++;
+        nextSpawnedPrefab %= prefabs.size();
+        entity.saveComponent(this);
+
+        return Assets.getPrefab(name);
+    }
 }

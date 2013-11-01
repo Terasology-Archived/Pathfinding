@@ -95,7 +95,7 @@ public class JobSystem implements ComponentSystem, UpdateSubscriberSystem {
         if (jobBlock.jobType.canMinionWork(block, minion)) {
             logger.info("Reached target, remove job");
             jobBlock.jobType.letMinionWork(block, minion);
-            jobBoard.removeJob(block);
+//            jobBoard.removeJob(block);
         }
     }
 

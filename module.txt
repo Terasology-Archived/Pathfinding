@@ -4,6 +4,11 @@
     "author" : "synopia",
     "displayName" : "Pathfinding framework",
     "description" : "A pathfinding module mainly meant as a library/framework for other modules",
-    "dependencies" : [],
+    "dependencies" : [
+            {
+                "id" : "LightAndShadowResources",
+                "minVersion" : "0.1.0"
+            }
+    ],
     "isServerSideOnly" : true
 }
