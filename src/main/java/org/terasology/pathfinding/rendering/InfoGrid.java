@@ -191,14 +191,14 @@ public class InfoGrid {
         GL11.glLoadMatrix(model);
     }
 
-    private class GridPosition {
-        private Vector3i position;
-        private Map<String, String> entries = Maps.newHashMap();
+    private final class GridPosition {
+        public Map<String, String> entries = Maps.newHashMap();
+        public Vector3i position;
     }
 
-    private class Category {
-        private String name;
-        private Color color;
+    private final class Category {
+        public String name;
+        public Color color;
     }
 
 

@@ -16,7 +16,6 @@
 package org.terasology.selection;
 
 import org.terasology.engine.CoreRegistry;
-import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.ComponentSystem;
@@ -36,7 +35,6 @@ import org.terasology.physics.HitResult;
 import org.terasology.physics.Physics;
 import org.terasology.physics.StandardCollisionGroup;
 import org.terasology.rendering.world.WorldRenderer;
-import org.terasology.world.WorldProvider;
 
 import javax.vecmath.Vector3f;
 
@@ -47,10 +45,6 @@ import javax.vecmath.Vector3f;
 public class BlockSelectionSystem implements ComponentSystem, RenderSystem {
     @In
     private Physics physics;
-    @In
-    private EntityManager entityManager;
-    @In
-    private WorldProvider worldProvider;
     @In
     private SlotBasedInventoryManager inventoryManager;
 
@@ -69,19 +63,17 @@ public class BlockSelectionSystem implements ComponentSystem, RenderSystem {
 
         HitResult result = physics.rayTrace(originPos, direction, characterComponent.interactionRange, filter);
 
-        if (result.isHit()) {
-            if (event.isDown()) {
-                if (startPos == null) {
-                    startPos = result.getBlockPosition();
-                    currentSelection = Region3i.createBounded(startPos, startPos);
-                } else {
-                    CharacterComponent character = entity.getComponent(CharacterComponent.class);
-                    EntityRef selectedItemEntity = inventoryManager.getItemInSlot(entity, character.selectedItem);
+        if (result.isHit() && event.isDown()) {
+            if (startPos == null) {
+                startPos = result.getBlockPosition();
+                currentSelection = Region3i.createBounded(startPos, startPos);
+            } else {
+                CharacterComponent character = entity.getComponent(CharacterComponent.class);
+                EntityRef selectedItemEntity = inventoryManager.getItemInSlot(entity, character.selectedItem);
 
-                    entity.send(new ApplyBlockSelectionEvent(selectedItemEntity, currentSelection));
-                    currentSelection = null;
-                    startPos = null;
-                }
+                entity.send(new ApplyBlockSelectionEvent(selectedItemEntity, currentSelection));
+                currentSelection = null;
+                startPos = null;
             }
         }
     }

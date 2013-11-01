@@ -15,8 +15,6 @@
  */
 package org.terasology.minion;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.systems.ComponentSystem;
@@ -38,7 +36,6 @@ import javax.vecmath.Vector3f;
 @RegisterSystem
 public class MinionMoveSystem implements ComponentSystem, UpdateSubscriberSystem {
     public static final float COOLDOWN = 0.1f;
-    private static final Logger logger = LoggerFactory.getLogger(MinionMoveSystem.class);
 
     @In
     private EntityManager entityManager;

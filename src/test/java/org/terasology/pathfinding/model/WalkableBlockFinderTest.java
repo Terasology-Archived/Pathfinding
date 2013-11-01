@@ -179,28 +179,22 @@ public class WalkableBlockFinderTest {
         WalkableBlock down = helper.map.getCell(1, 2).blocks.get(0);
         WalkableBlock rd = helper.map.getCell(2, 2).blocks.get(0);
 
-        assertNeighbors(lu, null, null, null, null, up, center, left, null);
-        assertNeighbors(up, lu, null, null, null, ru, right, center, left);
-        assertNeighbors(ru, up, null, null, null, null, null, right, center);
-        assertNeighbors(left, null, null, lu, up, center, down, ld, null);
-        assertNeighbors(center, left, lu, up, ru, right, rd, down, ld);
-        assertNeighbors(right, center, up, ru, null, null, null, rd, down);
-        assertNeighbors(ld, null, null, left, center, down, null, null, null);
-        assertNeighbors(down, ld, left, center, right, rd, null, null, null);
-        assertNeighbors(rd, down, center, right, null, null, null, null, null);
+        assertNeighbors(lu, null, null, up, left);
+        assertNeighbors(up, lu, null, ru, center);
+        assertNeighbors(ru, up, null, null, right);
+        assertNeighbors(left, null, lu, center, ld);
+        assertNeighbors(center, left, up, right, down);
+        assertNeighbors(right, center, ru, null, rd);
+        assertNeighbors(ld, null, left, down, null);
+        assertNeighbors(down, ld, center, rd, null);
+        assertNeighbors(rd, down, right, null, null);
     }
 
-    private void assertNeighbors(WalkableBlock block, WalkableBlock left,
-                                 WalkableBlock lu, WalkableBlock up, WalkableBlock ru, WalkableBlock right, WalkableBlock rd,
-                                 WalkableBlock down, WalkableBlock ld) {
+    private void assertNeighbors(WalkableBlock block, WalkableBlock left, WalkableBlock up, WalkableBlock right, WalkableBlock down) {
         Assert.assertSame(left, block.neighbors[HeightMap.DIR_LEFT]);
-//        Assert.assertSame(lu, block.neighbors[HeightMap.DIR_LU]);
         Assert.assertSame(up, block.neighbors[HeightMap.DIR_UP]);
-//        Assert.assertSame(ru, block.neighbors[HeightMap.DIR_RU]);
         Assert.assertSame(right, block.neighbors[HeightMap.DIR_RIGHT]);
-//        Assert.assertSame(rd, block.neighbors[HeightMap.DIR_RD]);
         Assert.assertSame(down, block.neighbors[HeightMap.DIR_DOWN]);
-//        Assert.assertSame(ld, block.neighbors[HeightMap.DIR_LD]);
     }
 
     private void assertWalkableBlocks(String[] data, String[] walkable) {

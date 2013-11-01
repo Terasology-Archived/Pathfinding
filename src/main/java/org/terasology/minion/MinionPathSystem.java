@@ -29,7 +29,6 @@ import org.terasology.pathfinding.componentSystem.PathReadyEvent;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.WalkableBlock;
-import org.terasology.world.BlockEntityRegistry;
 
 /**
  * @author synopia
@@ -38,8 +37,6 @@ import org.terasology.world.BlockEntityRegistry;
 public class MinionPathSystem implements ComponentSystem, UpdateSubscriberSystem {
     private static final Logger logger = LoggerFactory.getLogger(MinionPathSystem.class);
 
-    @In
-    private BlockEntityRegistry blockEntityRegistry;
     @In
     private PathfinderSystem pathfinderSystem;
     @In
