@@ -36,8 +36,16 @@ import org.terasology.world.block.Block;
 import org.terasology.world.chunks.event.OnChunkLoaded;
 
 import javax.vecmath.Vector3f;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This systems helps finding a paths through the game world.
@@ -68,18 +76,18 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
         CoreRegistry.put(PathfinderSystem.class, this);
     }
 
-    public int requestPath(EntityRef requestor, Vector3f target, Vector3f... starts) {
-        Vector3i[] _starts = new Vector3i[starts.length];
+    public int requestPath(EntityRef requestor, Vector3f target, Vector3f... newStarts) {
+        Vector3i[] starts = new Vector3i[newStarts.length];
         WalkableBlock block;
-        for (int i = 0; i < starts.length; i++) {
-            block = getBlock(starts[i]);
+        for (int i = 0; i < newStarts.length; i++) {
+            block = getBlock(newStarts[i]);
             if (block != null) {
-                _starts[i] = block.getBlockPosition();
+                starts[i] = block.getBlockPosition();
             }
         }
         block = getBlock(target);
         if (block != null) {
-            return requestPath(requestor, block.getBlockPosition(), _starts);
+            return requestPath(requestor, block.getBlockPosition(), starts);
         }
         return -1;
     }

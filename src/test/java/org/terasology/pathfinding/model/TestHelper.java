@@ -195,12 +195,12 @@ public class TestHelper {
         return evaluate(runner, 0, 0, 0, sizeX, sizeY, sizeZ);
     }
 
-    public String[] evaluate(Runner runner, int xs, int ys, int zs, int sizeX, int sizeY, int sizeZ) {
-        String[][] table = new String[sizeY][sizeZ];
-        for (int y = 0; y < sizeY; y++) {
-            for (int z = 0; z < sizeZ; z++) {
+    public String[] evaluate(Runner runner, int xs, int ys, int zs, int sx, int sy, int sz) {
+        String[][] table = new String[sy][sz];
+        for (int y = 0; y < sy; y++) {
+            for (int z = 0; z < sz; z++) {
                 StringBuilder line = new StringBuilder();
-                for (int x = 0; x < sizeX; x++) {
+                for (int x = 0; x < sx; x++) {
                     char value = runner.run(x + xs, y + ys, z + zs, (char) 0);
                     line.append(value);
                 }

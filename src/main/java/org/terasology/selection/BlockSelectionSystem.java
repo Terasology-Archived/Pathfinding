@@ -1,39 +1,44 @@
+/*
+ * Copyright 2013 MovingBlocks
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.terasology.selection;
 
-import org.lwjgl.opengl.GL11;
-import org.terasology.asset.Assets;
 import org.terasology.engine.CoreRegistry;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.*;
+import org.terasology.entitySystem.systems.ComponentSystem;
+import org.terasology.entitySystem.systems.In;
+import org.terasology.entitySystem.systems.RegisterMode;
+import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.entitySystem.systems.RenderSystem;
 import org.terasology.input.cameraTarget.CameraTargetChangedEvent;
 import org.terasology.logic.characters.CharacterComponent;
 import org.terasology.logic.inventory.InventoryComponent;
-import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.SlotBasedInventoryManager;
 import org.terasology.logic.location.LocationComponent;
-import org.terasology.logic.players.LocalPlayer;
 import org.terasology.math.Region3i;
 import org.terasology.math.Vector3i;
 import org.terasology.physics.CollisionGroup;
 import org.terasology.physics.HitResult;
 import org.terasology.physics.Physics;
 import org.terasology.physics.StandardCollisionGroup;
-import org.terasology.rendering.assets.material.Material;
-import org.terasology.rendering.assets.mesh.Mesh;
-import org.terasology.rendering.assets.shader.ShaderProgramFeature;
-import org.terasology.rendering.assets.texture.Texture;
-import org.terasology.rendering.primitives.Tessellator;
-import org.terasology.rendering.primitives.TessellatorHelper;
 import org.terasology.rendering.world.WorldRenderer;
 import org.terasology.world.WorldProvider;
 
-import javax.vecmath.Vector2f;
 import javax.vecmath.Vector3f;
-import javax.vecmath.Vector4f;
-
-import static org.lwjgl.opengl.GL11.*;
 
 /**
  * @author synopia
@@ -65,8 +70,8 @@ public class BlockSelectionSystem implements ComponentSystem, RenderSystem {
         HitResult result = physics.rayTrace(originPos, direction, characterComponent.interactionRange, filter);
 
         if (result.isHit()) {
-            if( event.isDown() ) {
-                if( startPos==null ) {
+            if (event.isDown()) {
+                if (startPos == null) {
                     startPos = result.getBlockPosition();
                     currentSelection = Region3i.createBounded(startPos, startPos);
                 } else {
@@ -83,12 +88,12 @@ public class BlockSelectionSystem implements ComponentSystem, RenderSystem {
 
     @ReceiveEvent(components = {LocationComponent.class})
     public void onCamTargetChanged(CameraTargetChangedEvent event, EntityRef entity) {
-        if( startPos==null ) {
+        if (startPos == null) {
             return;
         }
         EntityRef target = event.getNewTarget();
         LocationComponent locationComponent = target.getComponent(LocationComponent.class);
-        if( locationComponent!=null ) {
+        if (locationComponent != null) {
             Vector3f worldPosition = locationComponent.getWorldPosition();
             Vector3i currentEndPos = new Vector3i(worldPosition.x, worldPosition.y, worldPosition.z);
             currentSelection = Region3i.createBounded(startPos, currentEndPos);
@@ -105,9 +110,9 @@ public class BlockSelectionSystem implements ComponentSystem, RenderSystem {
         selectionRenderer.beginRenderOverlay();
         Vector3f cameraPosition = CoreRegistry.get(WorldRenderer.class).getActiveCamera().getPosition();
 
-        if( startPos!=null ) {
+        if (startPos != null) {
             selectionRenderer.beginRenderOverlay();
-            if( currentSelection==null ) {
+            if (currentSelection == null) {
                 selectionRenderer.renderMark(startPos, cameraPosition);
             } else {
                 Vector3i size = currentSelection.size();
@@ -115,7 +120,7 @@ public class BlockSelectionSystem implements ComponentSystem, RenderSystem {
                 for (int z = 0; z < size.z; z++) {
                     for (int y = 0; y < size.y; y++) {
                         for (int x = 0; x < size.x; x++) {
-                            block.set(x,y,z);
+                            block.set(x, y, z);
                             block.add(currentSelection.min());
                             selectionRenderer.renderMark(block, cameraPosition);
                         }
@@ -136,6 +141,7 @@ public class BlockSelectionSystem implements ComponentSystem, RenderSystem {
     public void renderShadows() {
         //To change body of implemented methods use File | Settings | File Templates.
     }
+
     @Override
     public void shutdown() {
 

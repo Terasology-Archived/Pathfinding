@@ -42,7 +42,7 @@ public class Entrance {
         if (area == null) {
             return true;
         }
-        if (area.encompasses(x, y)) {
+        if (area.contains(x, y)) {
             return true;
         }
         int x1 = Math.min(area.minX(), x);
@@ -63,7 +63,7 @@ public class Entrance {
         if (area == null) {
             area = Rect2i.createFromMinAndSize(x, y, 0, 0);
         } else {
-            if (!area.encompasses(x, y)) {
+            if (!area.contains(x, y)) {
                 int x1 = Math.min(area.minX(), x);
                 int y1 = Math.min(area.minY(), y);
                 int x2 = Math.max(area.maxX(), x);

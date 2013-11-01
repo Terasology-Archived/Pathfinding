@@ -35,7 +35,7 @@ import java.util.List;
  * @author synopia
  */
 public class BuildBlock implements JobType {
-    private final static int[][] NEIGHBORS = new int[][]{{-1, -1}, {1, -1}, {-1, 1}, {1, 1}};
+    private static final int[][] NEIGHBORS = new int[][]{{-1, -1}, {1, -1}, {-1, 1}, {1, 1}};
 
     private final PathfinderSystem pathfinderSystem;
     private final WorldProvider worldProvider;

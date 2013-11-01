@@ -60,10 +60,10 @@ public class AStar {
         openList.clear();
     }
 
-    public boolean run(int start, int end) {
+    public boolean run(int newStart, int newEnd) {
         reset();
-        this.start = start;
-        this.end = end;
+        this.start = newStart;
+        this.end = newEnd;
 
         fMap[start] = 0;
         openList.insert(start);

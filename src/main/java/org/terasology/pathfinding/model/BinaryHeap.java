@@ -79,33 +79,35 @@ public class BinaryHeap {
     }
 
     protected void resortDown(int index) {
-        int value = heap[index];
-        while (index * 2 + 1 < size) {
-            int child = index * 2 + 1;
+        int currentIndex = index;
+        int value = heap[currentIndex];
+        while (currentIndex * 2 + 1 < size) {
+            int child = currentIndex * 2 + 1;
             if (child < size - 1 && comparator.compare(heap[child + 1], heap[child]) > 0) {
                 child++;
             }
             if (comparator.compare(heap[child], value) > 0) {
-                heap[index] = heap[child];
-                itemToIndex[heap[child]] = index;
+                heap[currentIndex] = heap[child];
+                itemToIndex[heap[child]] = currentIndex;
             } else {
                 break;
             }
-            index = child;
+            currentIndex = child;
         }
-        heap[index] = value;
-        itemToIndex[value] = index;
+        heap[currentIndex] = value;
+        itemToIndex[value] = currentIndex;
     }
 
     protected void resortUp(int index) {
-        int value = heap[index];
-        while (index > 0 && comparator.compare(heap[index / 2], value) < 0) {
-            heap[index] = heap[index / 2];
-            itemToIndex[heap[index / 2]] = index;
-            index /= 2;
+        int currentIndex = index;
+        int value = heap[currentIndex];
+        while (currentIndex > 0 && comparator.compare(heap[currentIndex / 2], value) < 0) {
+            heap[currentIndex] = heap[currentIndex / 2];
+            itemToIndex[heap[currentIndex / 2]] = currentIndex;
+            currentIndex /= 2;
         }
-        heap[index] = value;
-        itemToIndex[value] = index;
+        heap[currentIndex] = value;
+        itemToIndex[value] = currentIndex;
     }
 
     protected void enlarge(int newSize) {

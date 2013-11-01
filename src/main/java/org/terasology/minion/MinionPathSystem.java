@@ -92,7 +92,9 @@ public class MinionPathSystem implements ComponentSystem, UpdateSubscriberSystem
             logger.info("Cannot find path -> rerequest");
             return;
         }
-        logger.info("Minion received paths " + event.getPathId() + " from " + minion.getComponent(LocationComponent.class).getWorldPosition() + " to " + event.getTarget().getBlockPosition());
+        logger.info("Minion received paths " + event.getPathId() +
+                " from " + minion.getComponent(LocationComponent.class).getWorldPosition() +
+                " to " + event.getTarget().getBlockPosition());
 
         MinionMoveComponent move = minion.getComponent(MinionMoveComponent.class);
         move.targetBlock = null;

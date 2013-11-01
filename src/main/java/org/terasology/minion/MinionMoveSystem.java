@@ -1,3 +1,18 @@
+/*
+ * Copyright 2013 MovingBlocks
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.terasology.minion;
 
 import org.slf4j.Logger;
@@ -22,9 +37,9 @@ import javax.vecmath.Vector3f;
  */
 @RegisterSystem
 public class MinionMoveSystem implements ComponentSystem, UpdateSubscriberSystem {
+    public static final float COOLDOWN = 0.1f;
     private static final Logger logger = LoggerFactory.getLogger(MinionMoveSystem.class);
 
-    public static final float COOLDOWN = 0.1f;
     @In
     private EntityManager entityManager;
     private float timeRemain = COOLDOWN;
@@ -37,21 +52,21 @@ public class MinionMoveSystem implements ComponentSystem, UpdateSubscriberSystem
     @Override
     public void update(float delta) {
         timeRemain -= delta;
-        if( timeRemain>0 ) {
+        if (timeRemain > 0) {
             return;
         }
         timeRemain = COOLDOWN;
         for (EntityRef entity : entityManager.getEntitiesWith(MinionMoveComponent.class, CharacterMovementComponent.class, LocationComponent.class)) {
             MinionMoveComponent move = entity.getComponent(MinionMoveComponent.class);
             AnimationComponent animation = entity.getComponent(AnimationComponent.class);
-            if( move.firstRunTime>0 ) {
+            if (move.firstRunTime > 0) {
                 entity.send(new CharacterMoveInputEvent(0, 0, 0, new Vector3f(0f, 0f, 0f), false, true));
                 move.firstRunTime -= timeRemain;
                 entity.saveComponent(move);
             } else {
-                if( move.targetBlock!=null ) {
-                    Vector3f targetBlock = new Vector3f(move.targetBlock.x, move.targetBlock.y+1.5f, move.targetBlock.z);
-                    if( setMovement(targetBlock, entity))  {
+                if (move.targetBlock != null) {
+                    Vector3f targetBlock = new Vector3f(move.targetBlock.x, move.targetBlock.y + 1.5f, move.targetBlock.z);
+                    if (setMovement(targetBlock, entity)) {
                         move.targetBlock = null;
                         entity.saveComponent(move);
                         changeAnimation(entity, animation.idleAnim, true);
@@ -81,7 +96,7 @@ public class MinionMoveSystem implements ComponentSystem, UpdateSubscriberSystem
         targetDirection.sub(currentTarget, worldPos);
         boolean finished;
         Vector3f drive = new Vector3f();
-        boolean jump = currentTarget.y-worldPos.y>0.5f;
+        boolean jump = currentTarget.y - worldPos.y > 0.5f;
         float yaw = 0;
         if (targetDirection.x * targetDirection.x + targetDirection.z * targetDirection.z > 0.01f) {
 
@@ -93,7 +108,7 @@ public class MinionMoveSystem implements ComponentSystem, UpdateSubscriberSystem
             drive.set(0, 0, 0);
             finished = true;
         }
-        entity.send(new CharacterMoveInputEvent(0, 0, 180+yaw* TeraMath.RAD_TO_DEG, drive, false, jump));
+        entity.send(new CharacterMoveInputEvent(0, 0, 180 + yaw * TeraMath.RAD_TO_DEG, drive, false, jump));
 
         return finished;
     }

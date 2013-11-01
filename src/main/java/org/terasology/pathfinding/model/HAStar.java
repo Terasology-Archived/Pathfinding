@@ -21,7 +21,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.math.Vector3i;
 
-import java.util.*;
+import java.util.BitSet;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author synopia
@@ -84,9 +89,9 @@ public class HAStar {
         return node.id;
     }
 
-    public boolean run(WalkableBlock start, WalkableBlock end) {
-        this.start = create(start);
-        this.end = create(end);
+    public boolean run(WalkableBlock startBlock, WalkableBlock endBlock) {
+        this.start = create(startBlock);
+        this.end = create(endBlock);
 
         openList.insert(this.start);
 
@@ -114,9 +119,9 @@ public class HAStar {
     public Path getPath() {
         localPathsUsed = 0;
         Path path = new Path();
-        Node start = nodes.get(this.start);
+        Node startNode = nodes.get(this.start);
         Node current = nodes.get(end);
-        while (current != start && current != null) {
+        while (current != startNode && current != null) {
             if (current.path != null) {
                 path.addAll(current.path);
                 localPathsUsed++;

@@ -41,7 +41,41 @@ public class PathDebugger extends JFrame {
     private WalkableBlock target;
     private Path path;
 
-    private class DebugPanel extends JPanel {
+    public PathDebugger() throws HeadlessException {
+        mapWidth = 160;
+        mapHeight = 100;
+        helper = new TestHelper();
+        helper.init(new MazeChunkGenerator(mapWidth, mapHeight, 4, 0, 20));
+//        helper = new TestHelper(new PathfinderTestGenerator(true));
+        pathfinder = new Pathfinder(helper.world);
+        for (int x = 0; x < mapWidth / 16 + 1; x++) {
+            for (int z = 0; z < mapHeight / 16 + 1; z++) {
+                pathfinder.init(new Vector3i(x, 0, z));
+            }
+        }
+        level = 6;
+        add(new DebugPanel());
+    }
+
+    private boolean isEntrance(WalkableBlock block) {
+        boolean isEntrance = false;
+        for (Entrance entrance : block.floor.entrances()) {
+            if (entrance.getAbstractBlock() == block) {
+                isEntrance = true;
+                break;
+            }
+        }
+        return isEntrance;
+    }
+
+    public static void main(String[] args) {
+        PathDebugger debugger = new PathDebugger();
+        debugger.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        debugger.pack();
+        debugger.setVisible(true);
+    }
+
+    private final class DebugPanel extends JPanel {
         private DebugPanel() {
             addMouseMotionListener(new MouseMotionListener() {
                 @Override
@@ -178,39 +212,5 @@ public class PathDebugger extends JFrame {
                 }
             }
         }
-    }
-
-    private boolean isEntrance(WalkableBlock block) {
-        boolean isEntrance = false;
-        for (Entrance entrance : block.floor.entrances()) {
-            if (entrance.getAbstractBlock() == block) {
-                isEntrance = true;
-                break;
-            }
-        }
-        return isEntrance;
-    }
-
-    public PathDebugger() throws HeadlessException {
-        mapWidth = 160;
-        mapHeight = 100;
-        helper = new TestHelper();
-        helper.init(new MazeChunkGenerator(mapWidth, mapHeight, 4, 0, 20));
-//        helper = new TestHelper(new PathfinderTestGenerator(true));
-        pathfinder = new Pathfinder(helper.world);
-        for (int x = 0; x < mapWidth / 16 + 1; x++) {
-            for (int z = 0; z < mapHeight / 16 + 1; z++) {
-                pathfinder.init(new Vector3i(x, 0, z));
-            }
-        }
-        level = 6;
-        add(new DebugPanel());
-    }
-
-    public static void main(String[] args) {
-        PathDebugger debugger = new PathDebugger();
-        debugger.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        debugger.pack();
-        debugger.setVisible(true);
     }
 }

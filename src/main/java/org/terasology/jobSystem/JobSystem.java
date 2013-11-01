@@ -44,12 +44,6 @@ import java.util.List;
  */
 @RegisterSystem
 public class JobSystem implements ComponentSystem, UpdateSubscriberSystem {
-    private class JobCandidate {
-        public EntityRef minion;
-        public EntityRef block;
-        public Path path;
-    }
-
     private static final Logger logger = LoggerFactory.getLogger(JobSystem.class);
 
     @In
@@ -223,5 +217,11 @@ public class JobSystem implements ComponentSystem, UpdateSubscriberSystem {
 
     @Override
     public void shutdown() {
+    }
+
+    private class JobCandidate {
+        public EntityRef minion;
+        public EntityRef block;
+        public Path path;
     }
 }
