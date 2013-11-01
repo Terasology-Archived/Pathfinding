@@ -110,7 +110,6 @@ public class WalkableBlockFinder {
             }
         } else if (Math.abs(heightDiff) < 2 && !diagonal) {
             WalkableBlock lower = heightDiff < 0 ? block : neighborBlock;
-            WalkableBlock higher = heightDiff < 0 ? neighborBlock : block;
             Block jumpCheck = world.getBlock(lower.x(), lower.height() + 3, lower.z());
             if (jumpCheck.isPenetrable()) {
                 block.neighbors[direction] = neighborBlock;

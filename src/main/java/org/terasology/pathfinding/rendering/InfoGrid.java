@@ -15,6 +15,8 @@
  */
 package org.terasology.pathfinding.rendering;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
@@ -27,9 +29,8 @@ import org.terasology.rendering.world.WorldRenderer;
 
 import javax.vecmath.Vector3f;
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -39,19 +40,9 @@ import static org.lwjgl.opengl.GL11.*;
  */
 public class InfoGrid {
     private Font font;
-    private HashMap<Vector3i, GridPosition> grid = new HashMap<Vector3i, GridPosition>();
-    private List<Category> categories = new ArrayList<Category>();
-    private Stack<Color> colors = new Stack<Color>();
-
-    private class GridPosition {
-        private Vector3i position;
-        private HashMap<String, String> entries = new HashMap<String, String>();
-    }
-
-    private class Category {
-        private String name;
-        private Color color;
-    }
+    private Map<Vector3i, GridPosition> grid = Maps.newHashMap();
+    private List<Category> categories = Lists.newArrayList();
+    private Stack<Color> colors = new Stack<>();
 
     public InfoGrid() {
         font = Assets.getFont("engine:default");
@@ -188,5 +179,16 @@ public class InfoGrid {
 
         GL11.glLoadMatrix(model);
     }
+
+    private class GridPosition {
+        private Vector3i position;
+        private Map<String, String> entries = Maps.newHashMap();
+    }
+
+    private class Category {
+        private String name;
+        private Color color;
+    }
+
 
 }

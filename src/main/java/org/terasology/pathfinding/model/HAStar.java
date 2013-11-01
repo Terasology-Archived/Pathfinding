@@ -21,14 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.math.Vector3i;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author synopia
@@ -50,15 +43,6 @@ public class HAStar {
 
     private BitSet closedList = new BitSet(16 * 1024);
     private boolean useContour;
-
-    private class Node {
-        int id;
-        float g;
-        float f;
-        Node p;
-        WalkableBlock block;
-        Path path;
-    }
 
     public HAStar() {
         this(true);
@@ -201,7 +185,6 @@ public class HAStar {
         Vector3i fromPos = fromNode.block.getBlockPosition();
         Vector3i toPos = toNode.block.getBlockPosition();
         int diffX = Math.abs(fromPos.x - toPos.x);
-        int diffY = Math.abs(fromPos.y - toPos.y);
         int diffZ = Math.abs(fromPos.z - toPos.z);
         if (toNode.block.hasNeighbor(fromNode.block)) {
             if (diffX + diffZ == 1) {
@@ -214,7 +197,7 @@ public class HAStar {
             cacheHits++;
         }
         localPath = fromNode.block.floor.heightMap.pathCache.findPath(
-            fromNode.block, toNode.block, new PathCache.Callback() {
+                fromNode.block, toNode.block, new PathCache.Callback() {
             @Override
             public Path run(WalkableBlock from, WalkableBlock to) {
 
@@ -244,4 +227,14 @@ public class HAStar {
     public String toString() {
         return "closed list size=" + closedList.cardinality() + ", cache hits=" + cacheHits + ", local paths used=" + localPathsUsed;
     }
+
+    private class Node {
+        int id;
+        float g;
+        float f;
+        Node p;
+        WalkableBlock block;
+        Path path;
+    }
+
 }

@@ -21,9 +21,9 @@ import org.terasology.math.Vector3i;
  * @author synopia
  */
 public class WalkableBlock {
-    private Vector3i position;
     public WalkableBlock[] neighbors = new WalkableBlock[8];
     public Floor floor;
+    private Vector3i position;
 
     public WalkableBlock(int x, int z, int height) {
         position = new Vector3i(x, height, z);

@@ -29,27 +29,27 @@ import java.util.Set;
  * @author synopia
  */
 public class ConnectHeightMapTest {
+    public static String[] contourExpected = new String[]{
+            "       C        ",
+            "                ",
+            "                ",
+            "                ",
+            "                ",
+            "                ",
+            "                ",
+            "               C",
+            "C               ",
+            "                ",
+            "                ",
+            "                ",
+            "                ",
+            "                ",
+            "                ",
+            "        C       ",
+    };
+
     private WorldProvider world;
     private TestHelper helper;
-
-    public static String[] contourExpected = new String[]{
-        "       C        ",
-        "                ",
-        "                ",
-        "                ",
-        "                ",
-        "                ",
-        "                ",
-        "               C",
-        "C               ",
-        "                ",
-        "                ",
-        "                ",
-        "                ",
-        "                ",
-        "                ",
-        "        C       ",
-    };
 
     @Test
     public void test1() {
@@ -118,10 +118,6 @@ public class ConnectHeightMapTest {
         helper = new TestHelper();
         helper.init(new PathfinderTestGenerator());
         world = helper.world;
-    }
-
-    private void assertCenter(HeightMap center, HeightMap left, HeightMap up, HeightMap right, HeightMap down) {
-        assertCenter(center, left, up, right, down, null);
     }
 
     private void assertCenter(final HeightMap center, HeightMap left, HeightMap up, HeightMap right, HeightMap down, String[] contours) {

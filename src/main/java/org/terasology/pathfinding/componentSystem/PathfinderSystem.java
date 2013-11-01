@@ -51,70 +51,6 @@ import java.util.concurrent.*;
 public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(PathfinderSystem.class);
 
-    /**
-     * Task to update a chunk
-     */
-    private class UpdateChunkTask {
-        public Vector3i chunkPos;
-
-        private UpdateChunkTask(Vector3i chunkPos) {
-            this.chunkPos = chunkPos;
-        }
-
-        public void process() {
-            maps.remove(chunkPos);
-            HeightMap map = pathfinder.update(chunkPos);
-            maps.put(chunkPos, map);
-            pathfinder.clearCache();
-        }
-    }
-
-    /**
-     * Task to find a paths.
-     */
-    private class FindPathTask {
-        public EntityRef entity;
-        public Path[] paths;
-        public Vector3i[] start;
-        public Vector3i target;
-        public boolean processed;
-        public int pathId;
-
-        private FindPathTask(Vector3i[] start, Vector3i target, EntityRef entity) {
-            this.start = start;
-            this.target = target;
-            this.entity = entity;
-            this.pathId = nextId;
-            nextId++;
-        }
-
-        /**
-         * Does the actual paths finding. When its done, the outputQueue is filled with the result.
-         * This method should be called from a thread only, it may take long.
-         */
-        public void process() {
-            WalkableBlock[] startBlocks = new WalkableBlock[start.length];
-            int startCount = 0;
-            for (int i = 0; i < start.length; i++) {
-                if (this.start[i] != null) {
-                    startBlocks[i] = pathfinder.getBlock(this.start[i]);
-                    startCount++;
-                }
-            }
-            WalkableBlock targetBlock = pathfinder.getBlock(this.target);
-            paths = null;
-            if (targetBlock != null && startCount > 0) {
-                paths = pathfinder.findPath(targetBlock, startBlocks);
-            }
-            processed = true;
-            entity.send(new PathReadyEvent(pathId, paths, targetBlock, startBlocks));
-        }
-
-        public void cancel() {
-            entity.send(new PathReadyEvent(pathId, null, null, null));
-        }
-    }
-
     @In
     private WorldProvider world;
 
@@ -244,5 +180,69 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
     public void chunkReady(OnChunkLoaded event, EntityRef worldEntity) {
         invalidChunks.add(event.getChunkPos());
         updateChunkQueue.offer(new UpdateChunkTask(event.getChunkPos()));
+    }
+
+    /**
+     * Task to update a chunk
+     */
+    private final class UpdateChunkTask {
+        public Vector3i chunkPos;
+
+        private UpdateChunkTask(Vector3i chunkPos) {
+            this.chunkPos = chunkPos;
+        }
+
+        public void process() {
+            maps.remove(chunkPos);
+            HeightMap map = pathfinder.update(chunkPos);
+            maps.put(chunkPos, map);
+            pathfinder.clearCache();
+        }
+    }
+
+    /**
+     * Task to find a paths.
+     */
+    private final class FindPathTask {
+        public EntityRef entity;
+        public Path[] paths;
+        public Vector3i[] start;
+        public Vector3i target;
+        public boolean processed;
+        public int pathId;
+
+        private FindPathTask(Vector3i[] start, Vector3i target, EntityRef entity) {
+            this.start = start;
+            this.target = target;
+            this.entity = entity;
+            this.pathId = nextId;
+            nextId++;
+        }
+
+        /**
+         * Does the actual paths finding. When its done, the outputQueue is filled with the result.
+         * This method should be called from a thread only, it may take long.
+         */
+        public void process() {
+            WalkableBlock[] startBlocks = new WalkableBlock[start.length];
+            int startCount = 0;
+            for (int i = 0; i < start.length; i++) {
+                if (this.start[i] != null) {
+                    startBlocks[i] = pathfinder.getBlock(this.start[i]);
+                    startCount++;
+                }
+            }
+            WalkableBlock targetBlock = pathfinder.getBlock(this.target);
+            paths = null;
+            if (targetBlock != null && startCount > 0) {
+                paths = pathfinder.findPath(targetBlock, startBlocks);
+            }
+            processed = true;
+            entity.send(new PathReadyEvent(pathId, paths, targetBlock, startBlocks));
+        }
+
+        public void cancel() {
+            entity.send(new PathReadyEvent(pathId, null, null, null));
+        }
     }
 }

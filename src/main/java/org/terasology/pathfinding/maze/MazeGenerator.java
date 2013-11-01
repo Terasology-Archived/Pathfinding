@@ -72,7 +72,7 @@ public class MazeGenerator {
             int nx = cx + dir.dx;
             int ny = cy + dir.dy;
             if (between(nx, x) && between(ny, y)
-                && (maze[nx][ny] == 0)) {
+                    && (maze[nx][ny] == 0)) {
                 maze[cx][cy] |= dir.bit;
                 maze[nx][ny] |= dir.opposite.bit;
                 generateMaze(nx, ny);
@@ -105,6 +105,4 @@ public class MazeGenerator {
             this.dy = dy;
         }
     }
-
-    ;
 }

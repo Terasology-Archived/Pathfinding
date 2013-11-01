@@ -47,8 +47,8 @@ public class MazeChunkGenerator implements FirstPassGenerator {
     private int height;
     private List<BitSet[]> mazes;
     private List<Vector3i> stairs;
-    private int lastStairX = 0;
-    private int lastStairY = 0;
+    private int lastStairX;
+    private int lastStairY;
     private int startHeight;
     private Random random;
 

@@ -15,13 +15,13 @@
  */
 package org.terasology.pathfinding.model;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.chunks.Chunk;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -41,16 +41,18 @@ public class HeightMap {
     public static final int DIR_DOWN = 6;
     public static final int DIR_LD = 7;
     public static final int[][] DIRECTIONS = new int[][]{
-        {-1, 0}, {-1, -1}, {0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}
+            {-1, 0}, {-1, -1}, {0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}
     };
 
-    /* package protected */ HeightMapCell[] cells = new HeightMapCell[SIZE_X * SIZE_Z];
-    public final List<WalkableBlock> walkableBlocks = new ArrayList<WalkableBlock>();
-    public final List<Floor> floors = new ArrayList<Floor>();
-    private WorldProvider world;
+    public final List<WalkableBlock> walkableBlocks = Lists.newArrayList();
+    public final List<Floor> floors = Lists.newArrayList();
+    public final Set<WalkableBlock> borderBlocks = Sets.newHashSet();
+
     public Vector3i worldPos;
-    public final Set<WalkableBlock> borderBlocks = new HashSet<WalkableBlock>();
     public PathCache pathCache = new PathCache();
+
+    /* package protected */ HeightMapCell[] cells = new HeightMapCell[SIZE_X * SIZE_Z];
+    private WorldProvider world;
 
     public HeightMap(WorldProvider world, Vector3i chunkPos) {
         this.world = world;
@@ -63,7 +65,7 @@ public class HeightMap {
 
     public void update() {
         new WalkableBlockFinder(world).findWalkableBlocks(this);
-        new FloorFinder(world).findFloors(this);
+        new FloorFinder().findFloors(this);
     }
 
     public void connectNeighborMaps(HeightMap left, HeightMap up, HeightMap right, HeightMap down) {

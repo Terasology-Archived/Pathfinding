@@ -26,35 +26,8 @@ public class BitMap {
     public static final float SQRT_2 = (float) Math.sqrt(2);
     BitSet map;
 
-    public interface Kernel {
-        boolean apply(boolean[] input);
-    }
-
     public BitMap() {
         map = new BitSet(getNumberOfNodes());
-    }
-
-    public void runKernel(Kernel kernel, BitMap data) {
-        boolean[] input = new boolean[KERNEL_SIZE * KERNEL_SIZE];
-        for (int y = 0; y < getHeight(); y++) {
-            for (int x = 0; x < getWidth(); x++) {
-                input[kernelOffset(0, 0)] = data.isPassable(x - 1, y - 1);
-                input[kernelOffset(1, 0)] = data.isPassable(x, y - 1);
-                input[kernelOffset(2, 0)] = data.isPassable(x + 1, y - 1);
-                input[kernelOffset(0, 1)] = data.isPassable(x - 1, y);
-                input[kernelOffset(1, 1)] = data.isPassable(x, y);
-                input[kernelOffset(2, 1)] = data.isPassable(x + 1, y);
-                input[kernelOffset(0, 2)] = data.isPassable(x - 1, y + 1);
-                input[kernelOffset(2, 2)] = data.isPassable(x + 1, y + 1);
-                input[kernelOffset(1, 2)] = data.isPassable(x, y + 1);
-                boolean result = kernel.apply(input);
-                map.set(offset(x, y), result);
-            }
-        }
-    }
-
-    public static int kernelOffset(int x, int y) {
-        return x + y * KERNEL_SIZE;
     }
 
     public int offset(int x, int y) {

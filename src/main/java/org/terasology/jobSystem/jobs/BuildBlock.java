@@ -35,9 +35,9 @@ import java.util.List;
  * @author synopia
  */
 public class BuildBlock implements JobType {
+    private final static int[][] NEIGHBORS = new int[][]{{-1, -1}, {1, -1}, {-1, 1}, {1, 1}};
 
     private final PathfinderSystem pathfinderSystem;
-    private final static int[][] neighbors = new int[][]{{-1, -1}, {1, -1}, {-1, 1}, {1, 1}};
     private final WorldProvider worldProvider;
     private final Block blockType;
 
@@ -54,7 +54,7 @@ public class BuildBlock implements JobType {
         Vector3i worldPos = block.getComponent(BlockComponent.class).getPosition();
         WalkableBlock walkableBlock;
         Vector3i pos = new Vector3i();
-        for (int[] neighbor : neighbors) {
+        for (int[] neighbor : NEIGHBORS) {
             pos.set(worldPos.x + neighbor[0], worldPos.y, worldPos.z + neighbor[1]);
             walkableBlock = pathfinderSystem.getBlock(pos);
             if (walkableBlock == null) {

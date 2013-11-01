@@ -30,116 +30,116 @@ public class RegionFinderTest {
         assertRegions(new String[]{"X"}, new String[]{"0"});
         assertRegions(new String[]{"XX", "XX"}, new String[]{"00", "00"});
         assertRegions(new String[]{
-            "XXX",
-            "XX ",
-            "XXX"
+                "XXX",
+                "XX ",
+                "XXX"
         }, new String[]{
-            "000",
-            "00 ",
-            "000"
+                "000",
+                "00 ",
+                "000"
         });
         assertRegions(new String[]{
-            "XXX",
-            " XX",
-            "XXX"
+                "XXX",
+                " XX",
+                "XXX"
         }, new String[]{
-            "000",
-            " 00",
-            "000"
+                "000",
+                " 00",
+                "000"
         });
         assertRegions(new String[]{
-            "XXX",
-            "X X",
-            "XXX"
+                "XXX",
+                "X X",
+                "XXX"
         }, new String[]{
-            "000",
-            "1 2",
-            "333"
+                "000",
+                "1 2",
+                "333"
         }, new int[][]{{1, 2}, {0, 3}, {0, 3}, {1, 2}});
         assertRegions(new String[]{
-            "X X X",
-            "XXXXX",
-            "X X X"
+                "X X X",
+                "XXXXX",
+                "X X X"
         }, new String[]{
-            "0 1 2",
-            "33333",
-            "4 5 6"
+                "0 1 2",
+                "33333",
+                "4 5 6"
         }, new int[][]{{3}, {3}, {3}, {0, 1, 2, 4, 5, 6}, {3}, {3}, {3}});
         assertRegions(new String[]{
-            "XXXXX",
-            "XXXXX",
-            "XXXXX"
+                "XXXXX",
+                "XXXXX",
+                "XXXXX"
         }, new String[]{
-            "00000",
-            "00000",
-            "00000"
+                "00000",
+                "00000",
+                "00000"
         });
     }
 
     @Test
     public void bigTest() {
         assertRegions(new String[]{
-            "XXXXXXXXX|         |         ",
-            "XXXXXXXXX|         |         ",
-            "XXXXXXXXX|         |         ",
-            "XXXXXXXXX|   XXX   |   XXX   ",
-            "XXXXXXXXX|   XXX   |   XXX   ",
-            "XXXXXXXXX|   XXX   |   XXX   ",
-            "XXXXXXXXX|         |         ",
-            "XXXXXXXXX|         |         ",
-            "XXXXXXXXX|         |         ",
+                "XXXXXXXXX|         |         ",
+                "XXXXXXXXX|         |         ",
+                "XXXXXXXXX|         |         ",
+                "XXXXXXXXX|   XXX   |   XXX   ",
+                "XXXXXXXXX|   XXX   |   XXX   ",
+                "XXXXXXXXX|   XXX   |   XXX   ",
+                "XXXXXXXXX|         |         ",
+                "XXXXXXXXX|         |         ",
+                "XXXXXXXXX|         |         ",
         }, new String[]{
-            "000000000|         |         ",
-            "000000000|         |         ",
-            "000000000|         |         ",
-            "111   333|         |   222   ",
-            "111   333|         |   222   ",
-            "111   333|         |   222   ",
-            "444444444|         |         ",
-            "444444444|         |         ",
-            "444444444|         |         ",
+                "000000000|         |         ",
+                "000000000|         |         ",
+                "000000000|         |         ",
+                "111   333|         |   222   ",
+                "111   333|         |   222   ",
+                "111   333|         |   222   ",
+                "444444444|         |         ",
+                "444444444|         |         ",
+                "444444444|         |         ",
         });
         assertRegions(new String[]{
-            "XXXXXXXXX|         |         |XXXXXXXXX",
-            "XXXXXXXXX|         |         |XXXXXXXXX",
-            "XXXXXXXXX|         |         |XXXXXXXXX",
-            "XXXXXXXXX|         |         |XXXXXXXXX",
-            "XXXXXXXXX|         |         |XXXXXXXXX",
-            "XXXXXXXXX|         |         |XXXXXXXXX",
-            "XXXXXXXXX|         |         |XXXXXXXXX",
-            "XXXXXXXXX|         |         |XXXXXXXXX",
-            "XXXXXXXXX|         |         |XXXXXXXXX",
+                "XXXXXXXXX|         |         |XXXXXXXXX",
+                "XXXXXXXXX|         |         |XXXXXXXXX",
+                "XXXXXXXXX|         |         |XXXXXXXXX",
+                "XXXXXXXXX|         |         |XXXXXXXXX",
+                "XXXXXXXXX|         |         |XXXXXXXXX",
+                "XXXXXXXXX|         |         |XXXXXXXXX",
+                "XXXXXXXXX|         |         |XXXXXXXXX",
+                "XXXXXXXXX|         |         |XXXXXXXXX",
+                "XXXXXXXXX|         |         |XXXXXXXXX",
         }, new String[]{
-            "000000000|         |         |111111111",
-            "000000000|         |         |111111111",
-            "000000000|         |         |111111111",
-            "000000000|         |         |111111111",
-            "000000000|         |         |111111111",
-            "000000000|         |         |111111111",
-            "000000000|         |         |111111111",
-            "000000000|         |         |111111111",
-            "000000000|         |         |111111111",
+                "000000000|         |         |111111111",
+                "000000000|         |         |111111111",
+                "000000000|         |         |111111111",
+                "000000000|         |         |111111111",
+                "000000000|         |         |111111111",
+                "000000000|         |         |111111111",
+                "000000000|         |         |111111111",
+                "000000000|         |         |111111111",
+                "000000000|         |         |111111111",
         });
         assertRegions(new String[]{
-            "XXXXXXXXX|         |         |XXXXXXXXX",
-            "XXXXXXXXX|         |         |XXXXXXXXX",
-            "XXXXXXXXX|         |         |XXXXXXXXX",
-            "XXXXXXXXX|         |         |XXX   XXX",
-            "XXX   XXX|   XXX   |         |XXX   XXX",
-            "XXX   XXX|         |   XXX   |XXX   XXX",
-            "XXXXXXXXX|         |         |XXXXXXXXX",
-            "XXXXXXXXX|         |         |XXXXXXXXX",
-            "XXXXXXXXX|         |         |XXXXXXXXX",
+                "XXXXXXXXX|         |         |XXXXXXXXX",
+                "XXXXXXXXX|         |         |XXXXXXXXX",
+                "XXXXXXXXX|         |         |XXXXXXXXX",
+                "XXXXXXXXX|         |         |XXX   XXX",
+                "XXX   XXX|   XXX   |         |XXX   XXX",
+                "XXX   XXX|         |   XXX   |XXX   XXX",
+                "XXXXXXXXX|         |         |XXXXXXXXX",
+                "XXXXXXXXX|         |         |XXXXXXXXX",
+                "XXXXXXXXX|         |         |XXXXXXXXX",
         }, new String[]{
-            "000000000|         |         |111111111",
-            "000000000|         |         |111111111",
-            "000000000|         |         |111111111",
-            "000000000|         |         |222   333",
-            "444   666|   555   |         |222   333",
-            "444   666|         |   777   |777   777",
-            "888888888|         |         |777777777",
-            "888888888|         |         |777777777",
-            "888888888|         |         |777777777",
+                "000000000|         |         |111111111",
+                "000000000|         |         |111111111",
+                "000000000|         |         |111111111",
+                "000000000|         |         |222   333",
+                "444   666|   555   |         |222   333",
+                "444   666|         |   777   |777   777",
+                "888888888|         |         |777777777",
+                "888888888|         |         |777777777",
+                "888888888|         |         |777777777",
         });
     }
 
@@ -152,10 +152,10 @@ public class RegionFinderTest {
         helper.init();
 
         helper.setGround(
-            data
+                data
         );
         new WalkableBlockFinder(helper.world).findWalkableBlocks(helper.map);
-        final FloorFinder finder = new FloorFinder(helper.world);
+        final FloorFinder finder = new FloorFinder();
         finder.findRegions(helper.map);
         String[] actual = helper.evaluate(new TestHelper.Runner() {
             @Override

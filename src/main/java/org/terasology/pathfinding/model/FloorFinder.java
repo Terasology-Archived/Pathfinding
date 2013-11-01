@@ -15,32 +15,24 @@
  */
 package org.terasology.pathfinding.model;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.terasology.math.Vector3i;
-import org.terasology.world.WorldProvider;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author synopia
  */
 public class FloorFinder {
-    private WorldProvider world;
-    private List<Region> regions = new ArrayList<Region>();
-    private Map<Region, Integer> count = new HashMap<Region, Integer>();
-    private List<Sweep> sweeps = new ArrayList<Sweep>();
-    private Map<WalkableBlock, Region> regionMap = new HashMap<WalkableBlock, Region>();
-    private Map<WalkableBlock, Sweep> sweepMap = new HashMap<WalkableBlock, Sweep>();
+    private List<Region> regions = Lists.newArrayList();
+    private Map<Region, Integer> count = Maps.newHashMap();
+    private List<Sweep> sweeps = Lists.newArrayList();
+    private Map<WalkableBlock, Region> regionMap = Maps.newHashMap();
+    private Map<WalkableBlock, Sweep> sweepMap = Maps.newHashMap();
 
 
-    public FloorFinder(WorldProvider world) {
-        this.world = world;
+    public FloorFinder() {
     }
 
     public Region region(WalkableBlock block) {
@@ -62,8 +54,8 @@ public class FloorFinder {
             Floor floor = new Floor(map, map.floors.size());
             map.floors.add(floor);
 
-            LinkedList<Region> stack = new LinkedList<Region>();
-            stack.push(region);
+            List<Region> stack = Lists.newLinkedList();
+            stack.add(0, region);
 
             while (!stack.isEmpty()) {
                 Collections.sort(stack, new Comparator<Region>() {
@@ -72,7 +64,7 @@ public class FloorFinder {
                         return o1.id < o2.id ? -1 : o1.id > o2.id ? 1 : 0;
                     }
                 });
-                Region current = stack.poll();
+                Region current = stack.remove(0);
                 if (current.floor != null) {
                     continue;
                 }

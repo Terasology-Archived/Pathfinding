@@ -15,7 +15,8 @@
  */
 package org.terasology.pathfinding.model;
 
-import java.util.ArrayList;
+import com.google.common.collect.Lists;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -28,14 +29,14 @@ public class AStar {
     private float[] gMap;
     private float[] fMap;
     private int[] pMap;
-    private List<Integer> successors = new ArrayList<Integer>();
+    private List<Integer> successors = Lists.newArrayList();
 
     private int start;
     private int end;
 
     private BinaryHeap openList;
 
-    private List<Integer> closedList = new ArrayList<Integer>();
+    private List<Integer> closedList = Lists.newArrayList();
 
     public AStar(BitMap graph) {
         this.graph = graph;
@@ -80,7 +81,7 @@ public class AStar {
 
     @Override
     public String toString() {
-        ArrayList<Integer> path = new ArrayList<Integer>();
+        List<Integer> path = Lists.newArrayList();
         getPath(path);
         int id = 0;
         String text = "";
@@ -102,7 +103,7 @@ public class AStar {
     }
 
     public List<Integer> getPath() {
-        ArrayList<Integer> result = new ArrayList<Integer>();
+        List<Integer> result = Lists.newArrayList();
         getPath(result);
         return result;
     }

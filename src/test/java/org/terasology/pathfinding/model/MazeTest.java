@@ -53,7 +53,6 @@ public class MazeTest {
                 sb.append("\n");
             }
         }
-        System.out.println(sb);
         Assert.assertTrue(pathfinder.findPath(target, start)[0].size() > 0);
     }
 

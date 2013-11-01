@@ -28,9 +28,9 @@ public class WalkableBlockFinderTest {
         helper.init();
 
         helper.setGround(
-            "XXX|   |   |",
-            "XXX|X  |X  |",
-            "XXX|   |   |"
+                "XXX|   |   |",
+                "XXX|X  |X  |",
+                "XXX|   |   |"
         );
         helper.map.update();
         WalkableBlock sut = helper.map.getBlock(1, 0, 1);
@@ -47,10 +47,10 @@ public class WalkableBlockFinderTest {
         helper.init();
 
         helper.setGround(
-            "XXXXXX|      |      |      |XXXXXX|",
-            "XX    |  X   |   X  |    X |  X  X|",
-            "XX    |  X   |   X  |    X |  X  X|",
-            "XXXXXX|      |      |      |XXXXXX|"
+                "XXXXXX|      |      |      |XXXXXX|",
+                "XX    |  X   |   X  |    X |  X  X|",
+                "XX    |  X   |   X  |    X |  X  X|",
+                "XXXXXX|      |      |      |XXXXXX|"
         );
         helper.map.update();
         WalkableBlock left = helper.map.getBlock(2, 1, 1);
@@ -66,9 +66,9 @@ public class WalkableBlockFinderTest {
         helper.init();
 
         helper.setGround(
-            " X ",
-            "X X",
-            " X "
+                " X ",
+                "X X",
+                " X "
 //                "XXXXXX|      |      |XXXXXX|",
 //                "XX    |  X   |   X  |    XX|",
 //                "XX    |  X   |   X  |    XX|",
@@ -100,64 +100,64 @@ public class WalkableBlockFinderTest {
     @Test
     public void testFind() {
         assertWalkableBlocks(new String[]{
-            "XXX",
-            "XXX",
-            "XXX"
+                "XXX",
+                "XXX",
+                "XXX"
         }, new String[]{
-            "XXX",
-            "XXX",
-            "XXX"
+                "XXX",
+                "XXX",
+                "XXX"
         });
         assertWalkableBlocks(new String[]{
-            "XXX|   |   |XXX",
-            "XXX|   |   |XXX",
-            "XXX|   |   |XXX"
+                "XXX|   |   |XXX",
+                "XXX|   |   |XXX",
+                "XXX|   |   |XXX"
         }, new String[]{
-            "XXX|   |   |XXX",
-            "XXX|   |   |XXX",
-            "XXX|   |   |XXX"
+                "XXX|   |   |XXX",
+                "XXX|   |   |XXX",
+                "XXX|   |   |XXX"
         });
         assertWalkableBlocks(new String[]{
-            "XXX|   |XXX",
-            "XXX|   |XXX",
-            "XXX|   |XXX"
+                "XXX|   |XXX",
+                "XXX|   |XXX",
+                "XXX|   |XXX"
         }, new String[]{
-            "   |   |XXX",
-            "   |   |XXX",
-            "   |   |XXX"
+                "   |   |XXX",
+                "   |   |XXX",
+                "   |   |XXX"
         });
         assertWalkableBlocks(new String[]{
-            "XXX|   |XXX",
-            "XXX|   |X X",
-            "XXX|   |XXX"
+                "XXX|   |XXX",
+                "XXX|   |X X",
+                "XXX|   |XXX"
         }, new String[]{
-            "   |   |XXX",
-            " X |   |X X",
-            "   |   |XXX"
+                "   |   |XXX",
+                " X |   |X X",
+                "   |   |XXX"
         });
     }
 
     @Test
     public void testNeighbors() {
         assertNeighbors3x3(
-            "XXX",
-            "XXX",
-            "XXX"
+                "XXX",
+                "XXX",
+                "XXX"
         );
         assertNeighbors3x3(
-            "XXX|   ",
-            "XXX| X ",
-            "XXX|   "
+                "XXX|   ",
+                "XXX| X ",
+                "XXX|   "
         );
         assertNeighbors3x3(
-            "XXX|   ",
-            "X X| X ",
-            "XXX|   "
+                "XXX|   ",
+                "X X| X ",
+                "XXX|   "
         );
         assertNeighbors3x3(
-            " X |X X",
-            "X X| X ",
-            " X |X X"
+                " X |X X",
+                "X X| X ",
+                " X |X X"
         );
     }
 
@@ -190,7 +190,9 @@ public class WalkableBlockFinderTest {
         assertNeighbors(rd, down, center, right, null, null, null, null, null);
     }
 
-    private void assertNeighbors(WalkableBlock block, WalkableBlock left, WalkableBlock lu, WalkableBlock up, WalkableBlock ru, WalkableBlock right, WalkableBlock rd, WalkableBlock down, WalkableBlock ld) {
+    private void assertNeighbors(WalkableBlock block, WalkableBlock left,
+                                 WalkableBlock lu, WalkableBlock up, WalkableBlock ru, WalkableBlock right, WalkableBlock rd,
+                                 WalkableBlock down, WalkableBlock ld) {
         Assert.assertSame(left, block.neighbors[HeightMap.DIR_LEFT]);
 //        Assert.assertSame(lu, block.neighbors[HeightMap.DIR_LU]);
         Assert.assertSame(up, block.neighbors[HeightMap.DIR_UP]);

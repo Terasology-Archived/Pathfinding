@@ -15,8 +15,6 @@
  */
 package org.terasology.pathfinding.model;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
 import org.terasology.world.WorldProvider;
@@ -28,8 +26,6 @@ import java.util.Map;
  * @author synopia
  */
 public class Pathfinder {
-    private static final Logger logger = LoggerFactory.getLogger(Pathfinder.class);
-
     private WorldProvider world;
     private Map<Vector3i, HeightMap> heightMaps = new HashMap<>();
     private HAStar haStar;

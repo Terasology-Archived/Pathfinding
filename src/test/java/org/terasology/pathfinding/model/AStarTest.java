@@ -15,10 +15,10 @@
  */
 package org.terasology.pathfinding.model;
 
+import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,15 +29,15 @@ public class AStarTest {
     @Test
     public void maze() {
         assertAStar(
-            "XXXXXXXX",
-            "XS**** X",
-            "XXXXXX*X",
-            "X **** X",
-            "X*XXXXXX",
-            "X **** X",
-            "XXXXXX*X",
-            "XE**** X",
-            "XXXXXXXX"
+                "XXXXXXXX",
+                "XS**** X",
+                "XXXXXX*X",
+                "X **** X",
+                "X*XXXXXX",
+                "X **** X",
+                "XXXXXX*X",
+                "XE**** X",
+                "XXXXXXXX"
         );
 
     }
@@ -45,49 +45,49 @@ public class AStarTest {
     @Test
     public void simple() {
         assertAStar(
-            "XXXXX",
-            "XS*EX",
-            "XXXXX"
+                "XXXXX",
+                "XS*EX",
+                "XXXXX"
         );
         assertAStar(
-            "XXXXXXXX",
-            "XS     X",
-            "X *    X",
-            "X  *   X",
-            "X   *  X",
-            "X    * X",
-            "X     EX",
-            "XXXXXXXX"
+                "XXXXXXXX",
+                "XS     X",
+                "X *    X",
+                "X  *   X",
+                "X   *  X",
+                "X    * X",
+                "X     EX",
+                "XXXXXXXX"
         );
         assertAStar(
-            "XXXXXXXX",
-            "X     EX",
-            "X    * X",
-            "X   *  X",
-            "X  *   X",
-            "X *    X",
-            "XS     X",
-            "XXXXXXXX"
+                "XXXXXXXX",
+                "X     EX",
+                "X    * X",
+                "X   *  X",
+                "X  *   X",
+                "X *    X",
+                "XS     X",
+                "XXXXXXXX"
         );
         assertAStar(
-            "XXXXXXXX",
-            "XE     X",
-            "X *    X",
-            "X  *   X",
-            "X   *  X",
-            "X    * X",
-            "X     SX",
-            "XXXXXXXX"
+                "XXXXXXXX",
+                "XE     X",
+                "X *    X",
+                "X  *   X",
+                "X   *  X",
+                "X    * X",
+                "X     SX",
+                "XXXXXXXX"
         );
         assertAStar(
-            "XXXXXXXX",
-            "X     SX",
-            "X    * X",
-            "X   *  X",
-            "X  *   X",
-            "X *    X",
-            "XE     X",
-            "XXXXXXXX"
+                "XXXXXXXX",
+                "X     SX",
+                "X    * X",
+                "X   *  X",
+                "X  *   X",
+                "X *    X",
+                "XE     X",
+                "XXXXXXXX"
         );
     }
 
@@ -95,7 +95,7 @@ public class AStarTest {
         BitMap map = new BitMap();
         int start = -1;
         int end = -1;
-        List<Integer> expected = new ArrayList<Integer>();
+        List<Integer> expected = Lists.newArrayList();
         for (int y = 0; y < data.length; y++) {
             String row = data[y];
             for (int x = 0; x < row.length(); x++) {
@@ -125,7 +125,7 @@ public class AStarTest {
         }
 
         AStar sut = new AStar(map);
-        boolean run = sut.run(start, end);
+        sut.run(start, end);
         List<Integer> path = sut.getPath();
         Collections.sort(path);
         Collections.sort(expected);
