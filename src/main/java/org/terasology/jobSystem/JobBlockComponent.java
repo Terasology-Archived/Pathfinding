@@ -15,33 +15,68 @@
  */
 package org.terasology.jobSystem;
 
+import org.terasology.engine.CoreRegistry;
+import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.jobSystem.jobs.JobTypeImpl;
+import org.terasology.math.Vector3i;
 import org.terasology.world.block.ForceBlockActive;
 
+import java.util.List;
+
 /**
- * JobType's block component. Using this component, jobs can be assigned to individual blocks
+ * Job's block component. Using this component, jobs can be assigned to individual blocks
  *
  * @author synopia
  */
 @ForceBlockActive
-public class JobBlockComponent implements Component {
-    public enum JobBlockState {
-        UNASSIGNED,
-        PATHS_REQUESTED,
-        ASSIGNED
-    }
-
-    public JobTypeImpl jobType = JobTypeImpl.IDLE;
+public class JobBlockComponent implements Component, Job {
+    public String jobUri;
     public transient EntityRef assignedMinion;
-
-    public transient JobBlockState state = JobBlockComponent.JobBlockState.UNASSIGNED;
+    private transient Job job;
 
     public JobBlockComponent() {
     }
 
-    public JobBlockComponent(JobTypeImpl jobType) {
-        this.jobType = jobType;
+    public void setJob(Job job) {
+        this.job = job;
+        this.jobUri = job.getUri().toString();
+    }
+
+    public Job getJob() {
+        if (job == null) {
+            job = CoreRegistry.get(JobFactory.class).getJob(jobUri);
+        }
+        return job;
+    }
+
+    @Override
+    public List<Vector3i> getTargetPositions(EntityRef block) {
+        return getJob().getTargetPositions(block);
+    }
+
+    @Override
+    public boolean canMinionWork(EntityRef block, EntityRef minion) {
+        return getJob().canMinionWork(block, minion);
+    }
+
+    @Override
+    public boolean isAssignable(EntityRef block) {
+        return getJob().isAssignable(block);
+    }
+
+    @Override
+    public void letMinionWork(EntityRef block, EntityRef minion) {
+        getJob().letMinionWork(block, minion);
+    }
+
+    @Override
+    public boolean isRequestable(EntityRef block) {
+        return getJob().isRequestable(block);
+    }
+
+    @Override
+    public SimpleUri getUri() {
+        return getJob().getUri();
     }
 }

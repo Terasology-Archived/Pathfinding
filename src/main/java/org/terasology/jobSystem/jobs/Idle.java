@@ -16,8 +16,13 @@
 package org.terasology.jobSystem.jobs;
 
 import com.google.common.collect.Lists;
+import org.terasology.engine.CoreRegistry;
+import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.jobSystem.JobType;
+import org.terasology.entitySystem.systems.ComponentSystem;
+import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.jobSystem.Job;
+import org.terasology.jobSystem.JobFactory;
 import org.terasology.math.Vector3i;
 
 import java.util.List;
@@ -25,68 +30,51 @@ import java.util.List;
 /**
  * @author synopia
  */
-public enum JobTypeImpl implements JobType {
-    IDLE(new JobType() {
-        @Override
-        public List<Vector3i> getTargetPositions(EntityRef block) {
-            return Lists.newArrayList();
-        }
+@RegisterSystem
+public class Idle implements Job, ComponentSystem {
 
-        @Override
-        public boolean canMinionWork(EntityRef block, EntityRef minion) {
-            return false;
-        }
+    private SimpleUri uri;
 
-        @Override
-        public boolean isAssignable(EntityRef block) {
-            return false;
-        }
-
-        @Override
-        public void letMinionWork(EntityRef block, EntityRef minion) {
-        }
-
-        @Override
-        public boolean isRequestable(EntityRef block) {
-            return false;
-        }
-    }),
-    WALK_ON_BLOCK(new WalkOnBlock()),
-    BUILD_BLOCK(new BuildBlock());
-
-    private JobType jobType;
-
-    private JobTypeImpl(JobType jobType) {
-        this.jobType = jobType;
+    public Idle() {
+        uri = new SimpleUri("Pathfinding:idle");
     }
 
-    public JobType getJobType() {
-        return jobType;
+    @Override
+    public void initialise() {
+        CoreRegistry.get(JobFactory.class).register(this);
     }
 
+    @Override
+    public void shutdown() {
+
+    }
 
     @Override
     public List<Vector3i> getTargetPositions(EntityRef block) {
-        return jobType.getTargetPositions(block);
+        return Lists.newArrayList();
     }
 
     @Override
     public boolean canMinionWork(EntityRef block, EntityRef minion) {
-        return jobType.canMinionWork(block, minion);
+        return false;
     }
 
     @Override
     public boolean isAssignable(EntityRef block) {
-        return jobType.isAssignable(block);
+        return false;
     }
 
     @Override
     public void letMinionWork(EntityRef block, EntityRef minion) {
-        jobType.letMinionWork(block, minion);
     }
 
     @Override
     public boolean isRequestable(EntityRef block) {
-        return jobType.isRequestable(block);
+        return false;
+    }
+
+    @Override
+    public SimpleUri getUri() {
+        return uri;
     }
 }

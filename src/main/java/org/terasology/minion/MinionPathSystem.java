@@ -81,6 +81,9 @@ public class MinionPathSystem implements ComponentSystem, UpdateSubscriberSystem
     @ReceiveEvent(components = {MinionPathComponent.class, MinionMoveComponent.class})
     public void onPathReady(PathReadyEvent event, EntityRef minion) {
         final MinionPathComponent pathComponent = minion.getComponent(MinionPathComponent.class);
+        if (pathComponent.pathId != event.getPathId()) {
+            return;
+        }
         if (event.getPath() == null) {
             pathComponent.path = null;
             pathComponent.pathId = -1;

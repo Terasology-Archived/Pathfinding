@@ -17,8 +17,13 @@ package org.terasology.jobSystem.jobs;
 
 import com.google.common.collect.Lists;
 import org.terasology.engine.CoreRegistry;
+import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.jobSystem.JobType;
+import org.terasology.entitySystem.systems.ComponentSystem;
+import org.terasology.entitySystem.systems.In;
+import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.jobSystem.Job;
+import org.terasology.jobSystem.JobFactory;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
@@ -30,12 +35,29 @@ import java.util.List;
 /**
  * @author synopia
  */
-public class WalkOnBlock implements JobType {
+@RegisterSystem
+public class WalkToBlock implements Job, ComponentSystem {
+    private final SimpleUri uri;
+    @In
+    private PathfinderSystem pathfinderSystem;
 
-    private final PathfinderSystem pathfinderSystem;
+    public WalkToBlock() {
+        uri = new SimpleUri("Pathfinding:walkToBlock");
+    }
 
-    public WalkOnBlock() {
-        pathfinderSystem = CoreRegistry.get(PathfinderSystem.class);
+    @Override
+    public void initialise() {
+        CoreRegistry.get(JobFactory.class).register(this);
+    }
+
+    @Override
+    public void shutdown() {
+
+    }
+
+    @Override
+    public SimpleUri getUri() {
+        return uri;
     }
 
     public List<Vector3i> getTargetPositions(EntityRef block) {

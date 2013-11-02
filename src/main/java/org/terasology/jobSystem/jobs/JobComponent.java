@@ -13,36 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.jobSystem;
+package org.terasology.jobSystem.jobs;
 
-import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.engine.SimpleUri;
+import org.terasology.entitySystem.Component;
 
 /**
  * @author synopia
  */
-public class JobInfo {
-    private final JobType type;
-    private final EntityRef block;
-    private EntityRef assignee;
+public class JobComponent implements Component {
+    public String jobType;
+    public transient SimpleUri uri;
 
-    public JobInfo(EntityRef block) {
-        this.type = block.getComponent(JobBlockComponent.class).jobType;
-        this.block = block;
+    public SimpleUri getUri() {
+        if (uri == null) {
+            uri = new SimpleUri(jobType);
+        }
+        return uri;
     }
 
-    public EntityRef getAssignee() {
-        return assignee;
-    }
-
-    public void setAssignee(EntityRef assignee) {
-        this.assignee = assignee;
-    }
-
-    public JobType getType() {
-        return type;
-    }
-
-    public EntityRef getBlock() {
-        return block;
-    }
 }

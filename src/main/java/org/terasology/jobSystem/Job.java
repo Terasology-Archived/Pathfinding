@@ -15,6 +15,7 @@
  */
 package org.terasology.jobSystem;
 
+import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.math.Vector3i;
 
@@ -25,7 +26,7 @@ import java.util.List;
  *
  * @author synopia
  */
-public interface JobType {
+public interface Job {
     /**
      * Returns list of positions that are valid to work on this job.
      */
@@ -38,4 +39,6 @@ public interface JobType {
     void letMinionWork(EntityRef block, EntityRef minion);
 
     boolean isRequestable(EntityRef block);
+
+    SimpleUri getUri();
 }

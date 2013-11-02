@@ -24,16 +24,12 @@ import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.RenderSystem;
 import org.terasology.input.cameraTarget.CameraTargetChangedEvent;
-import org.terasology.logic.characters.CharacterComponent;
-import org.terasology.logic.inventory.InventoryComponent;
-import org.terasology.logic.inventory.SlotBasedInventoryManager;
+import org.terasology.logic.common.ActivateEvent;
 import org.terasology.logic.location.LocationComponent;
+import org.terasology.logic.players.LocalPlayer;
 import org.terasology.math.Region3i;
 import org.terasology.math.Vector3i;
-import org.terasology.physics.CollisionGroup;
-import org.terasology.physics.HitResult;
 import org.terasology.physics.Physics;
-import org.terasology.physics.StandardCollisionGroup;
 import org.terasology.rendering.world.WorldRenderer;
 
 import javax.vecmath.Vector3f;
@@ -46,35 +42,22 @@ public class BlockSelectionSystem implements ComponentSystem, RenderSystem {
     @In
     private Physics physics;
     @In
-    private SlotBasedInventoryManager inventoryManager;
+    private LocalPlayer localPlayer;
 
-    private CollisionGroup[] filter = {StandardCollisionGroup.DEFAULT, StandardCollisionGroup.WORLD};
     private Vector3i startPos;
     private Region3i currentSelection;
     private BlockSelectionRenderer selectionRenderer;
 
-    @ReceiveEvent(components = {CharacterComponent.class, LocationComponent.class, InventoryComponent.class})
-    public void onMarkBlockClicked(BlockSelectionButton event, EntityRef entity) {
-        LocationComponent location = entity.getComponent(LocationComponent.class);
-        CharacterComponent characterComponent = entity.getComponent(CharacterComponent.class);
-        Vector3f direction = characterComponent.getLookDirection();
-        Vector3f originPos = location.getWorldPosition();
-        originPos.y += characterComponent.eyeOffset;
-
-        HitResult result = physics.rayTrace(originPos, direction, characterComponent.interactionRange, filter);
-
-        if (result.isHit() && event.isDown()) {
-            if (startPos == null) {
-                startPos = result.getBlockPosition();
-                currentSelection = Region3i.createBounded(startPos, startPos);
-            } else {
-                CharacterComponent character = entity.getComponent(CharacterComponent.class);
-                EntityRef selectedItemEntity = inventoryManager.getItemInSlot(entity, character.selectedItem);
-
-                entity.send(new ApplyBlockSelectionEvent(selectedItemEntity, currentSelection));
-                currentSelection = null;
-                startPos = null;
-            }
+    @ReceiveEvent(components = {BlockSelectionComponent.class})
+    public void onPlaced(ActivateEvent event, EntityRef itemEntity) {
+        if (startPos == null) {
+            Vector3f worldPosition = event.getTargetLocation();
+            startPos = new Vector3i(worldPosition.x, worldPosition.y, worldPosition.z);
+            currentSelection = Region3i.createBounded(startPos, startPos);
+        } else {
+            localPlayer.getCharacterEntity().send(new ApplyBlockSelectionEvent(itemEntity, currentSelection));
+            currentSelection = null;
+            startPos = null;
         }
     }
 

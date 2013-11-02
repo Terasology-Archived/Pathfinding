@@ -1,0 +1,15 @@
+{
+    "parent" : "engine:iconItem",
+    "Item" : {
+        "name" : "Remove block",
+        "icon" : "scissors",
+		"usage" : "ON_BLOCK"
+    },
+  	"PlaySoundAction" : {
+    	sounds = "engine:click"
+  	},
+    "Job" : {
+        jobType = "Pathfinding:removeBlock"
+    },
+    "BlockSelection" : {}
+}

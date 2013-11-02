@@ -54,9 +54,9 @@ public class JobRenderSystem implements RenderSystem {
             Vector3f worldPosition = location.getWorldPosition();
             pos.set((int) worldPosition.x, (int) worldPosition.y, (int) worldPosition.z);
             JobBlockComponent job = entityRef.getComponent(JobBlockComponent.class);
-            if (job.jobType.getJobType().isRequestable(entityRef)) {
+            if (job.isRequestable(entityRef)) {
                 selectionRenderer.renderMark(pos, cameraPosition);
-            } else if (job.jobType.getJobType().isAssignable(entityRef)) {
+            } else if (job.isAssignable(entityRef)) {
                 selectionRenderer.renderMark2(pos, cameraPosition);
             }
         }

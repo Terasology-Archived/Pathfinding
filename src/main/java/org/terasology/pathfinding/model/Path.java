@@ -22,4 +22,20 @@ import java.util.ArrayList;
  */
 public class Path extends ArrayList<WalkableBlock> {
     public static final Path INVALID = new Path();
+
+    public WalkableBlock getTarget() {
+        if (size() == 0) {
+            return null;
+        }
+        return get(size() - 1);
+    }
+
+    public WalkableBlock getStart() {
+        if (size() == 0) {
+            return null;
+        }
+        return get(0);
+    }
+
+
 }

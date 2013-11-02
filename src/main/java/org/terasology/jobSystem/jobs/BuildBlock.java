@@ -17,8 +17,13 @@ package org.terasology.jobSystem.jobs;
 
 import com.google.common.collect.Lists;
 import org.terasology.engine.CoreRegistry;
+import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.jobSystem.JobType;
+import org.terasology.entitySystem.systems.ComponentSystem;
+import org.terasology.entitySystem.systems.In;
+import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.jobSystem.Job;
+import org.terasology.jobSystem.JobFactory;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
@@ -34,17 +39,35 @@ import java.util.List;
 /**
  * @author synopia
  */
-public class BuildBlock implements JobType {
+@RegisterSystem
+public class BuildBlock implements Job, ComponentSystem {
     private static final int[][] NEIGHBORS = new int[][]{{-1, -1}, {1, -1}, {-1, 1}, {1, 1}};
 
-    private final PathfinderSystem pathfinderSystem;
-    private final WorldProvider worldProvider;
-    private final Block blockType;
+    @In
+    private PathfinderSystem pathfinderSystem;
+    @In
+    private WorldProvider worldProvider;
+
+    private Block blockType;
+    private final SimpleUri uri;
 
     public BuildBlock() {
-        pathfinderSystem = CoreRegistry.get(PathfinderSystem.class);
-        worldProvider = CoreRegistry.get(WorldProvider.class);
+        uri = new SimpleUri("Pathfinding:buildBlock");
+    }
+
+    @Override
+    public void initialise() {
+        CoreRegistry.get(JobFactory.class).register(this);
         blockType = CoreRegistry.get(BlockManager.class).getBlock("engine:Dirt");
+    }
+
+    @Override
+    public void shutdown() {
+    }
+
+    @Override
+    public SimpleUri getUri() {
+        return uri;
     }
 
     @Override
