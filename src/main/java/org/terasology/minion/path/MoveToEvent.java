@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion;
+package org.terasology.minion.path;
 
-import org.terasology.entitySystem.Component;
+import org.terasology.entitySystem.event.Event;
 import org.terasology.math.Vector3i;
 
 /**
  * @author synopia
  */
-public class MinionMoveComponent implements Component {
-    /**
-     * if set to a value other then null, this minion is requested to move to this position
-     * once reached, targetBlock is set to null
-     */
-    public transient Vector3i targetBlock;
+public class MoveToEvent implements Event {
+    private final Vector3i target;
 
-    public transient float firstRunTime = 1f;
+    public MoveToEvent(Vector3i target) {
+        this.target = target;
+    }
 
+    public Vector3i getTarget() {
+        return target;
+    }
 }

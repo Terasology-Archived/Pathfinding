@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion;
+package org.terasology.minion.path;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +23,9 @@ import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.In;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.logic.location.LocationComponent;
+import org.terasology.minion.move.MinionMoveComponent;
+import org.terasology.minion.move.MovingFinishedEvent;
 import org.terasology.pathfinding.componentSystem.PathReadyEvent;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.Path;
@@ -36,7 +37,7 @@ import java.util.Arrays;
  * @author synopia
  */
 @RegisterSystem
-public class MinionPathSystem implements ComponentSystem, UpdateSubscriberSystem {
+public class MinionPathSystem implements ComponentSystem {
     private static final Logger logger = LoggerFactory.getLogger(MinionPathSystem.class);
 
     @In
@@ -44,40 +45,35 @@ public class MinionPathSystem implements ComponentSystem, UpdateSubscriberSystem
     @In
     private EntityManager entityManager;
 
-    @Override
-    public void update(float delta) {
-        for (EntityRef entity : entityManager.getEntitiesWith(MinionPathComponent.class, LocationComponent.class)) {
-            LocationComponent location = entity.getComponent(LocationComponent.class);
-            final MinionPathComponent pathComponent = entity.getComponent(MinionPathComponent.class);
-            MinionMoveComponent move = entity.getComponent(MinionMoveComponent.class);
-            if (move == null) {
-                move = new MinionMoveComponent();
-                entity.addComponent(move);
-            }
-            switch (pathComponent.pathState) {
-                case NEW_TARGET:
-                    pathComponent.pathId = pathfinderSystem.requestPath(entity, pathComponent.targetBlock.toVector3f(), Arrays.asList(location.getWorldPosition()));
-                    pathComponent.pathState = MinionPathComponent.PathState.PATH_REQUESTED;
-                    entity.saveComponent(pathComponent);
-                    break;
-                case MOVING_PATH:
-                    if (move.targetBlock == null) {
-                        if (pathComponent.pathStep < 0) {
-                            pathComponent.pathState = MinionPathComponent.PathState.FINISHED_MOVING;
-                            pathComponent.targetBlock = null;
-                            entity.saveComponent(pathComponent);
-                            entity.send(new MovingPathFinishedEvent(pathComponent.pathId, pathComponent.targetBlock, pathComponent.path));
-                        } else {
-                            WalkableBlock target = pathComponent.path.get(pathComponent.pathStep);
-                            move.targetBlock = target.getBlockPosition();
-                            pathComponent.pathStep--;
-                            entity.saveComponent(pathComponent);
-                            entity.saveComponent(move);
-                        }
-                    }
-                    break;
-            }
+    @ReceiveEvent(components = {MinionPathComponent.class, MinionMoveComponent.class, LocationComponent.class})
+    public void onTargetReached(MovingFinishedEvent event, EntityRef minion) {
+        LocationComponent location = minion.getComponent(LocationComponent.class);
+        MinionPathComponent pathComponent = minion.getComponent(MinionPathComponent.class);
+        MinionMoveComponent move = minion.getComponent(MinionMoveComponent.class);
+
+        if (pathComponent.pathStep < 0) {
+            pathComponent.pathState = MinionPathComponent.PathState.FINISHED_MOVING;
+            pathComponent.targetBlock = null;
+            minion.saveComponent(pathComponent);
+            minion.send(new MovingPathFinishedEvent(pathComponent.pathId, pathComponent.targetBlock, pathComponent.path));
+        } else {
+            WalkableBlock target = pathComponent.path.get(pathComponent.pathStep);
+            move.targetBlock = target.getBlockPosition();
+            pathComponent.pathStep--;
+            minion.saveComponent(pathComponent);
+            minion.saveComponent(move);
         }
+    }
+
+    @ReceiveEvent(components = {MinionPathComponent.class, MinionMoveComponent.class, LocationComponent.class})
+    public void onNewTarget(MoveToEvent event, EntityRef minion) {
+        LocationComponent location = minion.getComponent(LocationComponent.class);
+        MinionPathComponent pathComponent = minion.getComponent(MinionPathComponent.class);
+
+        WalkableBlock startBlock = pathfinderSystem.getBlock(location.getWorldPosition());
+        pathComponent.pathId = pathfinderSystem.requestPath(minion, pathComponent.targetBlock, Arrays.asList(startBlock.getBlockPosition()));
+        pathComponent.pathState = MinionPathComponent.PathState.PATH_REQUESTED;
+        minion.saveComponent(pathComponent);
     }
 
     @ReceiveEvent(components = {MinionPathComponent.class, MinionMoveComponent.class})

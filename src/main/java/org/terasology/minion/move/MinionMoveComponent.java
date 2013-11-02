@@ -13,35 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion;
+package org.terasology.minion.move;
 
-import org.terasology.entitySystem.event.Event;
+import org.terasology.entitySystem.Component;
 import org.terasology.math.Vector3i;
-import org.terasology.pathfinding.model.Path;
+import org.terasology.pathfinding.model.WalkableBlock;
 
 /**
  * @author synopia
  */
-public class MovingPathFinishedEvent implements Event {
-    private final int pathId;
-    private final Vector3i target;
-    private final Path path;
+public class MinionMoveComponent implements Component {
+    /**
+     * if set to a value other then null, this minion is requested to move to this position
+     * once reached, targetBlock is set to null
+     */
+    public transient Vector3i targetBlock;
 
-    public MovingPathFinishedEvent(int pathId, Vector3i target, Path path) {
-        this.pathId = pathId;
-        this.target = target;
-        this.path = path;
-    }
+    public transient float firstRunTime = 1f;
+    public transient WalkableBlock currentBlock;
 
-    public Vector3i getTarget() {
-        return target;
-    }
-
-    public int getPathId() {
-        return pathId;
-    }
-
-    public Path getPath() {
-        return path;
-    }
 }

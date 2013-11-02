@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion;
+package org.terasology.minion.move;
 
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
@@ -25,6 +25,8 @@ import org.terasology.logic.characters.CharacterMoveInputEvent;
 import org.terasology.logic.characters.CharacterMovementComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.TeraMath;
+import org.terasology.pathfinding.componentSystem.PathfinderSystem;
+import org.terasology.pathfinding.model.WalkableBlock;
 import org.terasology.rendering.assets.animation.MeshAnimation;
 import org.terasology.rendering.logic.SkeletalMeshComponent;
 
@@ -39,6 +41,9 @@ public class MinionMoveSystem implements ComponentSystem, UpdateSubscriberSystem
 
     @In
     private EntityManager entityManager;
+    @In
+    private PathfinderSystem pathfinderSystem;
+
     private float timeRemain = COOLDOWN;
 
     @Override
@@ -56,17 +61,26 @@ public class MinionMoveSystem implements ComponentSystem, UpdateSubscriberSystem
         for (EntityRef entity : entityManager.getEntitiesWith(MinionMoveComponent.class, CharacterMovementComponent.class, LocationComponent.class)) {
             MinionMoveComponent move = entity.getComponent(MinionMoveComponent.class);
             AnimationComponent animation = entity.getComponent(AnimationComponent.class);
+
             if (move.firstRunTime > 0) {
                 entity.send(new CharacterMoveInputEvent(0, 0, 0, new Vector3f(0f, 0f, 0f), false, true));
                 move.firstRunTime -= timeRemain;
                 entity.saveComponent(move);
             } else {
                 if (move.targetBlock != null) {
+                    WalkableBlock currentBlock = pathfinderSystem.getBlock(entity.getComponent(LocationComponent.class).getWorldPosition());
+                    if (move.currentBlock != currentBlock) {
+                        WalkableBlock old = move.currentBlock;
+                        move.currentBlock = currentBlock;
+                        entity.saveComponent(move);
+                        entity.send(new ReachedWalkableBlockEvent(currentBlock, old));
+                    }
                     Vector3f targetBlock = new Vector3f(move.targetBlock.x, move.targetBlock.y + 1.5f, move.targetBlock.z);
                     if (setMovement(targetBlock, entity)) {
                         move.targetBlock = null;
                         entity.saveComponent(move);
                         changeAnimation(entity, animation.idleAnim, true);
+                        entity.send(new MovingFinishedEvent(currentBlock));
                     } else {
                         changeAnimation(entity, animation.walkAnim, true);
                     }

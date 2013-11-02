@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion;
+package org.terasology.minion.spawn;
 
 import com.google.common.collect.Lists;
 import org.terasology.asset.Assets;

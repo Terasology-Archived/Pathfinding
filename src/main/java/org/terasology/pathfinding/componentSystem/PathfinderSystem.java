@@ -78,22 +78,6 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
         CoreRegistry.put(PathfinderSystem.class, this);
     }
 
-    public int requestPath(EntityRef requestor, Vector3f target, List<Vector3f> newStarts) {
-        List<Vector3i> starts = Lists.newArrayList();
-        WalkableBlock block;
-        for (Vector3f newStart : newStarts) {
-            block = getBlock(newStart);
-            if (block != null) {
-                starts.add(block.getBlockPosition());
-            }
-        }
-        block = getBlock(target);
-        if (block != null) {
-            return requestPath(requestor, block.getBlockPosition(), starts);
-        }
-        return -1;
-    }
-
     public int requestPath(EntityRef requestor, Vector3i target, List<Vector3i> start) {
         FindPathTask task = new FindPathTask(start, target, requestor);
         findPathTasks.add(task);
