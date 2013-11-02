@@ -41,7 +41,11 @@ import java.util.List;
  */
 @RegisterSystem
 public class BuildBlock implements Job, ComponentSystem {
-    private static final int[][] NEIGHBORS = new int[][]{{-1, -1}, {1, -1}, {-1, 1}, {1, 1}};
+    private static final int[][] NEIGHBORS = new int[][]{
+            {-1, -1, -1}, {1, -1, -1}, {-1, -1, 1}, {1, -1, 1},
+            {-1, 0, -1}, {1, 0, -1}, {-1, 0, 1}, {1, 0, 1},
+            {-1, 1, -1}, {1, 1, -1}, {-1, 1, 1}, {1, 1, 1}
+    };
 
     @In
     private PathfinderSystem pathfinderSystem;
@@ -71,8 +75,8 @@ public class BuildBlock implements Job, ComponentSystem {
     }
 
     @Override
-    public List<Vector3i> getTargetPositions(EntityRef block) {
-        List<Vector3i> result = Lists.newArrayList();
+    public List<WalkableBlock> getTargetPositions(EntityRef block) {
+        List<WalkableBlock> result = Lists.newArrayList();
 
         Vector3i worldPos = block.getComponent(BlockComponent.class).getPosition();
         WalkableBlock walkableBlock;
@@ -81,17 +85,8 @@ public class BuildBlock implements Job, ComponentSystem {
             pos.set(worldPos.x + neighbor[0], worldPos.y, worldPos.z + neighbor[1]);
             walkableBlock = pathfinderSystem.getBlock(pos);
             if (walkableBlock == null) {
-                pos.y = worldPos.y - 1;
-                walkableBlock = pathfinderSystem.getBlock(pos);
+                result.add(walkableBlock);
             }
-            if (walkableBlock == null) {
-                pos.y = worldPos.y + 1;
-                walkableBlock = pathfinderSystem.getBlock(pos);
-            }
-            if (walkableBlock != null) {
-                result.add(walkableBlock.getBlockPosition());
-            }
-
         }
         return result;
     }

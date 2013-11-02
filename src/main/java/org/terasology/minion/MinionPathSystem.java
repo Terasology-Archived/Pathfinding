@@ -30,6 +30,8 @@ import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.WalkableBlock;
 
+import java.util.Arrays;
+
 /**
  * @author synopia
  */
@@ -54,7 +56,7 @@ public class MinionPathSystem implements ComponentSystem, UpdateSubscriberSystem
             }
             switch (pathComponent.pathState) {
                 case NEW_TARGET:
-                    pathComponent.pathId = pathfinderSystem.requestPath(entity, pathComponent.targetBlock.toVector3f(), location.getWorldPosition());
+                    pathComponent.pathId = pathfinderSystem.requestPath(entity, pathComponent.targetBlock.toVector3f(), Arrays.asList(location.getWorldPosition()));
                     pathComponent.pathState = MinionPathComponent.PathState.PATH_REQUESTED;
                     entity.saveComponent(pathComponent);
                     break;
@@ -101,7 +103,7 @@ public class MinionPathSystem implements ComponentSystem, UpdateSubscriberSystem
         minion.saveComponent(move);
 
 
-        pathComponent.path = event.getPath()[0];
+        pathComponent.path = event.getPath().get(0);
         if (pathComponent.path != Path.INVALID) {
             pathComponent.pathState = MinionPathComponent.PathState.MOVING_PATH;
             pathComponent.pathStep = pathComponent.path.size() - 1;

@@ -17,7 +17,7 @@ package org.terasology.jobSystem;
 
 import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.math.Vector3i;
+import org.terasology.pathfinding.model.WalkableBlock;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ public interface Job {
     /**
      * Returns list of positions that are valid to work on this job.
      */
-    List<Vector3i> getTargetPositions(EntityRef block);
+    List<WalkableBlock> getTargetPositions(EntityRef block);
 
     boolean canMinionWork(EntityRef block, EntityRef minion);
 

@@ -15,6 +15,7 @@
  */
 package org.terasology.pathfinding.componentSystem;
 
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.engine.CoreRegistry;
@@ -39,6 +40,7 @@ import javax.vecmath.Vector3f;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -76,13 +78,13 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
         CoreRegistry.put(PathfinderSystem.class, this);
     }
 
-    public int requestPath(EntityRef requestor, Vector3f target, Vector3f... newStarts) {
-        Vector3i[] starts = new Vector3i[newStarts.length];
+    public int requestPath(EntityRef requestor, Vector3f target, List<Vector3f> newStarts) {
+        List<Vector3i> starts = Lists.newArrayList();
         WalkableBlock block;
-        for (int i = 0; i < newStarts.length; i++) {
-            block = getBlock(newStarts[i]);
+        for (Vector3f newStart : newStarts) {
+            block = getBlock(newStart);
             if (block != null) {
-                starts[i] = block.getBlockPosition();
+                starts.add(block.getBlockPosition());
             }
         }
         block = getBlock(target);
@@ -92,7 +94,7 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
         return -1;
     }
 
-    public int requestPath(EntityRef requestor, Vector3i target, Vector3i... start) {
+    public int requestPath(EntityRef requestor, Vector3i target, List<Vector3i> start) {
         FindPathTask task = new FindPathTask(start, target, requestor);
         findPathTasks.add(task);
         return task.pathId;
@@ -213,13 +215,13 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
      */
     private final class FindPathTask {
         public EntityRef entity;
-        public Path[] paths;
-        public Vector3i[] start;
+        public List<Path> paths;
+        public List<Vector3i> start;
         public Vector3i target;
         public boolean processed;
         public int pathId;
 
-        private FindPathTask(Vector3i[] start, Vector3i target, EntityRef entity) {
+        private FindPathTask(List<Vector3i> start, Vector3i target, EntityRef entity) {
             this.start = start;
             this.target = target;
             this.entity = entity;
@@ -232,17 +234,15 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
          * This method should be called from a thread only, it may take long.
          */
         public void process() {
-            WalkableBlock[] startBlocks = new WalkableBlock[start.length];
-            int startCount = 0;
-            for (int i = 0; i < start.length; i++) {
-                if (this.start[i] != null) {
-                    startBlocks[i] = pathfinder.getBlock(this.start[i]);
-                    startCount++;
+            List<WalkableBlock> startBlocks = Lists.newArrayList();
+            for (Vector3i pos : start) {
+                if (pos != null) {
+                    startBlocks.add(pathfinder.getBlock(pos));
                 }
             }
             WalkableBlock targetBlock = pathfinder.getBlock(this.target);
             paths = null;
-            if (targetBlock != null && startCount > 0) {
+            if (targetBlock != null && startBlocks.size() > 0) {
                 paths = pathfinder.findPath(targetBlock, startBlocks);
             }
             processed = true;

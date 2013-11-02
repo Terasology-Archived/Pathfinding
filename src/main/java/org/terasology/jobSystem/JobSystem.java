@@ -84,10 +84,10 @@ public class JobSystem implements ComponentSystem, UpdateSubscriberSystem {
         if (minionComponent.state != JobMinionComponent.JobMinionState.PATHS_REQUESTED) {
             return;
         }
-        Path[] allPaths = event.getPath();
+        List<Path> allPaths = event.getPath();
 
         if (allPaths != null) {
-            logger.info(allPaths.length + " paths (" + event.getPathId() + ") ready for " + minion);
+            logger.info(allPaths.size() + " paths (" + event.getPathId() + ") ready for " + minion);
             Path bestPath = null;
             int minLen = Integer.MAX_VALUE;
             for (Path path : allPaths) {
@@ -135,7 +135,7 @@ public class JobSystem implements ComponentSystem, UpdateSubscriberSystem {
                     List<Vector3i> targetPositions = jobBoard.findJobTargets(entity);
                     if (targetPositions.size() > 0) {
                         logger.info("Requesting " + targetPositions.size() + " paths for " + entity);
-                        pathfinderSystem.requestPath(entity, block.getBlockPosition(), targetPositions.toArray(new Vector3i[targetPositions.size()]));
+                        pathfinderSystem.requestPath(entity, block.getBlockPosition(), targetPositions);
                     }
                 }
             }

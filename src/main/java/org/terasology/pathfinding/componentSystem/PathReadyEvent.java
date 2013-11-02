@@ -19,16 +19,18 @@ import org.terasology.entitySystem.event.Event;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.WalkableBlock;
 
+import java.util.List;
+
 /**
  * @author synopia
  */
 public class PathReadyEvent implements Event {
     private final int pathId;
-    private final WalkableBlock[] start;
+    private final List<WalkableBlock> start;
     private final WalkableBlock target;
-    private final Path[] path;
+    private final List<Path> path;
 
-    public PathReadyEvent(int pathId, Path[] path, WalkableBlock target, WalkableBlock[] start) {
+    public PathReadyEvent(int pathId, List<Path> path, WalkableBlock target, List<WalkableBlock> start) {
         this.pathId = pathId;
         this.path = path;
         this.target = target;
@@ -39,15 +41,15 @@ public class PathReadyEvent implements Event {
         return pathId;
     }
 
-    public WalkableBlock[] getStart() {
-        return start;
-    }
-
     public WalkableBlock getTarget() {
         return target;
     }
 
-    public Path[] getPath() {
+    public List<WalkableBlock> getStart() {
+        return start;
+    }
+
+    public List<Path> getPath() {
         return path;
     }
 }

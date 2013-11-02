@@ -15,11 +15,14 @@
  */
 package org.terasology.pathfinding.model;
 
+import com.google.common.collect.Lists;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
 import org.terasology.world.WorldProvider;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,12 +44,15 @@ public class Pathfinder {
         cache.clear();
     }
 
-    public Path[] findPath(final WalkableBlock target, final WalkableBlock... starts) {
-        Path[] result = new Path[starts.length];
+    public Path findPath(final WalkableBlock target, final WalkableBlock start) {
+        return findPath(target, Arrays.asList(start)).get(0);
+    }
+
+    public List<Path> findPath(final WalkableBlock target, final List<WalkableBlock> starts) {
+        List<Path> result = Lists.newArrayList();
         haStar.reset();
-        for (int i = 0; i < starts.length; i++) {
-            WalkableBlock start = starts[i];
-            result[i] = cache.findPath(start, target, new PathCache.Callback() {
+        for (WalkableBlock start : starts) {
+            result.add(cache.findPath(start, target, new PathCache.Callback() {
                 @Override
                 public Path run(WalkableBlock from, WalkableBlock to) {
                     WalkableBlock refFrom = getBlock(from.getBlockPosition());
@@ -61,7 +67,7 @@ public class Pathfinder {
                     }
                     return path;
                 }
-            });
+            }));
         }
         return result;
     }

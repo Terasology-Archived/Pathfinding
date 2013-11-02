@@ -19,7 +19,7 @@ import org.terasology.engine.CoreRegistry;
 import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.math.Vector3i;
+import org.terasology.pathfinding.model.WalkableBlock;
 import org.terasology.world.block.ForceBlockActive;
 
 import java.util.List;
@@ -51,7 +51,7 @@ public class JobBlockComponent implements Component, Job {
     }
 
     @Override
-    public List<Vector3i> getTargetPositions(EntityRef block) {
+    public List<WalkableBlock> getTargetPositions(EntityRef block) {
         return getJob().getTargetPositions(block);
     }
 

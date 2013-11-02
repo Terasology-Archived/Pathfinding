@@ -23,7 +23,7 @@ import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.jobSystem.Job;
 import org.terasology.jobSystem.JobFactory;
-import org.terasology.math.Vector3i;
+import org.terasology.pathfinding.model.WalkableBlock;
 
 import java.util.List;
 
@@ -50,7 +50,7 @@ public class Idle implements Job, ComponentSystem {
     }
 
     @Override
-    public List<Vector3i> getTargetPositions(EntityRef block) {
+    public List<WalkableBlock> getTargetPositions(EntityRef block) {
         return Lists.newArrayList();
     }
 

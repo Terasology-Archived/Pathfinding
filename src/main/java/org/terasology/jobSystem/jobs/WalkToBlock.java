@@ -25,7 +25,6 @@ import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.jobSystem.Job;
 import org.terasology.jobSystem.JobFactory;
 import org.terasology.logic.location.LocationComponent;
-import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.WalkableBlock;
 
@@ -60,10 +59,13 @@ public class WalkToBlock implements Job, ComponentSystem {
         return uri;
     }
 
-    public List<Vector3i> getTargetPositions(EntityRef block) {
-        List<Vector3i> targetPositions = Lists.newArrayList();
+    public List<WalkableBlock> getTargetPositions(EntityRef block) {
+        List<WalkableBlock> targetPositions = Lists.newArrayList();
         Vector3f position = block.getComponent(LocationComponent.class).getWorldPosition();
-        targetPositions.add(new Vector3i(position.x, position.y, position.z));
+        WalkableBlock walkableBlock = pathfinderSystem.getBlock(position);
+        if (walkableBlock != null) {
+            targetPositions.add(walkableBlock);
+        }
         return targetPositions;
     }
 

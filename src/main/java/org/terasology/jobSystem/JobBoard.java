@@ -32,6 +32,8 @@ import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Region3i;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
+import org.terasology.pathfinding.model.Entrance;
+import org.terasology.pathfinding.model.Floor;
 import org.terasology.pathfinding.model.WalkableBlock;
 import org.terasology.selection.ApplyBlockSelectionEvent;
 import org.terasology.world.BlockEntityRegistry;
@@ -45,10 +47,8 @@ import java.util.Map;
 @RegisterSystem
 public class JobBoard implements ComponentSystem, UpdateSubscriberSystem {
     private static final Logger logger = LoggerFactory.getLogger(JobBoard.class);
-    private final List<EntityRef> jobs = Lists.newArrayList();
-    private final List<Vector3i> possibleJobs = Lists.newArrayList();
-    private final Map<Vector3i, EntityRef> jobMap = Maps.newHashMap();
-    private boolean jobsDirty = true;
+    private final Map<Job, JobType> jobTypes = Maps.newHashMap();
+    private final Map<WalkableBlock, EntityRef> jobMap = Maps.newHashMap();
 
     @In
     private BlockEntityRegistry blockEntityRegistry;
@@ -73,24 +73,26 @@ public class JobBoard implements ComponentSystem, UpdateSubscriberSystem {
 
     @Override
     public void update(float delta) {
-        scanJobs();
     }
 
-    private void scanJobs() {
-        if (jobsDirty) {
-            possibleJobs.clear();
-            jobMap.clear();
-            for (EntityRef job : jobs) {
-                JobBlockComponent jobComponent = job.getComponent(JobBlockComponent.class);
-                List<Vector3i> targetPositions = jobComponent.getJob().getTargetPositions(job);
-                possibleJobs.addAll(targetPositions);
-                for (Vector3i targetPosition : targetPositions) {
-                    jobMap.put(targetPosition, job);
-                }
+    public List<Vector3i> findJobTargets(EntityRef entity) {
+        List<Vector3i> possibleJobs = Lists.newArrayList();
+        scanJobs();
+        for (Job job : jobFactory.getJobs()) {
+            JobType jobType = getJobType(job);
+            List<WalkableBlock> jobs = jobType.findJobs(entity);
+            for (WalkableBlock block : jobs) {
+                possibleJobs.add(block.getBlockPosition());
             }
-            jobsDirty = false;
         }
+        return possibleJobs;
     }
+
+    public EntityRef getJob(WalkableBlock block) {
+        scanJobs();
+        return jobMap.get(block);
+    }
+
 
     @ReceiveEvent(components = {LocationComponent.class, CharacterComponent.class})
     public void onSelectionChanged(ApplyBlockSelectionEvent event, EntityRef entity) {
@@ -98,6 +100,7 @@ public class JobBoard implements ComponentSystem, UpdateSubscriberSystem {
         if (job == null) {
             return;
         }
+        JobType type = getJobType(job);
         Region3i selection = event.getSelection();
         Vector3i size = selection.size();
         Vector3i block = new Vector3i();
@@ -116,21 +119,20 @@ public class JobBoard implements ComponentSystem, UpdateSubscriberSystem {
                         jobBlockComponent = new JobBlockComponent();
                         jobBlockComponent.setJob(job);
                         blockEntity.addComponent(jobBlockComponent);
-                        jobs.add(blockEntity);
+
+                        type.add(blockEntity);
                     }
                 }
             }
         }
-        jobsDirty = true;
     }
 
 
     public void removeJob(EntityRef block) {
         JobBlockComponent job = block.getComponent(JobBlockComponent.class);
         if (job != null) {
-            jobs.remove(block);
+            getJobType(job.getJob()).remove(block);
             block.removeComponent(JobBlockComponent.class);
-            jobsDirty = true;
         }
     }
 
@@ -139,13 +141,85 @@ public class JobBoard implements ComponentSystem, UpdateSubscriberSystem {
 
     }
 
-    public List<Vector3i> findJobTargets(EntityRef entity) {
-        scanJobs();
-        return possibleJobs;
+    private void scanJobs() {
+        for (Job job : jobFactory.getJobs()) {
+            JobType jobType = getJobType(job);
+            jobType.scanJobs();
+        }
     }
 
-    public EntityRef getJob(WalkableBlock block) {
-        scanJobs();
-        return jobMap.get(block.getBlockPosition());
+    private JobType getJobType(Job job) {
+        JobType jobType = jobTypes.get(job);
+        if (jobType == null) {
+            jobType = new JobType(job);
+            jobTypes.put(job, jobType);
+        }
+        return jobType;
+    }
+
+    private final class JobType {
+        public final Job job;
+        public final List<EntityRef> openJobs = Lists.newArrayList();
+        public final Map<Floor, List<WalkableBlock>> possibleJobs = Maps.newHashMap();
+
+        public boolean jobsDirty = true;
+
+        private JobType(Job job) {
+            this.job = job;
+        }
+
+        public List<WalkableBlock> findJobs(EntityRef minion) {
+            List<WalkableBlock> result = Lists.newArrayList();
+            LocationComponent locationComponent = minion.getComponent(LocationComponent.class);
+            WalkableBlock currentBlock = pathfinderSystem.getBlock(locationComponent.getWorldPosition());
+            if (currentBlock != null) {
+                List<WalkableBlock> jobsOnFloor = possibleJobs.get(currentBlock.floor);
+                if (jobsOnFloor != null && jobsOnFloor.size() > 0) {
+                    result.addAll(jobsOnFloor);
+                } else {
+                    for (Floor floor : possibleJobs.keySet()) {
+                        List<Entrance> entrances = floor.entrances();
+                        if (entrances.size() > 0) {
+                            result.add(entrances.get(0).getAbstractBlock());
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        public void scanJobs() {
+            if (jobsDirty) {
+                possibleJobs.clear();
+                jobMap.clear();
+                for (EntityRef openJob : openJobs) {
+                    JobBlockComponent jobComponent = openJob.getComponent(JobBlockComponent.class);
+                    if (jobComponent.assignedMinion == null) {
+                        List<WalkableBlock> targetPositions = jobComponent.getJob().getTargetPositions(openJob);
+                        for (WalkableBlock targetPosition : targetPositions) {
+                            Floor floor = targetPosition.floor;
+                            List<WalkableBlock> floorJobs = possibleJobs.get(floor);
+                            if (floorJobs == null) {
+                                floorJobs = Lists.newArrayList();
+                                possibleJobs.put(floor, floorJobs);
+                            }
+                            floorJobs.add(targetPosition);
+                            jobMap.put(targetPosition, openJob);
+                        }
+                    }
+                }
+                jobsDirty = false;
+            }
+        }
+
+        public void remove(EntityRef jobBlock) {
+            openJobs.remove(jobBlock);
+            jobsDirty = true;
+        }
+
+        public void add(EntityRef jobBlock) {
+            openJobs.add(jobBlock);
+            jobsDirty = true;
+        }
     }
 }

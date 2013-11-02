@@ -15,6 +15,7 @@
  */
 package org.terasology.jobSystem;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.jobSystem.jobs.JobComponent;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,6 +37,7 @@ public class JobFactory implements ComponentSystem {
     private static final Logger logger = LoggerFactory.getLogger(JobFactory.class);
 
     private Map<SimpleUri, Job> jobRegistry = Maps.newHashMap();
+    private List<Job> jobs = Lists.newArrayList();
     private SimpleUri idle = new SimpleUri("Pathfinding:idle");
 
     public JobFactory() {
@@ -44,6 +47,11 @@ public class JobFactory implements ComponentSystem {
 
     public void register(Job job) {
         jobRegistry.put(job.getUri(), job);
+        jobs.add(job);
+    }
+
+    public List<Job> getJobs() {
+        return jobs;
     }
 
     public Job getJob(String uri) {

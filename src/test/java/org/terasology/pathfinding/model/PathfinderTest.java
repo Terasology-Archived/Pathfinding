@@ -41,7 +41,7 @@ public class PathfinderTest {
         pathfinder.init(new Vector3i(1, 0, 2));
         pathfinder.init(new Vector3i(2, 0, 2));
 
-        Path path = pathfinder.findPath(pathfinder.getBlock(new Vector3i(14 + 16, 45, 12)), pathfinder.getBlock(new Vector3i(0, 51, 1)))[0];
+        Path path = pathfinder.findPath(pathfinder.getBlock(new Vector3i(14 + 16, 45, 12)), pathfinder.getBlock(new Vector3i(0, 51, 1)));
         Assert.assertEquals(0, path.size());
 
         helper.setAir(7, 50, 7);
@@ -55,7 +55,7 @@ public class PathfinderTest {
         pathfinder.update(new Vector3i(0, 0, 0));
         pathfinder.update(new Vector3i(1, 0, 0));
 
-        path = pathfinder.findPath(pathfinder.getBlock(new Vector3i(14 + 16, 45, 12)), pathfinder.getBlock(new Vector3i(0, 51, 1)))[0];
+        path = pathfinder.findPath(pathfinder.getBlock(new Vector3i(14 + 16, 45, 12)), pathfinder.getBlock(new Vector3i(0, 51, 1)));
         Assert.assertTrue(0 < path.size());
     }
 
@@ -79,7 +79,7 @@ public class PathfinderTest {
         Assert.assertEquals(map, targetBlock.floor.heightMap);
         Assert.assertEquals(map.getBlock(x + 0, 51, z + 1), startBlock);
         Assert.assertEquals(map.getBlock(x + 14, 45, z + 12), targetBlock);
-        Path path = pathfinder.findPath(targetBlock, startBlock)[0];
+        Path path = pathfinder.findPath(targetBlock, startBlock);
         Assert.assertEquals(0, path.size());
 
         helper.setAir(x + 7, 50, z + 7);
@@ -87,7 +87,7 @@ public class PathfinderTest {
 
         pathfinder.update(new Vector3i(chunkX, 0, chunkZ));
 
-        path = pathfinder.findPath(targetBlock, startBlock)[0];
+        path = pathfinder.findPath(targetBlock, startBlock);
         Assert.assertTrue(0 < path.size());
     }
 
