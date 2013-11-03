@@ -4,8 +4,9 @@
 
 ### `MinionMoveSystem`
 
-Components: `MinionMoveComponent`
-Events: `MovingFinishedEvent`, `CannotReachEvent`, `ReachedWalkableBlockEvent`
+**Components:** `MinionMoveComponent`
+
+**Events:** `MovingFinishedEvent`, `CannotReachEvent`, `ReachedWalkableBlockEvent`
 
 This systems moves a minion to a target position. Its controlled through setting the `targetBlock` property of the
 attached `MinionMoveComponent` of an entity.
@@ -18,8 +19,9 @@ As soon as the minion is above a new `WalkableBlock`, a `ReachedWalkableBlockEve
 
 ### `MinionPathSystem`
 
-Components: `MinionPathComponent`
-Events: `MoveToEvent`, `MovingPathFinishedEvent`, `MovingPathAbortedEvent`
+**Components:** `MinionPathComponent`
+
+**Events:** `MoveToEvent`, `MovingPathFinishedEvent`, `MovingPathAbortedEvent`
 
 Moves a minion along a path to a given target. To start moving a `MoveToEvent` is fired to the entity. The system
 will then request a path from current to target position. Once the path is received, the minion is moved through
@@ -32,15 +34,16 @@ If target is reached, `MovingPathFinishedEvent` is fired.
 
 ### `BlockSelectionSystem`
 
-Components: `BlockSelectionComponent`
-Events: `ApplyBlockSelectionEvent`
+**Components:** `BlockSelectionComponent`
+
+**Events:** `ApplyBlockSelectionEvent`
 
 Using an item with a `BlockSelectionComponent` starts the selection mode. Another click with the item will stop it.
 The box area between first and second click will form the selection, that is fired using a `ApplyBlockSelectionEvent`.
 
 ### `PathfinderSystem`
 
-Events: `PathReadyEvent`
+**Events:** `PathReadyEvent`
 
 A system to find paths through the map. Calculations that may take some time are done in background (preprocessing chunks
 and finding path).
