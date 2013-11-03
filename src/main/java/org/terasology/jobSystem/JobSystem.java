@@ -15,6 +15,7 @@
  */
 package org.terasology.jobSystem;
 
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.entitySystem.entity.EntityManager;
@@ -27,6 +28,7 @@ import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Vector3i;
 import org.terasology.minion.path.MinionPathComponent;
+import org.terasology.minion.path.MoveToEvent;
 import org.terasology.minion.path.MovingPathFinishedEvent;
 import org.terasology.pathfinding.componentSystem.PathReadyEvent;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
@@ -61,21 +63,26 @@ public class JobSystem implements ComponentSystem, UpdateSubscriberSystem {
     public void onMovingPathFinished(MovingPathFinishedEvent event, EntityRef minion) {
         logger.info("Finished moving along " + event.getPathId());
         JobMinionComponent job = minion.getComponent(JobMinionComponent.class);
-        EntityRef block = job.assigned;
-        job.assigned = null;
-        job.job = null;
+        JobPossibility chosenPossibility = job.chosenPossibility;
+        job.chosenPossibility = null;
         job.state = JobMinionComponent.JobMinionState.UNASSIGNED;
-        JobBlockComponent jobBlock = block.getComponent(JobBlockComponent.class);
-        jobBlock.assignedMinion = null;
-        block.saveComponent(jobBlock);
         minion.saveComponent(job);
 
-        if (jobBlock.canMinionWork(block, minion)) {
-            logger.info("Reached target, remove job");
-            jobBlock.letMinionWork(block, minion);
+        EntityRef block = chosenPossibility.targetEntity;
+        if (block != null) {
+            JobBlockComponent jobBlock = block.getComponent(JobBlockComponent.class);
+            jobBlock.assignedMinion = null;
+            block.saveComponent(jobBlock);
+            if (jobBlock.canMinionWork(block, minion)) {
+                logger.info("Reached target, remove job");
+                jobBlock.letMinionWork(block, minion);
 
-            jobBoard.removeJob(block);
+                jobBoard.removeJob(block);
+            }
+        } else {
+            chosenPossibility.job.letMinionWork(null, minion);
         }
+
     }
 
     @ReceiveEvent(components = {JobMinionComponent.class})
@@ -90,35 +97,31 @@ public class JobSystem implements ComponentSystem, UpdateSubscriberSystem {
             logger.info(allPaths.size() + " paths (" + event.getPathId() + ") ready for " + minion);
             Path bestPath = null;
             int minLen = Integer.MAX_VALUE;
-            for (Path path : allPaths) {
+            int index = 0;
+            for (int i = 0; i < allPaths.size(); i++) {
+                Path path = allPaths.get(i);
                 if (path == Path.INVALID) {
                     continue;
                 }
-                if (path.size() < minLen && jobBoard.getJob(path.getTarget()) != null) {
+                if (path.size() < minLen) {
                     bestPath = path;
                     minLen = path.size();
+                    index = i;
                 }
             }
             if (bestPath != null) {
                 logger.info("Path (len=" + bestPath.size() + ") assigned to " + minion);
-                EntityRef jobTarget = jobBoard.getJob(bestPath.getTarget());
-                JobBlockComponent blockComponent = jobTarget.getComponent(JobBlockComponent.class);
 
                 minionComponent.state = JobMinionComponent.JobMinionState.ASSIGNED;
-                minionComponent.assigned = jobTarget;
-                minionComponent.job = blockComponent.getJob();
+                minionComponent.chosenPossibility = minionComponent.possibilities.get(index);
                 minion.saveComponent(minionComponent);
 
-                MinionPathComponent pathComponent = minion.getComponent(MinionPathComponent.class);
-                pathComponent.targetBlock = bestPath.getTarget().getBlockPosition();
-                pathComponent.pathState = MinionPathComponent.PathState.NEW_TARGET;
-                minion.saveComponent(pathComponent);
+                minion.send(new MoveToEvent(bestPath.getStart().getBlockPosition(), bestPath.getTarget().getBlockPosition()));
                 return;
             }
         }
         logger.info("Paths invalidated for " + minion);
         minionComponent.state = JobMinionComponent.JobMinionState.UNASSIGNED;
-        minionComponent.assigned = null;
         minion.saveComponent(minionComponent);
     }
 
@@ -129,12 +132,18 @@ public class JobSystem implements ComponentSystem, UpdateSubscriberSystem {
                 Vector3f worldPosition = entity.getComponent(LocationComponent.class).getWorldPosition();
                 WalkableBlock block = pathfinderSystem.getBlock(worldPosition);
                 if (block != null) {
-                    job.state = JobMinionComponent.JobMinionState.PATHS_REQUESTED;
-                    entity.saveComponent(job);
+                    List<JobPossibility> possibilities = jobBoard.findJobTargets(entity);
 
-                    List<Vector3i> targetPositions = jobBoard.findJobTargets(entity);
-                    if (targetPositions.size() > 0) {
-                        logger.info("Requesting " + targetPositions.size() + " paths for " + entity);
+                    if (possibilities.size() > 0) {
+                        job.state = JobMinionComponent.JobMinionState.PATHS_REQUESTED;
+                        job.possibilities = possibilities;
+                        entity.saveComponent(job);
+
+                        logger.info("Requesting " + possibilities.size() + " paths for " + entity);
+                        List<Vector3i> targetPositions = Lists.newArrayList();
+                        for (JobPossibility possibility : possibilities) {
+                            targetPositions.add(possibility.targetPos);
+                        }
                         pathfinderSystem.requestPath(entity, block.getBlockPosition(), targetPositions);
                     }
                 }

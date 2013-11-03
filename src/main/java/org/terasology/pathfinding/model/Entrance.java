@@ -16,7 +16,6 @@
 package org.terasology.pathfinding.model;
 
 import com.google.common.collect.Sets;
-import org.terasology.math.Rect2i;
 
 import java.util.Set;
 
@@ -30,7 +29,7 @@ public class Entrance {
     }
 
     public final Set<Floor> neighborFloors = Sets.newHashSet();
-    private Rect2i area;
+    private Rect area;
     private Type type;
     private Floor floor;
 
@@ -45,15 +44,15 @@ public class Entrance {
         if (area.contains(x, y)) {
             return true;
         }
-        int x1 = Math.min(area.minX(), x);
-        int y1 = Math.min(area.minY(), y);
-        int x2 = Math.max(area.maxX(), x);
-        int y2 = Math.max(area.maxY(), y);
+        int x1 = Math.min(area.x, x);
+        int y1 = Math.min(area.y, y);
+        int x2 = Math.max(area.x + area.w, x);
+        int y2 = Math.max(area.y + area.h, y);
 
         if (type == Type.VERTICAL) {
-            return y2 - y1 == 0 && area.width() + 1 == x2 - x1;
+            return y2 - y1 == 0 && area.w + 1 == x2 - x1;
         } else if (type == Type.HORIZONTAL) {
-            return x2 - x1 == 0 && area.height() + 1 == y2 - y1;
+            return x2 - x1 == 0 && area.h + 1 == y2 - y1;
         } else {
             return x2 - x1 <= 1 && y2 - y1 <= 1;
         }
@@ -61,17 +60,17 @@ public class Entrance {
 
     public void addToEntrance(int x, int y) {
         if (area == null) {
-            area = Rect2i.createFromMinAndSize(x, y, 0, 0);
+            area = new Rect(x, y, 0, 0);
         } else {
             if (!area.contains(x, y)) {
-                int x1 = Math.min(area.minX(), x);
-                int y1 = Math.min(area.minY(), y);
-                int x2 = Math.max(area.maxX(), x);
-                int y2 = Math.max(area.maxY(), y);
-                area = Rect2i.createFromMinAndSize(x1, y1, x2 - x1, y2 - y1);
-                if (area.width() > area.height()) {
+                int x1 = Math.min(area.x, x);
+                int y1 = Math.min(area.y, y);
+                int x2 = Math.max(area.x + area.w, x);
+                int y2 = Math.max(area.y + area.h, y);
+                area = new Rect(x1, y1, x2 - x1, y2 - y1);
+                if (area.w > area.h) {
                     type = Type.VERTICAL;
-                } else if (area.width() < area.height()) {
+                } else if (area.w < area.h) {
                     type = Type.HORIZONTAL;
                 }
             }
@@ -79,9 +78,27 @@ public class Entrance {
     }
 
     public WalkableBlock getAbstractBlock() {
-        int mx = area.minX() + area.width() / 2;
-        int my = area.minY() + area.height() / 2;
+        int mx = area.x + area.w / 2;
+        int my = area.y + area.h / 2;
 
         return floor.getBlock(mx, my);
+    }
+
+    private final class Rect {
+        int x;
+        int y;
+        int w;
+        int h;
+
+        private Rect(int x, int y, int w, int h) {
+            this.x = x;
+            this.y = y;
+            this.w = w;
+            this.h = h;
+        }
+
+        private boolean contains(int px, int py) {
+            return px >= x && py >= y && px < x + h && py < y + h;
+        }
     }
 }

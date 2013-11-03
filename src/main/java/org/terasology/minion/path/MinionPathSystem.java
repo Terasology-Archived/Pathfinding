@@ -67,11 +67,8 @@ public class MinionPathSystem implements ComponentSystem {
 
     @ReceiveEvent(components = {MinionPathComponent.class, MinionMoveComponent.class, LocationComponent.class})
     public void onNewTarget(MoveToEvent event, EntityRef minion) {
-        LocationComponent location = minion.getComponent(LocationComponent.class);
         MinionPathComponent pathComponent = minion.getComponent(MinionPathComponent.class);
-
-        WalkableBlock startBlock = pathfinderSystem.getBlock(location.getWorldPosition());
-        pathComponent.pathId = pathfinderSystem.requestPath(minion, pathComponent.targetBlock, Arrays.asList(startBlock.getBlockPosition()));
+        pathComponent.pathId = pathfinderSystem.requestPath(minion, event.getTarget(), Arrays.asList(event.getSource()));
         pathComponent.pathState = MinionPathComponent.PathState.PATH_REQUESTED;
         minion.saveComponent(pathComponent);
     }
@@ -94,15 +91,14 @@ public class MinionPathSystem implements ComponentSystem {
                 " from " + minion.getComponent(LocationComponent.class).getWorldPosition() +
                 " to " + event.getTarget().getBlockPosition());
 
-        MinionMoveComponent move = minion.getComponent(MinionMoveComponent.class);
-        move.targetBlock = null;
-        minion.saveComponent(move);
-
 
         pathComponent.path = event.getPath().get(0);
         if (pathComponent.path != Path.INVALID) {
             pathComponent.pathState = MinionPathComponent.PathState.MOVING_PATH;
             pathComponent.pathStep = pathComponent.path.size() - 1;
+            MinionMoveComponent move = minion.getComponent(MinionMoveComponent.class);
+            move.targetBlock = pathComponent.path.get(pathComponent.pathStep).getBlockPosition();
+            minion.saveComponent(move);
         } else {
             pathComponent.pathState = MinionPathComponent.PathState.IDLE;
         }

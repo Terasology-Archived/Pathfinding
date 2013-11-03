@@ -16,7 +16,8 @@
 package org.terasology.jobSystem;
 
 import org.terasology.entitySystem.Component;
-import org.terasology.entitySystem.entity.EntityRef;
+
+import java.util.List;
 
 /**
  * Job's minion component. Indicates, the minion is currently executing a job.
@@ -24,16 +25,17 @@ import org.terasology.entitySystem.entity.EntityRef;
  * @author synopia
  */
 public class JobMinionComponent implements Component {
+
+
     public enum JobMinionState {
         UNASSIGNED,
         PATHS_REQUESTED,
-        ASSIGNED
+        ASSIGNED;
     }
 
-    public transient EntityRef assigned;
-    public transient Job job;
     public transient JobMinionState state = JobMinionState.UNASSIGNED;
-
+    public transient List<JobPossibility> possibilities;
+    public transient JobPossibility chosenPossibility;
 
     public JobMinionComponent() {
     }
