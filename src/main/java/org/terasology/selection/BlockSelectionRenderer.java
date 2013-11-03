@@ -59,7 +59,7 @@ public class BlockSelectionRenderer {
         TessellatorHelper.addBlockMesh(tessellator, new Vector4f(1, 1, 1, 1f), texPos, texWidth, 1.001f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
         overlayMesh = tessellator.generateMesh();
         tessellator = new Tessellator();
-        TessellatorHelper.addBlockMesh(tessellator, new Vector4f(1, 1, 1, .5f), texPos, texWidth, 1.001f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+        TessellatorHelper.addBlockMesh(tessellator, new Vector4f(1, 1, 1, .2f), texPos, texWidth, 1.001f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
         overlayMesh2 = tessellator.generateMesh();
         defaultTextured = Assets.getMaterial("engine:defaultTextured");
     }

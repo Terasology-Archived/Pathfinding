@@ -24,6 +24,7 @@ import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.In;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.location.LocationComponent;
+import org.terasology.minion.move.CannotReachEvent;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.minion.move.MovingFinishedEvent;
 import org.terasology.pathfinding.componentSystem.PathReadyEvent;
@@ -65,12 +66,30 @@ public class MinionPathSystem implements ComponentSystem {
         }
     }
 
+
+    @ReceiveEvent(components = {MinionPathComponent.class, MinionMoveComponent.class, LocationComponent.class})
+    public void onCannotReach(CannotReachEvent event, EntityRef minion) {
+        MinionPathComponent pathComponent = minion.getComponent(MinionPathComponent.class);
+        minion.send(new MoveToEvent(pathComponent.targetBlock));
+    }
+
     @ReceiveEvent(components = {MinionPathComponent.class, MinionMoveComponent.class, LocationComponent.class})
     public void onNewTarget(MoveToEvent event, EntityRef minion) {
         MinionPathComponent pathComponent = minion.getComponent(MinionPathComponent.class);
-        pathComponent.pathId = pathfinderSystem.requestPath(minion, event.getTarget(), Arrays.asList(event.getSource()));
-        pathComponent.pathState = MinionPathComponent.PathState.PATH_REQUESTED;
-        minion.saveComponent(pathComponent);
+        MinionMoveComponent moveComponent = minion.getComponent(MinionMoveComponent.class);
+        if (moveComponent.currentBlock == null) {
+            return;
+        }
+        if (event.getTarget() != null) {
+            WalkableBlock targetBlock = pathfinderSystem.getBlock(event.getTarget());
+            if (targetBlock != null) {
+                pathComponent.pathId = pathfinderSystem.requestPath(minion, event.getTarget(), Arrays.asList(moveComponent.currentBlock.getBlockPosition()));
+                pathComponent.pathState = MinionPathComponent.PathState.PATH_REQUESTED;
+                minion.saveComponent(pathComponent);
+                return;
+            }
+        }
+        minion.send(new MovingPathAbortedEvent());
     }
 
     @ReceiveEvent(components = {MinionPathComponent.class, MinionMoveComponent.class})
@@ -80,11 +99,7 @@ public class MinionPathSystem implements ComponentSystem {
             return;
         }
         if (event.getPath() == null) {
-            pathComponent.path = null;
-            pathComponent.pathId = -1;
-            pathComponent.pathState = MinionPathComponent.PathState.NEW_TARGET;
-            minion.saveComponent(pathComponent);
-            logger.info("Cannot find path -> rerequest");
+            minion.send(new MoveToEvent(pathComponent.targetBlock));
             return;
         }
         logger.info("Minion received paths " + event.getPathId() +
@@ -96,13 +111,13 @@ public class MinionPathSystem implements ComponentSystem {
         if (pathComponent.path != Path.INVALID) {
             pathComponent.pathState = MinionPathComponent.PathState.MOVING_PATH;
             pathComponent.pathStep = pathComponent.path.size() - 1;
+            pathComponent.targetBlock = pathComponent.path.getStart().getBlockPosition();
             MinionMoveComponent move = minion.getComponent(MinionMoveComponent.class);
             move.targetBlock = pathComponent.path.get(pathComponent.pathStep).getBlockPosition();
             minion.saveComponent(move);
         } else {
-            pathComponent.pathState = MinionPathComponent.PathState.IDLE;
+            minion.send(new MovingPathAbortedEvent());
         }
-        minion.saveComponent(pathComponent);
     }
 
     @Override

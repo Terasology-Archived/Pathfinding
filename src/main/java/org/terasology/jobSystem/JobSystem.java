@@ -16,6 +16,7 @@
 package org.terasology.jobSystem;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.entitySystem.entity.EntityManager;
@@ -25,18 +26,21 @@ import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.In;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
-import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Vector3i;
 import org.terasology.minion.path.MinionPathComponent;
 import org.terasology.minion.path.MoveToEvent;
+import org.terasology.minion.path.MovingPathAbortedEvent;
 import org.terasology.minion.path.MovingPathFinishedEvent;
 import org.terasology.pathfinding.componentSystem.PathReadyEvent;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.WalkableBlock;
 
-import javax.vecmath.Vector3f;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Assigns free jobs to minions
@@ -54,9 +58,34 @@ public class JobSystem implements ComponentSystem, UpdateSubscriberSystem {
     @In
     private JobBoard jobBoard;
 
+    private List<JobPossibility> jobPossibilities = Lists.newArrayList();
+    private Set<Integer> pendingRequests = Sets.newHashSet();
+
     @Override
     public void update(float delta) {
         requestPaths();
+        if (pendingRequests.size() == 0 && jobPossibilities.size() > 0) {
+            assign();
+        }
+    }
+
+    @ReceiveEvent(components = {JobMinionComponent.class, MinionPathComponent.class})
+    public void onMovingPathAborted(MovingPathAbortedEvent event, EntityRef minion) {
+        logger.info("Moving path aborted " + minion);
+        JobMinionComponent job = minion.getComponent(JobMinionComponent.class);
+        JobPossibility chosenPossibility = job.chosenPossibility;
+        job.chosenPossibility = null;
+        job.state = JobMinionComponent.JobMinionState.UNASSIGNED;
+        minion.saveComponent(job);
+
+        if (chosenPossibility != null) {
+            EntityRef block = chosenPossibility.targetEntity;
+            if (block != null) {
+                JobBlockComponent jobBlock = block.getComponent(JobBlockComponent.class);
+                jobBlock.assignedMinion = null;
+                block.saveComponent(jobBlock);
+            }
+        }
     }
 
     @ReceiveEvent(components = {JobMinionComponent.class})
@@ -78,59 +107,102 @@ public class JobSystem implements ComponentSystem, UpdateSubscriberSystem {
                 jobBlock.letMinionWork(block, minion);
 
                 jobBoard.removeJob(block);
+            } else {
+                logger.error(minion + "cannot work at " + block);
             }
         } else {
-            chosenPossibility.job.letMinionWork(null, minion);
+            if (chosenPossibility.job != null) {
+                chosenPossibility.job.letMinionWork(null, minion);
+            }
         }
-
     }
 
     @ReceiveEvent(components = {JobMinionComponent.class})
     public void onPathReady(final PathReadyEvent event, EntityRef minion) {
-        JobMinionComponent minionComponent = minion.getComponent(JobMinionComponent.class);
-        if (minionComponent.state != JobMinionComponent.JobMinionState.PATHS_REQUESTED) {
+        if (!pendingRequests.contains(event.getPathId())) {
             return;
         }
+        pendingRequests.remove(event.getPathId());
+        JobMinionComponent minionComponent = minion.getComponent(JobMinionComponent.class);
+
         List<Path> allPaths = event.getPath();
-
+        List<JobPossibility> possibilities = minionComponent.possibilities;
         if (allPaths != null) {
-            logger.info(allPaths.size() + " paths (" + event.getPathId() + ") ready for " + minion);
-            Path bestPath = null;
-            int minLen = Integer.MAX_VALUE;
-            int index = 0;
             for (int i = 0; i < allPaths.size(); i++) {
-                Path path = allPaths.get(i);
-                if (path == Path.INVALID) {
-                    continue;
-                }
-                if (path.size() < minLen) {
-                    bestPath = path;
-                    minLen = path.size();
-                    index = i;
+                JobPossibility possibility = possibilities.get(i);
+                possibility.path = allPaths.get(i);
+                if (possibility.path != Path.INVALID && possibility.path.size() > 0) {
+                    jobPossibilities.add(possibility);
                 }
             }
-            if (bestPath != null) {
-                logger.info("Path (len=" + bestPath.size() + ") assigned to " + minion);
-
-                minionComponent.state = JobMinionComponent.JobMinionState.ASSIGNED;
-                minionComponent.chosenPossibility = minionComponent.possibilities.get(index);
-                minion.saveComponent(minionComponent);
-
-                minion.send(new MoveToEvent(bestPath.getStart().getBlockPosition(), bestPath.getTarget().getBlockPosition()));
-                return;
-            }
+            minionComponent.state = JobMinionComponent.JobMinionState.WAITING_SCHEDULE;
+        } else {
+            minionComponent.state = JobMinionComponent.JobMinionState.UNASSIGNED;
         }
-        logger.info("Paths invalidated for " + minion);
-        minionComponent.state = JobMinionComponent.JobMinionState.UNASSIGNED;
         minion.saveComponent(minionComponent);
     }
 
+    private void assign() {
+        Collections.sort(jobPossibilities, new Comparator<JobPossibility>() {
+            @Override
+            public int compare(JobPossibility o1, JobPossibility o2) {
+                Vector3i s1 = o1.path.getStart().getBlockPosition();
+                Vector3i e1 = o2.path.getTarget().getBlockPosition();
+                int diff1 = Math.abs(s1.y - e1.y);
+                Vector3i s2 = o1.path.getStart().getBlockPosition();
+                Vector3i e2 = o2.path.getTarget().getBlockPosition();
+                int diff2 = Math.abs(s2.y - e2.y);
+                return Integer.compare(o1.path.size() + diff1 * 30, o2.path.size() + diff2 * 30);
+            }
+        });
+        while (!jobPossibilities.isEmpty()) {
+            JobPossibility job = jobPossibilities.remove(0);
+            assign(job);
+            Iterator<JobPossibility> it = jobPossibilities.iterator();
+            while (it.hasNext()) {
+                JobPossibility next = it.next();
+                if (next.minion == job.minion || (next.targetEntity != null && next.targetEntity == job.targetEntity)) {
+                    it.remove();
+                }
+            }
+        }
+        for (EntityRef minion : entityManager.getEntitiesWith(JobMinionComponent.class)) {
+            JobMinionComponent job = minion.getComponent(JobMinionComponent.class);
+            if (job.state == JobMinionComponent.JobMinionState.WAITING_SCHEDULE) {
+                job.state = JobMinionComponent.JobMinionState.UNASSIGNED;
+                minion.saveComponent(job);
+            }
+        }
+    }
+
+    private void assign(JobPossibility possibility) {
+        JobMinionComponent minionComponent = possibility.minion.getComponent(JobMinionComponent.class);
+        logger.info("Path assigned to " + possibility.minion);
+
+        minionComponent.state = JobMinionComponent.JobMinionState.ASSIGNED;
+        minionComponent.chosenPossibility = possibility;
+        possibility.minion.saveComponent(minionComponent);
+        if (possibility.targetEntity != null) {
+            JobBlockComponent blockComponent = possibility.targetEntity.getComponent(JobBlockComponent.class);
+            blockComponent.assignedMinion = possibility.minion;
+            possibility.targetEntity.saveComponent(blockComponent);
+        }
+
+        possibility.minion.send(new MoveToEvent(possibility.path.getTarget().getBlockPosition()));
+
+    }
+
     private void requestPaths() {
+        boolean refreshed = false;
         for (EntityRef entity : entityManager.getEntitiesWith(JobMinionComponent.class, MinionPathComponent.class)) {
             JobMinionComponent job = entity.getComponent(JobMinionComponent.class);
+
             if (job.state == JobMinionComponent.JobMinionState.UNASSIGNED) {
-                Vector3f worldPosition = entity.getComponent(LocationComponent.class).getWorldPosition();
-                WalkableBlock block = pathfinderSystem.getBlock(worldPosition);
+                if (!refreshed) {
+                    refreshed = true;
+                    jobBoard.refresh();
+                }
+                WalkableBlock block = pathfinderSystem.getBlock(entity);
                 if (block != null) {
                     List<JobPossibility> possibilities = jobBoard.findJobTargets(entity);
 
@@ -144,7 +216,7 @@ public class JobSystem implements ComponentSystem, UpdateSubscriberSystem {
                         for (JobPossibility possibility : possibilities) {
                             targetPositions.add(possibility.targetPos);
                         }
-                        pathfinderSystem.requestPath(entity, block.getBlockPosition(), targetPositions);
+                        pendingRequests.add(pathfinderSystem.requestPath(entity, block.getBlockPosition(), targetPositions));
                     }
                 }
             }

@@ -55,6 +55,9 @@ public class Pathfinder {
             result.add(cache.findPath(start, target, new PathCache.Callback() {
                 @Override
                 public Path run(WalkableBlock from, WalkableBlock to) {
+                    if (from == null || to == null) {
+                        return Path.INVALID;
+                    }
                     WalkableBlock refFrom = getBlock(from.getBlockPosition());
                     WalkableBlock refTo = getBlock(to.getBlockPosition());
 

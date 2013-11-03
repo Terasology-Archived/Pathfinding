@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion.path;
+package org.terasology.minion.move;
 
 import org.terasology.entitySystem.event.Event;
 import org.terasology.math.Vector3i;
@@ -21,14 +21,10 @@ import org.terasology.math.Vector3i;
 /**
  * @author synopia
  */
-public class MoveToEvent implements Event {
-    private final Vector3i target;
+public class CannotReachEvent implements Event {
+    private final Vector3i requestedPosition;
 
-    public MoveToEvent(Vector3i target) {
-        this.target = target;
-    }
-
-    public Vector3i getTarget() {
-        return target;
+    public CannotReachEvent(Vector3i requestedPosition) {
+        this.requestedPosition = requestedPosition;
     }
 }

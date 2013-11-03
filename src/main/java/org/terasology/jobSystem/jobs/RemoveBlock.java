@@ -28,7 +28,6 @@ import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.WalkableBlock;
-import org.terasology.world.BlockEntityRegistry;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockComponent;
@@ -41,35 +40,28 @@ import java.util.List;
  * @author synopia
  */
 @RegisterSystem
-public class BuildBlock implements Job, ComponentSystem {
+public class RemoveBlock implements Job, ComponentSystem {
     private static final int[][] NEIGHBORS = new int[][]{
             {-1, 0, 0}, {1, 0, 0}, {0, 0, -1}, {0, 0, 1},
 //            {-1, 1, 0}, {1, 1, 0}, {0, 1, -1}, {0, 1, 1},
             {-1, -1, 0}, {1, -1, 0}, {0, -1, -1}, {0, -1, 1},
             {-1, -2, 0}, {1, -2, 0}, {0, -2, -1}, {0, -2, 1},
     };
-    private static final int[][] DIRECT_NEIGHBORS = new int[][]{
-            {-1, 0, 0}, {1, 0, 0}, {0, -1, 0}, {0, 1, 0}, {0, 0, -1}, {0, 0, 1}
-    };
 
     @In
     private PathfinderSystem pathfinderSystem;
     @In
     private WorldProvider worldProvider;
-    @In
-    private BlockEntityRegistry blockEntityRegistry;
 
-    private Block blockType;
     private final SimpleUri uri;
 
-    public BuildBlock() {
-        uri = new SimpleUri("Pathfinding:buildBlock");
+    public RemoveBlock() {
+        uri = new SimpleUri("Pathfinding:removeBlock");
     }
 
     @Override
     public void initialise() {
         CoreRegistry.get(JobFactory.class).register(this);
-        blockType = CoreRegistry.get(BlockManager.class).getBlock("engine:Dirt");
     }
 
     @Override
@@ -109,28 +101,18 @@ public class BuildBlock implements Job, ComponentSystem {
 
     @Override
     public void letMinionWork(EntityRef block, EntityRef minion) {
-        worldProvider.setBlock(block.getComponent(BlockComponent.class).getPosition(), blockType);
+        worldProvider.setBlock(block.getComponent(BlockComponent.class).getPosition(), BlockManager.getAir());
     }
 
     @Override
     public boolean isAssignable(EntityRef block) {
         Vector3i position = new Vector3i(block.getComponent(BlockComponent.class).getPosition());
         Block type = worldProvider.getBlock(position);
-        return type.isPenetrable();
+        return !type.isPenetrable();
     }
 
     @Override
     public boolean isRequestable(EntityRef block) {
-        Vector3i position = new Vector3i(block.getComponent(BlockComponent.class).getPosition());
-        Vector3i pos = new Vector3i();
-        for (int[] neighbor : DIRECT_NEIGHBORS) {
-            pos.set(position.x + neighbor[0], position.y + neighbor[1], position.z + neighbor[2]);
-            Block solid = worldProvider.getBlock(pos);
-            if (!solid.isPenetrable()) {
-                return true;
-            }
-        }
-        return false;
-
+        return true;
     }
 }

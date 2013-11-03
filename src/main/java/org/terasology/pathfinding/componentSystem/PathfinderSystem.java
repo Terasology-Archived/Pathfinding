@@ -24,6 +24,7 @@ import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.In;
 import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.model.HeightMap;
@@ -92,13 +93,14 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
         return pathfinder.getBlock(pos);
     }
 
-    public WalkableBlock getBlock(Vector3f pos) {
+    public WalkableBlock getBlock(EntityRef minion) {
+        Vector3f pos = minion.getComponent(LocationComponent.class).getWorldPosition();
         Vector3i blockPos = new Vector3i(pos.x + 0.25f, pos.y, pos.z + 0.25f);
 
         WalkableBlock block = pathfinder.getBlock(blockPos);
         if (block == null) {
-            blockPos.y += 1;
-            while (blockPos.y >= (int) pos.y - 1 && (block = pathfinder.getBlock(blockPos)) == null) {
+            blockPos.y += 2;
+            while (blockPos.y >= (int) pos.y - 4 && (block = pathfinder.getBlock(blockPos)) == null) {
                 blockPos.y--;
             }
         }
@@ -122,6 +124,11 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
                     try {
                         UpdateChunkTask task = updateChunkQueue.poll(1, TimeUnit.SECONDS);
                         if (task != null) {
+                            for (FindPathTask t : findPathTasks) {
+                                t.cancel();
+                            }
+                            findPathTasks.clear();
+
                             task.process();
                         } else {
                             findPaths();
@@ -164,10 +171,6 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
         Vector3i chunkPos = TeraMath.calcChunkPos(pos);
         invalidChunks.add(chunkPos);
         updateChunkQueue.offer(new UpdateChunkTask(chunkPos));
-        for (FindPathTask task : findPathTasks) {
-            task.cancel();
-        }
-        findPathTasks.clear();
     }
 
     @ReceiveEvent(components = WorldComponent.class)

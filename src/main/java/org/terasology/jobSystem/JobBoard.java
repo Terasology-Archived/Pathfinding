@@ -27,7 +27,6 @@ import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.In;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.logic.characters.CharacterComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Region3i;
@@ -39,6 +38,7 @@ import org.terasology.pathfinding.model.WalkableBlock;
 import org.terasology.selection.ApplyBlockSelectionEvent;
 import org.terasology.world.BlockEntityRegistry;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,10 +47,9 @@ import java.util.Set;
  * @author synopia
  */
 @RegisterSystem
-public class JobBoard implements ComponentSystem, UpdateSubscriberSystem {
+public class JobBoard implements ComponentSystem {
     private static final Logger logger = LoggerFactory.getLogger(JobBoard.class);
     private final Map<Job, JobType> jobTypes = Maps.newHashMap();
-    private final Map<WalkableBlock, EntityRef> jobMap = Maps.newHashMap();
     private final List<EntityRef> toRemove = Lists.newArrayList();
 
     @In
@@ -76,8 +75,7 @@ public class JobBoard implements ComponentSystem, UpdateSubscriberSystem {
         walk = jobFactory.getJob("Pathfinding:walkToBlock");
     }
 
-    @Override
-    public void update(float delta) {
+    public void refresh() {
         for (EntityRef block : entityManager.getEntitiesWith(JobBlockComponent.class)) {
             JobBlockComponent jobBlock = block.getComponent(JobBlockComponent.class);
             JobType jobType = getJobType(jobBlock.getJob());
@@ -101,27 +99,11 @@ public class JobBoard implements ComponentSystem, UpdateSubscriberSystem {
         List<JobPossibility> possibleJobs = Lists.newArrayList();
         for (Job job : jobFactory.getJobs()) {
             JobType jobType = getJobType(job);
-            List<WalkableBlock> jobs = jobType.findJobs(entity);
-            for (WalkableBlock block : jobs) {
-                JobPossibility possibility = new JobPossibility();
-                possibility.targetEntity = jobMap.get(block);
-                if (possibility.targetEntity == null) {
-                    possibility.job = walk;
-                } else {
-                    possibility.job = job;
-                }
-                possibility.targetPos = block.getBlockPosition();
-                possibility.targetBlock = block;
-                possibleJobs.add(possibility);
-            }
+            List<JobPossibility> jobs = jobType.findJobs(entity);
+            possibleJobs.addAll(jobs);
         }
         return possibleJobs;
     }
-
-    public EntityRef getJob(WalkableBlock block) {
-        return jobMap.get(block);
-    }
-
 
     @ReceiveEvent(components = {LocationComponent.class, CharacterComponent.class})
     public void onSelectionChanged(ApplyBlockSelectionEvent event, EntityRef entity) {
@@ -166,7 +148,6 @@ public class JobBoard implements ComponentSystem, UpdateSubscriberSystem {
     }
 
     private void scanJobs() {
-        jobMap.clear();
         for (Job job : jobFactory.getJobs()) {
             JobType jobType = getJobType(job);
             jobType.scanJobs();
@@ -185,48 +166,88 @@ public class JobBoard implements ComponentSystem, UpdateSubscriberSystem {
     private final class JobType {
         public final Job job;
         public final Set<EntityRef> openJobs = Sets.newHashSet();
-        public final Map<Floor, List<WalkableBlock>> possibleJobs = Maps.newHashMap();
+        public final Map<Floor, List<JobPossibility>> possibleJobs = Maps.newHashMap();
 
         private JobType(Job job) {
             this.job = job;
         }
 
-        public List<WalkableBlock> findJobs(EntityRef minion) {
-            List<WalkableBlock> result = Lists.newArrayList();
-            LocationComponent locationComponent = minion.getComponent(LocationComponent.class);
-            WalkableBlock currentBlock = pathfinderSystem.getBlock(locationComponent.getWorldPosition());
+        public List<JobPossibility> findJobs(EntityRef minion) {
+            List<JobPossibility> result = Lists.newArrayList();
+            WalkableBlock currentBlock = pathfinderSystem.getBlock(minion);
             if (currentBlock != null) {
-                List<WalkableBlock> jobsOnFloor = possibleJobs.get(currentBlock.floor);
-                if (jobsOnFloor != null && jobsOnFloor.size() > 0) {
-                    result.addAll(jobsOnFloor);
-                } else {
-                    for (Floor floor : possibleJobs.keySet()) {
-                        List<Entrance> entrances = floor.entrances();
-                        if (entrances.size() > 0) {
-                            result.add(entrances.get(0).getAbstractBlock());
-                        }
+                if (addJobPossibilities(result, currentBlock.floor, minion) == 0) {
+                    int total = 0;
+                    for (Floor floor : currentBlock.floor.getNeighborRegions()) {
+                        total += addJobPossibilities(result, floor, minion);
                     }
+                    if (total < 2) {
+                        for (Floor floor : possibleJobs.keySet()) {
+                            List<Entrance> entrances = floor.entrances();
+                            if (entrances.size() > 0) {
+                                for (Entrance entrance : entrances) {
+                                    WalkableBlock block = entrance.getAbstractBlock();
+                                    JobPossibility possibility = new JobPossibility();
+                                    possibility.targetBlock = block;
+                                    possibility.targetPos = block.getBlockPosition();
+                                    possibility.targetEntity = null;
+                                    possibility.job = walk;
+                                    possibility.minion = minion;
+                                    result.add(possibility);
+                                }
+                            }
+                            logger.info("Added floor entrances for " + minion);
+                        }
+                    } else {
+                        logger.info("Added jobs on neighbor floors for " + minion);
+                    }
+                } else {
+                    logger.info("Added jobs on current floor for " + minion);
                 }
             }
             return result;
         }
 
+        private int addJobPossibilities(List<JobPossibility> result, Floor floor, EntityRef minion) {
+            int count = 0;
+            List<JobPossibility> jobsOnFloor = possibleJobs.get(floor);
+            if (jobsOnFloor != null && jobsOnFloor.size() > 0) {
+                for (JobPossibility possibility : jobsOnFloor) {
+                    if (possibility.job.isRequestable(possibility.targetEntity)) {
+                        JobPossibility p = new JobPossibility(possibility);
+                        p.minion = minion;
+                        result.add(p);
+                    }
+                    count++;
+                }
+            }
+            return count;
+        }
+
         public void scanJobs() {
             possibleJobs.clear();
-            for (EntityRef openJob : openJobs) {
+            Iterator<EntityRef> it = openJobs.iterator();
+            while (it.hasNext()) {
+                EntityRef openJob = it.next();
                 JobBlockComponent jobComponent = openJob.getComponent(JobBlockComponent.class);
-                if (jobComponent.assignedMinion == null) {
+                if (jobComponent != null && jobComponent.assignedMinion == null) {
                     List<WalkableBlock> targetPositions = jobComponent.getJob().getTargetPositions(openJob);
                     for (WalkableBlock targetPosition : targetPositions) {
                         Floor floor = targetPosition.floor;
-                        List<WalkableBlock> floorJobs = possibleJobs.get(floor);
+                        List<JobPossibility> floorJobs = possibleJobs.get(floor);
                         if (floorJobs == null) {
                             floorJobs = Lists.newArrayList();
                             possibleJobs.put(floor, floorJobs);
                         }
-                        floorJobs.add(targetPosition);
-                        jobMap.put(targetPosition, openJob);
+                        JobPossibility possibility = new JobPossibility();
+                        possibility.job = jobComponent.getJob();
+                        possibility.targetEntity = openJob;
+                        possibility.targetPos = targetPosition.getBlockPosition();
+                        possibility.targetBlock = targetPosition;
+                        floorJobs.add(possibility);
                     }
+                } else {
+                    it.remove();
                 }
             }
         }

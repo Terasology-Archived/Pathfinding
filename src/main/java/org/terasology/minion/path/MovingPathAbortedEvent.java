@@ -16,19 +16,9 @@
 package org.terasology.minion.path;
 
 import org.terasology.entitySystem.event.Event;
-import org.terasology.math.Vector3i;
 
 /**
  * @author synopia
  */
-public class MoveToEvent implements Event {
-    private final Vector3i target;
-
-    public MoveToEvent(Vector3i target) {
-        this.target = target;
-    }
-
-    public Vector3i getTarget() {
-        return target;
-    }
+public class MovingPathAbortedEvent implements Event {
 }

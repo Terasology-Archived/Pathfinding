@@ -17,6 +17,7 @@ package org.terasology.jobSystem;
 
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.math.Vector3i;
+import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.WalkableBlock;
 
 /**
@@ -27,4 +28,19 @@ public class JobPossibility {
     public WalkableBlock targetBlock;
     public EntityRef targetEntity;
     public Job job;
+    public Path path;
+    public EntityRef minion;
+
+    public JobPossibility() {
+
+    }
+
+    public JobPossibility(JobPossibility other) {
+        targetPos = other.targetPos;
+        targetBlock = other.targetBlock;
+        targetEntity = other.targetEntity;
+        job = other.job;
+        path = other.path;
+        minion = other.minion;
+    }
 }

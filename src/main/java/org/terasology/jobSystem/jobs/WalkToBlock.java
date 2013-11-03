@@ -24,13 +24,11 @@ import org.terasology.entitySystem.systems.In;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.jobSystem.Job;
 import org.terasology.jobSystem.JobFactory;
-import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.WalkableBlock;
 import org.terasology.world.block.BlockComponent;
 
-import javax.vecmath.Vector3f;
 import java.util.List;
 
 /**
@@ -74,16 +72,15 @@ public class WalkToBlock implements Job, ComponentSystem {
 
     @Override
     public boolean canMinionWork(EntityRef block, EntityRef minion) {
-        Vector3f worldPosition = minion.getComponent(LocationComponent.class).getWorldPosition();
-        WalkableBlock actualBlock = pathfinderSystem.getBlock(worldPosition);
-        WalkableBlock expectedBlock = pathfinderSystem.getBlock(block.getComponent(LocationComponent.class).getWorldPosition());
+        WalkableBlock actualBlock = pathfinderSystem.getBlock(minion);
+        WalkableBlock expectedBlock = pathfinderSystem.getBlock(block.getComponent(BlockComponent.class).getPosition());
 
         return actualBlock == expectedBlock;
     }
 
     @Override
     public boolean isAssignable(EntityRef block) {
-        WalkableBlock walkableBlock = pathfinderSystem.getBlock(block.getComponent(LocationComponent.class).getWorldPosition());
+        WalkableBlock walkableBlock = pathfinderSystem.getBlock(block.getComponent(BlockComponent.class).getPosition());
         return walkableBlock != null;
     }
 

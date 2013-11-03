@@ -25,6 +25,7 @@ import org.terasology.logic.characters.CharacterMoveInputEvent;
 import org.terasology.logic.characters.CharacterMovementComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.TeraMath;
+import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.WalkableBlock;
 import org.terasology.rendering.assets.animation.MeshAnimation;
@@ -61,28 +62,40 @@ public class MinionMoveSystem implements ComponentSystem, UpdateSubscriberSystem
         for (EntityRef entity : entityManager.getEntitiesWith(MinionMoveComponent.class, CharacterMovementComponent.class, LocationComponent.class)) {
             MinionMoveComponent move = entity.getComponent(MinionMoveComponent.class);
             AnimationComponent animation = entity.getComponent(AnimationComponent.class);
+            WalkableBlock currentBlock = pathfinderSystem.getBlock(entity);
 
-            if (move.firstRunTime > 0) {
+            if (move.firstRunTime > 0 || currentBlock == null) {
                 entity.send(new CharacterMoveInputEvent(0, 0, 0, new Vector3f(0f, 0f, 0f), false, true));
                 move.firstRunTime -= timeRemain;
-                entity.saveComponent(move);
             } else {
+                if (move.currentBlock == null) {
+                    move.currentBlock = currentBlock;
+                    entity.send(new ReachedWalkableBlockEvent(move.currentBlock, null));
+                }
+                entity.saveComponent(move);
+
                 if (move.targetBlock != null) {
-                    WalkableBlock currentBlock = pathfinderSystem.getBlock(entity.getComponent(LocationComponent.class).getWorldPosition());
+
                     if (move.currentBlock != currentBlock) {
                         WalkableBlock old = move.currentBlock;
                         move.currentBlock = currentBlock;
                         entity.saveComponent(move);
                         entity.send(new ReachedWalkableBlockEvent(currentBlock, old));
                     }
-                    Vector3f targetBlock = new Vector3f(move.targetBlock.x, move.targetBlock.y + 1.5f, move.targetBlock.z);
-                    if (setMovement(targetBlock, entity)) {
-                        move.targetBlock = null;
-                        entity.saveComponent(move);
-                        changeAnimation(entity, animation.idleAnim, true);
-                        entity.send(new MovingFinishedEvent(currentBlock));
+                    WalkableBlock target = pathfinderSystem.getBlock(move.targetBlock);
+                    if (target != null) {
+                        Vector3i targetBlockPosition = target.getBlockPosition();
+                        Vector3f targetBlock = new Vector3f(targetBlockPosition.x, targetBlockPosition.y + 1.2f, targetBlockPosition.z);
+                        if (setMovement(targetBlock, entity)) {
+                            move.targetBlock = null;
+                            entity.saveComponent(move);
+                            changeAnimation(entity, animation.idleAnim, true);
+                            entity.send(new MovingFinishedEvent(currentBlock));
+                        } else {
+                            changeAnimation(entity, animation.walkAnim, true);
+                        }
                     } else {
-                        changeAnimation(entity, animation.walkAnim, true);
+                        entity.send(new CannotReachEvent(move.targetBlock));
                     }
                 }
             }

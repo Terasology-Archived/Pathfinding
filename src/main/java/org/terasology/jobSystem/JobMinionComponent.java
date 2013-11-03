@@ -30,6 +30,7 @@ public class JobMinionComponent implements Component {
     public enum JobMinionState {
         UNASSIGNED,
         PATHS_REQUESTED,
+        WAITING_SCHEDULE,
         ASSIGNED;
     }
 

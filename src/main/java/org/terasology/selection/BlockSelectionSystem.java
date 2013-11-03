@@ -50,6 +50,9 @@ public class BlockSelectionSystem implements ComponentSystem, RenderSystem {
 
     @ReceiveEvent(components = {BlockSelectionComponent.class})
     public void onPlaced(ActivateEvent event, EntityRef itemEntity) {
+        if (event.getTargetLocation() == null) {
+            return;
+        }
         if (startPos == null) {
             Vector3f worldPosition = event.getTargetLocation();
             startPos = new Vector3i(worldPosition.x, worldPosition.y, worldPosition.z);
