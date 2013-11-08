@@ -55,5 +55,5 @@ change occurs when there are pending requests, all pending requests are canceled
 
 The nav data (`WalkableBlock` and `Floor`) is *only* modified in the background and *never*, when a path is calculated.
 
-Whenever you operated with nav data, keep in mind that the current instance of a `WalkableBlock` may not be up to date.
+Whenever you operate with nav data, keep in mind that the current instance of a `WalkableBlock` may not be up to date.
 Always use `PathfinderSystem.getBlock()` to get the latest block.
