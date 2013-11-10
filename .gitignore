@@ -1,3 +1,2 @@
 # Simple stuff modules should ignore
 *.iml
-build.gradle
