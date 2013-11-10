@@ -25,6 +25,8 @@ import org.terasology.minion.move.MoveTo;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.WalkableBlock;
 
+import javax.vecmath.Vector3f;
+
 /**
  * @author synopia
  */
@@ -68,7 +70,9 @@ public class MoveAlongPath extends Decorator<EntityRef> implements Behavior.Obse
         if (currentIndex < path.size()) {
             WalkableBlock block = pathComponent.path.get(currentIndex);
             MinionMoveComponent moveComponent = minion.getComponent(MinionMoveComponent.class);
-            moveComponent.target = block.getBlockPosition().toVector3f();
+            Vector3f pos = block.getBlockPosition().toVector3f();
+            pos.add(new Vector3f(0, 1, 0));
+            moveComponent.target = pos;
             minion.saveComponent(moveComponent);
             behaviorTree.start(getNode().getChild().create(behaviorTree), this);
         } else {

@@ -17,13 +17,11 @@ package org.terasology.minion.behavior;
 
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.In;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.minion.behavior.tree.BehaviorTree;
-import org.terasology.pathfinding.componentSystem.PathReadyEvent;
 
 /**
  * @author synopia
@@ -51,15 +49,6 @@ public class BehaviorSystem implements ComponentSystem, UpdateSubscriberSystem {
                 minion.saveComponent(behaviorComponent);
             }
             tree.tick(delta);
-        }
-    }
-
-    @ReceiveEvent(components = {BehaviorComponent.class})
-    public void onPathReady(PathReadyEvent event, EntityRef minion) {
-        BehaviorComponent behaviorComponent = minion.getComponent(BehaviorComponent.class);
-        if (behaviorComponent.behaviorTree.getContext() == minion) {
-            // todo save path result
-            minion.saveComponent(behaviorComponent);
         }
     }
 

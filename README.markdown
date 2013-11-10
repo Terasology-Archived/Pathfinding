@@ -2,35 +2,24 @@
 
 ## Systems
 
-### `MinionMoveSystem`
+### `BehaviorSystem`
 
-**Components:** `MinionMoveComponent`
+Manages entity behaviors using a behavior tree.
 
-**Events:** `MovingFinishedEvent`, `CannotReachEvent`, `ReachedWalkableBlockEvent`
-
-This systems moves a minion to a target position. Its controlled through setting the `targetBlock` property of the
-attached `MinionMoveComponent` of an entity.
-
-Whenever this property is set, the minion will start moving to the target block. It even jumps if required.
-
-As soon as the minion is above a new `WalkableBlock`, a `ReachedWalkableBlockEvent` is fired.
-`MovingFinishedEvent` and `CannotReachEvent` are fired, when the target position is reached or if it cannot be reached
-(anymore).
-
-### `MinionPathSystem`
-
-**Components:** `MinionPathComponent`
-
-**Events:** `MoveToEvent`, `MovingPathFinishedEvent`, `MovingPathAbortedEvent`
-
-Moves a minion along a path to a given target. To start moving a `MoveToEvent` is fired to the entity. The system
-will then request a path from current to target position. Once the path is received, the minion is moved through
-each of path's position.
-
-If moving to a position results in a `CannotReachEvent`, a new path is requested automatically. If target position
-got invalid, a `MovingPathAbortedEvent` is fired.
-
-If target is reached, `MovingPathFinishedEvent` is fired.
+Currently there are the following behaviors implemented:
+* `Sequence` - All children are executed after each other. Failing child will fail the sequence.
+* `Selector` - All children are executed after each other. Succeeding child will succeed the selector.
+* `Parallel` - All children are executed in parallel. When the parallel finishes, depends on its policies.
+* `Monitor` - All children are executed in parallel. As soon as any child succeeds or fails, the monitor succeed or fail.
+* `Repeat`   - Repeats its decorated behavior forever.
+* `Counter`  - Succeeds after given number of executions.
+* `Filter`   - **todo** Selector with conditions and actions
+* `PlayAnimation` - Plays a given animation.
+* `MoveTo`   - Moves the entity to MinionMoveComponent.target
+* `FindPathTo`   - Finds path to MinionPathComponent.target
+* `MoveAlongPath`   - Sequence of `MoveTo` along the path stored in MinionPathComponent.path
+* `MoveToWalkableBlock`   - Moves the entity to nearby walkable block (navigation graph node)
+* `SetTargetToLocalPlayer` - Sets MinionPathComponent.target to local player position
 
 ### `BlockSelectionSystem`
 
@@ -57,3 +46,6 @@ The nav data (`WalkableBlock` and `Floor`) is *only* modified in the background 
 
 Whenever you operate with nav data, keep in mind that the current instance of a `WalkableBlock` may not be up to date.
 Always use `PathfinderSystem.getBlock()` to get the latest block.
+
+
+## Behaviors

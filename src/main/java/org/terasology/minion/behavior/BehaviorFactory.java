@@ -19,6 +19,7 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.minion.behavior.tree.Behavior;
 import org.terasology.minion.behavior.tree.BehaviorTree;
 import org.terasology.minion.behavior.tree.Node;
+import org.terasology.minion.behavior.tree.Repeat;
 import org.terasology.minion.behavior.tree.Sequence;
 import org.terasology.minion.move.MoveToWalkableBlockNode;
 import org.terasology.minion.move.PlayAnimation;
@@ -39,7 +40,7 @@ public class BehaviorFactory {
         parallel.children.add(new PlayAnimation.PlayAnimationNode(false));
         sequence.children.add(new FindPathTo.FindPathToNode());
         sequence.children.add(new MoveAlongPath.MoveAlongPathNode());
-        return sequence;
+        return new Repeat.RepeatNode<>(sequence);
     }
 
     public Behavior<EntityRef> create(BehaviorTree<EntityRef> tree, String uri) {
