@@ -13,22 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion.path;
-
-import org.terasology.entitySystem.event.Event;
-import org.terasology.math.Vector3i;
+package org.terasology.minion.behavior.tree;
 
 /**
  * @author synopia
  */
-public class MoveToEvent implements Event {
-    private final Vector3i target;
+public class BehaviorBuilder {
 
-    public MoveToEvent(Vector3i target) {
-        this.target = target;
-    }
-
-    public Vector3i getTarget() {
-        return target;
-    }
 }

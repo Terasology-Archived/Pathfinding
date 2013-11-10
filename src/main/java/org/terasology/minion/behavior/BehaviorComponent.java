@@ -13,17 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion.move;
+package org.terasology.minion.behavior;
 
 import org.terasology.entitySystem.Component;
-import org.terasology.pathfinding.model.WalkableBlock;
+import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.minion.behavior.tree.BehaviorTree;
 
-import javax.vecmath.Vector3f;
+import java.util.Map;
 
 /**
  * @author synopia
  */
-public class MinionMoveComponent implements Component {
-    public transient Vector3f target;
-    public transient WalkableBlock currentBlock;
+public class BehaviorComponent implements Component {
+    public String behavior;
+    public Map<String, Map> test;
+
+    public transient BehaviorTree<EntityRef> behaviorTree;
+
 }

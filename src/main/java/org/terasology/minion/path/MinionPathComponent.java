@@ -33,6 +33,7 @@ public class MinionPathComponent implements Component {
         IDLE,
         NEW_TARGET,
         PATH_REQUESTED,
+        PATH_RECEIVED,
         MOVING_PATH,
         FINISHED_MOVING
     }

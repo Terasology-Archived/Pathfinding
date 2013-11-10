@@ -15,16 +15,15 @@
  */
 package org.terasology.minion.move;
 
-import org.terasology.entitySystem.event.Event;
-import org.terasology.math.Vector3i;
+import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.minion.behavior.tree.Sequence;
 
 /**
  * @author synopia
  */
-public class CannotReachEvent implements Event {
-    private final Vector3i requestedPosition;
-
-    public CannotReachEvent(Vector3i requestedPosition) {
-        this.requestedPosition = requestedPosition;
+public class MoveToWalkableBlockNode extends Sequence.SequenceNode<EntityRef> {
+    public MoveToWalkableBlockNode() {
+        children.add(new FindWalkableBlock.FindWalkableBlockNode());
+        children.add(new MoveTo.MoveToNode());
     }
 }

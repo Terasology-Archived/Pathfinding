@@ -15,6 +15,7 @@
  */
 package org.terasology.minion.spawn;
 
+import org.terasology.engine.CoreRegistry;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
@@ -23,6 +24,10 @@ import org.terasology.entitySystem.systems.In;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.logic.common.ActivateEvent;
+import org.terasology.pathfinding.componentSystem.PathfinderSystem;
+import org.terasology.pathfinding.model.WalkableBlock;
+
+import javax.vecmath.Vector3f;
 
 /**
  * @author synopia
@@ -53,8 +58,13 @@ public class MinionSpawnSystem implements ComponentSystem, UpdateSubscriberSyste
             return;
         }
         SpawnerComponent spawner = itemEntity.getComponent(SpawnerComponent.class);
-        entityManager.create(spawner.nextPrefab(itemEntity), event.getHitPosition());
-        cooldown = COOLDOWN;
+        WalkableBlock block = CoreRegistry.get(PathfinderSystem.class).getBlock(event.getHitPosition());
+        if (block != null) {
+            Vector3f pos = block.getBlockPosition().toVector3f();
+            pos.add(new Vector3f(0, 1f, 0));
+            entityManager.create(spawner.nextPrefab(itemEntity), pos);
+            cooldown = COOLDOWN;
+        }
     }
 
     @Override

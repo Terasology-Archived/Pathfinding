@@ -13,22 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion.move;
-
-import org.terasology.entitySystem.event.Event;
-import org.terasology.pathfinding.model.WalkableBlock;
+package org.terasology.minion.behavior.tree;
 
 /**
  * @author synopia
  */
-public class MovingFinishedEvent implements Event {
-    private final WalkableBlock block;
-
-    public MovingFinishedEvent(WalkableBlock block) {
-        this.block = block;
-    }
-
-    public WalkableBlock getBlock() {
-        return block;
+public class MonitorNode<C> extends Parallel.ParallelNode<C> {
+    public MonitorNode() {
+        super(Parallel.Policy.RequireOne, Parallel.Policy.RequireOne);
     }
 }

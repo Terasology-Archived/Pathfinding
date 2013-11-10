@@ -13,12 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion.path;
+package org.terasology.minion.behavior.tree;
 
-import org.terasology.entitySystem.event.Event;
+import com.google.common.collect.Lists;
+
+import java.util.List;
 
 /**
  * @author synopia
  */
-public class MovingPathAbortedEvent implements Event {
+public abstract class Composite<C> extends Behavior<C> {
+    protected Composite(CompositeNode<C> node) {
+        super(node);
+    }
+
+    @Override
+    public CompositeNode<C> getNode() {
+        return (CompositeNode<C>) super.getNode();
+    }
+
+    public abstract static class CompositeNode<C> implements Node<C> {
+        public final List<Node<C>> children = Lists.newArrayList();
+    }
 }

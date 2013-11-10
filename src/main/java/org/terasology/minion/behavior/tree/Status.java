@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion.move;
-
-import org.terasology.entitySystem.Component;
-import org.terasology.pathfinding.model.WalkableBlock;
-
-import javax.vecmath.Vector3f;
+package org.terasology.minion.behavior.tree;
 
 /**
  * @author synopia
  */
-public class MinionMoveComponent implements Component {
-    public transient Vector3f target;
-    public transient WalkableBlock currentBlock;
+public enum Status {
+    INVALID,
+    SUCCESS,
+    FAILURE,
+    RUNNING,
+    SUSPENDED
 }

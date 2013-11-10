@@ -95,8 +95,11 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
 
     public WalkableBlock getBlock(EntityRef minion) {
         Vector3f pos = minion.getComponent(LocationComponent.class).getWorldPosition();
-        Vector3i blockPos = new Vector3i(pos.x + 0.25f, pos.y, pos.z + 0.25f);
+        return getBlock(pos);
+    }
 
+    public WalkableBlock getBlock(Vector3f pos) {
+        Vector3i blockPos = new Vector3i(pos.x + 0.25f, pos.y, pos.z + 0.25f);
         WalkableBlock block = pathfinder.getBlock(blockPos);
         if (block == null) {
             blockPos.y += 2;
