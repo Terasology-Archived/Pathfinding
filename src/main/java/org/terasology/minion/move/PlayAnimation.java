@@ -15,11 +15,11 @@
  */
 package org.terasology.minion.move;
 
+import org.terasology.behavior.tree.Behavior;
+import org.terasology.behavior.tree.BehaviorTree;
+import org.terasology.behavior.tree.Node;
+import org.terasology.behavior.tree.Status;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.minion.behavior.tree.Behavior;
-import org.terasology.minion.behavior.tree.BehaviorTree;
-import org.terasology.minion.behavior.tree.Node;
-import org.terasology.minion.behavior.tree.Status;
 import org.terasology.rendering.assets.animation.MeshAnimation;
 import org.terasology.rendering.logic.SkeletalMeshComponent;
 

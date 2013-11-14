@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion.behavior.tree;
+package org.terasology.behavior.tree;
 
 import java.util.Iterator;
 
 /**
  * @author synopia
  */
-public class Sequence<C> extends Composite<C> implements Behavior.Observer<C> {
-    protected BehaviorTree<C> behaviorTree;
+public class Selector<C> extends Composite<C> implements Behavior.Observer<C> {
+    private BehaviorTree<C> behaviorTree;
     private Iterator<Node<C>> iterator;
     private Behavior<C> current;
 
-    public Sequence(SequenceNode<C> node, BehaviorTree<C> behaviorTree) {
+    public Selector(SelectorNode<C> node, BehaviorTree<C> behaviorTree) {
         super(node);
         this.behaviorTree = behaviorTree;
     }
@@ -39,8 +39,8 @@ public class Sequence<C> extends Composite<C> implements Behavior.Observer<C> {
 
     @Override
     public void handle(C context, Status result) {
-        if (current.getStatus() == Status.FAILURE) {
-            behaviorTree.stop(this, Status.FAILURE);
+        if (current.getStatus() == Status.SUCCESS) {
+            behaviorTree.stop(this, Status.SUCCESS);
             return;
         }
 
@@ -48,10 +48,9 @@ public class Sequence<C> extends Composite<C> implements Behavior.Observer<C> {
             current = iterator.next().create(behaviorTree);
             behaviorTree.start(current, this);
         } else {
-            behaviorTree.stop(this, Status.SUCCESS);
+            behaviorTree.stop(this, Status.FAILURE);
         }
     }
-
 
     @Override
     public Status update(C context, float dt) {
@@ -59,15 +58,14 @@ public class Sequence<C> extends Composite<C> implements Behavior.Observer<C> {
     }
 
     @Override
-    public SequenceNode<C> getNode() {
-        return (SequenceNode<C>) super.getNode();
+    public SelectorNode<C> getNode() {
+        return (SelectorNode<C>) super.getNode();
     }
 
-    public static class SequenceNode<C> extends CompositeNode<C> {
+    public static class SelectorNode<C> extends CompositeNode<C> {
         @Override
-        public Sequence<C> create(BehaviorTree<C> tree) {
-            return new Sequence<>(this, tree);
+        public Selector<C> create(BehaviorTree<C> tree) {
+            return new Selector<>(this, tree);
         }
     }
-
 }

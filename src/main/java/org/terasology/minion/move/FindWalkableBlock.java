@@ -15,13 +15,13 @@
  */
 package org.terasology.minion.move;
 
+import org.terasology.behavior.tree.Behavior;
+import org.terasology.behavior.tree.BehaviorTree;
+import org.terasology.behavior.tree.Node;
+import org.terasology.behavior.tree.Status;
 import org.terasology.engine.CoreRegistry;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.logic.location.LocationComponent;
-import org.terasology.minion.behavior.tree.Behavior;
-import org.terasology.minion.behavior.tree.BehaviorTree;
-import org.terasology.minion.behavior.tree.Node;
-import org.terasology.minion.behavior.tree.Status;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.WalkableBlock;
 

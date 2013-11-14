@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion.behavior.tree;
+package org.terasology.behavior.tree;
 
 import com.google.common.collect.Queues;
 import org.slf4j.Logger;

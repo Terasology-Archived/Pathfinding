@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion.behavior;
+package org.terasology.behavior;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.terasology.minion.behavior.tree.Behavior;
-import org.terasology.minion.behavior.tree.BehaviorTree;
-import org.terasology.minion.behavior.tree.Node;
-import org.terasology.minion.behavior.tree.Selector;
-import org.terasology.minion.behavior.tree.Status;
+import org.terasology.behavior.tree.Behavior;
+import org.terasology.behavior.tree.BehaviorTree;
+import org.terasology.behavior.tree.Node;
+import org.terasology.behavior.tree.Selector;
+import org.terasology.behavior.tree.Status;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;

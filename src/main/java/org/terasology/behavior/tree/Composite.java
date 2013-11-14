@@ -13,33 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion.behavior.tree;
+package org.terasology.behavior.tree;
+
+import com.google.common.collect.Lists;
+
+import java.util.List;
 
 /**
  * @author synopia
  */
-public abstract class Decorator<C> extends Behavior<C> {
-    protected BehaviorTree<C> behaviorTree;
-
-    protected Decorator(Node<C> node, BehaviorTree<C> behaviorTree) {
+public abstract class Composite<C> extends Behavior<C> {
+    protected Composite(CompositeNode<C> node) {
         super(node);
-        this.behaviorTree = behaviorTree;
     }
 
     @Override
-    public DecoratorNode<C> getNode() {
-        return (DecoratorNode<C>) super.getNode();
+    public CompositeNode<C> getNode() {
+        return (CompositeNode<C>) super.getNode();
     }
 
-    public abstract static class DecoratorNode<C> implements Node<C> {
-        protected Node<C> child;
-
-        protected DecoratorNode(Node<C> child) {
-            this.child = child;
-        }
-
-        public Node<C> getChild() {
-            return child;
-        }
+    public abstract static class CompositeNode<C> implements Node<C> {
+        public final List<Node<C>> children = Lists.newArrayList();
     }
 }

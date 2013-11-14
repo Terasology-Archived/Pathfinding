@@ -13,29 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.selection;
+package org.terasology.behavior;
 
+import org.terasology.behavior.tree.BehaviorTree;
+import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.event.Event;
-import org.terasology.math.Region3i;
+
+import java.util.Map;
 
 /**
  * @author synopia
  */
-public class ApplyBlockSelectionEvent implements Event {
-    private final Region3i selection;
-    private final EntityRef selectedItemEntity;
+public class BehaviorComponent implements Component {
+    public String behavior;
+    public Map<String, Map> test;
 
-    public ApplyBlockSelectionEvent(EntityRef selectedItemEntity, Region3i selection) {
-        this.selectedItemEntity = selectedItemEntity;
-        this.selection = selection;
-    }
+    public transient BehaviorTree<EntityRef> behaviorTree;
 
-    public Region3i getSelection() {
-        return selection;
-    }
-
-    public EntityRef getSelectedItemEntity() {
-        return selectedItemEntity;
-    }
 }

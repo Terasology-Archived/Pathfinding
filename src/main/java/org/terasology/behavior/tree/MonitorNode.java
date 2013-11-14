@@ -13,26 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion.behavior.tree;
-
-import com.google.common.collect.Lists;
-
-import java.util.List;
+package org.terasology.behavior.tree;
 
 /**
  * @author synopia
  */
-public abstract class Composite<C> extends Behavior<C> {
-    protected Composite(CompositeNode<C> node) {
-        super(node);
-    }
-
-    @Override
-    public CompositeNode<C> getNode() {
-        return (CompositeNode<C>) super.getNode();
-    }
-
-    public abstract static class CompositeNode<C> implements Node<C> {
-        public final List<Node<C>> children = Lists.newArrayList();
+public class MonitorNode<C> extends Parallel.ParallelNode<C> {
+    public MonitorNode() {
+        super(Parallel.Policy.RequireOne, Parallel.Policy.RequireOne);
     }
 }

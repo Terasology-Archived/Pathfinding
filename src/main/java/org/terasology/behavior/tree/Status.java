@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion.behavior.tree;
+package org.terasology.behavior.tree;
 
 /**
  * @author synopia
  */
-public class MonitorNode<C> extends Parallel.ParallelNode<C> {
-    public MonitorNode() {
-        super(Parallel.Policy.RequireOne, Parallel.Policy.RequireOne);
-    }
+public enum Status {
+    INVALID,
+    SUCCESS,
+    FAILURE,
+    RUNNING,
+    SUSPENDED
 }

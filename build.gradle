@@ -141,13 +141,13 @@ dependencies {
 
         // In Jenkins we can expect to have a sort of "project harness" dumped into a libs dir (engine, engine libs ..)
         compile fileTree(dir: 'libs', include: '*.jar')
+        testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.0'
 
         // To get Terasology module dependencies we simply declare them against Artifactory and wait - no runtime need
         moduleDepends.each {
             println "*** Attempting to fetch dependency module from Artifactory: " + project.name + ": " + it
             // The '+' is satisfied by any version
             compile(group: 'org.terasology.modules', name: it, version: '+')
-            testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.0'
         }
     }
 }

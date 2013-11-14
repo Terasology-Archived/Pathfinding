@@ -15,8 +15,8 @@
  */
 package org.terasology.minion.move;
 
+import org.terasology.behavior.tree.Sequence;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.minion.behavior.tree.Sequence;
 
 /**
  * @author synopia

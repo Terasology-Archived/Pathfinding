@@ -29,13 +29,13 @@ import org.terasology.entitySystem.systems.In;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.characters.CharacterComponent;
 import org.terasology.logic.location.LocationComponent;
+import org.terasology.logic.selection.ApplyBlockSelectionEvent;
 import org.terasology.math.Region3i;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.Entrance;
 import org.terasology.pathfinding.model.Floor;
 import org.terasology.pathfinding.model.WalkableBlock;
-import org.terasology.selection.ApplyBlockSelectionEvent;
 import org.terasology.world.BlockEntityRegistry;
 
 import java.util.Iterator;

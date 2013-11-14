@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion.behavior;
+package org.terasology.behavior;
 
+import org.terasology.behavior.tree.Behavior;
+import org.terasology.behavior.tree.BehaviorTree;
+import org.terasology.behavior.tree.Node;
+import org.terasology.behavior.tree.Repeat;
+import org.terasology.behavior.tree.Sequence;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.minion.behavior.tree.Behavior;
-import org.terasology.minion.behavior.tree.BehaviorTree;
-import org.terasology.minion.behavior.tree.Node;
-import org.terasology.minion.behavior.tree.Repeat;
-import org.terasology.minion.behavior.tree.Sequence;
 import org.terasology.minion.move.MoveToWalkableBlockNode;
 import org.terasology.minion.move.PlayAnimation;
 import org.terasology.minion.move.SetTargetLocalPlayer;

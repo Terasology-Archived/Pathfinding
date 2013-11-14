@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.selection;
-
-import org.terasology.entitySystem.Component;
+package org.terasology.behavior.tree;
 
 /**
  * @author synopia
  */
-public class BlockSelectionComponent implements Component {
+public class BehaviorBuilder {
+
 }

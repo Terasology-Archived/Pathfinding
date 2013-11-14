@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion.behavior.tree;
+package org.terasology.behavior.tree;
 
 /**
  * @author synopia
  */
-public class BehaviorBuilder {
-
+public interface Node<C> {
+    Behavior<C> create(BehaviorTree<C> tree);
 }
