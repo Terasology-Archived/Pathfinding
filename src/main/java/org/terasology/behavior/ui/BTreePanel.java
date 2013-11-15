@@ -15,18 +15,17 @@
  */
 package org.terasology.behavior.ui;
 
-import com.google.common.collect.Lists;
+import org.terasology.behavior.BehaviorFactory;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
-import java.util.List;
 
 /**
  * @author synopia
  */
 public class BTreePanel extends ZoomPanel {
-    private List<RenderableNode> nodes = Lists.newArrayList();
+    private RenderableNode root;
 
     public BTreePanel() {
 
@@ -38,15 +37,10 @@ public class BTreePanel extends ZoomPanel {
         context.setWindowSize(9 * 3, 5 * 3);
         context.calculateSizes();
 
-        RenderableNode one = new RenderableNode();
-        one.setPosition(9, 0);
-        RenderableNode two = new RenderableNode();
-        two.setPosition(0, 5);
-        RenderableNode three = new RenderableNode();
-        three.setPosition(9, 5);
-        nodes.add(one);
-        nodes.add(two);
-        nodes.add(three);
+        root = new RenderableNode();
+        root.setPosition(9, 0);
+        BehaviorFactory factory = new BehaviorFactory();
+        root.setNode(factory.get(""));
     }
 
     @Override
@@ -58,9 +52,7 @@ public class BTreePanel extends ZoomPanel {
     protected void paintContent(Graphics2D g) {
         g.setColor(Color.DARK_GRAY);
         g.fillRect(0, 0, getWidth(), getHeight());
-        for (RenderableNode node : nodes) {
-            node.render(context);
-        }
+        root.render(context);
     }
 
     @Override
@@ -70,12 +62,21 @@ public class BTreePanel extends ZoomPanel {
 
     @Override
     protected void onMouseDragged(MouseEvent e, int x, int y, int lastX, int lastY) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        double windowPosX = context.screenToWorldX(lastX) - context.screenToWorldX(x)
+                + context.getWindowPositionX();
+        double windowPosY = context.screenToWorldY(lastY) - context.screenToWorldY(y)
+                + context.getWindowPositionY();
+
+        context.setWindowPosition(windowPosX, windowPosY);
+        repaint();
     }
 
     @Override
     protected void onMouseWheel(MouseWheelEvent e, int x, int y, int wheelRotation) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        double scale = 1 + wheelRotation * 0.05;
+
+        context.zoom(scale, scale, e.getPoint());
+        repaint();
     }
 
     @Override

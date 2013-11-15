@@ -61,14 +61,14 @@ public class RenderContext {
         return (int) ((worldY - windowPositionY) * pixelSizeY);
     }
 
-    public int screenUnitX() {
-        int dx = (int) (pixelSizeX);
+    public int screenUnitX(double x) {
+        int dx = (int) (pixelSizeX * x);
 
         return Math.max(1, Math.abs(dx));
     }
 
-    public int screenUnitY() {
-        int dy = (int) (pixelSizeY);
+    public int screenUnitY(double y) {
+        int dy = (int) (pixelSizeY * y);
 
         return Math.max(1, Math.abs(dy));
     }

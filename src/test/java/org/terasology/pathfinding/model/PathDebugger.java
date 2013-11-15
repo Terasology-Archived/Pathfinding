@@ -17,7 +17,6 @@ package org.terasology.pathfinding.model;
 
 import com.google.common.collect.Sets;
 import org.terasology.math.Vector3i;
-import org.terasology.pathfinding.MazeChunkGenerator;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,7 +44,7 @@ public class PathDebugger extends JFrame {
         mapWidth = 160;
         mapHeight = 100;
         helper = new TestHelper();
-        helper.init(new MazeChunkGenerator(mapWidth, mapHeight, 4, 0, 20));
+//        helper.init(new MazeChunkGenerator(mapWidth, mapHeight, 4, 0, 20));
 //        helper = new TestHelper(new PathfinderTestGenerator(true));
         pathfinder = new Pathfinder(helper.world);
         for (int x = 0; x < mapWidth / 16 + 1; x++) {
