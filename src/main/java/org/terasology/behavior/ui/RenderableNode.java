@@ -16,6 +16,7 @@
 package org.terasology.behavior.ui;
 
 import com.google.common.collect.Lists;
+import org.terasology.asset.AssetData;
 import org.terasology.behavior.tree.CompositeNode;
 import org.terasology.behavior.tree.DecoratorNode;
 import org.terasology.behavior.tree.Node;
@@ -29,20 +30,35 @@ import java.util.List;
 /**
  * @author synopia
  */
-public class RenderableNode {
+public class RenderableNode implements AssetData {
     private final List<RenderableNode> children = Lists.newArrayList();
-    private final List<Port> ports = Lists.newArrayList();
-    private final InputPort inputPort;
+    private final transient List<Port> ports = Lists.newArrayList();
+    private final transient InputPort inputPort;
+    private final transient Font font;
+
     private Node node;
     private Vector2f position;
     private Vector2f size;
-    private final Font font;
 
     public RenderableNode() {
         position = new Vector2f();
         size = new Vector2f(10, 5);
         font = new JLabel().getFont();
         inputPort = new InputPort();
+    }
+
+    public void update() {
+        if (children.size() > 0) {
+            int index = 0;
+            for (RenderableNode child : children) {
+                child.update();
+                ports.add(new Port(index, child));
+                index++;
+            }
+            if (children.size() < maxChildren()) {
+                ports.add(new Port(index, null));
+            }
+        }
     }
 
     public void setNode(Node node) {
@@ -70,14 +86,31 @@ public class RenderableNode {
                 x += 12;
             }
             ports.add(new Port(index, null));
-            if (size.x < ports.size()) {
-                size = new Vector2f(ports.size(), size.y);
-            }
         }
+    }
+
+    public int maxChildren() {
+        return (node instanceof CompositeNode ? Integer.MAX_VALUE : node instanceof DecoratorNode ? 1 : 0);
+    }
+
+    public void setPosition(Vector2f position) {
+        this.position = position;
     }
 
     public void setPosition(float x, float y) {
         position = new Vector2f(x, y);
+    }
+
+    public void setSize(Vector2f size) {
+        this.size = size;
+    }
+
+    public void setChildren(List<RenderableNode> nodes) {
+
+    }
+
+    public Node getNode() {
+        return node;
     }
 
     public void render(RenderContext rc) {
@@ -140,6 +173,22 @@ public class RenderableNode {
             rc.getGraphics().fillRect(rc.worldToScreenX(position.x + index + 0.05d), rc.worldToScreenY(position.y + size.y - 0.95d), rc.screenUnitX(0.9d), rc.screenUnitY(0.9d));
 
         }
+    }
+
+    public String getNodeType() {
+        return node.getClass().getSimpleName();
+    }
+
+    public List<RenderableNode> getChildren() {
+        return children;
+    }
+
+    public Vector2f getPosition() {
+        return position;
+    }
+
+    public Vector2f getSize() {
+        return size;
     }
 
     private class InputPort {

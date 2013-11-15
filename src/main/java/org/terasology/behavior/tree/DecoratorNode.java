@@ -29,6 +29,10 @@ public abstract class DecoratorNode extends Node {
         return child;
     }
 
+    public void setChild(Node child) {
+        this.child = child;
+    }
+
     public abstract static class DecoratorTask extends Task {
         protected DecoratorTask(Node node) {
             super(node);

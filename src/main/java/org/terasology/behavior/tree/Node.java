@@ -20,4 +20,8 @@ package org.terasology.behavior.tree;
  */
 public abstract class Node {
     public abstract Task create();
+
+    public int maxChildren() {
+        return 0;
+    }
 }

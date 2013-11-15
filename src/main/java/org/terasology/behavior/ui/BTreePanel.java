@@ -15,11 +15,15 @@
  */
 package org.terasology.behavior.ui;
 
-import org.terasology.behavior.BehaviorFactory;
+import org.terasology.behavior.asset.BehaviorFactory;
+import org.terasology.behavior.tree.Node;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * @author synopia
@@ -39,8 +43,17 @@ public class BTreePanel extends ZoomPanel {
 
         root = new RenderableNode();
         root.setPosition(9, 0);
-        BehaviorFactory factory = new BehaviorFactory();
-        root.setNode(factory.get(""));
+        org.terasology.behavior.BehaviorFactory factory = new org.terasology.behavior.BehaviorFactory();
+        Node node = factory.get("");
+        root.setNode(node);
+
+        BehaviorFactory loader = new BehaviorFactory();
+        try {
+            loader.save(root, new FileOutputStream("test.json"));
+            root = loader.load(new FileInputStream("test.json"));
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
     }
 
     @Override

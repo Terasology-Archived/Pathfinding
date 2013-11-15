@@ -29,6 +29,11 @@ public abstract class CompositeNode extends Node {
         return children;
     }
 
+    @Override
+    public int maxChildren() {
+        return Integer.MAX_VALUE;
+    }
+
     public abstract static class CompositeTask extends Task {
         protected CompositeTask(Node node) {
             super(node);
