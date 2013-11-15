@@ -15,15 +15,14 @@
  */
 package org.terasology.minion.move;
 
-import org.terasology.behavior.tree.Sequence;
-import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.behavior.tree.SequenceNode;
 
 /**
  * @author synopia
  */
-public class MoveToWalkableBlockNode extends Sequence.SequenceNode<EntityRef> {
+public class MoveToWalkableBlockNode extends SequenceNode {
     public MoveToWalkableBlockNode() {
-        children.add(new FindWalkableBlock.FindWalkableBlockNode());
-        children.add(new MoveTo.MoveToNode());
+        children().add(new FindWalkableBlockNode());
+        children().add(new MoveToNode());
     }
 }

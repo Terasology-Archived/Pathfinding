@@ -15,7 +15,9 @@
  */
 package org.terasology.behavior;
 
-import org.terasology.behavior.tree.BehaviorTree;
+import org.terasology.behavior.tree.Actor;
+import org.terasology.behavior.tree.Interpreter;
+import org.terasology.behavior.tree.Node;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.systems.ComponentSystem;
@@ -41,14 +43,16 @@ public class BehaviorSystem implements ComponentSystem, UpdateSubscriberSystem {
     public void update(float delta) {
         for (EntityRef minion : entityManager.getEntitiesWith(BehaviorComponent.class)) {
             BehaviorComponent behaviorComponent = minion.getComponent(BehaviorComponent.class);
-            BehaviorTree<EntityRef> tree = behaviorComponent.behaviorTree;
-            if (tree == null) {
-                tree = new BehaviorTree<>(minion);
-                behaviorFactory.create(tree, behaviorComponent.behavior);
-                behaviorComponent.behaviorTree = tree;
+            Interpreter interpreter = behaviorComponent.interpreter;
+            if (interpreter == null) {
+                interpreter = new Interpreter(new Actor(minion));
+                Node node = behaviorFactory.get(behaviorComponent.behavior);
+                behaviorComponent.interpreter = interpreter;
+                interpreter.start(node);
+
                 minion.saveComponent(behaviorComponent);
             }
-            tree.tick(delta);
+            interpreter.tick(delta);
         }
     }
 

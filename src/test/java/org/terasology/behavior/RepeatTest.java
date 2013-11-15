@@ -17,15 +17,14 @@ package org.terasology.behavior;
 
 import junit.framework.Assert;
 import org.junit.Test;
-import org.terasology.behavior.tree.Behavior;
-import org.terasology.behavior.tree.BehaviorTree;
-import org.terasology.behavior.tree.Counter;
+import org.terasology.behavior.tree.CounterNode;
+import org.terasology.behavior.tree.Interpreter;
 import org.terasology.behavior.tree.Node;
-import org.terasology.behavior.tree.Parallel;
-import org.terasology.behavior.tree.Repeat;
+import org.terasology.behavior.tree.ParallelNode;
+import org.terasology.behavior.tree.RepeatNode;
 import org.terasology.behavior.tree.Status;
+import org.terasology.behavior.tree.Task;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -36,64 +35,64 @@ import static org.mockito.Mockito.when;
 public class RepeatTest {
     @Test
     public void testRepeat() {
-        BehaviorTree<Object> tree = new BehaviorTree<>(null);
-        Repeat.RepeatNode<Object> repeat = new Repeat.RepeatNode<>(create(new Mocker() {
+        Interpreter interpreter = new Interpreter(null);
+        RepeatNode repeat = new RepeatNode(create(new Mocker() {
             @Override
-            public void mock(Behavior<Object> spy) {
-                when(spy.update(any(), anyInt())).thenReturn(Status.RUNNING, Status.SUCCESS);
+            public void mock(Task spy) {
+                when(spy.update(anyInt())).thenReturn(Status.RUNNING, Status.SUCCESS);
             }
         }));
 
-        Behavior<Object> behavior = repeat.create(tree);
+        Task task = repeat.create();
 
-        tree.start(behavior);
-        tree.tick(0);
-        Assert.assertEquals(Status.RUNNING, behavior.getStatus());
-        tree.tick(0);
-        Assert.assertEquals(Status.RUNNING, behavior.getStatus());
-        tree.tick(0);
-        Assert.assertEquals(Status.RUNNING, behavior.getStatus());
-        tree.tick(0);
-        Assert.assertEquals(Status.RUNNING, behavior.getStatus());
-        tree.tick(0);
-        Assert.assertEquals(Status.RUNNING, behavior.getStatus());
+        interpreter.start(task);
+        interpreter.tick(0);
+        Assert.assertEquals(Status.RUNNING, task.getStatus());
+        interpreter.tick(0);
+        Assert.assertEquals(Status.RUNNING, task.getStatus());
+        interpreter.tick(0);
+        Assert.assertEquals(Status.RUNNING, task.getStatus());
+        interpreter.tick(0);
+        Assert.assertEquals(Status.RUNNING, task.getStatus());
+        interpreter.tick(0);
+        Assert.assertEquals(Status.RUNNING, task.getStatus());
     }
 
     @Test
     public void testFilter() {
-        BehaviorTree<Object> tree = new BehaviorTree<>(null);
-        Node<Object> mock = create(new Mocker() {
+        Interpreter interpreter = new Interpreter(null);
+        Node mock = create(new Mocker() {
             @Override
-            public void mock(Behavior<Object> spy) {
-                when(spy.update(any(), anyInt())).thenReturn(Status.RUNNING);
+            public void mock(Task spy) {
+                when(spy.update(anyInt())).thenReturn(Status.RUNNING);
             }
         });
 
-        Parallel.ParallelNode<Object> move = new Parallel.ParallelNode<>(Parallel.Policy.RequireOne, Parallel.Policy.RequireOne);
+        ParallelNode move = new ParallelNode(ParallelNode.Policy.RequireOne, ParallelNode.Policy.RequireOne);
 
-        move.children.add(new Counter.CounterNode<>(3));
-        move.children.add(mock);
-        Behavior<Object> behavior = move.create(tree);
+        move.children().add(new CounterNode(3));
+        move.children().add(mock);
+        Task task = move.create();
 
-        tree.start(behavior);
-        tree.tick(0);
-        Assert.assertEquals(Status.RUNNING, behavior.getStatus());
-        tree.tick(0);
-        Assert.assertEquals(Status.RUNNING, behavior.getStatus());
-        tree.tick(0);
-        Assert.assertEquals(Status.RUNNING, behavior.getStatus());
-        tree.tick(0);
-        Assert.assertEquals(Status.SUCCESS, behavior.getStatus());
+        interpreter.start(task);
+        interpreter.tick(0);
+        Assert.assertEquals(Status.RUNNING, task.getStatus());
+        interpreter.tick(0);
+        Assert.assertEquals(Status.RUNNING, task.getStatus());
+        interpreter.tick(0);
+        Assert.assertEquals(Status.RUNNING, task.getStatus());
+        interpreter.tick(0);
+        Assert.assertEquals(Status.SUCCESS, task.getStatus());
     }
 
 
-    private Node<Object> create(final Mocker mocker) {
-        return new Node<Object>() {
+    private Node create(final Mocker mocker) {
+        return new Node() {
             @Override
-            public Behavior<Object> create(BehaviorTree<Object> tree) {
-                Behavior<Object> spy = spy(new Behavior<Object>(null) {
+            public Task create() {
+                Task spy = spy(new Task(null) {
                     @Override
-                    public Status update(Object entity, float dt) {
+                    public Status update(float dt) {
                         return null;
                     }
                 });
@@ -104,6 +103,6 @@ public class RepeatTest {
     }
 
     private interface Mocker {
-        void mock(Behavior<Object> spy);
+        void mock(Task spy);
     }
 }

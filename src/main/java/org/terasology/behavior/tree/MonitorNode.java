@@ -18,8 +18,8 @@ package org.terasology.behavior.tree;
 /**
  * @author synopia
  */
-public class MonitorNode<C> extends Parallel.ParallelNode<C> {
+public class MonitorNode extends ParallelNode {
     public MonitorNode() {
-        super(Parallel.Policy.RequireOne, Parallel.Policy.RequireOne);
+        super(ParallelNode.Policy.RequireOne, ParallelNode.Policy.RequireOne);
     }
 }

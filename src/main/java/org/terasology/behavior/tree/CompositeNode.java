@@ -15,31 +15,28 @@
  */
 package org.terasology.behavior.tree;
 
+import com.google.common.collect.Lists;
+
+import java.util.List;
+
 /**
  * @author synopia
  */
-public abstract class Decorator<C> extends Behavior<C> {
-    protected BehaviorTree<C> behaviorTree;
+public abstract class CompositeNode extends Node {
+    private final List<Node> children = Lists.newArrayList();
 
-    protected Decorator(Node<C> node, BehaviorTree<C> behaviorTree) {
-        super(node);
-        this.behaviorTree = behaviorTree;
+    public List<Node> children() {
+        return children;
     }
 
-    @Override
-    public DecoratorNode<C> getNode() {
-        return (DecoratorNode<C>) super.getNode();
-    }
-
-    public abstract static class DecoratorNode<C> implements Node<C> {
-        protected Node<C> child;
-
-        protected DecoratorNode(Node<C> child) {
-            this.child = child;
+    public abstract static class CompositeTask extends Task {
+        protected CompositeTask(Node node) {
+            super(node);
         }
 
-        public Node<C> getChild() {
-            return child;
+        @Override
+        public CompositeNode getNode() {
+            return (CompositeNode) super.getNode();
         }
     }
 }

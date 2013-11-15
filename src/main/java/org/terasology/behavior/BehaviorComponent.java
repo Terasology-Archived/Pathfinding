@@ -15,9 +15,8 @@
  */
 package org.terasology.behavior;
 
-import org.terasology.behavior.tree.BehaviorTree;
+import org.terasology.behavior.tree.Interpreter;
 import org.terasology.entitySystem.Component;
-import org.terasology.entitySystem.entity.EntityRef;
 
 import java.util.Map;
 
@@ -28,6 +27,6 @@ public class BehaviorComponent implements Component {
     public String behavior;
     public Map<String, Map> test;
 
-    public transient BehaviorTree<EntityRef> behaviorTree;
+    public transient Interpreter interpreter;
 
 }

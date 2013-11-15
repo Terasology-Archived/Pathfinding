@@ -15,38 +15,28 @@
  */
 package org.terasology.behavior;
 
-import org.terasology.behavior.tree.Behavior;
-import org.terasology.behavior.tree.BehaviorTree;
 import org.terasology.behavior.tree.Node;
-import org.terasology.behavior.tree.Repeat;
-import org.terasology.behavior.tree.Sequence;
-import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.behavior.tree.RepeatNode;
+import org.terasology.behavior.tree.SequenceNode;
 import org.terasology.minion.move.MoveToWalkableBlockNode;
-import org.terasology.minion.move.PlayAnimation;
-import org.terasology.minion.move.SetTargetLocalPlayer;
-import org.terasology.minion.path.FindPathTo;
-import org.terasology.minion.path.MoveAlongPath;
+import org.terasology.minion.move.PlayAnimationNode;
+import org.terasology.minion.move.SetTargetLocalPlayerNode;
+import org.terasology.minion.path.FindPathToNode;
+import org.terasology.minion.path.MoveAlongPathNode;
 
 /**
  * @author synopia
  */
 public class BehaviorFactory {
-    public Node<EntityRef> get(String uri) {
-        Sequence.SequenceNode<EntityRef> sequence = new Sequence.SequenceNode<>();
-        Sequence.SequenceNode<EntityRef> parallel = new Sequence.SequenceNode<>();
-        sequence.children.add(new SetTargetLocalPlayer.SetTargetLocalPlayerNode());
-        sequence.children.add(parallel);
-        parallel.children.add(new MoveToWalkableBlockNode());
-        parallel.children.add(new PlayAnimation.PlayAnimationNode(false));
-        sequence.children.add(new FindPathTo.FindPathToNode());
-        sequence.children.add(new MoveAlongPath.MoveAlongPathNode());
-        return new Repeat.RepeatNode<>(sequence);
-    }
-
-    public Behavior<EntityRef> create(BehaviorTree<EntityRef> tree, String uri) {
-        Node<EntityRef> node = get(uri);
-        Behavior<EntityRef> behavior = node.create(tree);
-        tree.start(behavior);
-        return behavior;
+    public Node get(String uri) {
+        SequenceNode sequence = new SequenceNode();
+        SequenceNode parallel = new SequenceNode();
+        sequence.children().add(new SetTargetLocalPlayerNode());
+        sequence.children().add(parallel);
+        parallel.children().add(new MoveToWalkableBlockNode());
+        parallel.children().add(new PlayAnimationNode(false));
+        sequence.children().add(new FindPathToNode());
+        sequence.children().add(new MoveAlongPathNode());
+        return new RepeatNode(sequence);
     }
 }

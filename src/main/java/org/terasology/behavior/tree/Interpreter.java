@@ -24,67 +24,72 @@ import java.util.Deque;
 /**
  * @author synopia
  */
-public class BehaviorTree<C> {
-    private static final Logger logger = LoggerFactory.getLogger(BehaviorTree.class);
+public class Interpreter {
+    private static final Logger logger = LoggerFactory.getLogger(Interpreter.class);
 
-    private static final Behavior TERMINAL = new Behavior<Object>(null) {
+    private static final Task TERMINAL = new Task(null) {
         @Override
-        public Status update(Object ctx, float dt) {
+        public Status update(float dt) {
             return null;
         }
     };
 
-    private C context;
-    private Deque<Behavior<C>> behaviors = Queues.newArrayDeque();
+    private Actor actor;
+    private Deque<Task> tasks = Queues.newArrayDeque();
 
-    public BehaviorTree(C context) {
-        this.context = context;
+    public Interpreter(Actor actor) {
+        this.actor = actor;
     }
 
-    public void start(Behavior<C> behavior) {
-        start(behavior, null);
+    public void start(Node node) {
+        start(node, null);
     }
 
-    public void start(Behavior<C> behavior, Behavior.Observer<C> observer) {
+    public void start(Task task) {
+        start(task, null);
+    }
+
+    public void start(Node node, Task.Observer observer) {
+        start(node.create(), observer);
+    }
+
+    public void start(Task task, Task.Observer observer) {
+        task.setActor(actor);
+        task.setInterpreter(this);
+        task.setObserver(observer);
+
+        tasks.addFirst(task);
+    }
+
+    public void stop(Task task, Status result) {
+        task.setStatus(result);
+        Task.Observer observer = task.getObserver();
         if (observer != null) {
-            behavior.setObserver(observer);
-        }
-        behaviors.addFirst(behavior);
-    }
-
-    public void stop(Behavior<C> behavior, Status result) {
-        behavior.setStatus(result);
-        Behavior.Observer<C> observer = behavior.getObserver();
-        if (observer != null) {
-            observer.handle(context, result);
+            observer.handle(result);
         }
     }
 
     public void tick(float dt) {
-        behaviors.addLast(TERMINAL);
+        tasks.addLast(TERMINAL);
         while (step(dt)) {
             continue;
         }
     }
 
     public boolean step(float dt) {
-        Behavior<C> current = behaviors.pollFirst();
+        Task current = tasks.pollFirst();
         if (current == TERMINAL) {
             return false;
         }
 
-        current.tick(context, dt);
+        current.tick(dt);
 
         if (current.getStatus() != Status.RUNNING && current.getObserver() != null) {
             logger.info("Finished " + current + " with status " + current.getStatus());
-            current.getObserver().handle(context, current.getStatus());
+            current.getObserver().handle(current.getStatus());
         } else {
-            behaviors.addLast(current);
+            tasks.addLast(current);
         }
         return true;
-    }
-
-    public C getContext() {
-        return context;
     }
 }

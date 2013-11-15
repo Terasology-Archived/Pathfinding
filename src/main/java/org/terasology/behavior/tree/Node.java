@@ -18,6 +18,6 @@ package org.terasology.behavior.tree;
 /**
  * @author synopia
  */
-public interface Node<C> {
-    Behavior<C> create(BehaviorTree<C> tree);
+public abstract class Node {
+    public abstract Task create();
 }

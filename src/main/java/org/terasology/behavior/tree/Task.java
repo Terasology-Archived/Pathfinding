@@ -18,32 +18,34 @@ package org.terasology.behavior.tree;
 /**
  * @author synopia
  */
-public abstract class Behavior<C> {
-    private Node<C> node;
+public abstract class Task {
+    private Interpreter interpreter;
+    private Node node;
+    private Actor actor;
     private Status status = Status.INVALID;
-    private Observer<C> observer;
+    private Observer observer;
 
-    protected Behavior(Node<C> node) {
+    protected Task(Node node) {
         this.node = node;
     }
 
-    public abstract Status update(C context, float dt);
+    public abstract Status update(float dt);
 
-    public void onInitialize(C context) {
+    public void onInitialize() {
     }
 
-    public void onTerminate(C context, Status result) {
+    public void onTerminate(Status result) {
     }
 
-    public Status tick(C context, float dt) {
+    public Status tick(float dt) {
         if (status == Status.INVALID) {
-            onInitialize(context);
+            onInitialize();
         }
 
-        status = update(context, dt);
+        status = update(dt);
 
         if (status != Status.RUNNING) {
-            onTerminate(context, status);
+            onTerminate(status);
         }
         return status;
     }
@@ -52,24 +54,40 @@ public abstract class Behavior<C> {
         return status;
     }
 
-    public Node<C> getNode() {
+    public Node getNode() {
         return node;
+    }
+
+    public Interpreter interpreter() {
+        return interpreter;
+    }
+
+    public Actor actor() {
+        return actor;
     }
 
     void setStatus(Status status) {
         this.status = status;
     }
 
-    void setObserver(Observer<C> observer) {
+    void setObserver(Observer observer) {
         this.observer = observer;
     }
 
-    Observer<C> getObserver() {
+    void setActor(Actor actor) {
+        this.actor = actor;
+    }
+
+    void setInterpreter(Interpreter interpreter) {
+        this.interpreter = interpreter;
+    }
+
+    Observer getObserver() {
         return observer;
     }
 
-    public interface Observer<C> {
-        void handle(C context, Status result);
+    public interface Observer {
+        void handle(Status result);
     }
 
 }
