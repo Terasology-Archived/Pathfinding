@@ -25,13 +25,22 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import org.terasology.behavior.tree.Node;
+import org.terasology.behavior.tree.RepeatNode;
+import org.terasology.behavior.tree.SequenceNode;
+import org.terasology.behavior.ui.Port;
 import org.terasology.behavior.ui.RenderableNode;
+import org.terasology.minion.move.MoveToWalkableBlockNode;
+import org.terasology.minion.move.PlayAnimationNode;
+import org.terasology.minion.move.SetTargetLocalPlayerNode;
+import org.terasology.minion.path.FindPathToNode;
+import org.terasology.minion.path.MoveAlongPathNode;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -41,7 +50,7 @@ public class BehaviorFactory { //implements AssetLoader<RenderableNode> {
     private int currentId;
     private Map<Node, Integer> nodeIds = Maps.newHashMap();
     private Map<Integer, Node> idNodes = Maps.newHashMap();
-
+    private Map<Node, RenderableNode> renderableNodes = Maps.newHashMap();
 
     private Gson gsonNode;
     private Gson gsonRenderableNode;
@@ -57,18 +66,96 @@ public class BehaviorFactory { //implements AssetLoader<RenderableNode> {
                 .create();
     }
 
+    public Node get(String uri) {
+        SequenceNode sequence = new SequenceNode();
+        SequenceNode parallel = new SequenceNode();
+        sequence.children().add(new SetTargetLocalPlayerNode());
+        sequence.children().add(parallel);
+        parallel.children().add(new MoveToWalkableBlockNode());
+        parallel.children().add(new PlayAnimationNode(false));
+        sequence.children().add(new FindPathToNode());
+        sequence.children().add(new MoveAlongPathNode());
+        return new RepeatNode(sequence);
+    }
+
+    public void connectNodes(Port startPort, Port endPort) {
+        if (startPort == endPort || startPort.getSource() == endPort.getSource()) {
+            return;
+        }
+        if (startPort.isInput() == endPort.isInput()) {
+            return;
+        }
+        Port.InputPort inputPort = startPort.isInput() ? (Port.InputPort) startPort : (Port.InputPort) endPort;
+        Port.OutputPort outputPort = !startPort.isInput() ? (Port.OutputPort) startPort : (Port.OutputPort) endPort;
+
+        outputPort.setTarget(inputPort);
+    }
+
+    public void disconnectNodes(Port startPort, Port endPort) {
+        if (startPort == endPort || startPort.getSource() == endPort.getSource()) {
+            return;
+        }
+        if (startPort.isInput() == endPort.isInput()) {
+            return;
+        }
+        Port.InputPort inputPort = startPort.isInput() ? (Port.InputPort) startPort : (Port.InputPort) endPort;
+        Port.OutputPort outputPort = !startPort.isInput() ? (Port.OutputPort) startPort : (Port.OutputPort) endPort;
+
+        outputPort.setTarget(null);
+        inputPort.setTarget(null);
+    }
+
+    public RenderableNode addNode(Node node) {
+        return addNode(node, 0, 0);
+    }
+
+    public RenderableNode addNode(Node node, final float midX, final float midY) {
+        return node.visit(null, new Node.Visitor<RenderableNode>() {
+            @Override
+            public RenderableNode visit(RenderableNode parent, Node node) {
+                RenderableNode self = new RenderableNode();
+                self.setNode(node);
+                if (parent != null) {
+                    parent.getChildren().add(self);
+                }
+                renderableNodes.put(self.getNode(), self);
+                return self;
+            }
+        });
+    }
+
+    public void addNode(RenderableNode node) {
+        renderableNodes.put(node.getNode(), node);
+    }
+
+    public Collection<Node> getNodes() {
+        return nodeIds.keySet();
+    }
+
+    public Collection<RenderableNode> getRenderableNodes() {
+        return renderableNodes.values();
+    }
+
+    public RenderableNode getRenderableNode(Node node) {
+        return renderableNodes.get(node);
+    }
+
     //    @Override
     public RenderableNode load(InputStream stream) throws IOException {
         try (JsonReader reader = new JsonReader(new InputStreamReader(stream))) {
             reader.setLenient(true);
             reader.beginObject();
             reader.nextName();
-            Node node = gsonNode.fromJson(reader, Node.class);
+            Node node = loadNode(reader);
             reader.nextName();
-            RenderableNode renderableNode = gsonRenderableNode.fromJson(reader, RenderableNode.class);
+            RenderableNode renderableNode = loadRenderableNode(reader);
             reader.endObject();
-
-            renderableNode.update();
+            renderableNode.visit(new RenderableNode.Visitor() {
+                @Override
+                public void visit(RenderableNode node) {
+                    renderableNodes.put(node.getNode(), node);
+                }
+            });
             return renderableNode;
         }
     }
@@ -76,11 +163,35 @@ public class BehaviorFactory { //implements AssetLoader<RenderableNode> {
     public void save(RenderableNode node, OutputStream stream) throws IOException {
         try (JsonWriter write = new JsonWriter(new OutputStreamWriter(stream))) {
             write.beginObject().name("model");
-            gsonNode.toJson(node.getNode(), Node.class, write);
+            saveNode(node.getNode(), write);
             write.name("renderer");
-            gsonRenderableNode.toJson(node, RenderableNode.class, write);
+            saveRenderableNode(node, write);
             write.endObject();
         }
+    }
+
+    public RenderableNode loadRenderableNode(JsonReader reader) {
+        return gsonRenderableNode.fromJson(reader, RenderableNode.class);
+    }
+
+    public void saveRenderableNode(RenderableNode node, JsonWriter writer) {
+        gsonRenderableNode.toJson(node, RenderableNode.class, writer);
+    }
+
+    public Node loadNode(JsonReader reader) {
+        resetIds();
+        return gsonNode.fromJson(reader, Node.class);
+    }
+
+    public void saveNode(Node node, JsonWriter writer) {
+        resetIds();
+        gsonNode.toJson(node, Node.class, writer);
+    }
+
+    private void resetIds() {
+        idNodes.clear();
+        nodeIds.clear();
+        currentId = 0;
     }
 
     private class NodeTypeAdapter extends TypeAdapter<Node> {

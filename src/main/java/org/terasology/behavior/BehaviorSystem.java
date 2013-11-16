@@ -15,6 +15,7 @@
  */
 package org.terasology.behavior;
 
+import org.terasology.behavior.asset.BehaviorFactory;
 import org.terasology.behavior.tree.Actor;
 import org.terasology.behavior.tree.Interpreter;
 import org.terasology.behavior.tree.Node;

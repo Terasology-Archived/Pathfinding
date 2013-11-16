@@ -15,13 +15,31 @@
  */
 package org.terasology.behavior.tree;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author synopia
  */
 public abstract class Node {
+    public static final List<Node> EMPTY = Collections.unmodifiableList(new ArrayList<Node>());
+
     public abstract Task create();
 
     public int maxChildren() {
         return 0;
+    }
+
+//    public List<Node> children() {
+//        return EMPTY;
+//    }
+
+    public <T> T visit(T item, Visitor<T> visitor) {
+        return visitor.visit(item, this);
+    }
+
+    public interface Visitor<T> {
+        T visit(T item, Node node);
     }
 }

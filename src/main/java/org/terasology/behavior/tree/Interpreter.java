@@ -39,6 +39,16 @@ public class Interpreter {
 
     public Interpreter(Actor actor) {
         this.actor = actor;
+        tasks.addLast(TERMINAL);
+    }
+
+    public Deque<Task> tasks() {
+        return tasks;
+    }
+
+    public void reset() {
+        tasks.clear();
+        tasks.addLast(TERMINAL);
     }
 
     public void start(Node node) {
@@ -70,7 +80,6 @@ public class Interpreter {
     }
 
     public void tick(float dt) {
-        tasks.addLast(TERMINAL);
         while (step(dt)) {
             continue;
         }
@@ -79,10 +88,15 @@ public class Interpreter {
     public boolean step(float dt) {
         Task current = tasks.pollFirst();
         if (current == TERMINAL) {
+            tasks.addLast(TERMINAL);
             return false;
         }
 
-        current.tick(dt);
+        try {
+            current.tick(dt);
+        } catch (Exception e) {
+            current.setStatus(Status.SUCCESS);
+        }
 
         if (current.getStatus() != Status.RUNNING && current.getObserver() != null) {
             logger.info("Finished " + current + " with status " + current.getStatus());

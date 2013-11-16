@@ -30,6 +30,15 @@ public abstract class CompositeNode extends Node {
     }
 
     @Override
+    public <T> T visit(T item, Visitor<T> visitor) {
+        T childItem = super.visit(item, visitor);
+        for (Node child : children()) {
+            child.visit(childItem, visitor);
+        }
+        return childItem;
+    }
+
+    @Override
     public int maxChildren() {
         return Integer.MAX_VALUE;
     }

@@ -17,23 +17,19 @@ package org.terasology.behavior.ui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 
 /**
  * @author synopia
  */
-public class BTreeMain extends JFrame {
-    public BTreeMain() throws HeadlessException {
-        setLayout(new BorderLayout());
-        BTreePanel panel = new BTreePanel();
-        add(panel.createToolBar(), BorderLayout.NORTH);
-        add(panel, BorderLayout.CENTER);
-        panel.init();
+public class BaseRenderer {
+    public static final Font FONT = new JLabel().getFont();
+
+    public void drawText(RenderContext rc, int midX, int midY, String text) {
+        Rectangle2D textBounds = rc.getGraphics().getFontMetrics().getStringBounds(text, rc.getGraphics());
+        float textX = midX - ((float) textBounds.getWidth() / 2);
+        float textY = midY + ((float) textBounds.getHeight() / 3);
+        rc.getGraphics().drawString(text, textX, textY);
     }
 
-    public static void main(String[] args) {
-        BTreeMain main = new BTreeMain();
-        main.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        main.pack();
-        main.setVisible(true);
-    }
 }
