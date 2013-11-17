@@ -41,6 +41,7 @@ public class BehaviorSystem implements ComponentSystem, UpdateSubscriberSystem {
 
     private BTreeMain main;
     private float speed;
+    private boolean first;
 
     @Override
     public void initialise() {
@@ -58,6 +59,7 @@ public class BehaviorSystem implements ComponentSystem, UpdateSubscriberSystem {
                 frame.setVisible(true);
             }
         });
+        first = true;
     }
 
     @Override
@@ -73,13 +75,15 @@ public class BehaviorSystem implements ComponentSystem, UpdateSubscriberSystem {
             if (interpreter == null) {
                 interpreter = new Interpreter(new Actor(minion));
                 Node node = behaviorFactory.get(behaviorComponent.behavior);
-                behaviorFactory.addNode(node);
+                if (first) {
+                    behaviorFactory.addNode(node);
+                    first = false;
+                    if (main != null) {
+                        main.setInterpreter(interpreter);
+                    }
+                }
                 behaviorComponent.interpreter = interpreter;
                 interpreter.start(node);
-                if (main != null) {
-                    main.setInterpreter(interpreter);
-                }
-
                 minion.saveComponent(behaviorComponent);
             }
             interpreter.tick(delta);
