@@ -13,19 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.jobSystem;
+package org.terasology.logic.behavior.ui;
 
-import org.terasology.entitySystem.Component;
-import org.terasology.entitySystem.entity.EntityRef;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
 
 /**
- * Job's minion component. Indicates, the minion is currently executing a job.
- *
  * @author synopia
  */
-public class JobMinionComponent implements Component {
-    public transient EntityRef currentJob;
+public class BaseRenderer {
+    public static final Font FONT = new JLabel().getFont();
 
-    public JobMinionComponent() {
+    public void drawText(RenderContext rc, int midX, int midY, String text) {
+        Rectangle2D textBounds = rc.getGraphics().getFontMetrics().getStringBounds(text, rc.getGraphics());
+        float textX = midX - ((float) textBounds.getWidth() / 2);
+        float textY = midY + ((float) textBounds.getHeight() / 3);
+        rc.getGraphics().drawString(text, textX, textY);
     }
+
 }

@@ -19,6 +19,8 @@ import org.terasology.engine.CoreRegistry;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.systems.In;
+import org.terasology.entitySystem.systems.RegisterMode;
+import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.RenderSystem;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.logic.selection.BlockSelectionRenderer;
@@ -30,7 +32,7 @@ import javax.vecmath.Vector3f;
 /**
  * @author synopia
  */
-//@RegisterSystem(RegisterMode.CLIENT)
+@RegisterSystem(RegisterMode.CLIENT)
 public class JobRenderSystem implements RenderSystem {
     @In
     private EntityManager entityManager;

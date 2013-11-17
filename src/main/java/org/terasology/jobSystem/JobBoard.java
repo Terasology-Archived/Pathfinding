@@ -33,8 +33,6 @@ import org.terasology.logic.selection.ApplyBlockSelectionEvent;
 import org.terasology.math.Region3i;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
-import org.terasology.pathfinding.model.Entrance;
-import org.terasology.pathfinding.model.Floor;
 import org.terasology.pathfinding.model.WalkableBlock;
 import org.terasology.world.BlockEntityRegistry;
 
@@ -95,14 +93,14 @@ public class JobBoard implements ComponentSystem {
         scanJobs();
     }
 
-    public List<JobPossibility> findJobTargets(EntityRef entity) {
-        List<JobPossibility> possibleJobs = Lists.newArrayList();
+    public EntityRef getJob(EntityRef entity) {
         for (Job job : jobFactory.getJobs()) {
             JobType jobType = getJobType(job);
-            List<JobPossibility> jobs = jobType.findJobs(entity);
-            possibleJobs.addAll(jobs);
+            if (jobType.possibleJobs.size() > 0) {
+                return jobType.possibleJobs.iterator().next();
+            }
         }
-        return possibleJobs;
+        return null;
     }
 
     @ReceiveEvent(components = {LocationComponent.class, CharacterComponent.class})
@@ -166,62 +164,10 @@ public class JobBoard implements ComponentSystem {
     private final class JobType {
         public final Job job;
         public final Set<EntityRef> openJobs = Sets.newHashSet();
-        public final Map<Floor, List<JobPossibility>> possibleJobs = Maps.newHashMap();
+        public final Set<EntityRef> possibleJobs = Sets.newHashSet();
 
         private JobType(Job job) {
             this.job = job;
-        }
-
-        public List<JobPossibility> findJobs(EntityRef minion) {
-            List<JobPossibility> result = Lists.newArrayList();
-            WalkableBlock currentBlock = pathfinderSystem.getBlock(minion);
-            if (currentBlock != null) {
-                if (addJobPossibilities(result, currentBlock.floor, minion) == 0) {
-                    int total = 0;
-                    for (Floor floor : currentBlock.floor.getNeighborRegions()) {
-                        total += addJobPossibilities(result, floor, minion);
-                    }
-                    if (total < 2) {
-                        for (Floor floor : possibleJobs.keySet()) {
-                            List<Entrance> entrances = floor.entrances();
-                            if (entrances.size() > 0) {
-                                for (Entrance entrance : entrances) {
-                                    WalkableBlock block = entrance.getAbstractBlock();
-                                    JobPossibility possibility = new JobPossibility();
-                                    possibility.targetBlock = block;
-                                    possibility.targetPos = block.getBlockPosition();
-                                    possibility.targetEntity = null;
-                                    possibility.job = walk;
-                                    possibility.minion = minion;
-                                    result.add(possibility);
-                                }
-                            }
-                            logger.info("Added floor entrances for " + minion);
-                        }
-                    } else {
-                        logger.info("Added jobs on neighbor floors for " + minion);
-                    }
-                } else {
-                    logger.info("Added jobs on current floor for " + minion);
-                }
-            }
-            return result;
-        }
-
-        private int addJobPossibilities(List<JobPossibility> result, Floor floor, EntityRef minion) {
-            int count = 0;
-            List<JobPossibility> jobsOnFloor = possibleJobs.get(floor);
-            if (jobsOnFloor != null && jobsOnFloor.size() > 0) {
-                for (JobPossibility possibility : jobsOnFloor) {
-                    if (possibility.job.isRequestable(possibility.targetEntity)) {
-                        JobPossibility p = new JobPossibility(possibility);
-                        p.minion = minion;
-                        result.add(p);
-                    }
-                    count++;
-                }
-            }
-            return count;
         }
 
         public void scanJobs() {
@@ -232,19 +178,8 @@ public class JobBoard implements ComponentSystem {
                 JobBlockComponent jobComponent = openJob.getComponent(JobBlockComponent.class);
                 if (jobComponent != null && jobComponent.assignedMinion == null) {
                     List<WalkableBlock> targetPositions = jobComponent.getJob().getTargetPositions(openJob);
-                    for (WalkableBlock targetPosition : targetPositions) {
-                        Floor floor = targetPosition.floor;
-                        List<JobPossibility> floorJobs = possibleJobs.get(floor);
-                        if (floorJobs == null) {
-                            floorJobs = Lists.newArrayList();
-                            possibleJobs.put(floor, floorJobs);
-                        }
-                        JobPossibility possibility = new JobPossibility();
-                        possibility.job = jobComponent.getJob();
-                        possibility.targetEntity = openJob;
-                        possibility.targetPos = targetPosition.getBlockPosition();
-                        possibility.targetBlock = targetPosition;
-                        floorJobs.add(possibility);
+                    if (targetPositions.size() > 0) {
+                        possibleJobs.add(openJob);
                     }
                 } else {
                     it.remove();

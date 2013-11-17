@@ -13,50 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion.move;
+package org.terasology.jobSystem;
 
-import org.terasology.engine.CoreRegistry;
+import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
-import org.terasology.logic.players.LocalPlayer;
 import org.terasology.minion.path.MinionPathComponent;
-import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.WalkableBlock;
 
-import javax.vecmath.Vector3f;
+import java.util.List;
 
 /**
  * @author synopia
  */
-public class SetTargetLocalPlayerNode extends Node {
+public class SetTargetJobNode extends Node {
     @Override
-    public SetTargetLocalPlayerTask create() {
-        return new SetTargetLocalPlayerTask(this);
+    public Task create() {
+        return new SetTargetJobTask(this);
     }
 
-    public static class SetTargetLocalPlayerTask extends Task {
-        public SetTargetLocalPlayerTask(Node node) {
+    public static class SetTargetJobTask extends Task {
+        public SetTargetJobTask(Node node) {
             super(node);
         }
 
         @Override
         public Status update(float dt) {
-            LocalPlayer localPlayer = CoreRegistry.get(LocalPlayer.class);
-            Vector3f position = localPlayer.getPosition();
-            WalkableBlock block = CoreRegistry.get(PathfinderSystem.class).getBlock(position);
-            if (block != null) {
+            EntityRef job = actor().job().currentJob;
+            JobBlockComponent jobComponent = job.getComponent(JobBlockComponent.class);
+            List<WalkableBlock> targetPositions = jobComponent.getJob().getTargetPositions(job);
+            if (targetPositions.size() > 0) {
+                WalkableBlock block = targetPositions.get(0);
                 MinionPathComponent pathComponent = actor().path();
                 pathComponent.targetBlock = block.getBlockPosition();
                 pathComponent.pathState = MinionPathComponent.PathState.NEW_TARGET;
                 actor().save(pathComponent);
+                return Status.SUCCESS;
             }
-            return Status.SUCCESS;
-        }
-
-        @Override
-        public SetTargetLocalPlayerNode getNode() {
-            return (SetTargetLocalPlayerNode) super.getNode();
+            return Status.FAILURE;
         }
     }
 }

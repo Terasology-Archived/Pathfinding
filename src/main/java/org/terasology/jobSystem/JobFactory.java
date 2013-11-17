@@ -24,7 +24,6 @@ import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.jobSystem.jobs.JobComponent;
 
 import java.util.List;
 import java.util.Map;

@@ -13,19 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.jobSystem;
-
-import org.terasology.entitySystem.Component;
-import org.terasology.entitySystem.entity.EntityRef;
+package org.terasology.logic.behavior.tree;
 
 /**
- * Job's minion component. Indicates, the minion is currently executing a job.
- *
  * @author synopia
  */
-public class JobMinionComponent implements Component {
-    public transient EntityRef currentJob;
-
-    public JobMinionComponent() {
+public class MonitorNode extends ParallelNode {
+    public MonitorNode() {
+        super(ParallelNode.Policy.RequireOne, ParallelNode.Policy.RequireOne);
     }
 }

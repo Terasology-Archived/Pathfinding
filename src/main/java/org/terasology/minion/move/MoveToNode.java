@@ -15,9 +15,9 @@
  */
 package org.terasology.minion.move;
 
-import org.terasology.behavior.tree.Node;
-import org.terasology.behavior.tree.Status;
-import org.terasology.behavior.tree.Task;
+import org.terasology.logic.behavior.tree.Node;
+import org.terasology.logic.behavior.tree.Status;
+import org.terasology.logic.behavior.tree.Task;
 import org.terasology.logic.characters.CharacterMoveInputEvent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.TeraMath;

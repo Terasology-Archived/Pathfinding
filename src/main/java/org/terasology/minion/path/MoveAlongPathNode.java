@@ -15,9 +15,9 @@
  */
 package org.terasology.minion.path;
 
-import org.terasology.behavior.tree.DecoratorNode;
-import org.terasology.behavior.tree.Status;
-import org.terasology.behavior.tree.Task;
+import org.terasology.logic.behavior.tree.DecoratorNode;
+import org.terasology.logic.behavior.tree.Status;
+import org.terasology.logic.behavior.tree.Task;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.minion.move.MoveToNode;
 import org.terasology.pathfinding.model.Path;
