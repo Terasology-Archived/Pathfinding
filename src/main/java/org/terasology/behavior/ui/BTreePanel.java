@@ -15,7 +15,6 @@
  */
 package org.terasology.behavior.ui;
 
-import org.terasology.behavior.asset.BehaviorFactory;
 import org.terasology.behavior.tree.Actor;
 import org.terasology.behavior.tree.Interpreter;
 import org.terasology.behavior.tree.Node;
@@ -28,7 +27,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.io.FileInputStream;
-import java.io.IOException;
 
 /**
  * @author synopia
@@ -44,6 +42,7 @@ public class BTreePanel extends ZoomPanel {
     private RenderableNode currentBlueprint;
     private Port startPort;
     private Port hoveredPort;
+    private RenderableNode hoveredNode;
     private float currentMouseX;
     private float currentMouseY;
 
@@ -61,9 +60,10 @@ public class BTreePanel extends ZoomPanel {
         interpreter = new Interpreter(new Actor(null));
 
         try {
+//            root = factory.addNode(factory.get(""));
             root = factory.load(new FileInputStream("test.json"));
             interpreter.start(root.getNode());
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
     }
@@ -114,12 +114,7 @@ public class BTreePanel extends ZoomPanel {
         g.setColor(Color.DARK_GRAY);
         g.fillRect(0, 0, getWidth(), getHeight());
         for (RenderableNode node : factory.getRenderableNodes()) {
-            int startX = context.worldToScreenX(node.getPosition().x);
-            int startY = context.worldToScreenY(node.getPosition().y);
-            int endX = context.worldToScreenX(node.getPosition().x + node.getSize().x);
-            int endY = context.worldToScreenY(node.getPosition().y + node.getSize().y);
-
-            nodeRenderer.render(context, node, startX, startY, endX, endY);
+            nodeRenderer.render(context, node);
         }
         for (RenderableNode node : factory.getRenderableNodes()) {
             for (Port port : node.getPorts()) {
@@ -133,32 +128,14 @@ public class BTreePanel extends ZoomPanel {
             if (node == null) {
                 continue;
             }
-            int startX = context.worldToScreenX(node.getPosition().x);
-            int startY = context.worldToScreenY(node.getPosition().y);
-            int endX = context.worldToScreenX(node.getPosition().x + node.getSize().x);
-            int endY = context.worldToScreenY(node.getPosition().y + node.getSize().y);
-
-            taskRenderer.render(context, node, task, startX, startY, endX, endY);
+            taskRenderer.render(context, node, task);
         }
 
         if (currentBlueprint != null) {
             currentBlueprint.setPosition(currentMouseX - currentBlueprint.getSize().x / 2, currentMouseY - currentBlueprint.getSize().y / 2);
-            int startX = context.worldToScreenX(currentBlueprint.getPosition().x);
-            int startY = context.worldToScreenY(currentBlueprint.getPosition().y);
-            int endX = context.worldToScreenX(currentBlueprint.getPosition().x + currentBlueprint.getSize().x);
-            int endY = context.worldToScreenY(currentBlueprint.getPosition().y + currentBlueprint.getSize().y);
-            nodeRenderer.render(context, currentBlueprint, startX, startY, endX, endY);
+            nodeRenderer.render(context, currentBlueprint);
         }
         if (hoveredPort != null) {
-            if (hoveredPort.getTarget() != null) {
-
-                int startX = context.worldToScreenX(hoveredPort.midX());
-                int startY = context.worldToScreenY(hoveredPort.midY());
-                int endX = context.worldToScreenX(hoveredPort.getTarget().midX());
-                int endY = context.worldToScreenY(hoveredPort.getTarget().midY());
-                context.getGraphics().setColor(Color.YELLOW);
-                context.getGraphics().drawLine(startX, startY, endX, endY);
-            }
             portRenderer.renderActive(context, hoveredPort);
         }
         if (startPort != null) {
@@ -200,9 +177,12 @@ public class BTreePanel extends ZoomPanel {
 
     @Override
     protected void onMouseMoved(MouseEvent e, int x, int y) {
-        currentMouseX = (float) context.screenToWorldX(x);
-        currentMouseY = (float) context.screenToWorldY(y);
-        hoveredPort = findPort(currentMouseX, currentMouseY);
+        float worldX = (float) context.screenToWorldX(x);
+        float worldY = (float) context.screenToWorldY(y);
+        currentMouseX = worldX;
+        currentMouseY = worldY;
+        findHover(worldX, worldY);
+
         repaint();
     }
 
@@ -210,14 +190,17 @@ public class BTreePanel extends ZoomPanel {
     protected void onMousePressed(MouseEvent e, int x, int y) {
         float worldX = (float) context.screenToWorldX(x);
         float worldY = (float) context.screenToWorldY(y);
+        findHover(worldX, worldY);
 
-        Port port = findPort(worldX, worldY);
-        if (startPort == null && port != null) {
-            if (port.getTargetNode() != null) {
-                startPort = port.getTarget();
-                factory.disconnectNodes(port.getTarget(), port);
+        if (startPort == null && hoveredPort != null) {
+            if (hoveredPort.getTargetNode() != null) {
+                startPort = hoveredPort.getTargetPort();
+                factory.disconnectNodes(hoveredPort.getTargetPort(), hoveredPort);
+                if (!startPort.isInput()) {
+                    startPort = hoveredPort;
+                }
             } else {
-                startPort = port;
+                startPort = hoveredPort;
             }
         }
         repaint();
@@ -227,37 +210,37 @@ public class BTreePanel extends ZoomPanel {
     protected void onMouseReleased(MouseEvent e, int x, int y) {
         float worldX = (float) context.screenToWorldX(x);
         float worldY = (float) context.screenToWorldY(y);
+        findHover(worldX, worldY);
 
         if (currentBlueprint != null) {
             factory.addNode(currentBlueprint);
             currentBlueprint = null;
         }
         if (startPort != null) {
-            Port targetPort = findPort(worldX, worldY);
-            if (targetPort != null && targetPort != startPort && targetPort.isInput() != startPort.isInput()) {
-                if (targetPort.isInput()) {
-                    factory.connectNodes(startPort, targetPort);
+            if (hoveredPort != null && hoveredPort != startPort && hoveredPort.isInput() != startPort.isInput()) {
+                if (hoveredPort.isInput()) {
+                    factory.connectNodes(startPort, hoveredPort);
                 } else {
-                    factory.connectNodes(targetPort, startPort);
+                    factory.connectNodes(hoveredPort, startPort);
                 }
             }
             startPort = null;
         }
 
-        for (RenderableNode node : factory.getRenderableNodes()) {
-            if (node.contains(worldX, worldY)) {
-            }
-        }
         repaint();
     }
 
-    private Port findPort(float worldX, float worldY) {
+    private void findHover(float worldX, float worldY) {
+        hoveredNode = findNode(worldX, worldY);
+        if (hoveredNode != null) {
+            hoveredPort = hoveredNode.getHoveredPort(worldX, worldY);
+        }
+    }
+
+    private RenderableNode findNode(float worldX, float worldY) {
         for (RenderableNode node : factory.getRenderableNodes()) {
             if (node.contains(worldX, worldY)) {
-                Port port = node.getHoveredPort(worldX, worldY);
-                if (port != null) {
-                    return port;
-                }
+                return node;
             }
         }
         return null;

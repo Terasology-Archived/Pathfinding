@@ -15,25 +15,41 @@
  */
 package org.terasology.behavior.tree;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
  * @author synopia
  */
-public abstract class Node {
-    public static final List<Node> EMPTY = Collections.unmodifiableList(new ArrayList<Node>());
-
+public abstract class Node implements TreeAccessor<Node> {
     public abstract Task create();
 
-    public int maxChildren() {
+    @Override
+    public void insertChild(int index, Node child) {
+        throw new IllegalStateException("Not allowed");
+    }
+
+    @Override
+    public void setChild(int index, Node child) {
+        throw new IllegalStateException("Not allowed");
+    }
+
+    @Override
+    public Node removeChild(int index) {
+        throw new IllegalStateException("Not allowed");
+    }
+
+    @Override
+    public Node getChild(int index) {
+        throw new IllegalStateException("Not allowed");
+    }
+
+    @Override
+    public int getChildrenCount() {
         return 0;
     }
 
-//    public List<Node> children() {
-//        return EMPTY;
-//    }
+    @Override
+    public int getMaxChildren() {
+        return 0;
+    }
 
     public <T> T visit(T item, Visitor<T> visitor) {
         return visitor.visit(item, this);

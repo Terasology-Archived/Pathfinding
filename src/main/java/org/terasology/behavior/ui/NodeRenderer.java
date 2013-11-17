@@ -23,7 +23,12 @@ import java.awt.*;
 public class NodeRenderer extends BaseRenderer {
     private PortRenderer portRenderer = new PortRenderer();
 
-    public void render(RenderContext rc, RenderableNode node, int startX, int startY, int endX, int endY) {
+    public void render(RenderContext rc, RenderableNode node) {
+        int startX = rc.worldToScreenX(node.getPosition().x);
+        int startY = rc.worldToScreenY(node.getPosition().y);
+        int endX = rc.worldToScreenX(node.getPosition().x + node.getSize().x);
+        int endY = rc.worldToScreenY(node.getPosition().y + node.getSize().y);
+
         rc.getGraphics().setColor(Color.LIGHT_GRAY);
         rc.getGraphics().fillRect(startX, startY, endX - startX, endY - startY);
 

@@ -21,13 +21,13 @@ import com.google.gson.stream.JsonWriter;
 import com.sun.xml.internal.ws.util.ByteArrayBuffer;
 import junit.framework.Assert;
 import org.junit.Test;
-import org.terasology.behavior.asset.BehaviorFactory;
 import org.terasology.behavior.tree.CounterNode;
 import org.terasology.behavior.tree.MonitorNode;
 import org.terasology.behavior.tree.Node;
 import org.terasology.behavior.tree.ParallelNode;
 import org.terasology.behavior.tree.RepeatNode;
 import org.terasology.behavior.tree.SequenceNode;
+import org.terasology.behavior.ui.BehaviorFactory;
 import org.terasology.behavior.ui.RenderableNode;
 
 import java.io.ByteArrayInputStream;

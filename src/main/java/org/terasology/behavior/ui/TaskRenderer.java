@@ -25,7 +25,12 @@ import java.awt.*;
 public class TaskRenderer extends BaseRenderer {
     private PortRenderer portRenderer = new PortRenderer();
 
-    public void render(RenderContext rc, RenderableNode node, Task task, int startX, int startY, int endX, int endY) {
+    public void render(RenderContext rc, RenderableNode node, Task task) {
+        int startX = rc.worldToScreenX(node.getPosition().x);
+        int startY = rc.worldToScreenY(node.getPosition().y);
+        int endX = rc.worldToScreenX(node.getPosition().x + node.getSize().x);
+        int endY = rc.worldToScreenY(node.getPosition().y + node.getSize().y);
+
         Font currentFont = FONT.deriveFont((float) rc.screenUnitX(0.5d));
         rc.getGraphics().setFont(currentFont);
 
@@ -33,8 +38,8 @@ public class TaskRenderer extends BaseRenderer {
         String text = task.getStatus().toString();
         drawText(rc, (startX + endX) / 2, startY + (endY - startY) / 5, text);
 
-        if (node.getInputPort().getTarget() != null) {
-            portRenderer.renderActive(rc, node.getInputPort().getTarget());
+        if (node.getInputPort().getTargetPort() != null) {
+            portRenderer.renderActive(rc, node.getInputPort().getTargetPort());
         }
     }
 }

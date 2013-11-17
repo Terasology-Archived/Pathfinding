@@ -32,6 +32,38 @@ public abstract class DecoratorNode extends Node {
         return visit;
     }
 
+    @Override
+    public void insertChild(int index, Node child) {
+        this.child = child;
+    }
+
+    @Override
+    public void setChild(int index, Node child) {
+        this.child = child;
+    }
+
+    @Override
+    public Node removeChild(int index) {
+        Node old = child;
+        child = null;
+        return old;
+    }
+
+    @Override
+    public Node getChild(int index) {
+        return child;
+    }
+
+    @Override
+    public int getChildrenCount() {
+        return child == null ? 0 : 1;
+    }
+
+    @Override
+    public int getMaxChildren() {
+        return 1;
+    }
+
     public Node getChild() {
         return child;
     }

@@ -21,35 +21,35 @@ import org.terasology.math.Rect2f;
  * @author synopia
  */
 public abstract class Port {
-    protected RenderableNode renderableNode;
+    protected RenderableNode node;
     protected Rect2f rect;
 
-    Port(RenderableNode renderableNode) {
-        this.renderableNode = renderableNode;
-//        updateRect();
+    protected Port(RenderableNode node) {
+        this.node = node;
     }
 
     public int index() {
-        return renderableNode.getPortList().ports.indexOf(this) / 2;
+        return node.getPortList().indexOfPort(this);
     }
 
     public abstract void updateRect();
 
-    public RenderableNode getSource() {
-        return renderableNode;
+    public RenderableNode getSourceNode() {
+        return node;
     }
 
     public RenderableNode getTargetNode() {
-        return getTarget() != null ? getTarget().getSource() : null;
+        return getTargetPort() != null ? getTargetPort().getSourceNode() : null;
     }
 
-    public abstract Port getTarget();
+    public abstract Port getTargetPort();
 
     public boolean isInput() {
         return false;
     }
 
     public boolean contains(float worldX, float worldY) {
+        updateRect();
         return rect.contains(worldX, worldY);
     }
 
@@ -67,10 +67,10 @@ public abstract class Port {
 
     @Override
     public String toString() {
-        return getSource() + "[" + index() + "]";
+        return getSourceNode() + "[" + index() + "]";
     }
 
-    public abstract static class OutputPort extends Port {
+    public static class OutputPort extends Port {
         public OutputPort(RenderableNode renderableNode) {
             super(renderableNode);
         }
@@ -78,62 +78,55 @@ public abstract class Port {
         @Override
         public void updateRect() {
             this.rect = Rect2f.createFromMinAndSize(
-                    renderableNode.getPosition().x + index() + 0.3f,
-                    renderableNode.getPosition().y + renderableNode.getSize().y - 0.95f,
+                    node.getPosition().x + index() + 0.3f,
+                    node.getPosition().y + node.getSize().y - 0.95f,
                     0.7f, 0.9f);
         }
 
         public void setTarget(InputPort inputPort) {
             if (inputPort != null) {
-                inputPort.setTarget(this);
-                assignChild(index(), inputPort.getSource());
+                node.withModel().setChild(index(), inputPort.getSourceNode());
             } else {
-                RenderableNode child = getChild(index());
-                if (child != null) {
-                    child.getInputPort().setTarget(null);
-                }
-                assignChild(index(), null);
+                node.withModel().removeChild(index());
             }
         }
 
         @Override
-        public InputPort getTarget() {
-            RenderableNode child = getChild(index());
+        public InputPort getTargetPort() {
+            RenderableNode child = node.withModel().getChild(index());
             if (child != null) {
                 return child.getInputPort();
             }
             return null;
         }
-
-        public abstract void assignChild(int index, RenderableNode child);
-
-        public abstract RenderableNode getChild(int index);
     }
 
-    public abstract static class InsertOutputPort extends OutputPort {
-        private OutputPort outputPort;
+    public static class InsertOutputPort extends OutputPort {
 
-        protected InsertOutputPort(RenderableNode renderableNode, OutputPort outputPort) {
+        protected InsertOutputPort(RenderableNode renderableNode) {
             super(renderableNode);
-            this.outputPort = outputPort;
         }
 
         @Override
         public void updateRect() {
             this.rect = Rect2f.createFromMinAndSize(
-                    renderableNode.getPosition().x + index(),
-                    renderableNode.getPosition().y + renderableNode.getSize().y - 0.95f,
+                    node.getPosition().x + index(),
+                    node.getPosition().y + node.getSize().y - 0.95f,
                     0.3f, 0.9f);
         }
 
         @Override
         public void setTarget(InputPort inputPort) {
             if (inputPort != null) {
-                inputPort.setTarget(outputPort);
-                assignChild(index(), inputPort.getSource());
+                node.withModel().insertChild(index(), inputPort.getSourceNode());
             } else {
-                assignChild(index(), null);
+                throw new IllegalStateException("Cannot remove target from an insert output port");
             }
+        }
+
+        @Override
+        public InputPort getTargetPort() {
+            return null;
         }
     }
 
@@ -146,7 +139,7 @@ public abstract class Port {
 
         @Override
         public void updateRect() {
-            rect = Rect2f.createFromMinAndSize(renderableNode.getPosition().x + renderableNode.getSize().x / 2f - 0.5f, renderableNode.getPosition().y + 0.05f, 1f, 1f);
+            rect = Rect2f.createFromMinAndSize(node.getPosition().x + node.getSize().x / 2f - 0.5f, node.getPosition().y + 0.05f, 1f, 1f);
         }
 
         public void setTarget(OutputPort port) {
@@ -154,7 +147,7 @@ public abstract class Port {
         }
 
         @Override
-        public Port getTarget() {
+        public Port getTargetPort() {
             return outputPort;
         }
 

@@ -15,10 +15,10 @@
  */
 package org.terasology.behavior;
 
-import org.terasology.behavior.asset.BehaviorFactory;
 import org.terasology.behavior.tree.Actor;
 import org.terasology.behavior.tree.Interpreter;
 import org.terasology.behavior.tree.Node;
+import org.terasology.behavior.ui.BehaviorFactory;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.systems.ComponentSystem;

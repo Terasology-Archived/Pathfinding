@@ -39,8 +39,40 @@ public abstract class CompositeNode extends Node {
     }
 
     @Override
-    public int maxChildren() {
+    public int getMaxChildren() {
         return Integer.MAX_VALUE;
+    }
+
+    @Override
+    public void insertChild(int index, Node child) {
+        if (index == -1) {
+            children.add(child);
+        } else {
+            children.add(index, child);
+        }
+    }
+
+    @Override
+    public void setChild(int index, Node child) {
+        if (index == children.size()) {
+            children.add(null);
+        }
+        children.set(index, child);
+    }
+
+    @Override
+    public Node removeChild(int index) {
+        return children.remove(index);
+    }
+
+    @Override
+    public Node getChild(int index) {
+        return children.get(index);
+    }
+
+    @Override
+    public int getChildrenCount() {
+        return children.size();
     }
 
     public abstract static class CompositeTask extends Task {

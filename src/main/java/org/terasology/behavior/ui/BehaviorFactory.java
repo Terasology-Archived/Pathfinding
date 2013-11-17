@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.behavior.asset;
+package org.terasology.behavior.ui;
 
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
@@ -27,8 +27,6 @@ import com.google.gson.stream.JsonWriter;
 import org.terasology.behavior.tree.Node;
 import org.terasology.behavior.tree.RepeatNode;
 import org.terasology.behavior.tree.SequenceNode;
-import org.terasology.behavior.ui.Port;
-import org.terasology.behavior.ui.RenderableNode;
 import org.terasology.minion.move.MoveToWalkableBlockNode;
 import org.terasology.minion.move.PlayAnimationNode;
 import org.terasology.minion.move.SetTargetLocalPlayerNode;
@@ -79,7 +77,7 @@ public class BehaviorFactory { //implements AssetLoader<RenderableNode> {
     }
 
     public void connectNodes(Port startPort, Port endPort) {
-        if (startPort == endPort || startPort.getSource() == endPort.getSource()) {
+        if (startPort == endPort || startPort.getSourceNode() == endPort.getSourceNode()) {
             return;
         }
         if (startPort.isInput() == endPort.isInput()) {
@@ -92,7 +90,7 @@ public class BehaviorFactory { //implements AssetLoader<RenderableNode> {
     }
 
     public void disconnectNodes(Port startPort, Port endPort) {
-        if (startPort == endPort || startPort.getSource() == endPort.getSource()) {
+        if (startPort == endPort || startPort.getSourceNode() == endPort.getSourceNode()) {
             return;
         }
         if (startPort.isInput() == endPort.isInput()) {
@@ -102,7 +100,6 @@ public class BehaviorFactory { //implements AssetLoader<RenderableNode> {
         Port.OutputPort outputPort = !startPort.isInput() ? (Port.OutputPort) startPort : (Port.OutputPort) endPort;
 
         outputPort.setTarget(null);
-        inputPort.setTarget(null);
     }
 
     public RenderableNode addNode(Node node) {
@@ -110,18 +107,22 @@ public class BehaviorFactory { //implements AssetLoader<RenderableNode> {
     }
 
     public RenderableNode addNode(Node node, final float midX, final float midY) {
-        return node.visit(null, new Node.Visitor<RenderableNode>() {
+        RenderableNode renderableNode = node.visit(null, new Node.Visitor<RenderableNode>() {
             @Override
             public RenderableNode visit(RenderableNode parent, Node node) {
                 RenderableNode self = new RenderableNode();
                 self.setNode(node);
+
                 if (parent != null) {
-                    parent.getChildren().add(self);
+                    self.setPosition(0, parent.getPosition().y + 7);
+                    parent.withoutModel().insertChild(-1, self);
                 }
+
                 renderableNodes.put(self.getNode(), self);
                 return self;
             }
         });
+        return renderableNode;
     }
 
     public void addNode(RenderableNode node) {
@@ -156,6 +157,9 @@ public class BehaviorFactory { //implements AssetLoader<RenderableNode> {
                     renderableNodes.put(node.getNode(), node);
                 }
             });
+            for (RenderableNode it : renderableNodes.values()) {
+                it.update();
+            }
             return renderableNode;
         }
     }

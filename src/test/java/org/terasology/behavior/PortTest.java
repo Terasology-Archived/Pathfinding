@@ -25,10 +25,6 @@ import org.terasology.behavior.ui.Port;
 import org.terasology.behavior.ui.PortList;
 import org.terasology.behavior.ui.RenderableNode;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * @author synopia
  */
@@ -41,7 +37,8 @@ public class PortTest {
         two.setNode(node());
         ((Port.OutputPort) one.getPortList().ports().get(0)).setTarget(two.getInputPort());
 
-        Assert.assertEquals(Arrays.asList(two), one.getChildren());
+        Assert.assertEquals(1, one.getChildrenCount());
+        Assert.assertEquals(two, one.getChild(0));
     }
 
     @Test
@@ -56,7 +53,10 @@ public class PortTest {
         ((Port.OutputPort) parent.getPortList().ports().get(0)).setTarget(one.getInputPort());
         ((Port.OutputPort) parent.getPortList().ports().get(2)).setTarget(two.getInputPort());
 
-        Assert.assertEquals(Arrays.asList(one, two), parent.getChildren());
+        Assert.assertEquals(2, parent.getChildrenCount());
+
+        Assert.assertEquals(one, parent.getChild(0));
+        Assert.assertEquals(two, parent.getChild(1));
     }
 
     @Test
@@ -67,12 +67,11 @@ public class PortTest {
         two.setNode(node());
         ((Port.OutputPort) one.getPortList().ports().get(0)).setTarget(two.getInputPort());
 
-        Assert.assertEquals(Arrays.asList(two), one.getChildren());
-        ((Port.OutputPort) one.getPortList().ports().get(0)).setTarget(null);
+        Assert.assertEquals(1, one.getChildrenCount());
+        Assert.assertEquals(two, one.getChild(0));
+        ((Port.OutputPort) one.getPortList().ports().get(1)).setTarget(null);
 
-        List<RenderableNode> empty = new ArrayList<>();
-        empty.add(null);
-        Assert.assertEquals(empty, one.getChildren());
+        Assert.assertEquals(0, one.getChildrenCount());
 
     }
 
@@ -89,10 +88,11 @@ public class PortTest {
         ((Port.OutputPort) parent.getPortList().ports().get(2)).setTarget(two.getInputPort());
 
         ((Port.OutputPort) parent.getPortList().ports().get(1)).setTarget(null);
-        Assert.assertEquals(Arrays.asList(two), parent.getChildren());
+        Assert.assertEquals(1, parent.getChildrenCount());
+        Assert.assertEquals(two, parent.getChild(0));
 
         ((Port.OutputPort) parent.getPortList().ports().get(1)).setTarget(null);
-        Assert.assertEquals(Arrays.asList(), parent.getChildren());
+        Assert.assertEquals(0, parent.getChildrenCount());
     }
 
     @Test
@@ -100,7 +100,7 @@ public class PortTest {
         RenderableNode node = new RenderableNode();
         node.setNode(node());
         PortList portList = node.getPortList();
-        Assert.assertEquals(0, portList.ports().size());
+        Assert.assertEquals(1, portList.ports().size());
 
     }
 
@@ -149,6 +149,6 @@ public class PortTest {
             }
         });
         PortList portList = node.getPortList();
-        Assert.assertEquals(2, portList.ports().size());
+        Assert.assertEquals(1, portList.ports().size());
     }
 }

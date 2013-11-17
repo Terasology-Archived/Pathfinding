@@ -16,10 +16,8 @@
 package org.terasology.behavior.ui;
 
 import com.google.common.collect.Lists;
-import org.terasology.asset.AssetData;
-import org.terasology.behavior.tree.CompositeNode;
-import org.terasology.behavior.tree.DecoratorNode;
 import org.terasology.behavior.tree.Node;
+import org.terasology.behavior.tree.TreeAccessor;
 
 import javax.vecmath.Vector2f;
 import java.util.List;
@@ -27,37 +25,46 @@ import java.util.List;
 /**
  * @author synopia
  */
-public class RenderableNode implements AssetData {
+public class RenderableNode implements TreeAccessor<RenderableNode> {
     private final List<RenderableNode> children = Lists.newArrayList();
     private transient PortList portList;
 
     private Node node;
     private Vector2f position;
     private Vector2f size;
+    private transient TreeAccessor<RenderableNode> withoutModel;
+    private transient TreeAccessor<RenderableNode> withModel;
 
     public RenderableNode() {
         position = new Vector2f();
         size = new Vector2f(10, 5);
+        portList = new PortList(this);
+        withoutModel = new ChainedTreeAccessor<>(this, portList);
+        withModel = new ChainedTreeAccessor<>(this, portList, new NodeTreeAccessor());
+    }
+
+    public void update() {
+        List<RenderableNode> all = Lists.newArrayList(children);
+        children.clear();
+        for (RenderableNode renderableNode : all) {
+            withoutModel.insertChild(-1, renderableNode);
+        }
+    }
+
+    public TreeAccessor<RenderableNode> withoutModel() {
+        return withoutModel;
+    }
+
+    public TreeAccessor<RenderableNode> withModel() {
+        return withModel;
     }
 
     public PortList getPortList() {
-        if (portList == null) {
-            if (node instanceof CompositeNode) {
-                CompositeNode compositeNode = (CompositeNode) node;
-                portList = new PortList.ManyPortList(this, compositeNode);
-            } else if (node instanceof DecoratorNode) {
-                DecoratorNode decoratorNode = (DecoratorNode) node;
-                portList = new PortList.OnePortList(this, decoratorNode);
-            } else {
-                portList = new PortList.EmptyPortList(this);
-            }
-        }
         return portList;
     }
 
     public void setNode(Node node) {
         this.node = node;
-        portList = null;
     }
 
     public Port getHoveredPort(float worldX, float worldY) {
@@ -96,8 +103,44 @@ public class RenderableNode implements AssetData {
         return getPortList().ports;
     }
 
-    public List<RenderableNode> getChildren() {
-        return children;
+    public void insertChild(int index, RenderableNode child) {
+        if (index == -1) {
+            children.add(child);
+        } else {
+            children.add(index, child);
+        }
+    }
+
+    public void setChild(int index, RenderableNode child) {
+        if (children.size() == index) {
+            children.add(null);
+        }
+        if (children.get(index) != null) {
+            children.get(index).getInputPort().setTarget(null);
+        }
+        children.set(index, child);
+    }
+
+    public RenderableNode removeChild(int index) {
+        RenderableNode remove = children.remove(index);
+        remove.getInputPort().setTarget(null);
+        return remove;
+    }
+
+    public RenderableNode getChild(int index) {
+        if (children.size() > index) {
+            return children.get(index);
+        }
+        return null;
+    }
+
+    public int getChildrenCount() {
+        return children.size();
+    }
+
+    @Override
+    public int getMaxChildren() {
+        return getNode().getMaxChildren();
     }
 
     public Vector2f getPosition() {
@@ -121,5 +164,38 @@ public class RenderableNode implements AssetData {
 
     public interface Visitor {
         void visit(RenderableNode node);
+    }
+
+    public class NodeTreeAccessor implements TreeAccessor<RenderableNode> {
+        @Override
+        public void insertChild(int index, RenderableNode child) {
+            getNode().insertChild(index, child.getNode());
+        }
+
+        @Override
+        public void setChild(int index, RenderableNode child) {
+            getNode().setChild(index, child.getNode());
+        }
+
+        @Override
+        public RenderableNode removeChild(int index) {
+            getNode().removeChild(index);
+            return null;
+        }
+
+        @Override
+        public RenderableNode getChild(int index) {
+            return null;
+        }
+
+        @Override
+        public int getChildrenCount() {
+            return getNode().getChildrenCount();
+        }
+
+        @Override
+        public int getMaxChildren() {
+            return getNode().getMaxChildren();
+        }
     }
 }
