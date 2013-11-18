@@ -18,7 +18,6 @@ package org.terasology.logic.behavior;
 import com.google.common.collect.Lists;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import com.sun.xml.internal.ws.util.ByteArrayBuffer;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.terasology.logic.behavior.tree.CounterNode;
@@ -30,7 +29,9 @@ import org.terasology.logic.behavior.tree.SequenceNode;
 import org.terasology.logic.behavior.ui.RenderableNode;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -79,14 +80,14 @@ public class FactoryTest {
         BehaviorFactory factory = new BehaviorFactory();
         SequenceNode sequence = buildSample();
         RenderableNode renderableSequence = factory.addNode(sequence);
-        ByteArrayBuffer bab = new ByteArrayBuffer(10000);
-        factory.save(renderableSequence, bab);
-        String jsonExpected = bab.toString();
+        OutputStream os = new ByteArrayOutputStream(10000);
+        factory.save(renderableSequence, os);
+        String jsonExpected = os.toString();
 
         RenderableNode actual = factory.load(new ByteArrayInputStream(jsonExpected.getBytes()));
-        bab = new ByteArrayBuffer(10000);
-        factory.save(actual, bab);
-        String jsonActual = bab.toString();
+        os = new ByteArrayOutputStream(10000);
+        factory.save(actual, os);
+        String jsonActual = os.toString();
         Assert.assertEquals(jsonActual, jsonExpected);
     }
 
