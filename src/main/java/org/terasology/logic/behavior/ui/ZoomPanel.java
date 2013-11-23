@@ -169,16 +169,16 @@ public abstract class ZoomPanel extends JPanel {
         e.consume();
 
         Point mousePos = e.getPoint();
-        Point start = this.start;
-        int width = mousePos.x - start.x;
-        int height = mousePos.y - start.y;
+        Point startPos = this.start;
+        int width = mousePos.x - startPos.x;
+        int height = mousePos.y - startPos.y;
         int w = Math.abs(width);
         int h = Math.abs(height);
         int x = (width > 0)
-                ? start.x
+                ? startPos.x
                 : mousePos.x;
         int y = (height > 0)
-                ? start.y
+                ? startPos.y
                 : mousePos.y;
 
         repaintRect(new Rectangle(x, y, w, h));

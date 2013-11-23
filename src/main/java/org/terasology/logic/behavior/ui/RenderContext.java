@@ -41,8 +41,8 @@ public class RenderContext {
     public RenderContext() {
     }
 
-    public void setGraphics(Graphics2D g) {
-        this.g = g;
+    public void setGraphics(Graphics2D graphics) {
+        this.g = graphics;
     }
 
     public double screenToWorldX(int screenPosX) {

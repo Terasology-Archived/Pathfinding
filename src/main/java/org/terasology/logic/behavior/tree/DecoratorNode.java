@@ -29,13 +29,13 @@ public abstract class DecoratorNode extends Node {
     }
 
     @Override
-    public void insertChild(int index, Node child) {
-        this.child = child;
+    public void insertChild(int index, Node newChild) {
+        this.child = newChild;
     }
 
     @Override
-    public void setChild(int index, Node child) {
-        this.child = child;
+    public void setChild(int index, Node newChild) {
+        this.child = newChild;
     }
 
     @Override
