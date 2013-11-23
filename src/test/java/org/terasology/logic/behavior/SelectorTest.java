@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 public class SelectorTest {
     @Test
     public void testTwoChildrenSucceeds() {
-        final Task spies[] = new Task[2];
+        final Task[] spies = new Task[2];
         Interpreter interpreter = new Interpreter(null);
         Node one = create(new Mocker() {
             @Override
@@ -65,7 +65,7 @@ public class SelectorTest {
 
     @Test
     public void testTwoContinues() {
-        final Task spies[] = new Task[2];
+        final Task[] spies = new Task[2];
         Interpreter interpreter = new Interpreter(null);
         Node one = create(new Mocker() {
             @Override
@@ -99,8 +99,8 @@ public class SelectorTest {
 
     @Test
     public void testOnePassThrough() {
-        final Task spies[] = new Task[1];
-        Status stats[] = new Status[]{Status.SUCCESS, Status.FAILURE};
+        final Task[] spies = new Task[1];
+        Status[] stats = new Status[]{Status.SUCCESS, Status.FAILURE};
         for (final Status status : stats) {
             Interpreter interpreter = new Interpreter(null);
             Node mock = create(new Mocker() {

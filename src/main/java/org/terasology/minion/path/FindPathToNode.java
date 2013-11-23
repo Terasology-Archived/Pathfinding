@@ -54,7 +54,11 @@ public class FindPathToNode extends Node {
         @Override
         public Status update(float dt) {
             MinionPathComponent pathComponent = actor().path();
-            return pathComponent.pathState == MinionPathComponent.PathState.PATH_REQUESTED ? Status.RUNNING : (pathComponent.path == Path.INVALID ? Status.FAILURE : Status.SUCCESS);
+            if (pathComponent.pathState == MinionPathComponent.PathState.PATH_REQUESTED) {
+                return Status.RUNNING;
+            } else {
+                return pathComponent.path == Path.INVALID ? Status.FAILURE : Status.SUCCESS;
+            }
         }
 
         @Override

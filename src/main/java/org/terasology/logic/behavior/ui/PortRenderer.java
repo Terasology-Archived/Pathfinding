@@ -28,24 +28,32 @@ public class PortRenderer extends BaseRenderer {
         } else {
             rc.getGraphics().setColor(Color.WHITE);
         }
-        rc.getGraphics().fillRect(rc.worldToScreenX(port.getRect().minX()), rc.worldToScreenY(port.getRect().minY()), rc.screenUnitX(port.getRect().width()), rc.screenUnitY(port.getRect().height()));
+        rc.getGraphics().fillRect(
+                rc.worldToScreenX(port.getRect().minX()), rc.worldToScreenY(port.getRect().minY()),
+                rc.screenUnitX(port.getRect().width()), rc.screenUnitY(port.getRect().height()));
     }
 
     public void renderNetwork(RenderContext rc, Port port) {
         port.updateRect();
         if (port.getTargetNode() != null && !port.isInput()) {
             rc.getGraphics().setColor(Color.BLACK);
-            rc.getGraphics().drawLine(rc.worldToScreenX(port.midX()), rc.worldToScreenY(port.midY()), rc.worldToScreenX(port.getTargetNode().getInputPort().midX()), rc.worldToScreenY(port.getTargetNode().getInputPort().midY()));
+            rc.getGraphics().drawLine(
+                    rc.worldToScreenX(port.midX()), rc.worldToScreenY(port.midY()),
+                    rc.worldToScreenX(port.getTargetNode().getInputPort().midX()), rc.worldToScreenY(port.getTargetNode().getInputPort().midY()));
         }
     }
 
     public void renderActive(RenderContext rc, Port port) {
         port.updateRect();
         rc.getGraphics().setColor(Color.YELLOW);
-        rc.getGraphics().fillRect(rc.worldToScreenX(port.getRect().minX()), rc.worldToScreenY(port.getRect().minY()), rc.screenUnitX(port.getRect().width()), rc.screenUnitY(port.getRect().height()));
+        rc.getGraphics().fillRect(
+                rc.worldToScreenX(port.getRect().minX()), rc.worldToScreenY(port.getRect().minY()),
+                rc.screenUnitX(port.getRect().width()), rc.screenUnitY(port.getRect().height()));
         if (port.getTargetNode() != null) {
             rc.getGraphics().setColor(Color.YELLOW);
-            rc.getGraphics().drawLine(rc.worldToScreenX(port.midX()), rc.worldToScreenY(port.midY()), rc.worldToScreenX(port.getTargetPort().midX()), rc.worldToScreenY(port.getTargetPort().midY()));
+            rc.getGraphics().drawLine(
+                    rc.worldToScreenX(port.midX()), rc.worldToScreenY(port.midY()),
+                    rc.worldToScreenX(port.getTargetPort().midX()), rc.worldToScreenY(port.getTargetPort().midY()));
         }
     }
 }
