@@ -15,9 +15,6 @@
  */
 package org.terasology.logic.behavior.ui;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -29,7 +26,6 @@ import java.awt.event.MouseWheelListener;
  * @author synopia
  */
 public abstract class ZoomPanel extends JPanel {
-    private final Logger logger = LoggerFactory.getLogger(ZoomPanel.class);
     protected RenderContext context;
     private Rectangle lastRect;
     private Rectangle rect;

@@ -28,7 +28,6 @@ import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.WalkableBlock;
-import org.terasology.world.BlockEntityRegistry;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockComponent;
@@ -56,8 +55,6 @@ public class BuildBlock implements Job, ComponentSystem {
     private PathfinderSystem pathfinderSystem;
     @In
     private WorldProvider worldProvider;
-    @In
-    private BlockEntityRegistry blockEntityRegistry;
 
     private Block blockType;
     private final SimpleUri uri;

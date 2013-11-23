@@ -17,16 +17,13 @@ package org.terasology.minion.path;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.ComponentSystem;
-import org.terasology.entitySystem.systems.In;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.pathfinding.componentSystem.PathReadyEvent;
-import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.Path;
 
 /**
@@ -35,11 +32,6 @@ import org.terasology.pathfinding.model.Path;
 @RegisterSystem
 public class MinionPathSystem implements ComponentSystem {
     private static final Logger logger = LoggerFactory.getLogger(MinionPathSystem.class);
-
-    @In
-    private PathfinderSystem pathfinderSystem;
-    @In
-    private EntityManager entityManager;
 
     @ReceiveEvent(components = {MinionPathComponent.class, MinionMoveComponent.class})
     public void onPathReady(PathReadyEvent event, EntityRef minion) {

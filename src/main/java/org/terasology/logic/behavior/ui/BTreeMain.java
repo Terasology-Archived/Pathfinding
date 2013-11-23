@@ -53,13 +53,10 @@ public class BTreeMain extends JPanel {
         Interpreter interpreter = new Interpreter(new Actor(null));
         BehaviorFactory factory = new BehaviorFactory();
         RenderableNode root;
-        try {
-            root = factory.addNode(factory.get(""));
+
+        root = factory.addNode(factory.get(""));
 //            root = factory.load(new FileInputStream("test.json"));
-            interpreter.start(root.getNode());
-        } catch (Exception e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+        interpreter.start(root.getNode());
 
         JFrame frame = new JFrame();
         BTreeMain main = new BTreeMain(factory);

@@ -32,7 +32,6 @@ import org.terasology.logic.location.LocationComponent;
 import org.terasology.logic.selection.ApplyBlockSelectionEvent;
 import org.terasology.math.Region3i;
 import org.terasology.math.Vector3i;
-import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.WalkableBlock;
 import org.terasology.world.BlockEntityRegistry;
 
@@ -56,11 +55,7 @@ public class JobBoard implements ComponentSystem {
     private EntityManager entityManager;
 
     @In
-    private PathfinderSystem pathfinderSystem;
-
-    @In
     private JobFactory jobFactory;
-    private Job walk;
 
     public JobBoard() {
         logger.info("Creating JobBoard");
@@ -70,7 +65,6 @@ public class JobBoard implements ComponentSystem {
     @Override
     public void initialise() {
         logger.info("Initialize JobBoard");
-        walk = jobFactory.getJob("Pathfinding:walkToBlock");
     }
 
     public void refresh() {

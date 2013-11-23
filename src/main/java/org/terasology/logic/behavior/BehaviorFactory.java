@@ -110,7 +110,6 @@ public class BehaviorFactory { //implements AssetLoader<RenderableNode> {
         if (startPort.isInput() == endPort.isInput()) {
             return;
         }
-        Port.InputPort inputPort = startPort.isInput() ? (Port.InputPort) startPort : (Port.InputPort) endPort;
         Port.OutputPort outputPort = !startPort.isInput() ? (Port.OutputPort) startPort : (Port.OutputPort) endPort;
 
         outputPort.setTarget(null);
@@ -163,7 +162,7 @@ public class BehaviorFactory { //implements AssetLoader<RenderableNode> {
             reader.setLenient(true);
             reader.beginObject();
             reader.nextName();
-            Node node = loadNode(reader);
+            loadNode(reader);
             reader.nextName();
             RenderableNode renderableNode = loadRenderableNode(reader);
             reader.endObject();

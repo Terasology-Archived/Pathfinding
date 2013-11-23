@@ -44,19 +44,17 @@ import static org.reflections.ReflectionUtils.withType;
  * @author synopia
  */
 public class PropertiesPanel<T> extends JPanel {
-    private final Class<T> type;
     private final List<Property<T, ?>> properties = Lists.newArrayList();
     private final List<Editor<T, ?>> editors = Lists.newArrayList();
     private final TitledBorder titledBorder;
 
     public PropertiesPanel(Class<T> type) {
-        this.type = type;
         titledBorder = new TitledBorder("");
         setBorder(titledBorder);
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         try {
-            ReflectFactory reflectFactory = new ReflectionReflectFactory();//CoreRegistry.get(ReflectFactory.class);
+            ReflectFactory reflectFactory = new ReflectionReflectFactory();
 
             CopyStrategyLibrary copyStrategies = CopyStrategyLibrary.create(reflectFactory);
             ClassMetadata<T, ?> classMetadata = new DefaultClassMetadata<>(new SimpleUri(), type, reflectFactory, copyStrategies);
