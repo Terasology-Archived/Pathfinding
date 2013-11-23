@@ -18,16 +18,31 @@ package org.terasology.minion.move;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
+import org.terasology.logic.behavior.ui.properties.api.BooleanProperty;
+import org.terasology.logic.behavior.ui.properties.api.OneOfProperty;
 import org.terasology.rendering.assets.animation.MeshAnimation;
 import org.terasology.rendering.logic.SkeletalMeshComponent;
+
+import java.util.Random;
 
 /**
  * @author synopia
  */
 public class PlayAnimationNode extends Node {
+    @OneOfProperty(names = {"idle", "walk", "attack", "die", "fadeIn", "fadeOut", "work", "terraform", "random"})
+    private String animation;
+
+    @BooleanProperty
     private boolean loop;
 
-    public PlayAnimationNode(boolean loop) {
+    public PlayAnimationNode() {
+    }
+
+    public boolean isLoop() {
+        return loop;
+    }
+
+    public void setLoop(boolean loop) {
         this.loop = loop;
     }
 
@@ -37,15 +52,49 @@ public class PlayAnimationNode extends Node {
     }
 
     public static class PlayAnimationTask extends Task {
+        private Random random;
+
         public PlayAnimationTask(PlayAnimationNode node) {
             super(node);
+            random = new Random();
         }
 
         @Override
         public void onInitialize() {
-            AnimationComponent animationComponent = actor().animation();
-            MeshAnimation animation = animationComponent.walkAnim;
-            changeAnimation(animation, getNode().loop);
+            if (getNode().animation != null) {
+                AnimationComponent animationComponent = actor().animation();
+                MeshAnimation animation = null;
+                switch (getNode().animation) {
+                    case "idle":
+                        animation = animationComponent.idleAnim;
+                        break;
+                    case "walk":
+                        animation = animationComponent.walkAnim;
+                        break;
+                    case "attack":
+                        animation = animationComponent.attackAnim;
+                        break;
+                    case "die":
+                        animation = animationComponent.dieAnim;
+                        break;
+                    case "fadeIn":
+                        animation = animationComponent.fadeInAnim;
+                        break;
+                    case "fadeOut":
+                        animation = animationComponent.fadeOutAnim;
+                        break;
+                    case "work":
+                        animation = animationComponent.workAnim;
+                        break;
+                    case "terraform":
+                        animation = animationComponent.terraformAnim;
+                        break;
+                    case "random":
+                        animation = animationComponent.randomAnim.get(random.nextInt(animationComponent.randomAnim.size()));
+                        break;
+                }
+                changeAnimation(animation, getNode().loop);
+            }
         }
 
         @Override

@@ -20,8 +20,10 @@ import org.terasology.logic.behavior.tree.Interpreter;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.SequenceNode;
 import org.terasology.logic.behavior.tree.Task;
+import org.terasology.logic.behavior.ui.properties.PropertiesPanelFactory;
 
 import javax.swing.*;
+import javax.vecmath.Vector2f;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -47,8 +49,11 @@ public class BTreePanel extends ZoomPanel {
     private float clickOffsetY;
     private float currentMouseX;
     private float currentMouseY;
+    private PropertiesPanelFactory properties;
 
     public BTreePanel() {
+        properties = new PropertiesPanelFactory();
+        setPreferredSize(new Dimension(800, 600));
     }
 
     @Override
@@ -76,6 +81,10 @@ public class BTreePanel extends ZoomPanel {
             }
         });
         return bar;
+    }
+
+    public PropertiesPanelFactory getProperties() {
+        return properties;
     }
 
     @Override
@@ -159,7 +168,13 @@ public class BTreePanel extends ZoomPanel {
         currentMouseX = worldX;
         currentMouseY = worldY;
         if (movingNode != null) {
-            movingNode.setPosition(worldX + clickOffsetX, worldY + clickOffsetY);
+            RenderableNode parent = movingNode.getInputPort().getTargetNode();
+            if (parent != null) {
+                Vector2f parentPos = parent.getPosition();
+                movingNode.setPosition((worldX - clickOffsetX) - parentPos.x, (worldY - clickOffsetY) - parentPos.y);
+            } else {
+                movingNode.setPosition(worldX - clickOffsetX, worldY - clickOffsetY);
+            }
         } else {
             findHover(worldX, worldY);
         }
@@ -197,6 +212,9 @@ public class BTreePanel extends ZoomPanel {
         float worldX = (float) context.screenToWorldX(x);
         float worldY = (float) context.screenToWorldY(y);
         findHover(worldX, worldY);
+        if (hoveredNode != null) {
+            properties.bindObject(hoveredNode.getNode());
+        }
         if (movingNode != null) {
             movingNode = null;
             return;
@@ -223,8 +241,8 @@ public class BTreePanel extends ZoomPanel {
     private void findHover(float worldX, float worldY) {
         hoveredNode = findNode(worldX, worldY);
         if (hoveredNode != null) {
-            clickOffsetX = -worldX + hoveredNode.getPosition().x;
-            clickOffsetY = -worldY + hoveredNode.getPosition().y;
+            clickOffsetX = worldX - hoveredNode.getPosition().x;
+            clickOffsetY = worldY - hoveredNode.getPosition().y;
             hoveredPort = hoveredNode.getHoveredPort(worldX, worldY);
         }
     }

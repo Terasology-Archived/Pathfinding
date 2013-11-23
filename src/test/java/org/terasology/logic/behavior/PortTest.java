@@ -121,8 +121,12 @@ public class PortTest {
         };
     }
 
-    private DecoratorNode decorator(Node node) {
-        return new DecoratorNode(node) {
+    private DecoratorNode decorator(final Node node) {
+        return new DecoratorNode() {
+            {
+                this.child = node;
+            }
+
             @Override
             public Task create() {
                 return null;

@@ -15,6 +15,7 @@
  */
 package org.terasology.logic.behavior.tree;
 
+import com.google.common.collect.Maps;
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.jobSystem.JobMinionComponent;
@@ -24,14 +25,34 @@ import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.minion.path.MinionPathComponent;
 import org.terasology.rendering.logic.SkeletalMeshComponent;
 
+import java.util.Map;
+
 /**
  * @author synopia
  */
 public class Actor {
     private final EntityRef minion;
+    private final Map<String, Object> blackboard;
 
     public Actor(EntityRef minion) {
         this.minion = minion;
+        blackboard = Maps.newHashMap();
+    }
+
+    public Object write(String key, Object value) {
+        return blackboard.put(key, value);
+    }
+
+    public <T> T read(String key, Class<T> type) {
+        return read(key, type, null);
+    }
+
+    public <T> T read(String key, Class<T> type, T defaultValue) {
+        Object value = blackboard.get(key);
+        if (value == null) {
+            return defaultValue;
+        }
+        return (T) value;
     }
 
     public MinionMoveComponent move() {

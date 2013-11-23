@@ -41,8 +41,7 @@ public class NodeRenderer extends BaseRenderer {
         rc.getGraphics().setFont(currentFont);
 
         rc.getGraphics().setColor(Color.BLACK);
-        String text = node.getNode().getClass().getSimpleName();
-        text = text.substring(0, text.length() - 4);
+        String text = node.toString();
         drawText(rc, (startX + endX) / 2, (startY + endY) / 2, text);
     }
 

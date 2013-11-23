@@ -81,7 +81,7 @@ public class BehaviorFactory { //implements AssetLoader<RenderableNode> {
 
         SequenceNode toWalkableBlock = new SequenceNode();
         toWalkableBlock.children().add(new MoveToWalkableBlockNode());
-        toWalkableBlock.children().add(new PlayAnimationNode(false));
+        toWalkableBlock.children().add(new PlayAnimationNode());
 
         CompositeNode main = new SequenceNode();
         main.children().add(toWalkableBlock);

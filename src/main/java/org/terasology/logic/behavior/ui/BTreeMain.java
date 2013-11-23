@@ -40,6 +40,7 @@ public class BTreeMain extends JPanel {
         bar.add(panel.createToolBar());
         add(bar, BorderLayout.NORTH);
         add(panel, BorderLayout.CENTER);
+        add(panel.getProperties(), BorderLayout.EAST);
         panel.init();
     }
 

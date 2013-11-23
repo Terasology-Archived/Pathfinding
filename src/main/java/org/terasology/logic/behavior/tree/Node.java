@@ -22,6 +22,12 @@ public abstract class Node implements TreeAccessor<Node> {
     public abstract Task create();
 
     @Override
+    public String toString() {
+        String name = getClass().getSimpleName();
+        return name.substring(0, name.length() - 4);
+    }
+
+    @Override
     public void insertChild(int index, Node child) {
         throw new IllegalStateException("Not allowed");
     }

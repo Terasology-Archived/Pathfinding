@@ -159,6 +159,11 @@ public class RenderableNode implements TreeAccessor<RenderableNode> {
         return size;
     }
 
+    @Override
+    public String toString() {
+        return getNode() != null ? getNode().toString() : "";
+    }
+
     public boolean contains(float worldX, float worldY) {
         Vector2f p = getPosition();
         return p.x <= worldX && p.y <= worldY && worldX <= p.x + size.x && worldY <= p.y + size.y;

@@ -19,8 +19,11 @@ package org.terasology.logic.behavior.tree;
  * @author synopia
  */
 public class RepeatNode extends DecoratorNode {
+    public RepeatNode() {
+    }
+
     public RepeatNode(Node child) {
-        super(child);
+        this.child = child;
     }
 
     @Override

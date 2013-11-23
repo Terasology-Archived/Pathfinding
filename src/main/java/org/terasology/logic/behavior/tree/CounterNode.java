@@ -15,10 +15,13 @@
  */
 package org.terasology.logic.behavior.tree;
 
+import org.terasology.logic.behavior.ui.properties.api.TextProperty;
+
 /**
  * @author synopia
  */
 public class CounterNode extends Node {
+    @TextProperty
     private int limit;
 
     public CounterNode(int limit) {

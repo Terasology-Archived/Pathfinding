@@ -21,10 +21,6 @@ package org.terasology.logic.behavior.tree;
 public abstract class DecoratorNode extends Node {
     protected Node child;
 
-    protected DecoratorNode(Node child) {
-        this.child = child;
-    }
-
     @Override
     public <T> T visit(T item, Visitor<T> visitor) {
         T visit = super.visit(item, visitor);
