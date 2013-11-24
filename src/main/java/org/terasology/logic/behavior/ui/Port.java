@@ -89,6 +89,9 @@ public abstract class Port {
 
         public void setTarget(InputPort inputPort) {
             if (inputPort != null) {
+                if (inputPort.getTargetPort() != null) {
+                    inputPort.getTargetPort().setTarget(null);
+                }
                 node.withModel().setChild(index(), inputPort.getSourceNode());
             } else {
                 node.withModel().removeChild(index());
@@ -106,7 +109,6 @@ public abstract class Port {
     }
 
     public static class InsertOutputPort extends OutputPort {
-
         protected InsertOutputPort(RenderableNode renderableNode) {
             super(renderableNode);
         }
@@ -122,6 +124,9 @@ public abstract class Port {
         @Override
         public void setTarget(InputPort inputPort) {
             if (inputPort != null) {
+                if (inputPort.getTargetPort() != null) {
+                    inputPort.getTargetPort().setTarget(null);
+                }
                 node.withModel().insertChild(index(), inputPort.getSourceNode());
             } else {
                 throw new IllegalStateException("Cannot remove target from an insert output port");
@@ -156,7 +161,7 @@ public abstract class Port {
         }
 
         @Override
-        public Port getTargetPort() {
+        public OutputPort getTargetPort() {
             return outputPort;
         }
 

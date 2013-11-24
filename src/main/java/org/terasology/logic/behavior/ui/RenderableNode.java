@@ -116,7 +116,11 @@ public class RenderableNode implements TreeAccessor<RenderableNode> {
             children.add(null);
         }
         if (children.get(index) != null) {
-            children.get(index).getInputPort().setTarget(null);
+            Port.InputPort inputPort = children.get(index).getInputPort();
+            if (inputPort.getTargetPort() != null) {
+//                ((Port.OutputPort) inputPort.getTargetPort()).setTarget(null);
+            }
+            inputPort.setTarget(null);
         }
         children.set(index, child);
     }

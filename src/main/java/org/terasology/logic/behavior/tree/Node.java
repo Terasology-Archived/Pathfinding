@@ -24,7 +24,7 @@ public abstract class Node implements TreeAccessor<Node> {
     @Override
     public String toString() {
         String name = getClass().getSimpleName();
-        return name.substring(0, name.length() - 4);
+        return name;//name.substring(0, name.length() - 4);
     }
 
     @Override

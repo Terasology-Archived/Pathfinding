@@ -37,26 +37,51 @@ public class PortTest {
         two.setNode(node());
         ((Port.OutputPort) one.getPortList().ports().get(0)).setTarget(two.getInputPort());
 
+        Assert.assertEquals(one, two.getInputPort().getTargetPort().getSourceNode());
+        Assert.assertEquals(one.getPortList().ports().get(0), two.getInputPort().getTargetPort());
+
         Assert.assertEquals(1, one.getChildrenCount());
         Assert.assertEquals(two, one.getChild(0));
     }
 
     @Test
-    public void testConnectComposite() {
-        RenderableNode parent = new RenderableNode();
-        parent.setNode(composite());
+    public void testConnectToConnectedDecorator() {
         RenderableNode one = new RenderableNode();
-        one.setNode(node());
+        one.setNode(decorator(null));
         RenderableNode two = new RenderableNode();
         two.setNode(node());
+        ((Port.OutputPort) one.getPortList().ports().get(0)).setTarget(two.getInputPort());
 
-        ((Port.OutputPort) parent.getPortList().ports().get(0)).setTarget(one.getInputPort());
-        ((Port.OutputPort) parent.getPortList().ports().get(2)).setTarget(two.getInputPort());
+        RenderableNode three = new RenderableNode();
+        three.setNode(node());
+        ((Port.OutputPort) one.getPortList().ports().get(0)).setTarget(three.getInputPort());
 
-        Assert.assertEquals(2, parent.getChildrenCount());
+        Assert.assertEquals(one, three.getInputPort().getTargetPort().getSourceNode());
+        Assert.assertEquals(one.getPortList().ports().get(0), three.getInputPort().getTargetPort());
+        Assert.assertEquals(null, two.getInputPort().getTargetPort());
 
-        Assert.assertEquals(one, parent.getChild(0));
-        Assert.assertEquals(two, parent.getChild(1));
+        Assert.assertEquals(1, one.getChildrenCount());
+        Assert.assertEquals(three, one.getChild(0));
+    }
+
+    @Test
+    public void testConnectToConnectedDecorator2() {
+        RenderableNode one = new RenderableNode();
+        one.setNode(decorator(null));
+        RenderableNode two = new RenderableNode();
+        two.setNode(decorator(null));
+        ((Port.OutputPort) one.getPortList().ports().get(0)).setTarget(two.getInputPort());
+        RenderableNode three = new RenderableNode();
+        three.setNode(decorator(null));
+        ((Port.OutputPort) three.getPortList().ports().get(0)).setTarget(two.getInputPort());
+
+        Assert.assertEquals(three, two.getInputPort().getTargetPort().getSourceNode());
+        Assert.assertEquals(three.getPortList().ports().get(0), two.getInputPort().getTargetPort());
+
+        Assert.assertEquals(1, three.getChildrenCount());
+        Assert.assertEquals(two, three.getChild(0));
+
+        Assert.assertEquals(0, one.getChildrenCount());
     }
 
     @Test
@@ -72,7 +97,58 @@ public class PortTest {
         ((Port.OutputPort) one.getPortList().ports().get(0)).setTarget(null);
 
         Assert.assertEquals(0, one.getChildrenCount());
+        Assert.assertEquals(null, two.getInputPort().getTargetPort());
+    }
 
+    @Test
+    public void testConnectComposite() {
+        RenderableNode parent = new RenderableNode();
+        parent.setNode(composite());
+        RenderableNode one = new RenderableNode();
+        one.setNode(node());
+        RenderableNode two = new RenderableNode();
+        two.setNode(node());
+
+        ((Port.OutputPort) parent.getPortList().ports().get(0)).setTarget(one.getInputPort());
+        ((Port.OutputPort) parent.getPortList().ports().get(2)).setTarget(two.getInputPort());
+
+        Assert.assertEquals(parent, one.getInputPort().getTargetPort().getSourceNode());
+        Assert.assertEquals(parent, two.getInputPort().getTargetPort().getSourceNode());
+        Assert.assertEquals(parent.getPortList().ports().get(1), one.getInputPort().getTargetPort());
+        Assert.assertEquals(parent.getPortList().ports().get(3), two.getInputPort().getTargetPort());
+
+        Assert.assertEquals(2, parent.getChildrenCount());
+
+        Assert.assertEquals(one, parent.getChild(0));
+        Assert.assertEquals(two, parent.getChild(1));
+    }
+
+    @Test
+    public void testConnectToConnectedComposite() {
+        RenderableNode parent = new RenderableNode();
+        parent.setNode(composite());
+        RenderableNode one = new RenderableNode();
+        one.setNode(node());
+        RenderableNode two = new RenderableNode();
+        two.setNode(node());
+
+        ((Port.OutputPort) parent.getPortList().ports().get(0)).setTarget(one.getInputPort());
+        ((Port.OutputPort) parent.getPortList().ports().get(2)).setTarget(two.getInputPort());
+
+        RenderableNode three = new RenderableNode();
+        three.setNode(node());
+        ((Port.OutputPort) parent.getPortList().ports().get(3)).setTarget(three.getInputPort());
+
+        Assert.assertEquals(parent, one.getInputPort().getTargetPort().getSourceNode());
+        Assert.assertEquals(parent, three.getInputPort().getTargetPort().getSourceNode());
+        Assert.assertEquals(parent.getPortList().ports().get(1), one.getInputPort().getTargetPort());
+        Assert.assertEquals(parent.getPortList().ports().get(3), three.getInputPort().getTargetPort());
+
+        Assert.assertEquals(2, parent.getChildrenCount());
+
+        Assert.assertEquals(one, parent.getChild(0));
+        Assert.assertEquals(three, parent.getChild(1));
+        Assert.assertEquals(null, two.getInputPort().getTargetPort());
     }
 
     @Test
@@ -90,9 +166,11 @@ public class PortTest {
         ((Port.OutputPort) parent.getPortList().ports().get(1)).setTarget(null);
         Assert.assertEquals(1, parent.getChildrenCount());
         Assert.assertEquals(two, parent.getChild(0));
+        Assert.assertEquals(null, one.getInputPort().getTargetPort());
 
         ((Port.OutputPort) parent.getPortList().ports().get(1)).setTarget(null);
         Assert.assertEquals(0, parent.getChildrenCount());
+        Assert.assertEquals(null, two.getInputPort().getTargetPort());
     }
 
     @Test

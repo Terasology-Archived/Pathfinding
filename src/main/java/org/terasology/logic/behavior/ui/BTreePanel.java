@@ -226,7 +226,7 @@ public class BTreePanel extends ZoomPanel {
         if (startPort != null) {
             if (hoveredPort != null && hoveredPort != startPort && hoveredPort.isInput() != startPort.isInput()) {
                 if (hoveredPort.getTargetNode() != null) {
-                    tree.disconnectNodes(hoveredPort.getTargetPort(), hoveredPort);
+//                    tree.disconnectNodes(hoveredPort.getTargetPort(), hoveredPort);
                 }
                 if (hoveredPort.isInput()) {
                     tree.connectNodes(startPort, hoveredPort);

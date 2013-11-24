@@ -50,8 +50,12 @@ public class PortList implements TreeAccessor<RenderableNode> {
         return list;
     }
 
-    public int indexOfPort(Port port) {
+    int indexOfPort(Port port) {
         return ports.indexOf(port) / 2;
+    }
+
+    Port.OutputPort outputPortForIndex(int index) {
+        return (Port.OutputPort) ports.get(index * 2 + 1);
     }
 
     @Override
@@ -83,6 +87,7 @@ public class PortList implements TreeAccessor<RenderableNode> {
     public RenderableNode removeChild(int index) {
         ports.remove(index * 2);
         Port output = ports.remove(index * 2);
+        output.getSourceNode().getInputPort().setTarget(null);
         return output.getSourceNode();
     }
 
