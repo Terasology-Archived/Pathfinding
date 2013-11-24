@@ -69,7 +69,7 @@ public class PortTest {
 
         Assert.assertEquals(1, one.getChildrenCount());
         Assert.assertEquals(two, one.getChild(0));
-        ((Port.OutputPort) one.getPortList().ports().get(1)).setTarget(null);
+        ((Port.OutputPort) one.getPortList().ports().get(0)).setTarget(null);
 
         Assert.assertEquals(0, one.getChildrenCount());
 
@@ -100,7 +100,7 @@ public class PortTest {
         RenderableNode node = new RenderableNode();
         node.setNode(node());
         PortList portList = node.getPortList();
-        Assert.assertEquals(1, portList.ports().size());
+        Assert.assertEquals(0, portList.ports().size());
 
     }
 
