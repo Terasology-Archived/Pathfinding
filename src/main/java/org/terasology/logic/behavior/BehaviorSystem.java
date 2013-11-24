@@ -24,10 +24,6 @@ import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.logic.behavior.tree.Actor;
 import org.terasology.logic.behavior.tree.Interpreter;
 import org.terasology.logic.behavior.tree.Node;
-import org.terasology.logic.behavior.ui.BTreeMain;
-
-import javax.swing.*;
-import java.awt.*;
 
 /**
  * @author synopia
@@ -37,29 +33,13 @@ public class BehaviorSystem implements ComponentSystem, UpdateSubscriberSystem {
     @In
     private EntityManager entityManager;
 
-    private BehaviorFactory behaviorFactory;
+    private BehaviorTreeFactory behaviorTreeFactory;
 
-    private BTreeMain main;
     private float speed;
-    private boolean first;
 
     @Override
     public void initialise() {
-        behaviorFactory = new BehaviorFactory();
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                main = new BTreeMain(behaviorFactory);
-                main.setPreferredSize(new Dimension(500, 400));
-
-                JFrame frame = new JFrame();
-                frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-                frame.add(main);
-                frame.pack();
-                frame.setVisible(true);
-            }
-        });
-        first = true;
+        behaviorTreeFactory = new BehaviorTreeFactory();
     }
 
     @Override
@@ -74,15 +54,12 @@ public class BehaviorSystem implements ComponentSystem, UpdateSubscriberSystem {
             Interpreter interpreter = behaviorComponent.interpreter;
             if (interpreter == null) {
                 interpreter = new Interpreter(new Actor(minion));
-                Node node = behaviorFactory.get(behaviorComponent.behavior);
-                if (first) {
-                    behaviorFactory.addNode(node);
-                    first = false;
-                    if (main != null) {
-                        main.setInterpreter(interpreter);
-                    }
-                }
+                BehaviorTree tree = new BehaviorTree();
+                Node node = behaviorTreeFactory.get(behaviorComponent.behavior);
+                tree.addNode(node);
+
                 behaviorComponent.interpreter = interpreter;
+                behaviorComponent.tree = tree;
                 interpreter.start(node);
                 minion.saveComponent(behaviorComponent);
             }

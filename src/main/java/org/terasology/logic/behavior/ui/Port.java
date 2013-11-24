@@ -70,6 +70,10 @@ public abstract class Port {
         return getSourceNode() + "[" + index() + "]";
     }
 
+    public boolean isVisible() {
+        return index() < getSourceNode().getMaxChildren();
+    }
+
     public static class OutputPort extends Port {
         public OutputPort(RenderableNode renderableNode) {
             super(renderableNode);
@@ -122,6 +126,11 @@ public abstract class Port {
             } else {
                 throw new IllegalStateException("Cannot remove target from an insert output port");
             }
+        }
+
+        @Override
+        public boolean isVisible() {
+            return getSourceNode().getChildrenCount() < getSourceNode().getMaxChildren();
         }
 
         @Override

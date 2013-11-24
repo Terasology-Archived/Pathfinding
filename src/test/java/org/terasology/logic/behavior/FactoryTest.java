@@ -43,7 +43,7 @@ import java.util.List;
 public class FactoryTest {
     @Test
     public void testLoadSaveNodes() {
-        BehaviorFactory factory = new BehaviorFactory();
+        BehaviorTree factory = new BehaviorTree();
         SequenceNode sequence = buildSample();
 
         StringWriter out = new StringWriter();
@@ -60,7 +60,7 @@ public class FactoryTest {
 
     @Test
     public void testSaveLoadRenderables() {
-        BehaviorFactory factory = new BehaviorFactory();
+        BehaviorTree factory = new BehaviorTree();
         SequenceNode sequence = buildSample();
         RenderableNode renderableSequence = factory.addNode(sequence);
         StringWriter out = new StringWriter();
@@ -77,7 +77,7 @@ public class FactoryTest {
 
     @Test
     public void testSaveLoad() throws IOException {
-        BehaviorFactory factory = new BehaviorFactory();
+        BehaviorTree factory = new BehaviorTree();
         SequenceNode sequence = buildSample();
         RenderableNode renderableSequence = factory.addNode(sequence);
         OutputStream os = new ByteArrayOutputStream(10000);
@@ -93,7 +93,7 @@ public class FactoryTest {
 
     @Test
     public void testConstructRenderables() {
-        BehaviorFactory factory = new BehaviorFactory();
+        BehaviorTree factory = new BehaviorTree();
         SequenceNode sequence = buildSample();
         RenderableNode renderableSequence = factory.addNode(sequence);
         final List<Node> actual = Lists.newArrayList();

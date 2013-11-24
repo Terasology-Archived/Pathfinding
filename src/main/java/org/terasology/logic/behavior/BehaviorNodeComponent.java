@@ -15,16 +15,24 @@
  */
 package org.terasology.logic.behavior;
 
+import com.google.common.collect.Lists;
 import org.terasology.entitySystem.Component;
-import org.terasology.logic.behavior.tree.Interpreter;
+
+import java.util.List;
 
 /**
  * @author synopia
  */
-public class BehaviorComponent implements Component {
-    public String behavior;
+public class BehaviorNodeComponent implements Component {
+    public String type;
+    public String name;
+    public String category;
+    public String shape;
+    public List<Float> color = Lists.newArrayList();
+    public List<Float> textColor = Lists.newArrayList();
 
-    public transient BehaviorTree tree;
-    public transient Interpreter interpreter;
-
+    @Override
+    public String toString() {
+        return name;
+    }
 }

@@ -24,21 +24,11 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import org.terasology.jobSystem.FindJobNode;
-import org.terasology.jobSystem.FinishJobNode;
-import org.terasology.jobSystem.SetTargetJobNode;
-import org.terasology.logic.behavior.tree.CompositeNode;
 import org.terasology.logic.behavior.tree.Node;
-import org.terasology.logic.behavior.tree.RepeatNode;
-import org.terasology.logic.behavior.tree.SequenceNode;
 import org.terasology.logic.behavior.ui.Port;
 import org.terasology.logic.behavior.ui.RenderableNode;
-import org.terasology.minion.move.FindWalkableBlockNode;
-import org.terasology.minion.move.MoveToWalkableBlockNode;
-import org.terasology.minion.move.PlayAnimationNode;
-import org.terasology.minion.path.FindPathToNode;
-import org.terasology.minion.path.MoveAlongPathNode;
 
+import javax.vecmath.Vector2f;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -50,7 +40,7 @@ import java.util.Map;
 /**
  * @author synopia
  */
-public class BehaviorFactory { //implements AssetLoader<RenderableNode> {
+public class BehaviorTree { //implements AssetLoader<RenderableNode> {
     private int currentId;
     private Map<Node, Integer> nodeIds = Maps.newHashMap();
     private Map<Integer, Node> idNodes = Maps.newHashMap();
@@ -59,7 +49,7 @@ public class BehaviorFactory { //implements AssetLoader<RenderableNode> {
     private Gson gsonNode;
     private Gson gsonRenderableNode;
 
-    public BehaviorFactory() {
+    public BehaviorTree() {
         gsonNode = new GsonBuilder()
                 .setPrettyPrinting()
                 .registerTypeAdapterFactory(new NodeTypeAdapterFactory())
@@ -68,25 +58,6 @@ public class BehaviorFactory { //implements AssetLoader<RenderableNode> {
                 .setPrettyPrinting()
                 .registerTypeHierarchyAdapter(Node.class, new NodeTypeAdapter())
                 .create();
-    }
-
-    public Node get(String uri) {
-        SequenceNode job = new SequenceNode();
-        job.children().add(new FindJobNode());
-        job.children().add(new SetTargetJobNode());
-        job.children().add(new FindPathToNode());
-        job.children().add(new MoveAlongPathNode());
-        job.children().add(new FindWalkableBlockNode());
-        job.children().add(new FinishJobNode());
-
-        SequenceNode toWalkableBlock = new SequenceNode();
-        toWalkableBlock.children().add(new MoveToWalkableBlockNode());
-        toWalkableBlock.children().add(new PlayAnimationNode());
-
-        CompositeNode main = new SequenceNode();
-        main.children().add(toWalkableBlock);
-        main.children().add(job);
-        return new RepeatNode(main);
     }
 
     public void connectNodes(Port startPort, Port endPort) {
@@ -98,9 +69,10 @@ public class BehaviorFactory { //implements AssetLoader<RenderableNode> {
         }
         Port.InputPort inputPort = startPort.isInput() ? (Port.InputPort) startPort : (Port.InputPort) endPort;
         Port.OutputPort outputPort = !startPort.isInput() ? (Port.OutputPort) startPort : (Port.OutputPort) endPort;
-
+        Vector2f position = inputPort.getSourceNode().getPosition();
+        position.sub(outputPort.getSourceNode().getPosition());
         outputPort.setTarget(inputPort);
-
+        inputPort.getSourceNode().setPosition(position);
     }
 
     public void disconnectNodes(Port startPort, Port endPort) {
@@ -110,9 +82,11 @@ public class BehaviorFactory { //implements AssetLoader<RenderableNode> {
         if (startPort.isInput() == endPort.isInput()) {
             return;
         }
+        Port.InputPort inputPort = startPort.isInput() ? (Port.InputPort) startPort : (Port.InputPort) endPort;
         Port.OutputPort outputPort = !startPort.isInput() ? (Port.OutputPort) startPort : (Port.OutputPort) endPort;
-
+        Vector2f position = inputPort.getSourceNode().getPosition();
         outputPort.setTarget(null);
+        inputPort.getSourceNode().setPosition(position);
     }
 
     public RenderableNode addNode(Node node) {

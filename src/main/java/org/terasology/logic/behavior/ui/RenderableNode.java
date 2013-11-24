@@ -100,7 +100,7 @@ public class RenderableNode implements TreeAccessor<RenderableNode> {
     }
 
     public Iterable<Port> getPorts() {
-        return getPortList().ports;
+        return getPortList().ports();
     }
 
     public void insertChild(int index, RenderableNode child) {

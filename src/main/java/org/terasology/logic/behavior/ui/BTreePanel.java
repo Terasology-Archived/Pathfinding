@@ -15,7 +15,7 @@
  */
 package org.terasology.logic.behavior.ui;
 
-import org.terasology.logic.behavior.BehaviorFactory;
+import org.terasology.logic.behavior.BehaviorTree;
 import org.terasology.logic.behavior.tree.Interpreter;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.SequenceNode;
@@ -34,7 +34,7 @@ import java.awt.event.MouseWheelEvent;
  * @author synopia
  */
 public class BTreePanel extends ZoomPanel {
-    private BehaviorFactory factory;
+    private BehaviorTree tree;
     private Interpreter interpreter;
 
     private NodeRenderer nodeRenderer = new NodeRenderer();
@@ -96,13 +96,13 @@ public class BTreePanel extends ZoomPanel {
     protected void paintContent(Graphics2D g) {
         g.setColor(Color.DARK_GRAY);
         g.fillRect(0, 0, getWidth(), getHeight());
-        if (factory == null) {
+        if (tree == null) {
             return;
         }
-        for (RenderableNode node : factory.getRenderableNodes()) {
+        for (RenderableNode node : tree.getRenderableNodes()) {
             nodeRenderer.render(context, node);
         }
-        for (RenderableNode node : factory.getRenderableNodes()) {
+        for (RenderableNode node : tree.getRenderableNodes()) {
             for (Port port : node.getPorts()) {
                 portRenderer.renderNetwork(context, port);
             }
@@ -110,7 +110,7 @@ public class BTreePanel extends ZoomPanel {
         if (interpreter != null) {
             for (Task task : interpreter.tasks()) {
                 Node n = task.getNode();
-                RenderableNode node = factory.getRenderableNode(n);
+                RenderableNode node = tree.getRenderableNode(n);
                 if (node == null) {
                     continue;
                 }
@@ -193,7 +193,7 @@ public class BTreePanel extends ZoomPanel {
                 startPort = hoveredPort.getTargetPort();
                 interpreter.reset();
 
-                factory.disconnectNodes(hoveredPort.getTargetPort(), hoveredPort);
+                tree.disconnectNodes(hoveredPort.getTargetPort(), hoveredPort);
                 if (!startPort.isInput()) {
                     startPort = hoveredPort;
                 }
@@ -220,15 +220,18 @@ public class BTreePanel extends ZoomPanel {
             return;
         }
         if (currentBlueprint != null) {
-            factory.addNode(currentBlueprint);
+            tree.addNode(currentBlueprint);
             currentBlueprint = null;
         }
         if (startPort != null) {
             if (hoveredPort != null && hoveredPort != startPort && hoveredPort.isInput() != startPort.isInput()) {
+                if (hoveredPort.getTargetNode() != null) {
+                    tree.disconnectNodes(hoveredPort.getTargetPort(), hoveredPort);
+                }
                 if (hoveredPort.isInput()) {
-                    factory.connectNodes(startPort, hoveredPort);
+                    tree.connectNodes(startPort, hoveredPort);
                 } else {
-                    factory.connectNodes(hoveredPort, startPort);
+                    tree.connectNodes(hoveredPort, startPort);
                 }
                 interpreter.reset();
             }
@@ -248,7 +251,7 @@ public class BTreePanel extends ZoomPanel {
     }
 
     private RenderableNode findNode(float worldX, float worldY) {
-        for (RenderableNode node : factory.getRenderableNodes()) {
+        for (RenderableNode node : tree.getRenderableNodes()) {
             if (node.contains(worldX, worldY)) {
                 return node;
             }
@@ -261,12 +264,12 @@ public class BTreePanel extends ZoomPanel {
         return super.isRectMode(e) && (e.isShiftDown() || e.isControlDown());
     }
 
-    public BehaviorFactory getFactory() {
-        return factory;
+    public BehaviorTree getTree() {
+        return tree;
     }
 
-    public void setFactory(BehaviorFactory factory) {
-        this.factory = factory;
+    public void setTree(BehaviorTree tree) {
+        this.tree = tree;
     }
 
     public Interpreter getInterpreter() {

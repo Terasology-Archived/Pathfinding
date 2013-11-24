@@ -24,7 +24,7 @@ import java.util.List;
  * @author synopia
  */
 public class PortList implements TreeAccessor<RenderableNode> {
-    protected List<Port> ports = Lists.newLinkedList();
+    private List<Port> ports = Lists.newLinkedList();
     private Port.InputPort inputPort;
     private Port.InsertOutputPort addLastPortIns;
     private RenderableNode node;
@@ -41,7 +41,13 @@ public class PortList implements TreeAccessor<RenderableNode> {
     }
 
     public List<Port> ports() {
-        return ports;
+        List<Port> list = Lists.newArrayList();
+        for (Port port : ports) {
+            if (port.isVisible()) {
+                list.add(port);
+            }
+        }
+        return list;
     }
 
     public int indexOfPort(Port port) {
@@ -54,8 +60,8 @@ public class PortList implements TreeAccessor<RenderableNode> {
         Port.InsertOutputPort insertOutputPort = new Port.InsertOutputPort(node);
         child.getInputPort().setTarget(outputPort);
         if (index == -1) {
-            ports.add(ports().size() - 1, insertOutputPort);
-            ports.add(ports().size() - 1, outputPort);
+            ports.add(ports.size() - 1, insertOutputPort);
+            ports.add(ports.size() - 1, outputPort);
         } else {
             ports.add(index * 2, insertOutputPort);
             ports.add(index * 2 + 1, outputPort);
@@ -64,11 +70,11 @@ public class PortList implements TreeAccessor<RenderableNode> {
 
     @Override
     public void setChild(int index, RenderableNode child) {
-        if (ports.size() == index) {
+        if (ports.size() == index * 2 + 1) {
             Port.OutputPort outputPort = new Port.OutputPort(node);
             Port.InsertOutputPort insertOutputPort = new Port.InsertOutputPort(node);
-            ports.add(ports().size() - 1, insertOutputPort);
-            ports.add(ports().size() - 1, outputPort);
+            ports.add(ports.size() - 1, insertOutputPort);
+            ports.add(ports.size() - 1, outputPort);
         }
         child.getInputPort().setTarget((Port.OutputPort) ports.get(index * 2 + 1));
     }
