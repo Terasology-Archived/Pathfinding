@@ -18,21 +18,32 @@ package org.terasology.logic.behavior;
 import com.google.common.collect.Lists;
 import org.terasology.entitySystem.Component;
 
+import java.awt.*;
 import java.util.List;
 
 /**
  * @author synopia
  */
 public class BehaviorNodeComponent implements Component {
+    public static final BehaviorNodeComponent DEFAULT = new BehaviorNodeComponent();
+
     public String type;
     public String name;
     public String category;
-    public String shape;
-    public List<Float> color = Lists.newArrayList();
-    public List<Float> textColor = Lists.newArrayList();
+    public String shape = "diamond";
+    public List<Float> color = Lists.newArrayList(.7f, .7f, .7f);
+    public List<Float> textColor = Lists.newArrayList(0f, 0f, 0f);
 
     @Override
     public String toString() {
         return name;
+    }
+
+    public Color getTextColor() {
+        return new Color(textColor.get(0), textColor.get(1), textColor.get(2));
+    }
+
+    public Color getColor() {
+        return new Color(color.get(0), color.get(1), color.get(2));
     }
 }

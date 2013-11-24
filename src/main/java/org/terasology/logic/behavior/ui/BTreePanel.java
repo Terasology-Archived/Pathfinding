@@ -15,10 +15,11 @@
  */
 package org.terasology.logic.behavior.ui;
 
-import org.terasology.logic.behavior.BehaviorTree;
+import org.terasology.logic.behavior.BehaviorNodeComponent;
+import org.terasology.logic.behavior.BehaviorNodeFactory;
+import org.terasology.logic.behavior.RenderableBehaviorTree;
 import org.terasology.logic.behavior.tree.Interpreter;
 import org.terasology.logic.behavior.tree.Node;
-import org.terasology.logic.behavior.tree.SequenceNode;
 import org.terasology.logic.behavior.tree.Task;
 import org.terasology.logic.behavior.ui.properties.PropertiesPanelFactory;
 
@@ -33,8 +34,8 @@ import java.awt.event.MouseWheelEvent;
 /**
  * @author synopia
  */
-public class BTreePanel extends ZoomPanel {
-    private BehaviorTree tree;
+public class BTreePanel extends ZoomPanel implements Palette.SelectionObserver {
+    private RenderableBehaviorTree tree;
     private Interpreter interpreter;
 
     private NodeRenderer nodeRenderer = new NodeRenderer();
@@ -50,8 +51,10 @@ public class BTreePanel extends ZoomPanel {
     private float currentMouseX;
     private float currentMouseY;
     private PropertiesPanelFactory properties;
+    private BehaviorNodeFactory nodeFactory;
 
-    public BTreePanel() {
+    public BTreePanel(BehaviorNodeFactory nodeFactory) {
+        this.nodeFactory = nodeFactory;
         properties = new PropertiesPanelFactory();
         setPreferredSize(new Dimension(800, 600));
     }
@@ -69,17 +72,21 @@ public class BTreePanel extends ZoomPanel {
         }).start();
     }
 
+    @Override
+    public void selectionChanged(BehaviorNodeComponent nodeComponent) {
+        if (!tree.getBehaviorTree().isEditable()) {
+            return;
+        }
+        Node node = nodeFactory.getNode(nodeComponent);
+        if (node != null) {
+            currentBlueprint = new RenderableNode(nodeComponent);
+            currentBlueprint.setNode(node);
+        }
+    }
+
     public JToolBar createToolBar() {
         JToolBar bar = new JToolBar(SwingConstants.HORIZONTAL);
         bar.addSeparator();
-        bar.add(new AbstractAction("-->") {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                SequenceNode node = new SequenceNode();
-                currentBlueprint = new RenderableNode();
-                currentBlueprint.setNode(node);
-            }
-        });
         return bar;
     }
 
@@ -163,6 +170,9 @@ public class BTreePanel extends ZoomPanel {
 
     @Override
     protected void onMouseMoved(MouseEvent e, int x, int y) {
+        if (tree == null) {
+            return;
+        }
         float worldX = (float) context.screenToWorldX(x);
         float worldY = (float) context.screenToWorldY(y);
         currentMouseX = worldX;
@@ -184,21 +194,26 @@ public class BTreePanel extends ZoomPanel {
 
     @Override
     protected void onMousePressed(MouseEvent e, int x, int y) {
+        if (tree == null) {
+            return;
+        }
         float worldX = (float) context.screenToWorldX(x);
         float worldY = (float) context.screenToWorldY(y);
 
         findHover(worldX, worldY);
-        if (startPort == null && hoveredPort != null) {
-            if (hoveredPort.getTargetNode() != null) {
-                startPort = hoveredPort.getTargetPort();
-                interpreter.reset();
+        if (tree.getBehaviorTree().isEditable()) {
+            if (startPort == null && hoveredPort != null) {
+                if (hoveredPort.getTargetNode() != null) {
+                    startPort = hoveredPort.getTargetPort();
+                    interpreter.reset();
 
-                tree.disconnectNodes(hoveredPort.getTargetPort(), hoveredPort);
-                if (!startPort.isInput()) {
+                    tree.disconnectNodes(hoveredPort.getTargetPort(), hoveredPort);
+                    if (!startPort.isInput()) {
+                        startPort = hoveredPort;
+                    }
+                } else {
                     startPort = hoveredPort;
                 }
-            } else {
-                startPort = hoveredPort;
             }
         }
         if (startPort == null) {
@@ -209,6 +224,9 @@ public class BTreePanel extends ZoomPanel {
 
     @Override
     protected void onMouseReleased(MouseEvent e, int x, int y) {
+        if (tree == null) {
+            return;
+        }
         float worldX = (float) context.screenToWorldX(x);
         float worldY = (float) context.screenToWorldY(y);
         findHover(worldX, worldY);
@@ -219,23 +237,22 @@ public class BTreePanel extends ZoomPanel {
             movingNode = null;
             return;
         }
-        if (currentBlueprint != null) {
-            tree.addNode(currentBlueprint);
-            currentBlueprint = null;
-        }
-        if (startPort != null) {
-            if (hoveredPort != null && hoveredPort != startPort && hoveredPort.isInput() != startPort.isInput()) {
-                if (hoveredPort.getTargetNode() != null) {
-//                    tree.disconnectNodes(hoveredPort.getTargetPort(), hoveredPort);
-                }
-                if (hoveredPort.isInput()) {
-                    tree.connectNodes(startPort, hoveredPort);
-                } else {
-                    tree.connectNodes(hoveredPort, startPort);
-                }
-                interpreter.reset();
+        if (tree.getBehaviorTree().isEditable()) {
+            if (currentBlueprint != null) {
+                tree.addNode(currentBlueprint);
+                currentBlueprint = null;
             }
-            startPort = null;
+            if (startPort != null) {
+                if (hoveredPort != null && hoveredPort != startPort && hoveredPort.isInput() != startPort.isInput()) {
+                    if (hoveredPort.isInput()) {
+                        tree.connectNodes(startPort, hoveredPort);
+                    } else {
+                        tree.connectNodes(hoveredPort, startPort);
+                    }
+                    interpreter.reset();
+                }
+                startPort = null;
+            }
         }
 
         repaint();
@@ -264,11 +281,11 @@ public class BTreePanel extends ZoomPanel {
         return super.isRectMode(e) && (e.isShiftDown() || e.isControlDown());
     }
 
-    public BehaviorTree getTree() {
+    public RenderableBehaviorTree getTree() {
         return tree;
     }
 
-    public void setTree(BehaviorTree tree) {
+    public void setTree(RenderableBehaviorTree tree) {
         this.tree = tree;
     }
 

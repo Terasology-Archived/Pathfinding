@@ -16,8 +16,9 @@
 package org.terasology.logic.behavior.ui;
 
 import org.terasology.logic.behavior.BehaviorNodeComponent;
-import org.terasology.logic.behavior.BehaviorTree;
+import org.terasology.logic.behavior.BehaviorNodeFactory;
 import org.terasology.logic.behavior.BehaviorTreeFactory;
+import org.terasology.logic.behavior.RenderableBehaviorTree;
 import org.terasology.logic.behavior.tree.Actor;
 import org.terasology.logic.behavior.tree.Interpreter;
 import org.terasology.logic.behavior.tree.RepeatNode;
@@ -25,7 +26,7 @@ import org.terasology.logic.behavior.tree.RepeatNode;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 
 
 /**
@@ -35,20 +36,32 @@ public class BTreeMain extends JPanel {
 
     private BTreePanel panel;
     private Debugger debugger;
+    private BehaviorNodeFactory factory;
+    private final Palette palette;
 
-    public BTreeMain(BehaviorTree factory, Collection<BehaviorNodeComponent> items) throws HeadlessException {
+    public BTreeMain(BehaviorNodeFactory factory) throws HeadlessException {
+        this.factory = factory;
         setLayout(new BorderLayout());
-        panel = new BTreePanel();
-        panel.setTree(factory);
+        panel = new BTreePanel(factory);
         JToolBar bar = new JToolBar();
         debugger = new Debugger();
         bar.add(debugger);
         bar.add(panel.createToolBar());
         add(bar, BorderLayout.NORTH);
-        add(new Palette(items), BorderLayout.WEST);
+        palette = new Palette(factory);
+        palette.setObserver(panel);
+        add(palette, BorderLayout.WEST);
         add(panel, BorderLayout.CENTER);
         add(panel.getProperties(), BorderLayout.EAST);
         panel.init();
+    }
+
+    public void setTree(RenderableBehaviorTree tree) {
+        panel.setTree(tree);
+    }
+
+    public RenderableBehaviorTree getTree() {
+        return panel.getTree();
     }
 
     public void setInterpreter(Interpreter interpreter) {
@@ -66,16 +79,16 @@ public class BTreeMain extends JPanel {
 
 
     public static void main(String[] args) {
+        List<BehaviorNodeComponent> items = Arrays.asList(createItem("logic", "Repeat", RepeatNode.class));
         Interpreter interpreter = new Interpreter(new Actor(null));
-        BehaviorTree tree = new BehaviorTree();
-        RenderableNode root;
-
-        root = tree.addNode(new BehaviorTreeFactory().get(""));
+        BehaviorNodeFactory nodeFactory = new BehaviorNodeFactory(items);
+        RenderableBehaviorTree tree = new RenderableBehaviorTree(new BehaviorTreeFactory().get(""), nodeFactory);
 //            root = tree.load(new FileInputStream("test.json"));
-        interpreter.start(root.getNode());
+        interpreter.setTree(tree.getBehaviorTree());
 
         JFrame frame = new JFrame();
-        BTreeMain main = new BTreeMain(tree, Arrays.asList(createItem("logic", "Repeat", RepeatNode.class)));
+        BTreeMain main = new BTreeMain(nodeFactory);
+        main.setTree(tree);
         main.setInterpreter(interpreter);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.add(main);

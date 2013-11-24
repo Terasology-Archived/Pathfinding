@@ -19,11 +19,9 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
-import com.google.gson.TypeAdapterFactory;
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import org.terasology.logic.behavior.tree.BehaviorTree;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.ui.Port;
 import org.terasology.logic.behavior.ui.RenderableNode;
@@ -40,24 +38,31 @@ import java.util.Map;
 /**
  * @author synopia
  */
-public class BehaviorTree { //implements AssetLoader<RenderableNode> {
-    private int currentId;
-    private Map<Node, Integer> nodeIds = Maps.newHashMap();
-    private Map<Integer, Node> idNodes = Maps.newHashMap();
+public class RenderableBehaviorTree {
     private Map<Node, RenderableNode> renderableNodes = Maps.newHashMap();
 
     private Gson gsonNode;
-    private Gson gsonRenderableNode;
+    private BehaviorTree behaviorTree;
+    private BehaviorNodeFactory factory;
+    private RenderableNode root;
 
-    public BehaviorTree() {
+    public RenderableBehaviorTree(BehaviorTree tree, BehaviorNodeFactory factory) {
+        this.factory = factory;
+
         gsonNode = new GsonBuilder()
-                .setPrettyPrinting()
-                .registerTypeAdapterFactory(new NodeTypeAdapterFactory())
-                .create();
-        gsonRenderableNode = new GsonBuilder()
                 .setPrettyPrinting()
                 .registerTypeHierarchyAdapter(Node.class, new NodeTypeAdapter())
                 .create();
+
+        setTree(tree);
+    }
+
+    public RenderableNode getRoot() {
+        return root;
+    }
+
+    public BehaviorTree getBehaviorTree() {
+        return behaviorTree;
     }
 
     public void connectNodes(Port startPort, Port endPort) {
@@ -89,15 +94,13 @@ public class BehaviorTree { //implements AssetLoader<RenderableNode> {
         inputPort.getSourceNode().setPosition(position);
     }
 
-    public RenderableNode addNode(Node node) {
-        return addNode(node, 0, 0);
-    }
-
-    public RenderableNode addNode(Node node, final float midX, final float midY) {
-        RenderableNode renderableNode = node.visit(null, new Node.Visitor<RenderableNode>() {
+    public void setTree(BehaviorTree tree) {
+        this.behaviorTree = tree;
+        root = tree.getRoot().visit(null, new Node.Visitor<RenderableNode>() {
             @Override
             public RenderableNode visit(RenderableNode parent, Node node) {
-                RenderableNode self = new RenderableNode();
+                BehaviorNodeComponent nodeComponent = factory.getNodeComponent(node);
+                RenderableNode self = new RenderableNode(nodeComponent);
                 self.setNode(node);
                 if (parent != null) {
                     int total = parent.getNode().getChildrenCount();
@@ -110,16 +113,10 @@ public class BehaviorTree { //implements AssetLoader<RenderableNode> {
                 return self;
             }
         });
-
-        return renderableNode;
     }
 
     public void addNode(RenderableNode node) {
         renderableNodes.put(node.getNode(), node);
-    }
-
-    public Collection<Node> getNodes() {
-        return nodeIds.keySet();
     }
 
     public Collection<RenderableNode> getRenderableNodes() {
@@ -131,16 +128,16 @@ public class BehaviorTree { //implements AssetLoader<RenderableNode> {
     }
 
     //    @Override
-    public RenderableNode load(InputStream stream) throws IOException {
+    public void load(InputStream stream) throws IOException {
         try (JsonReader reader = new JsonReader(new InputStreamReader(stream))) {
             reader.setLenient(true);
             reader.beginObject();
             reader.nextName();
-            loadNode(reader);
+            behaviorTree.loadNode(reader);
             reader.nextName();
-            RenderableNode renderableNode = loadRenderableNode(reader);
+            root = loadRenderableNode(reader);
             reader.endObject();
-            renderableNode.visit(new RenderableNode.Visitor() {
+            root.visit(new RenderableNode.Visitor() {
                 @Override
                 public void visit(RenderableNode node) {
                     renderableNodes.put(node.getNode(), node);
@@ -149,107 +146,40 @@ public class BehaviorTree { //implements AssetLoader<RenderableNode> {
             for (RenderableNode it : renderableNodes.values()) {
                 it.update();
             }
-            return renderableNode;
         }
     }
 
-    public void save(RenderableNode node, OutputStream stream) throws IOException {
+    public void save(OutputStream stream) throws IOException {
         try (JsonWriter write = new JsonWriter(new OutputStreamWriter(stream))) {
             write.beginObject().name("model");
-            saveNode(node.getNode(), write);
+            behaviorTree.saveNode(write);
             write.name("renderer");
-            saveRenderableNode(node, write);
+            saveRenderableNode(root, write);
             write.endObject();
         }
     }
 
     public RenderableNode loadRenderableNode(JsonReader reader) {
-        return gsonRenderableNode.fromJson(reader, RenderableNode.class);
+        return gsonNode.fromJson(reader, RenderableNode.class);
     }
 
     public void saveRenderableNode(RenderableNode node, JsonWriter writer) {
-        gsonRenderableNode.toJson(node, RenderableNode.class, writer);
+        gsonNode.toJson(node, RenderableNode.class, writer);
     }
 
-    public Node loadNode(JsonReader reader) {
-        resetIds();
-        return gsonNode.fromJson(reader, Node.class);
-    }
-
-    public void saveNode(Node node, JsonWriter writer) {
-        resetIds();
-        gsonNode.toJson(node, Node.class, writer);
-    }
-
-    private void resetIds() {
-        idNodes.clear();
-        nodeIds.clear();
-        currentId = 0;
-    }
 
     private class NodeTypeAdapter extends TypeAdapter<Node> {
         @Override
         public void write(JsonWriter out, Node value) throws IOException {
-            Integer id = nodeIds.get(value);
+            int id = behaviorTree.getId(value);
             out.value(id);
         }
 
         @Override
         public Node read(JsonReader in) throws IOException {
             int id = in.nextInt();
-            return idNodes.get(id);
+            return behaviorTree.getNode(id);
         }
     }
 
-    private class NodeTypeAdapterFactory implements TypeAdapterFactory {
-        @Override
-        public <T> TypeAdapter<T> create(final Gson gson, TypeToken<T> type) {
-            final TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
-            return new TypeAdapter<T>() {
-                @Override
-                public void write(JsonWriter out, T value) throws IOException {
-                    if (value instanceof Node) {
-                        idNodes.put(currentId, (Node) value);
-                        nodeIds.put((Node) value, currentId);
-
-                        TypeAdapter<T> delegateAdapter = (TypeAdapter<T>) gson.getDelegateAdapter(NodeTypeAdapterFactory.this, TypeToken.get(value.getClass()));
-                        out.beginObject()
-                                .name("nodeType").value(value.getClass().getCanonicalName())
-                                .name("nodeId").value(currentId);
-                        currentId++;
-                        out.name("node");
-                        delegateAdapter.write(out, value);
-                        out.endObject();
-                    } else {
-                        delegate.write(out, value);
-                    }
-                }
-
-                @Override
-                public T read(JsonReader in) throws IOException {
-                    if (in.peek() == JsonToken.BEGIN_OBJECT) {
-                        in.beginObject();
-                        in.nextName();
-                        String nodeType = in.nextString();
-                        try {
-                            Class cls = Class.forName(nodeType);
-                            TypeAdapter<T> delegateAdapter = (TypeAdapter<T>) gson.getDelegateAdapter(NodeTypeAdapterFactory.this, TypeToken.get(cls));
-                            in.nextName();
-                            int id = in.nextInt();
-                            in.nextName();
-                            T read = delegateAdapter.read(in);
-                            idNodes.put(id, (Node) read);
-                            nodeIds.put((Node) read, id);
-                            in.endObject();
-                            return read;
-                        } catch (ClassNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    } else {
-                        return delegate.read(in);
-                    }
-                }
-            };
-        }
-    }
 }

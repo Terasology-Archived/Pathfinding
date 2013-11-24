@@ -15,16 +15,18 @@
  */
 package org.terasology.logic.behavior.tree;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Deque;
+import java.util.List;
 
 /**
  * @author synopia
  */
-public class Interpreter {
+public class Interpreter implements BehaviorTree.EditableObserver {
     private static final Logger logger = LoggerFactory.getLogger(Interpreter.class);
 
     private static final Task TERMINAL = new Task(null) {
@@ -37,11 +39,16 @@ public class Interpreter {
     private Actor actor;
     private Deque<Task> tasks = Queues.newLinkedBlockingDeque();
     private boolean pause;
-    private Node root;
+    private BehaviorTree tree;
+    private List<PauseListener> listeners = Lists.newArrayList();
 
     public Interpreter(Actor actor) {
         this.actor = actor;
         tasks.addLast(TERMINAL);
+    }
+
+    public void addListener(PauseListener listener) {
+        this.listeners.add(listener);
     }
 
     public Deque<Task> tasks() {
@@ -50,13 +57,26 @@ public class Interpreter {
 
     public void reset() {
         tasks.clear();
-        start(root);
+        start();
         tasks.addLast(TERMINAL);
     }
 
-    public void start(Node node) {
-        root = node;
-        start(node, null);
+    public void setTree(BehaviorTree tree) {
+        this.tree = tree;
+        tree.addEditableListener(this);
+    }
+
+    public BehaviorTree getTree() {
+        return tree;
+    }
+
+    @Override
+    public void editableChanged(boolean editable) {
+        setPause(editable);
+    }
+
+    public void start() {
+        start(tree.getRoot(), null);
     }
 
     public void start(Task task) {
@@ -113,5 +133,20 @@ public class Interpreter {
 
     public void setPause(boolean pause) {
         this.pause = pause;
+        for (PauseListener listener : listeners) {
+            listener.pauseChanged(pause);
+        }
+    }
+
+    public boolean isPause() {
+        return pause;
+    }
+
+    public boolean isRunning() {
+        return !isPause();
+    }
+
+    public interface PauseListener {
+        void pauseChanged(boolean pause);
     }
 }

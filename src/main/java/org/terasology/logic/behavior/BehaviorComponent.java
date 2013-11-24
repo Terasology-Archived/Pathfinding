@@ -16,6 +16,7 @@
 package org.terasology.logic.behavior;
 
 import org.terasology.entitySystem.Component;
+import org.terasology.logic.behavior.tree.BehaviorTree;
 import org.terasology.logic.behavior.tree.Interpreter;
 
 /**

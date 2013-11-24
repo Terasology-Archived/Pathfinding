@@ -16,6 +16,8 @@
 package org.terasology.logic.behavior.ui;
 
 import com.google.common.collect.Lists;
+import org.terasology.entitySystem.Component;
+import org.terasology.logic.behavior.BehaviorNodeComponent;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.TreeAccessor;
 
@@ -25,7 +27,7 @@ import java.util.List;
 /**
  * @author synopia
  */
-public class RenderableNode implements TreeAccessor<RenderableNode> {
+public class RenderableNode implements Component, TreeAccessor<RenderableNode> {
     private final List<RenderableNode> children = Lists.newArrayList();
     private transient PortList portList;
 
@@ -34,8 +36,14 @@ public class RenderableNode implements TreeAccessor<RenderableNode> {
     private Vector2f size;
     private transient TreeAccessor<RenderableNode> withoutModel;
     private transient TreeAccessor<RenderableNode> withModel;
+    private transient BehaviorNodeComponent data;
 
     public RenderableNode() {
+        this(null);
+    }
+
+    public RenderableNode(BehaviorNodeComponent data) {
+        this.data = data;
         position = new Vector2f();
         size = new Vector2f(10, 5);
         portList = new PortList(this);
@@ -95,6 +103,10 @@ public class RenderableNode implements TreeAccessor<RenderableNode> {
         return node;
     }
 
+    public BehaviorNodeComponent getData() {
+        return data;
+    }
+
     public Port.InputPort getInputPort() {
         return getPortList().getInputPort();
     }
@@ -117,9 +129,6 @@ public class RenderableNode implements TreeAccessor<RenderableNode> {
         }
         if (children.get(index) != null) {
             Port.InputPort inputPort = children.get(index).getInputPort();
-            if (inputPort.getTargetPort() != null) {
-//                ((Port.OutputPort) inputPort.getTargetPort()).setTarget(null);
-            }
             inputPort.setTarget(null);
         }
         children.set(index, child);

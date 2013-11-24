@@ -40,7 +40,7 @@ public class InterpreterTest {
     public void testInit() {
         create();
         Interpreter interpreter = new Interpreter(null);
-        interpreter.start(node);
+        interpreter.start(node, null);
         interpreter.tick(0);
         verify(task).onInitialize();
     }
@@ -49,7 +49,7 @@ public class InterpreterTest {
     public void testUpdate() {
         create();
         Interpreter interpreter = new Interpreter(null);
-        interpreter.start(node);
+        interpreter.start(node, null);
         interpreter.tick(0);
         verify(task).update(anyInt());
     }
@@ -58,7 +58,7 @@ public class InterpreterTest {
     public void testNoTerminate() {
         create();
         Interpreter interpreter = new Interpreter(null);
-        interpreter.start(node);
+        interpreter.start(node, null);
         interpreter.tick(0);
         verify(task, never()).onTerminate(any(Status.class));
     }
@@ -67,7 +67,7 @@ public class InterpreterTest {
     public void testTerminate() {
         create();
         Interpreter interpreter = new Interpreter(null);
-        interpreter.start(node);
+        interpreter.start(node, null);
         interpreter.tick(0);
         result = Status.SUCCESS;
         interpreter.tick(0);

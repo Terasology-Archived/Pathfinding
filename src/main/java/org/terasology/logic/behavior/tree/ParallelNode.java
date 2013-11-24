@@ -27,6 +27,11 @@ public class ParallelNode extends CompositeNode {
     private Policy successPolicy;
     private Policy failurePolicy;
 
+    public ParallelNode() {
+        successPolicy = Policy.RequireAll;
+        failurePolicy = Policy.RequireOne;
+    }
+
     public ParallelNode(Policy forSuccess, Policy forFailure) {
         successPolicy = forSuccess;
         failurePolicy = forFailure;

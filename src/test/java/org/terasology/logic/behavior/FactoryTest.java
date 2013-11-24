@@ -15,18 +15,17 @@
  */
 package org.terasology.logic.behavior;
 
-import com.google.common.collect.Lists;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.terasology.logic.behavior.tree.BehaviorTree;
 import org.terasology.logic.behavior.tree.CounterNode;
 import org.terasology.logic.behavior.tree.MonitorNode;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.ParallelNode;
 import org.terasology.logic.behavior.tree.RepeatNode;
 import org.terasology.logic.behavior.tree.SequenceNode;
-import org.terasology.logic.behavior.ui.RenderableNode;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,7 +34,6 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author synopia
@@ -43,77 +41,41 @@ import java.util.List;
 public class FactoryTest {
     @Test
     public void testLoadSaveNodes() {
-        BehaviorTree factory = new BehaviorTree();
-        SequenceNode sequence = buildSample();
+        BehaviorTree factory = buildSample();
 
         StringWriter out = new StringWriter();
-        factory.saveNode(sequence, new JsonWriter(out));
+        factory.saveNode(new JsonWriter(out));
         String jsonExpected = out.toString();
 
         StringReader in = new StringReader(jsonExpected);
-        Node actual = factory.loadNode(new JsonReader(in));
+        factory.loadNode(new JsonReader(in));
         out = new StringWriter();
-        factory.saveNode(actual, new JsonWriter(out));
-        String jsonActual = out.toString();
-        Assert.assertEquals(jsonActual, jsonExpected);
-    }
-
-    @Test
-    public void testSaveLoadRenderables() {
-        BehaviorTree factory = new BehaviorTree();
-        SequenceNode sequence = buildSample();
-        RenderableNode renderableSequence = factory.addNode(sequence);
-        StringWriter out = new StringWriter();
-        factory.saveRenderableNode(renderableSequence, new JsonWriter(out));
-        String jsonExpected = out.toString();
-
-        StringReader in = new StringReader(jsonExpected);
-        RenderableNode actual = factory.loadRenderableNode(new JsonReader(in));
-        out = new StringWriter();
-        factory.saveRenderableNode(actual, new JsonWriter(out));
+        Node root = factory.getRoot();
+        factory = new BehaviorTree();
+        factory.setRoot(root);
+        factory.saveNode(new JsonWriter(out));
         String jsonActual = out.toString();
         Assert.assertEquals(jsonActual, jsonExpected);
     }
 
     @Test
     public void testSaveLoad() throws IOException {
-        BehaviorTree factory = new BehaviorTree();
-        SequenceNode sequence = buildSample();
-        RenderableNode renderableSequence = factory.addNode(sequence);
+        BehaviorNodeFactory nodeFactory = new BehaviorNodeFactory(new ArrayList<BehaviorNodeComponent>());
+        RenderableBehaviorTree factory = new RenderableBehaviorTree(buildSample(), nodeFactory);
+
         OutputStream os = new ByteArrayOutputStream(10000);
-        factory.save(renderableSequence, os);
+        factory.save(os);
         String jsonExpected = os.toString();
 
-        RenderableNode actual = factory.load(new ByteArrayInputStream(jsonExpected.getBytes()));
+        factory.load(new ByteArrayInputStream(jsonExpected.getBytes()));
         os = new ByteArrayOutputStream(10000);
-        factory.save(actual, os);
+        factory = new RenderableBehaviorTree(factory.getBehaviorTree(), nodeFactory);
+        factory.save(os);
         String jsonActual = os.toString();
         Assert.assertEquals(jsonActual, jsonExpected);
     }
 
-    @Test
-    public void testConstructRenderables() {
-        BehaviorTree factory = new BehaviorTree();
-        SequenceNode sequence = buildSample();
-        RenderableNode renderableSequence = factory.addNode(sequence);
-        final List<Node> actual = Lists.newArrayList();
-        renderableSequence.visit(new RenderableNode.Visitor() {
-            @Override
-            public void visit(RenderableNode node) {
-                actual.add(node.getNode());
-            }
-        });
-        final List<Node> sequenceNodes = sequence.visit(new ArrayList<Node>(), new Node.Visitor<List<Node>>() {
-            @Override
-            public List<Node> visit(List<Node> result, Node node) {
-                result.add(node);
-                return result;
-            }
-        });
-        Assert.assertEquals(sequenceNodes, actual);
-    }
-
-    private SequenceNode buildSample() {
+    private BehaviorTree buildSample() {
         SequenceNode sequence = new SequenceNode();
         sequence.children().add(new CounterNode(1));
         sequence.children().add(new RepeatNode(new CounterNode(2)));
@@ -121,6 +83,8 @@ public class FactoryTest {
         sequence.children().add(parallel);
         parallel.children().add(new MonitorNode());
         parallel.children().add(new CounterNode(3));
-        return sequence;
+        BehaviorTree tree = new BehaviorTree();
+        tree.setRoot(sequence);
+        return tree;
     }
 }

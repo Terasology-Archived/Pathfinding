@@ -15,6 +15,9 @@
  */
 package org.terasology.logic.behavior;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.terasology.engine.CoreRegistry;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.systems.ComponentSystem;
@@ -22,8 +25,12 @@ import org.terasology.entitySystem.systems.In;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.logic.behavior.tree.Actor;
+import org.terasology.logic.behavior.tree.BehaviorTree;
 import org.terasology.logic.behavior.tree.Interpreter;
-import org.terasology.logic.behavior.tree.Node;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author synopia
@@ -34,11 +41,13 @@ public class BehaviorSystem implements ComponentSystem, UpdateSubscriberSystem {
     private EntityManager entityManager;
 
     private BehaviorTreeFactory behaviorTreeFactory;
+    private Map<BehaviorTree, List<Interpreter>> interpreters = Maps.newHashMap();
 
     private float speed;
 
     @Override
     public void initialise() {
+        CoreRegistry.put(BehaviorSystem.class, this);
         behaviorTreeFactory = new BehaviorTreeFactory();
     }
 
@@ -54,17 +63,29 @@ public class BehaviorSystem implements ComponentSystem, UpdateSubscriberSystem {
             Interpreter interpreter = behaviorComponent.interpreter;
             if (interpreter == null) {
                 interpreter = new Interpreter(new Actor(minion));
-                BehaviorTree tree = new BehaviorTree();
-                Node node = behaviorTreeFactory.get(behaviorComponent.behavior);
-                tree.addNode(node);
+                BehaviorTree tree = behaviorTreeFactory.get(behaviorComponent.behavior);
 
                 behaviorComponent.interpreter = interpreter;
                 behaviorComponent.tree = tree;
-                interpreter.start(node);
+                interpreter.setTree(tree);
                 minion.saveComponent(behaviorComponent);
+                List<Interpreter> list = interpreters.get(tree);
+                if (list == null) {
+                    list = Lists.newArrayList();
+                    interpreters.put(tree, list);
+                }
+                list.add(interpreter);
             }
             interpreter.tick(delta);
         }
+    }
+
+    public Set<BehaviorTree> getTrees() {
+        return interpreters.keySet();
+    }
+
+    public List<Interpreter> getInterpreter(BehaviorTree tree) {
+        return interpreters.get(tree);
     }
 
     @Override

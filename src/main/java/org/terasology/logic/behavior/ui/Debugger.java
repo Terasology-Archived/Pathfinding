@@ -23,31 +23,39 @@ import java.awt.event.ActionEvent;
 /**
  * @author synopia
  */
-public class Debugger extends JToolBar {
+public class Debugger extends JToolBar implements Interpreter.PauseListener {
     private Interpreter interpreter;
 
     public Debugger() {
         super(HORIZONTAL);
-        add(new AbstractAction("||") {
+        ButtonGroup group = new ButtonGroup();
+        JToggleButton pause = new JToggleButton(new AbstractAction("||") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                interpreter.setPause(true);
+                interpreter.getTree().setEditable(true);
                 interpreter.reset();
             }
         });
-        add(new AbstractAction("|>") {
+        JToggleButton step = new JToggleButton(new AbstractAction("|>") {
             @Override
             public void actionPerformed(ActionEvent e) {
                 interpreter.step(0.2f);
             }
         });
-        add(new AbstractAction(">>") {
+        JToggleButton play = new JToggleButton(new AbstractAction(">>") {
             @Override
             public void actionPerformed(ActionEvent e) {
+                interpreter.getTree().setEditable(false);
                 interpreter.reset();
-                interpreter.setPause(false);
             }
         });
+        group.add(pause);
+        group.add(step);
+        group.add(play);
+
+        add(pause);
+        add(step);
+        add(play);
     }
 
     public Interpreter getInterpreter() {
@@ -56,5 +64,11 @@ public class Debugger extends JToolBar {
 
     public void setInterpreter(Interpreter interpreter) {
         this.interpreter = interpreter;
+        interpreter.addListener(this);
+    }
+
+    @Override
+    public void pauseChanged(boolean pause) {
+
     }
 }

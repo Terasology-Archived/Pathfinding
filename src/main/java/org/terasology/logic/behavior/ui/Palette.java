@@ -18,13 +18,16 @@ package org.terasology.logic.behavior.ui;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.terasology.logic.behavior.BehaviorNodeComponent;
+import org.terasology.logic.behavior.BehaviorNodeFactory;
 
 import javax.swing.*;
 import javax.swing.event.TreeModelListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -33,14 +36,16 @@ import java.util.Map;
 /**
  * @author synopia
  */
-public class Palette extends JPanel {
+public class Palette extends JPanel implements TreeSelectionListener {
     private List<BehaviorNodeComponent> allItems = Lists.newArrayList();
     private Map<String, List<BehaviorNodeComponent>> items = Maps.newHashMap();
     private List<String> categories = Lists.newArrayList();
+    private SelectionObserver observer;
+    private final JTree tree;
 
-    public Palette(Collection<BehaviorNodeComponent> components) {
-        this.allItems.addAll(components);
-        for (BehaviorNodeComponent component : components) {
+    public Palette(BehaviorNodeFactory components) {
+        this.allItems.addAll(components.getNodeComponents());
+        for (BehaviorNodeComponent component : components.getNodeComponents()) {
             String category = component.category;
             if (category == null) {
                 category = "";
@@ -61,13 +66,33 @@ public class Palette extends JPanel {
                 }
             });
         }
+        Collections.sort(categories);
         setLayout(new BorderLayout());
-        JTree tree = new JTree(new PaletteTreeModel());
+        tree = new JTree(new PaletteTreeModel());
         tree.setRootVisible(false);
         for (int i = 0; i < tree.getRowCount(); i++) {
             tree.expandRow(i);
         }
         add(tree, BorderLayout.CENTER);
+        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        tree.addTreeSelectionListener(this);
+    }
+
+    @Override
+    public void valueChanged(TreeSelectionEvent e) {
+        TreePath path = e.getPath();
+        Object last = path.getLastPathComponent();
+        if (last instanceof BehaviorNodeComponent) {
+            BehaviorNodeComponent nodeComponent = (BehaviorNodeComponent) last;
+            if (observer != null) {
+                observer.selectionChanged(nodeComponent);
+                tree.getSelectionModel().removeSelectionPath(path);
+            }
+        }
+    }
+
+    public void setObserver(SelectionObserver observer) {
+        this.observer = observer;
     }
 
     public class PaletteTreeModel implements TreeModel {
@@ -130,5 +155,9 @@ public class Palette extends JPanel {
         public void removeTreeModelListener(TreeModelListener l) {
 
         }
+    }
+
+    public interface SelectionObserver {
+        void selectionChanged(BehaviorNodeComponent nodeComponent);
     }
 }

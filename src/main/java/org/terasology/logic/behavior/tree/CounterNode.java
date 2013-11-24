@@ -24,6 +24,9 @@ public class CounterNode extends Node {
     @TextProperty
     private int limit;
 
+    public CounterNode() {
+    }
+
     public CounterNode(int limit) {
         this.limit = limit;
     }

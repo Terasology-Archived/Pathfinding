@@ -29,20 +29,36 @@ public class NodeRenderer extends BaseRenderer {
         int endX = rc.worldToScreenX(node.getPosition().x + node.getSize().x);
         int endY = rc.worldToScreenY(node.getPosition().y + node.getSize().y);
 
-        rc.getGraphics().setColor(Color.LIGHT_GRAY);
-        rc.getGraphics().fillRect(startX, startY, endX - startX, endY - startY);
+        rc.getGraphics().setColor(node.getData().getColor());
+        switch (node.getData().shape) {
+            case "diamond":
+                Polygon s = new Polygon();
+                int midX = (startX + endX) / 2;
+                int midY = (startY + endY) / 2;
+                s.addPoint(midX, startY);
+                s.addPoint(endX, midY);
+                s.addPoint(midX, endY);
+                s.addPoint(startX, midY);
+                rc.getGraphics().fill(s);
+                break;
 
+            default:
+                rc.getGraphics().fillRect(startX, startY, endX - startX, endY - startY);
+                break;
+        }
         for (Port port : node.getPorts()) {
             portRenderer.render(rc, port);
         }
         portRenderer.render(rc, node.getInputPort());
-
         Font currentFont = FONT.deriveFont((float) rc.screenUnitX(1.5d));
         rc.getGraphics().setFont(currentFont);
 
-        rc.getGraphics().setColor(Color.BLACK);
-        String text = node.toString();
-        drawText(rc, (startX + endX) / 2, (startY + endY) / 2, text);
+        String text = node.getData().name;
+
+        rc.getGraphics().setColor(node.getData().getTextColor());
+        if (text != null) {
+            drawText(rc, (startX + endX) / 2, (startY + endY) / 2, text);
+        }
     }
 
 }

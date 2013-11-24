@@ -18,8 +18,8 @@ package org.terasology.logic.behavior;
 import org.terasology.jobSystem.FindJobNode;
 import org.terasology.jobSystem.FinishJobNode;
 import org.terasology.jobSystem.SetTargetJobNode;
+import org.terasology.logic.behavior.tree.BehaviorTree;
 import org.terasology.logic.behavior.tree.CompositeNode;
-import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.RepeatNode;
 import org.terasology.logic.behavior.tree.SequenceNode;
 import org.terasology.minion.move.FindWalkableBlockNode;
@@ -32,7 +32,13 @@ import org.terasology.minion.path.MoveAlongPathNode;
  * @author synopia
  */
 public class BehaviorTreeFactory {
-    public Node get(String uri) {
+
+    private BehaviorTree tree;
+
+    public BehaviorTree get(String uri) {
+        if (tree != null) {
+            return tree;
+        }
         SequenceNode job = new SequenceNode();
         job.children().add(new FindJobNode());
         job.children().add(new SetTargetJobNode());
@@ -48,7 +54,10 @@ public class BehaviorTreeFactory {
         CompositeNode main = new SequenceNode();
         main.children().add(toWalkableBlock);
         main.children().add(job);
-        return new RepeatNode(main);
+        RepeatNode root = new RepeatNode(main);
+        tree = new BehaviorTree();
+        tree.setRoot(root);
+        return tree;
     }
 
 }
