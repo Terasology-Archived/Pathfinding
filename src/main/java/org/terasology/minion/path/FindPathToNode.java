@@ -19,6 +19,7 @@ import org.terasology.engine.CoreRegistry;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
+import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.WalkableBlock;
@@ -41,10 +42,10 @@ public class FindPathToNode extends Node {
 
         @Override
         public void onInitialize() {
-            MinionPathComponent pathComponent = actor().path();
+            MinionPathComponent pathComponent = actor().component(MinionPathComponent.class);
             if (pathComponent.pathState == MinionPathComponent.PathState.NEW_TARGET) {
                 PathfinderSystem pathfinder = CoreRegistry.get(PathfinderSystem.class);
-                WalkableBlock currentBlock = actor().move().currentBlock;
+                WalkableBlock currentBlock = actor().component(MinionMoveComponent.class).currentBlock;
                 pathComponent.pathId = pathfinder.requestPath(actor().minion(), currentBlock.getBlockPosition(), Arrays.asList(pathComponent.targetBlock));
                 pathComponent.pathState = MinionPathComponent.PathState.PATH_REQUESTED;
                 actor().save(pathComponent);
@@ -53,7 +54,7 @@ public class FindPathToNode extends Node {
 
         @Override
         public Status update(float dt) {
-            MinionPathComponent pathComponent = actor().path();
+            MinionPathComponent pathComponent = actor().component(MinionPathComponent.class);
             if (pathComponent.pathState == MinionPathComponent.PathState.PATH_REQUESTED) {
                 return Status.RUNNING;
             } else {

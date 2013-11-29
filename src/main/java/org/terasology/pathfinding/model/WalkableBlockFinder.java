@@ -18,7 +18,6 @@ package org.terasology.pathfinding.model;
 import org.terasology.math.Vector3i;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.block.Block;
-import org.terasology.world.chunks.Chunk;
 
 /**
  * @author synopia
@@ -40,7 +39,7 @@ public class WalkableBlockFinder {
                 for (int x = 0; x < HeightMap.SIZE_X; x++) {
                     blockPos.set(x + worldPos.x, y + worldPos.y, z + worldPos.z);
                     Block block = world.getBlock(blockPos);
-                    int offset = x + z * Chunk.SIZE_Z;
+                    int offset = x + z * HeightMap.SIZE_Z;
                     if (block.isPenetrable()) {
                         airMap[offset]++;
                     } else {
@@ -60,9 +59,9 @@ public class WalkableBlockFinder {
 
     private void findNeighbors(HeightMap map) {
         map.borderBlocks.clear();
-        for (int z = 0; z < Chunk.SIZE_Z; z++) {
-            for (int x = 0; x < Chunk.SIZE_X; x++) {
-                int offset = x + z * Chunk.SIZE_Z;
+        for (int z = 0; z < HeightMap.SIZE_Z; z++) {
+            for (int x = 0; x < HeightMap.SIZE_X; x++) {
+                int offset = x + z * HeightMap.SIZE_Z;
                 HeightMapCell cell = map.cells[offset];
                 for (WalkableBlock block : cell.blocks) {
                     for (int i = 0; i < HeightMap.DIRECTIONS.length; i++) {

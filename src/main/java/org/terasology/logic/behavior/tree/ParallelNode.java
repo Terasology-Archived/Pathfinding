@@ -16,6 +16,11 @@
 package org.terasology.logic.behavior.tree;
 
 /**
+ * All children are evaluated in parallel. Policies for success and failure will define when this node finishes and in
+ * which state.
+ * <p/>
+ * Default is to finish with SUCCESS, when all children finish successful. FAILURE as soon as one child fails.
+ *
  * @author synopia
  */
 public class ParallelNode extends CompositeNode {

@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * TODO move code to AssetLoader
+ *
  * @author synopia
  */
 public class BehaviorTree {

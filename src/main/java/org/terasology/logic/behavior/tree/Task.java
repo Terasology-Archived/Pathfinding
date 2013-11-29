@@ -16,6 +16,8 @@
 package org.terasology.logic.behavior.tree;
 
 /**
+ * A task run by an interpreter for an actor.
+ *
  * @author synopia
  */
 public abstract class Task {
@@ -29,11 +31,20 @@ public abstract class Task {
         this.node = node;
     }
 
-    public abstract Status update(float dt);
-
+    /**
+     * Is called when this tasks should initialize itself (first tick)
+     */
     public void onInitialize() {
     }
 
+    /**
+     * Is called on each tick and return the new status
+     */
+    public abstract Status update(float dt);
+
+    /**
+     * Is called when is task is terminated with a new status.
+     */
     public void onTerminate(Status result) {
     }
 

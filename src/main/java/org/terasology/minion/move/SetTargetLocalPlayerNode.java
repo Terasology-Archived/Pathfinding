@@ -46,7 +46,7 @@ public class SetTargetLocalPlayerNode extends Node {
             Vector3f position = localPlayer.getPosition();
             WalkableBlock block = CoreRegistry.get(PathfinderSystem.class).getBlock(position);
             if (block != null) {
-                MinionPathComponent pathComponent = actor().path();
+                MinionPathComponent pathComponent = actor().component(MinionPathComponent.class);
                 pathComponent.targetBlock = block.getBlockPosition();
                 pathComponent.pathState = MinionPathComponent.PathState.NEW_TARGET;
                 actor().save(pathComponent);

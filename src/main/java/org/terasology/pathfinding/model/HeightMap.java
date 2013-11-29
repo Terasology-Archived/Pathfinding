@@ -20,7 +20,7 @@ import com.google.common.collect.Sets;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
 import org.terasology.world.WorldProvider;
-import org.terasology.world.chunks.Chunk;
+import org.terasology.world.chunks.ChunkConstants;
 
 import java.util.List;
 import java.util.Set;
@@ -29,9 +29,9 @@ import java.util.Set;
  * @author synopia
  */
 public class HeightMap {
-    public static final int SIZE_X = Chunk.SIZE_X;
-    public static final int SIZE_Y = Chunk.SIZE_Y;
-    public static final int SIZE_Z = Chunk.SIZE_Z;
+    public static final int SIZE_X = ChunkConstants.SIZE_X;
+    public static final int SIZE_Y = ChunkConstants.SIZE_Y;
+    public static final int SIZE_Z = ChunkConstants.SIZE_Z;
     public static final int DIR_LEFT = 0;
     public static final int DIR_LU = 1;
     public static final int DIR_UP = 2;
@@ -57,7 +57,7 @@ public class HeightMap {
     public HeightMap(WorldProvider world, Vector3i chunkPos) {
         this.world = world;
         this.worldPos = new Vector3i(chunkPos);
-        worldPos.mult(Chunk.SIZE_X, Chunk.SIZE_Y, Chunk.SIZE_Z);
+        worldPos.mult(SIZE_X, SIZE_Y, SIZE_Z);
         for (int i = 0; i < cells.length; i++) {
             cells[i] = new HeightMapCell();
         }
@@ -207,7 +207,7 @@ public class HeightMap {
 
 
     public HeightMapCell getCell(int x, int z) {
-        return cells[x + z * Chunk.SIZE_Z];
+        return cells[x + z * SIZE_Z];
     }
 
     public WalkableBlock getBlock(int x, int y, int z) {

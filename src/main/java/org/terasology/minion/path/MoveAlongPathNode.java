@@ -49,7 +49,7 @@ public class MoveAlongPathNode extends DecoratorNode {
 
         @Override
         public void onInitialize() {
-            MinionPathComponent pathComponent = actor().path();
+            MinionPathComponent pathComponent = actor().component(MinionPathComponent.class);
             assert pathComponent.pathState == MinionPathComponent.PathState.PATH_RECEIVED;
             pathComponent.pathState = MinionPathComponent.PathState.MOVING_PATH;
             actor().save(pathComponent);
@@ -58,7 +58,7 @@ public class MoveAlongPathNode extends DecoratorNode {
             currentIndex = 0;
             WalkableBlock block = pathComponent.path.get(currentIndex);
 
-            MinionMoveComponent moveComponent = actor().move();
+            MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
             moveComponent.target = block.getBlockPosition().toVector3f();
             actor().save(moveComponent);
 
@@ -75,11 +75,11 @@ public class MoveAlongPathNode extends DecoratorNode {
             if (result != Status.SUCCESS) {
                 interpreter().stop(this, Status.FAILURE);
             }
-            MinionPathComponent pathComponent = actor().path();
+            MinionPathComponent pathComponent = actor().component(MinionPathComponent.class);
             currentIndex++;
             if (currentIndex < path.size()) {
                 WalkableBlock block = pathComponent.path.get(currentIndex);
-                MinionMoveComponent moveComponent = actor().move();
+                MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
                 Vector3f pos = block.getBlockPosition().toVector3f();
                 pos.add(new Vector3f(0, 1, 0));
                 moveComponent.target = pos;

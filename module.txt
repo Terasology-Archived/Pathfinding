@@ -8,6 +8,10 @@
             {
                 "id" : "LightAndShadowResources",
                 "minVersion" : "0.1.0"
+            },
+            {
+                "id" : "Core",
+                "minVersion" : "0.1.0"
             }
     ],
     "isServerSideOnly" : true

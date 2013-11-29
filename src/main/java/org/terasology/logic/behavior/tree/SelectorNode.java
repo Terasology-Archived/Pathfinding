@@ -18,6 +18,9 @@ package org.terasology.logic.behavior.tree;
 import java.util.Iterator;
 
 /**
+ * Evaluates the children one by one. As soon as a child returns SUCCESS, this node will return SUCCESS immediatly.
+ * When all children are evaluated, this node fails.
+ *
  * @author synopia
  */
 public class SelectorNode extends CompositeNode {

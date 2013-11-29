@@ -16,6 +16,8 @@
 package org.terasology.logic.behavior.tree;
 
 /**
+ * Base class for decorator nodes, which have exactly one child (the decorated node).
+ *
  * @author synopia
  */
 public abstract class DecoratorNode extends Node {

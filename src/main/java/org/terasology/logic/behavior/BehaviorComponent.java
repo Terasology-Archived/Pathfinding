@@ -20,6 +20,8 @@ import org.terasology.logic.behavior.tree.BehaviorTree;
 import org.terasology.logic.behavior.tree.Interpreter;
 
 /**
+ * Entities with this component are handled by a behavior tree. Default tree to fetch may be set.
+ *
  * @author synopia
  */
 public class BehaviorComponent implements Component {

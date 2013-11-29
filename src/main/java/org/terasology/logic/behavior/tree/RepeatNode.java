@@ -16,6 +16,8 @@
 package org.terasology.logic.behavior.tree;
 
 /**
+ * Repeats the child node forever.
+ *
  * @author synopia
  */
 public class RepeatNode extends DecoratorNode {

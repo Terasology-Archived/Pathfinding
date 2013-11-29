@@ -41,7 +41,7 @@ public class FindJobNode extends Node {
 
         @Override
         public Status update(float dt) {
-            JobMinionComponent actorJob = actor().job();
+            JobMinionComponent actorJob = actor().component(JobMinionComponent.class);
             if (actorJob.currentJob != null) {
                 JobBlockComponent currentJob = actorJob.currentJob.getComponent(JobBlockComponent.class);
                 currentJob.assignedMinion = null;

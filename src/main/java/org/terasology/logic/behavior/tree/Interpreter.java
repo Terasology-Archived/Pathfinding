@@ -24,6 +24,12 @@ import java.util.Deque;
 import java.util.List;
 
 /**
+ * An interpreter evaluates a behavior tree. This is done by creating tasks for an actor for the nodes of the BT.
+ * If a task returns RUNNING, the task is placed to the active list and asked next tick again.
+ * Finished nodes may create new tasks, which are placed to the active list.
+ * <p/>
+ * TODO add a (synchronized) "debugger" interface, to allow access from gui or other services (instead of the blocking queue).
+ *
  * @author synopia
  */
 public class Interpreter implements BehaviorTree.EditableObserver {
@@ -51,7 +57,7 @@ public class Interpreter implements BehaviorTree.EditableObserver {
         this.listeners.add(listener);
     }
 
-    public Deque<Task> tasks() {
+    public synchronized Deque<Task> tasks() {
         return Queues.newArrayDeque(tasks);
     }
 

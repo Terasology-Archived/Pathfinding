@@ -58,8 +58,6 @@ public class BehaviorUiSystem implements ComponentSystem {
     private JComboBox<Interpreter> interpreters;
     private Map<BehaviorTree, RenderableBehaviorTree> behaviorTrees = Maps.newHashMap();
 
-    private boolean change = true;
-
     @Override
     public void initialise() {
         final BehaviorTreeFactory factory = new BehaviorTreeFactory();
@@ -121,8 +119,6 @@ public class BehaviorUiSystem implements ComponentSystem {
         });
 
         new Timer(1000, new ActionListener() {
-            private int hash;
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 Set<BehaviorTree> newTrees = CoreRegistry.get(BehaviorSystem.class).getTrees();

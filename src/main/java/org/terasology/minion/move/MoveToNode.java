@@ -40,7 +40,7 @@ public class MoveToNode extends Node {
 
         @Override
         public Status update(float dt) {
-            MinionMoveComponent moveComponent = actor().move();
+            MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
             if (moveComponent != null && moveComponent.target != null) {
                 if (setMovement(moveComponent.target)) {
                     return Status.SUCCESS;

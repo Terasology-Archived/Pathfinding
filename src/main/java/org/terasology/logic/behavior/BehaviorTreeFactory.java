@@ -29,6 +29,9 @@ import org.terasology.minion.path.FindPathToNode;
 import org.terasology.minion.path.MoveAlongPathNode;
 
 /**
+ * Factory to access behavior trees by URIs. Same uri will return the same instances every call. So BT may be shared
+ * by multiple entities.
+ *
  * @author synopia
  */
 public class BehaviorTreeFactory {

@@ -18,6 +18,8 @@ package org.terasology.logic.behavior.tree;
 import org.terasology.logic.behavior.ui.properties.api.TextProperty;
 
 /**
+ * Counter node. Returns RUNNING as long as not counted down to zero.
+ *
  * @author synopia
  */
 public class CounterNode extends Node {

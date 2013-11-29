@@ -15,8 +15,8 @@
  */
 package org.terasology.pathfinding;
 
+import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
 import org.terasology.engine.SimpleUri;
-import org.terasology.world.generator.AbstractBaseWorldGenerator;
 import org.terasology.world.generator.RegisterWorldGenerator;
 
 /**
@@ -26,6 +26,10 @@ import org.terasology.world.generator.RegisterWorldGenerator;
 public class PathfinderTestWorldMapGenerator extends AbstractBaseWorldGenerator {
     public PathfinderTestWorldMapGenerator(SimpleUri uri) {
         super(uri);
+    }
+
+    @Override
+    public void initialize() {
         register(new PathfinderTestGenerator());
     }
 }

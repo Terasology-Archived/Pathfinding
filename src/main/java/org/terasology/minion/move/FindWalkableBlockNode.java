@@ -41,7 +41,7 @@ public class FindWalkableBlockNode extends Node {
 
         @Override
         public Status update(float dt) {
-            MinionMoveComponent moveComponent = actor().move();
+            MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
             WalkableBlock block = CoreRegistry.get(PathfinderSystem.class).getBlock(actor().minion());
             moveComponent.currentBlock = block;
             actor().save(moveComponent);

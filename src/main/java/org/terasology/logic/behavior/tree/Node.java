@@ -16,6 +16,12 @@
 package org.terasology.logic.behavior.tree;
 
 /**
+ * Base class for nodes in a behavior tree. Each node must implement the create() method to create tasks, that are
+ * evaluated by an interpreter.
+ * <p/>
+ * Node properties may be stored in this class, while state properties for a specific interpreter run be placed in the
+ * task class (i.e. actual/next children to evaluate).
+ *
  * @author synopia
  */
 public abstract class Node implements TreeAccessor<Node> {
@@ -24,7 +30,7 @@ public abstract class Node implements TreeAccessor<Node> {
     @Override
     public String toString() {
         String name = getClass().getSimpleName();
-        return name;//name.substring(0, name.length() - 4);
+        return name.substring(0, name.length() - 4);
     }
 
     @Override
@@ -57,6 +63,9 @@ public abstract class Node implements TreeAccessor<Node> {
         return 0;
     }
 
+    /**
+     * Visitor pattern to visit the complete tree.
+     */
     public <T> T visit(T item, Visitor<T> visitor) {
         return visitor.visit(item, this);
     }

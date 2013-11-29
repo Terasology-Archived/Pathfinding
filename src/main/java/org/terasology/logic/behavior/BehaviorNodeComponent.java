@@ -22,15 +22,17 @@ import java.awt.*;
 import java.util.List;
 
 /**
+ * Defines a renderable node used to display behavior trees.
+ *
  * @author synopia
  */
 public class BehaviorNodeComponent implements Component {
     public static final BehaviorNodeComponent DEFAULT = new BehaviorNodeComponent();
 
-    public String type;
+    public String type;                         // fq class name to node type
     public String name;
-    public String category;
-    public String shape = "diamond";
+    public String category;                     // for palette
+    public String shape = "diamond";            // diamond or rect
     public List<Float> color = Lists.newArrayList(.7f, .7f, .7f);
     public List<Float> textColor = Lists.newArrayList(0f, 0f, 0f);
 

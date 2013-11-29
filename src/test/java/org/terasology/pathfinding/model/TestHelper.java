@@ -19,18 +19,18 @@ import org.terasology.config.Config;
 import org.terasology.engine.CoreRegistry;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
-import org.terasology.world.ChunkView;
-import org.terasology.world.WorldBiomeProvider;
 import org.terasology.world.WorldChangeListener;
 import org.terasology.world.WorldProvider;
-import org.terasology.world.WorldProviderCore;
 import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockManager;
 import org.terasology.world.block.BlockUri;
 import org.terasology.world.block.family.BlockFamily;
 import org.terasology.world.chunks.Chunk;
+import org.terasology.world.chunks.internal.ChunkImpl;
 import org.terasology.world.generator.FirstPassGenerator;
+import org.terasology.world.internal.ChunkViewCore;
 import org.terasology.world.internal.WorldInfo;
+import org.terasology.world.internal.WorldProviderCore;
 import org.terasology.world.internal.WorldProviderWrapper;
 import org.terasology.world.liquid.LiquidData;
 import org.terasology.world.time.WorldTime;
@@ -59,8 +59,13 @@ public class TestHelper {
         ground.setId((short) 1);
         CoreRegistry.put(BlockManager.class, new BlockManager() {
             @Override
-            public List<BlockUri> resolveBlockUri(String uri) {
-                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            public List<BlockUri> resolveAllBlockFamilyUri(String uri) {
+                return null;
+            }
+
+            @Override
+            public BlockUri resolveBlockFamilyUri(String name) {
+                return null;
             }
 
             @Override
@@ -331,7 +336,7 @@ public class TestHelper {
             Vector3i chunkPos = TeraMath.calcChunkPos(pos);
             Chunk chunk = chunks.get(chunkPos);
             if (chunk == null && chunkGenerator != null) {
-                chunk = new Chunk(chunkPos);
+                chunk = new ChunkImpl(chunkPos);
                 chunkGenerator.generateChunk(chunk);
                 chunks.put(chunkPos, chunk);
             }
@@ -358,20 +363,14 @@ public class TestHelper {
         }
 
         @Override
-        public WorldBiomeProvider getBiomeProvider() {
+        public ChunkViewCore getLocalView(Vector3i chunkPos) {
             return null;
         }
 
         @Override
-        public ChunkView getLocalView(Vector3i chunk) {
+        public ChunkViewCore getWorldViewAround(Vector3i chunk) {
             return null;
         }
-
-        @Override
-        public ChunkView getWorldViewAround(Vector3i chunk) {
-            return null;
-        }
-
 
         @Override
         public boolean setLiquid(int x, int y, int z, LiquidData newData, LiquidData oldData) {
@@ -405,6 +404,16 @@ public class TestHelper {
 
         @Override
         public void dispose() {
+        }
+
+        @Override
+        public float getTemperature(float x, float y, float z) {
+            return 0;
+        }
+
+        @Override
+        public float getHumidity(float x, float y, float z) {
+            return 0;
         }
     }
 

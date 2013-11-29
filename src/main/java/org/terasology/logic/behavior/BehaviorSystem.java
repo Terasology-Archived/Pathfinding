@@ -33,6 +33,13 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Behavior tree system
+ * <p/>
+ * Each entity with BehaviorComponent is kept under control by this system. For each such entity a behavior tree
+ * is loaded and an interpreter is started.
+ * <p/>
+ * Modifications made to a behavior tree will reflect to all entities using this tree.
+ *
  * @author synopia
  */
 @RegisterSystem

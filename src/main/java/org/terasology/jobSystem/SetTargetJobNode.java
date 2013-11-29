@@ -40,12 +40,12 @@ public class SetTargetJobNode extends Node {
 
         @Override
         public Status update(float dt) {
-            EntityRef job = actor().job().currentJob;
+            EntityRef job = actor().component(JobMinionComponent.class).currentJob;
             JobBlockComponent jobComponent = job.getComponent(JobBlockComponent.class);
             List<WalkableBlock> targetPositions = jobComponent.getJob().getTargetPositions(job);
             if (targetPositions.size() > 0) {
                 WalkableBlock block = targetPositions.get(0);
-                MinionPathComponent pathComponent = actor().path();
+                MinionPathComponent pathComponent = actor().component(MinionPathComponent.class);
                 pathComponent.targetBlock = block.getBlockPosition();
                 pathComponent.pathState = MinionPathComponent.PathState.NEW_TARGET;
                 actor().save(pathComponent);

@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Factory to create node instances from node entities.
+ *
  * @author synopia
  */
 public class BehaviorNodeFactory {

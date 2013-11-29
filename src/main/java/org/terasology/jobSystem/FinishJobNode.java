@@ -20,6 +20,7 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
+import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.pathfinding.model.WalkableBlock;
 
 import java.util.List;
@@ -40,11 +41,11 @@ public class FinishJobNode extends Node {
 
         @Override
         public Status update(float dt) {
-            JobMinionComponent actorJob = actor().job();
+            JobMinionComponent actorJob = actor().component(JobMinionComponent.class);
             EntityRef currentJob = actorJob.currentJob;
             if (currentJob != null) {
                 List<WalkableBlock> targetPositions = currentJob.getComponent(JobBlockComponent.class).getJob().getTargetPositions(currentJob);
-                WalkableBlock currentBlock = actor().move().currentBlock;
+                WalkableBlock currentBlock = actor().component(MinionMoveComponent.class).currentBlock;
                 if (!targetPositions.contains(currentBlock)) {
                     return Status.RUNNING;
                 }

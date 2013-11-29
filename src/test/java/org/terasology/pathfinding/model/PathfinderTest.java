@@ -20,7 +20,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.PathfinderTestGenerator;
-import org.terasology.world.chunks.Chunk;
 
 /**
  * @author synopia
@@ -46,10 +45,10 @@ public class PathfinderTest {
 
         helper.setAir(7, 50, 7);
         helper.setAir(7, 50, 8);
-        helper.setAir(Chunk.SIZE_X - 1, 47, 7);
-        helper.setAir(Chunk.SIZE_X - 1, 47, 8);
-        helper.setAir(Chunk.SIZE_X, 47, 7);
-        helper.setAir(Chunk.SIZE_X, 47, 8);
+        helper.setAir(HeightMap.SIZE_X - 1, 47, 7);
+        helper.setAir(HeightMap.SIZE_X - 1, 47, 8);
+        helper.setAir(HeightMap.SIZE_X, 47, 7);
+        helper.setAir(HeightMap.SIZE_X, 47, 8);
 
 
         pathfinder.update(new Vector3i(0, 0, 0));
@@ -68,12 +67,12 @@ public class PathfinderTest {
     }
 
     public void assertStairs(int chunkX, int chunkZ) {
-        int x = chunkX * Chunk.SIZE_X;
-        int z = chunkZ * Chunk.SIZE_Z;
+        int x = chunkX * HeightMap.SIZE_X;
+        int z = chunkZ * HeightMap.SIZE_Z;
         HeightMap map = pathfinder.init(new Vector3i(chunkX, 0, chunkZ));
 
         WalkableBlock startBlock = pathfinder.getBlock(new Vector3i(0 + x, 51, 1 + z));
-        WalkableBlock targetBlock = pathfinder.getBlock(new Vector3i(x + Chunk.SIZE_X - 2, 45, z + Chunk.SIZE_Z - 4));
+        WalkableBlock targetBlock = pathfinder.getBlock(new Vector3i(x + HeightMap.SIZE_X - 2, 45, z + HeightMap.SIZE_Z - 4));
 
         Assert.assertEquals(map, startBlock.floor.heightMap);
         Assert.assertEquals(map, targetBlock.floor.heightMap);

@@ -36,6 +36,8 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
+ * TODO refactor to AssetLoader
+ *
  * @author synopia
  */
 public class RenderableBehaviorTree {
