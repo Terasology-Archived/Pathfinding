@@ -17,8 +17,8 @@ package org.terasology.logic.behavior;
 
 import com.google.common.collect.Lists;
 import org.terasology.entitySystem.Component;
+import org.terasology.rendering.nui.Color;
 
-import java.awt.*;
 import java.util.List;
 
 /**

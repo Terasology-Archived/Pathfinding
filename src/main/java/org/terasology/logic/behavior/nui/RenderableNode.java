@@ -13,13 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.logic.behavior.ui;
+package org.terasology.logic.behavior.nui;
 
 import com.google.common.collect.Lists;
+import org.terasology.asset.Assets;
 import org.terasology.entitySystem.Component;
+import org.terasology.input.MouseInput;
 import org.terasology.logic.behavior.BehaviorNodeComponent;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.TreeAccessor;
+import org.terasology.math.Vector2i;
+import org.terasology.rendering.assets.TextureRegion;
+import org.terasology.rendering.nui.BaseInteractionListener;
+import org.terasology.rendering.nui.Canvas;
+import org.terasology.rendering.nui.CoreWidget;
+import org.terasology.rendering.nui.InteractionListener;
+import org.terasology.rendering.nui.layout.ZoomableLayout;
 
 import javax.vecmath.Vector2f;
 import java.util.List;
@@ -27,7 +36,9 @@ import java.util.List;
 /**
  * @author synopia
  */
-public class RenderableNode implements Component, TreeAccessor<RenderableNode> {
+public class RenderableNode extends CoreWidget implements ZoomableLayout.PositionalWidget, Component, TreeAccessor<RenderableNode> {
+    private transient TextureRegion texture = Assets.getTextureRegion("engine:button");
+
     private final List<RenderableNode> children = Lists.newArrayList();
     private transient PortList portList;
 
@@ -37,6 +48,33 @@ public class RenderableNode implements Component, TreeAccessor<RenderableNode> {
     private transient TreeAccessor<RenderableNode> withoutModel;
     private transient TreeAccessor<RenderableNode> withModel;
     private transient BehaviorNodeComponent data;
+    private transient int lastX;
+    private transient int lastY;
+    private transient ZoomableLayout layout;
+
+    private transient InteractionListener moveListener = new BaseInteractionListener() {
+        @Override
+        public void onMouseOver(Vector2i pos, boolean topMostElement) {
+        }
+
+        @Override
+        public boolean onMouseClick(MouseInput button, Vector2i pos) {
+            lastX = pos.x;
+            lastY = pos.y;
+            return true;
+        }
+
+        @Override
+        public void onMouseDrag(Vector2i pos) {
+            float diffX = -layout.screenToWorldX(lastX) + layout.screenToWorldX(pos.x);
+            float diffY = -layout.screenToWorldY(lastY) + layout.screenToWorldY(pos.y);
+
+            move(diffX, diffY);
+
+            lastX = pos.x;
+            lastY = pos.y;
+        }
+    };
 
     public RenderableNode() {
         this(null);
@@ -51,12 +89,29 @@ public class RenderableNode implements Component, TreeAccessor<RenderableNode> {
         withModel = new ChainedTreeAccessor<>(this, portList, new NodeTreeAccessor());
     }
 
+    @Override
+    public void onDraw(Canvas canvas) {
+        canvas.drawTexture(texture);
+        String text = getData().name;
+
+        if (text != null) {
+            canvas.drawText(text);
+        }
+        canvas.addInteractionRegion(moveListener);
+        portList.onDraw(canvas);
+    }
+
     public void update() {
         List<RenderableNode> all = Lists.newArrayList(children);
         children.clear();
         for (RenderableNode renderableNode : all) {
             withoutModel.insertChild(-1, renderableNode);
         }
+    }
+
+    @Override
+    public void onAdded(ZoomableLayout layout) {
+        this.layout = layout;
     }
 
     public TreeAccessor<RenderableNode> withoutModel() {
@@ -93,6 +148,13 @@ public class RenderableNode implements Component, TreeAccessor<RenderableNode> {
 
     public void setPosition(float x, float y) {
         position = new Vector2f(x, y);
+    }
+
+    public void move(float dx, float dy) {
+        position = new Vector2f(position.x + dx, position.y + dy);
+        for (RenderableNode child : children) {
+            child.move(dx, dy);
+        }
     }
 
     public void setSize(Vector2f size) {
@@ -156,18 +218,12 @@ public class RenderableNode implements Component, TreeAccessor<RenderableNode> {
         return getNode().getMaxChildren();
     }
 
+    @Override
     public Vector2f getPosition() {
-        Vector2f pos;
-        RenderableNode targetNode = getInputPort().getTargetNode();
-        if (targetNode != null) {
-            pos = targetNode.getPosition();
-        } else {
-            pos = new Vector2f();
-        }
-        pos.add(position);
-        return pos;
+        return position;
     }
 
+    @Override
     public Vector2f getSize() {
         return size;
     }

@@ -13,23 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.logic.behavior.ui;
+package org.terasology.logic.behavior.nui;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
+import org.lwjgl.input.Keyboard;
+import org.terasology.input.BindButtonEvent;
+import org.terasology.input.DefaultBinding;
+import org.terasology.input.InputType;
+import org.terasology.input.RegisterBindButton;
 
 /**
  * @author synopia
  */
-public class BaseRenderer {
-    public static final Font FONT = new JLabel().getFont();
-
-    public void drawText(RenderContext rc, int midX, int midY, String text) {
-        Rectangle2D textBounds = rc.getGraphics().getFontMetrics().getStringBounds(text, rc.getGraphics());
-        float textX = midX - ((float) textBounds.getWidth() / 2);
-        float textY = midY + ((float) textBounds.getHeight() / 3);
-        rc.getGraphics().drawString(text, textX, textY);
-    }
-
+@RegisterBindButton(id = "behavior", description = "Toggle Behavior editor")
+@DefaultBinding(type = InputType.KEY, id = Keyboard.KEY_CAPITAL)
+public class BTEditorButton extends BindButtonEvent {
 }

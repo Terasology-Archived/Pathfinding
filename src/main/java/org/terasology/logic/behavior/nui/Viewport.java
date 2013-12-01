@@ -13,85 +13,70 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.logic.behavior.ui;
+package org.terasology.logic.behavior.nui;
 
-import java.awt.*;
+import org.terasology.math.Vector2i;
 
 /**
- * A render context contains all information needed for rendering. These are:
- * <ul>
- * <li>size of the screen in pixel</li>
- * <li>the window to display on screen in 2d coordinates</li>
- * </ul>
- * So panning and zooming may be realized by modifying the window to display and request a repaint.
- *
  * @author synopia
  */
-public class RenderContext {
-    private Graphics2D g;
-    private double pixelSizeX;
-    private double pixelSizeY;
+public class Viewport {
+    private float pixelSizeX;
+    private float pixelSizeY;
     private int screenSizeX;
     private int screenSizeY;
-    private double windowPositionX;
-    private double windowPositionY;
-    private double windowSizeX;
-    private double windowSizeY;
+    private float windowPositionX;
+    private float windowPositionY;
+    private float windowSizeX;
+    private float windowSizeY;
 
-    public RenderContext() {
-    }
-
-    public void setGraphics(Graphics2D graphics) {
-        this.g = graphics;
-    }
-
-    public double screenToWorldX(int screenPosX) {
+    public float screenToWorldX(int screenPosX) {
         return screenPosX / pixelSizeX + windowPositionX;
     }
 
-    public double screenToWorldY(int screenPosY) {
+    public float screenToWorldY(int screenPosY) {
         return screenPosY / pixelSizeY + windowPositionY;
     }
 
-    public int worldToScreenX(double worldX) {
+    public int worldToScreenX(float worldX) {
         return (int) ((worldX - windowPositionX) * pixelSizeX);
     }
 
-    public int worldToScreenY(double worldY) {
+    public int worldToScreenY(float worldY) {
         return (int) ((worldY - windowPositionY) * pixelSizeY);
     }
 
-    public int screenUnitX(double x) {
+    public int screenUnitX(float x) {
         int dx = (int) (pixelSizeX * x);
 
         return Math.max(1, Math.abs(dx));
     }
 
-    public int screenUnitY(double y) {
+    public int screenUnitY(float y) {
         int dy = (int) (pixelSizeY * y);
 
         return Math.max(1, Math.abs(dy));
     }
 
-    public void setWindowPosition(double x, double y) {
+    public void setWindowPosition(float x, float y) {
         this.windowPositionX = x;
         this.windowPositionY = y;
     }
 
-    public void setWindowSize(double x, double y) {
+    public void setWindowSize(float x, float y) {
         this.windowSizeX = x;
         this.windowSizeY = y;
     }
 
-    public void setScreenSize(int x, int y) {
-        this.screenSizeX = x;
-        this.screenSizeY = y;
+    public void setScreenSize(Vector2i size) {
+        this.screenSizeX = size.x;
+        this.screenSizeY = size.y;
     }
 
-    public void init(double posX, double posY, double sizeX, double sizeY, int screenWidth, int screenHeight) {
+    public void init(float posX, float posY, float sizeX, float sizeY, int screenWidth, int screenHeight) {
         setWindowPosition(posX, posY);
         setWindowSize(sizeX, sizeY);
-        setScreenSize(screenWidth, screenHeight);
+        setScreenSize(new Vector2i(screenWidth, screenHeight));
         calculateSizes();
     }
 
@@ -106,9 +91,9 @@ public class RenderContext {
 
         if ((screenSizeX != 0) && (screenSizeY != 0)) {
             if (screenSizeX > screenSizeY) {
-                windowSizeX *= (double) screenSizeX / screenSizeY;
+                windowSizeX *= (float) screenSizeX / screenSizeY;
             } else {
-                windowSizeY *= (double) screenSizeY / screenSizeX;
+                windowSizeY *= (float) screenSizeY / screenSizeX;
             }
         }
 
@@ -121,11 +106,11 @@ public class RenderContext {
         }
     }
 
-    public void zoom(double zoomX, double zoomY, Point mousePos) {
-        double midX = windowPositionX + windowSizeX / 2.;
-        double midY = windowPositionY + windowSizeY / 2.;
-        double posX = screenToWorldX(mousePos.x);
-        double posY = screenToWorldY(mousePos.y);
+    public void zoom(float zoomX, float zoomY, Vector2i mousePos) {
+        float midX = windowPositionX + windowSizeX / 2.f;
+        float midY = windowPositionY + windowSizeY / 2.f;
+        float posX = screenToWorldX(mousePos.x);
+        float posY = screenToWorldY(mousePos.y);
 
         windowSizeX *= zoomX;
         windowSizeY *= zoomY;
@@ -134,15 +119,11 @@ public class RenderContext {
         windowPositionY += (posY - midY) * 0.1;
     }
 
-    public Graphics2D getGraphics() {
-        return g;
-    }
-
-    public double getPixelSizeX() {
+    public float getPixelSizeX() {
         return pixelSizeX;
     }
 
-    public double getPixelSizeY() {
+    public float getPixelSizeY() {
         return pixelSizeY;
     }
 
@@ -154,19 +135,19 @@ public class RenderContext {
         return screenSizeY;
     }
 
-    public double getWindowSizeX() {
+    public float getWindowSizeX() {
         return windowSizeX;
     }
 
-    public double getWindowSizeY() {
+    public float getWindowSizeY() {
         return windowSizeY;
     }
 
-    public double getWindowPositionX() {
+    public float getWindowPositionX() {
         return windowPositionX;
     }
 
-    public double getWindowPositionY() {
+    public float getWindowPositionY() {
         return windowPositionY;
     }
 

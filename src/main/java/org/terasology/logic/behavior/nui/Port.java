@@ -13,16 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.logic.behavior.ui;
+package org.terasology.logic.behavior.nui;
 
+import org.terasology.asset.Assets;
 import org.terasology.math.Rect2f;
+import org.terasology.math.Vector2i;
+import org.terasology.rendering.assets.TextureRegion;
+import org.terasology.rendering.nui.BaseInteractionListener;
+import org.terasology.rendering.nui.Canvas;
+import org.terasology.rendering.nui.CoreWidget;
+import org.terasology.rendering.nui.InteractionListener;
 
 /**
  * @author synopia
  */
-public abstract class Port {
+public abstract class Port extends CoreWidget {
+    private TextureRegion active = Assets.getTextureRegion("engine:checkboxChecked");
+    private TextureRegion inactive = Assets.getTextureRegion("engine:checkbox");
+
     protected RenderableNode node;
     protected Rect2f rect;
+
+    private InteractionListener connectListener = new BaseInteractionListener() {
+        @Override
+        public void onMouseOver(Vector2i pos, boolean topMostElement) {
+
+        }
+    };
 
     protected Port(RenderableNode node) {
         this.node = node;
@@ -74,6 +91,12 @@ public abstract class Port {
         return index() < getSourceNode().getMaxChildren();
     }
 
+    @Override
+    public void onDraw(Canvas canvas) {
+        canvas.addInteractionRegion(connectListener);
+        canvas.drawTexture(getTargetPort() != null ? active : inactive);
+    }
+
     public static class OutputPort extends Port {
         public OutputPort(RenderableNode renderableNode) {
             super(renderableNode);
@@ -82,8 +105,8 @@ public abstract class Port {
         @Override
         public void updateRect() {
             this.rect = Rect2f.createFromMinAndSize(
-                    node.getPosition().x + index() + 0.3f,
-                    node.getPosition().y + node.getSize().y - 0.95f,
+                    index() + 0.3f,
+                    4.05f,
                     0.7f, 0.9f);
         }
 
@@ -116,8 +139,8 @@ public abstract class Port {
         @Override
         public void updateRect() {
             this.rect = Rect2f.createFromMinAndSize(
-                    node.getPosition().x + index(),
-                    node.getPosition().y + node.getSize().y - 0.95f,
+                    index(),
+                    4.05f,
                     0.3f, 0.9f);
         }
 
@@ -153,7 +176,7 @@ public abstract class Port {
 
         @Override
         public void updateRect() {
-            rect = Rect2f.createFromMinAndSize(node.getPosition().x + node.getSize().x / 2f - 0.5f, node.getPosition().y + 0.05f, 1f, 1f);
+            rect = Rect2f.createFromMinAndSize(4.5f, 0.05f, 1f, 1f);
         }
 
         public void setTarget(OutputPort port) {

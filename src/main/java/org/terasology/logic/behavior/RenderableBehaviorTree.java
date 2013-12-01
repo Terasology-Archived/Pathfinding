@@ -21,10 +21,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import org.terasology.logic.behavior.nui.Port;
+import org.terasology.logic.behavior.nui.RenderableNode;
 import org.terasology.logic.behavior.tree.BehaviorTree;
 import org.terasology.logic.behavior.tree.Node;
-import org.terasology.logic.behavior.ui.Port;
-import org.terasology.logic.behavior.ui.RenderableNode;
 
 import javax.vecmath.Vector2f;
 import java.io.IOException;

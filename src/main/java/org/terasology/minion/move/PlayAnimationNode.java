@@ -18,8 +18,6 @@ package org.terasology.minion.move;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
-import org.terasology.logic.behavior.ui.properties.api.BooleanProperty;
-import org.terasology.logic.behavior.ui.properties.api.OneOfProperty;
 import org.terasology.rendering.assets.animation.MeshAnimation;
 import org.terasology.rendering.logic.SkeletalMeshComponent;
 
@@ -29,10 +27,9 @@ import java.util.Random;
  * @author synopia
  */
 public class PlayAnimationNode extends Node {
-    @OneOfProperty(names = {"idle", "walk", "attack", "die", "fadeIn", "fadeOut", "work", "terraform", "random"})
+    //    @OneOfProperty(names = {"idle", "walk", "attack", "die", "fadeIn", "fadeOut", "work", "terraform", "random"})
     private String animation;
 
-    @BooleanProperty
     private boolean loop;
 
     public PlayAnimationNode() {

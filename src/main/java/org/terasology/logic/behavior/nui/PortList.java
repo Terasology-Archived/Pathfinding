@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.logic.behavior.ui;
+package org.terasology.logic.behavior.nui;
 
 import com.google.common.collect.Lists;
 import org.terasology.logic.behavior.tree.TreeAccessor;
+import org.terasology.math.Rect2i;
+import org.terasology.rendering.nui.Canvas;
 
 import java.util.List;
 
@@ -34,6 +36,18 @@ public class PortList implements TreeAccessor<RenderableNode> {
         addLastPortIns = new Port.InsertOutputPort(node);
         ports.add(addLastPortIns);
         this.node = node;
+    }
+
+    public void onDraw(Canvas canvas) {
+        Rect2i region = canvas.getRegion();
+        for (Port port : ports) {
+            port.updateRect();
+            canvas.drawElement(port, Rect2i.createFromMinAndMax(
+                    (int) (port.rect.minX() / 10.f * region.width()),
+                    (int) (port.rect.minY() / 5.f * region.height()),
+                    (int) (port.rect.maxX() / 10.f * region.width()),
+                    (int) (port.rect.maxY() / 5.f * region.height())));
+        }
     }
 
     public Port.InputPort getInputPort() {

@@ -17,13 +17,13 @@ package org.terasology.logic.behavior;
 
 import junit.framework.Assert;
 import org.junit.Test;
+import org.terasology.logic.behavior.nui.Port;
+import org.terasology.logic.behavior.nui.PortList;
+import org.terasology.logic.behavior.nui.RenderableNode;
 import org.terasology.logic.behavior.tree.CompositeNode;
 import org.terasology.logic.behavior.tree.DecoratorNode;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Task;
-import org.terasology.logic.behavior.ui.Port;
-import org.terasology.logic.behavior.ui.PortList;
-import org.terasology.logic.behavior.ui.RenderableNode;
 
 /**
  * @author synopia
