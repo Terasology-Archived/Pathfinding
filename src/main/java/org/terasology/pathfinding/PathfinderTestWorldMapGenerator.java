@@ -33,3 +33,4 @@ public class PathfinderTestWorldMapGenerator extends AbstractBaseWorldGenerator 
         register(new PathfinderTestGenerator());
     }
 }
+
