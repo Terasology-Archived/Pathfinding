@@ -59,7 +59,7 @@ public class PlayAnimationNode extends Node {
         @Override
         public void onInitialize() {
             if (getNode().animation != null) {
-                AnimationComponent animationComponent = actor().animation();
+                AnimationComponent animationComponent = actor().component(AnimationComponent.class);
                 MeshAnimation animation = null;
                 switch (getNode().animation) {
                     case "idle":
