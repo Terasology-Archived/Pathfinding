@@ -15,6 +15,7 @@
  */
 package org.terasology.minion.spawn;
 
+import org.terasology.asset.Assets;
 import org.terasology.engine.CoreRegistry;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
@@ -24,9 +25,12 @@ import org.terasology.entitySystem.systems.In;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.logic.common.ActivateEvent;
+import org.terasology.logic.location.Location;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.WalkableBlock;
+import org.terasology.rendering.logic.SkeletalMeshComponent;
 
+import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
 /**
@@ -62,7 +66,11 @@ public class MinionSpawnSystem implements ComponentSystem, UpdateSubscriberSyste
         if (block != null) {
             Vector3f pos = block.getBlockPosition().toVector3f();
             pos.add(new Vector3f(0, 1f, 0));
-            entityManager.create(spawner.nextPrefab(itemEntity), pos);
+            EntityRef entityRef = entityManager.create(spawner.nextPrefab(itemEntity), pos);
+            SkeletalMeshComponent mesh = entityRef.getComponent(SkeletalMeshComponent.class);
+            EntityRef tool = entityManager.create(Assets.getPrefab("LightAndShadowResources:spear"));
+            EntityRef bone = mesh.boneEntities.get("btool.r");
+            Location.attachChild(bone, tool, new Vector3f(), new Quat4f(0, 0, 0, 1));
             cooldown = COOLDOWN;
         }
     }
