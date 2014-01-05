@@ -20,6 +20,8 @@ import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
 import org.terasology.rendering.assets.animation.MeshAnimation;
 import org.terasology.rendering.logic.SkeletalMeshComponent;
+import org.terasology.rendering.nui.properties.Checkbox;
+import org.terasology.rendering.nui.properties.OneOf;
 
 import java.util.Random;
 
@@ -27,9 +29,10 @@ import java.util.Random;
  * @author synopia
  */
 public class PlayAnimationNode extends Node {
-    //    @OneOfProperty(names = {"idle", "walk", "attack", "die", "fadeIn", "fadeOut", "work", "terraform", "random"})
+    @OneOf.List(items= {"idle", "walk", "attack", "die", "fadeIn", "fadeOut", "work", "terraform", "random"})
     private String animation;
 
+    @Checkbox
     private boolean loop;
 
     public PlayAnimationNode() {
