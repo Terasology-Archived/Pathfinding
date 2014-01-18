@@ -61,12 +61,10 @@ public class MoveToNode extends Node {
             boolean finished;
             Vector3f drive = new Vector3f();
             boolean jump = currentTarget.y - worldPos.y > 0.5f;
-            float yaw = 0;
+            float yaw = (float) Math.atan2(targetDirection.x, targetDirection.z);
+
             if (targetDirection.x * targetDirection.x + targetDirection.z * targetDirection.z > 0.01f) {
-
                 drive.set(targetDirection);
-
-                yaw = (float) Math.atan2(targetDirection.x, targetDirection.z);
                 finished = false;
             } else {
                 drive.set(0, 0, 0);
