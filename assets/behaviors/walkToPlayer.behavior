@@ -1,0 +1,81 @@
+{
+  "model": {
+    "nodeType": "org.terasology.logic.behavior.tree.RepeatNode",
+    "nodeId": 0,
+    "node": {
+      "child": {
+        "nodeType": "org.terasology.logic.behavior.tree.SequenceNode",
+        "nodeId": 1,
+        "node": {
+          "children": [
+            {
+              "nodeType": "org.terasology.minion.move.SetTargetLocalPlayerNode",
+              "nodeId": 2,
+              "node": {}
+            },
+            {
+              "nodeType": "org.terasology.logic.behavior.tree.SequenceNode",
+              "nodeId": 3,
+              "node": {
+                "children": [
+                  {
+                    "nodeType": "org.terasology.minion.move.FindWalkableBlockNode",
+                    "nodeId": 4,
+                    "node": {}
+                  },
+                  {
+                    "nodeType": "org.terasology.minion.move.MoveToNode",
+                    "nodeId": 5,
+                    "node": {}
+                  },
+                  {
+                    "nodeType": "org.terasology.minion.path.FindPathToNode",
+                    "nodeId": 6,
+                    "node": {}
+                  },
+                  {
+                    "nodeType": "org.terasology.minion.path.MoveAlongPathNode",
+                    "nodeId": 7,
+                    "node": {
+                      "child": {
+                        "nodeType": "org.terasology.logic.behavior.tree.ParallelNode",
+                        "nodeId": 8,
+                        "node": {
+                          "successPolicy": "RequireAll",
+                          "failurePolicy": "RequireOne",
+                          "children": [
+                            {
+                              "nodeType": "org.terasology.minion.move.MoveToNode",
+                              "nodeId": 9,
+                              "node": {}
+                            },
+                            {
+                              "nodeType": "org.terasology.minion.move.PlayAnimationNode",
+                              "nodeId": 10,
+                              "node": {
+                                "animation": "walk",
+                                "loop": false
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "nodeType": "org.terasology.minion.move.PlayAnimationNode",
+                    "nodeId": 11,
+                    "node": {
+                      "animation": "idle",
+                      "loop": false
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

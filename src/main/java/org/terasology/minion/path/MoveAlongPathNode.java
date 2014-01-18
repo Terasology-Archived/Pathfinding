@@ -31,7 +31,6 @@ import javax.vecmath.Vector3f;
 public class MoveAlongPathNode extends DecoratorNode {
 
     public MoveAlongPathNode() {
-        child = new MoveToNode();
     }
 
     @Override

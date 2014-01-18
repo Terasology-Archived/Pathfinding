@@ -47,7 +47,7 @@ public class FinishJobNode extends Node {
                 List<WalkableBlock> targetPositions = currentJob.getComponent(JobBlockComponent.class).getJob().getTargetPositions(currentJob);
                 WalkableBlock currentBlock = actor().component(MinionMoveComponent.class).currentBlock;
                 if (!targetPositions.contains(currentBlock)) {
-                    return Status.RUNNING;
+                    return Status.FAILURE;
                 }
                 CoreRegistry.get(JobBoard.class).removeJob(currentJob);
                 actorJob.currentJob = null;

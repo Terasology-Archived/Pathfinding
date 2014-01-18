@@ -60,7 +60,7 @@ public class FindJobNode extends Node {
             } else {
                 actorJob.currentJob = null;
                 actor().save(actorJob);
-                return Status.RUNNING;
+                return Status.FAILURE;
             }
         }
 
