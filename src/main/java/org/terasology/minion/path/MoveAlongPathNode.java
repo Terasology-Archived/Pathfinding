@@ -34,7 +34,7 @@ public class MoveAlongPathNode extends DecoratorNode {
     }
 
     @Override
-    public MoveAlongPathTask create() {
+    public MoveAlongPathTask createTask() {
         return new MoveAlongPathTask(this);
     }
 

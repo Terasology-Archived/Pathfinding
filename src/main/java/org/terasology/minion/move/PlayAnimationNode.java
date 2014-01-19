@@ -47,7 +47,7 @@ public class PlayAnimationNode extends Node {
     }
 
     @Override
-    public PlayAnimationTask create() {
+    public PlayAnimationTask createTask() {
         return new PlayAnimationTask(this);
     }
 

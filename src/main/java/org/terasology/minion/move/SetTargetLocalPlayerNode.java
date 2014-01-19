@@ -31,7 +31,7 @@ import javax.vecmath.Vector3f;
  */
 public class SetTargetLocalPlayerNode extends Node {
     @Override
-    public SetTargetLocalPlayerTask create() {
+    public SetTargetLocalPlayerTask createTask() {
         return new SetTargetLocalPlayerTask(this);
     }
 

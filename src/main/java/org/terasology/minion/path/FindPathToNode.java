@@ -31,7 +31,7 @@ import java.util.Arrays;
  */
 public class FindPathToNode extends Node {
     @Override
-    public FindPathToTask create() {
+    public FindPathToTask createTask() {
         return new FindPathToTask(this);
     }
 

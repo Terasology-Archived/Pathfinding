@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class FinishJobNode extends Node {
     @Override
-    public Task create() {
+    public Task createTask() {
         return new FinishJobTask(this);
     }
 

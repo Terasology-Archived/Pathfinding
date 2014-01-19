@@ -29,7 +29,7 @@ import javax.vecmath.Vector3f;
  */
 public class MoveToNode extends Node {
     @Override
-    public MoveToTask create() {
+    public MoveToTask createTask() {
         return new MoveToTask(this);
     }
 

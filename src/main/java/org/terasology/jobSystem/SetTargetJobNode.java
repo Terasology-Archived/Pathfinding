@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class SetTargetJobNode extends Node {
     @Override
-    public Task create() {
+    public Task createTask() {
         return new SetTargetJobTask(this);
     }
 

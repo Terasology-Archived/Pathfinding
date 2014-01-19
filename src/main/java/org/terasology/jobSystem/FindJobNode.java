@@ -26,7 +26,7 @@ import org.terasology.logic.behavior.tree.Task;
  */
 public class FindJobNode extends Node {
     @Override
-    public Task create() {
+    public Task createTask() {
         return new FindJobTask(this);
     }
 

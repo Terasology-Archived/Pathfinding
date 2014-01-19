@@ -30,7 +30,7 @@ import javax.vecmath.Vector3f;
  */
 public class FindWalkableBlockNode extends Node {
     @Override
-    public FindWalkableBlockTask create() {
+    public FindWalkableBlockTask createTask() {
         return new FindWalkableBlockTask(this);
     }
 
