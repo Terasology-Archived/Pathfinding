@@ -109,7 +109,7 @@ public class PlayAnimationNode extends Node {
 
         private void changeAnimation(MeshAnimation animation, boolean loop) {
             SkeletalMeshComponent skeletalMesh = actor().skeletalMesh();
-            if (skeletalMesh.animation != animation) {
+            if (skeletalMesh.animation != animation || skeletalMesh.loop != loop) {
                 skeletalMesh.animation = animation;
                 skeletalMesh.loop = loop;
                 actor().save(skeletalMesh);

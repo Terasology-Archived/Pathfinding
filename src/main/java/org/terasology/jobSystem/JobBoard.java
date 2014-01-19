@@ -83,6 +83,7 @@ public class JobBoard implements ComponentSystem {
                     block.removeComponent(JobBlockComponent.class);
                 }
             }
+            toRemove.clear();
         }
         scanJobs();
     }
