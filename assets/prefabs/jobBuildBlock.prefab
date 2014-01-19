@@ -11,5 +11,8 @@
     "Job" : {
         jobType = "Pathfinding:buildBlock"
     },
-    "BlockSelection" : {}
+    "BlockSelection" : {
+        "shouldRender" : true
+    },
+    "OnItemActivateSelection" : {}
 }

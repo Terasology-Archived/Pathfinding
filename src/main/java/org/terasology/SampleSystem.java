@@ -47,7 +47,7 @@ public class SampleSystem implements ComponentSystem {
     public void onPlayerSpawn(OnPlayerSpawnedEvent event, EntityRef player, InventoryComponent inventory) {
         inventoryManager.giveItem(player, entityManager.create("LightAndShadowResources:redSpawner"));
         inventoryManager.giveItem(player, entityManager.create("Pathfinding:jobWalkToBlock"));
-        inventoryManager.giveItem(player, entityManager.create("Pathfinding:buildWall"));
+        inventoryManager.giveItem(player, entityManager.create("Pathfinding:jobBuildBlock"));
     }
 
     @ReceiveEvent

@@ -66,7 +66,7 @@ public class BuildBlock implements Job, ComponentSystem {
     @Override
     public void initialise() {
         CoreRegistry.get(JobFactory.class).register(this);
-        blockType = CoreRegistry.get(BlockManager.class).getBlock("engine:Dirt");
+        blockType = CoreRegistry.get(BlockManager.class).getBlock("core:Dirt");
     }
 
     @Override

@@ -44,11 +44,13 @@ public class FinishJobNode extends Node {
             JobMinionComponent actorJob = actor().component(JobMinionComponent.class);
             EntityRef currentJob = actorJob.currentJob;
             if (currentJob != null) {
-                List<WalkableBlock> targetPositions = currentJob.getComponent(JobBlockComponent.class).getJob().getTargetPositions(currentJob);
+                Job job = currentJob.getComponent(JobBlockComponent.class).getJob();
+                List<WalkableBlock> targetPositions = job.getTargetPositions(currentJob);
                 WalkableBlock currentBlock = actor().component(MinionMoveComponent.class).currentBlock;
                 if (!targetPositions.contains(currentBlock)) {
                     return Status.FAILURE;
                 }
+                job.letMinionWork(currentJob, actor().minion());
                 CoreRegistry.get(JobBoard.class).removeJob(currentJob);
                 actorJob.currentJob = null;
                 actor().save(actorJob);
