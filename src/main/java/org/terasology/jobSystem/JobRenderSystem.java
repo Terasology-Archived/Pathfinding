@@ -47,8 +47,6 @@ public class JobRenderSystem implements RenderSystem {
 
     @Override
     public void renderOverlay() {
-        Vector3f cameraPosition = CoreRegistry.get(LocalPlayer.class).getPosition();
-
         selectionRenderer.beginRenderOverlay();
         Vector3i pos = new Vector3i();
         for (EntityRef entityRef : entityManager.getEntitiesWith(JobBlockComponent.class)) {
@@ -57,9 +55,9 @@ public class JobRenderSystem implements RenderSystem {
             pos.set((int) worldPosition.x, (int) worldPosition.y, (int) worldPosition.z);
             JobBlockComponent job = entityRef.getComponent(JobBlockComponent.class);
             if (job.isRequestable(entityRef)) {
-                selectionRenderer.renderMark(pos, cameraPosition);
+                selectionRenderer.renderMark(pos);
             } else if (job.isAssignable(entityRef)) {
-                selectionRenderer.renderMark2(pos, cameraPosition);
+                selectionRenderer.renderMark2(pos);
             }
         }
         selectionRenderer.endRenderOverlay();

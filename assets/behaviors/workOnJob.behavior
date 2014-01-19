@@ -81,18 +81,36 @@
                     "node": {}
                   },
                   {
-                    "nodeType": "org.terasology.jobSystem.FinishJobNode",
+                    "nodeType": "org.terasology.logic.behavior.tree.ParallelNode",
                     "nodeId": 14,
-                    "node": {}
+                    "node": {
+                      "successPolicy": "RequireAll",
+                      "failurePolicy": "RequireOne",
+                      "children": [
+                        {
+                          "nodeType": "org.terasology.jobSystem.FinishJobNode",
+                          "nodeId": 15,
+                          "node": {}
+                        },
+                        {
+                          "nodeType": "org.terasology.minion.move.PlayAnimationNode",
+                          "nodeId": 16,
+                          "node": {
+                            "animation": "work",
+                            "loop": false
+                          }
+                        }
+                      ]
+                    }
                   }
                 ]
               }
             },
             {
               "nodeType": "org.terasology.minion.move.PlayAnimationNode",
-              "nodeId": 15,
+              "nodeId": 17,
               "node": {
-                "animation": "work",
+                "animation": "idle",
                 "loop": false
               }
             }
