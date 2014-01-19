@@ -24,6 +24,7 @@ import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.RenderSystem;
 import org.terasology.logic.location.LocationComponent;
+import org.terasology.logic.players.LocalPlayer;
 import org.terasology.math.Vector3i;
 import org.terasology.rendering.world.WorldRenderer;
 import org.terasology.rendering.world.selection.BlockSelectionRenderer;
@@ -46,7 +47,7 @@ public class JobRenderSystem implements RenderSystem {
 
     @Override
     public void renderOverlay() {
-        Vector3f cameraPosition = CoreRegistry.get(WorldRenderer.class).getActiveCamera().getPosition();
+        Vector3f cameraPosition = CoreRegistry.get(LocalPlayer.class).getPosition();
 
         selectionRenderer.beginRenderOverlay();
         Vector3i pos = new Vector3i();
