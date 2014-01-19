@@ -36,9 +36,6 @@ public class MoveToNode extends Node {
     }
 
     public static class MoveToTask extends Task {
-        private Logger logger = LoggerFactory.getLogger(MoveToTask.class);
-        private Vector3f lastPos;
-
         public MoveToTask(MoveToNode node) {
             super(node);
         }
@@ -54,18 +51,9 @@ public class MoveToNode extends Node {
         }
 
         private Status setMovement(Vector3f currentTarget) {
-            if (lastPos != null) {
-                // anti stuck control
-                lastPos.sub(actor().location().getWorldPosition());
-                if (lastPos.lengthSquared() < 1e-7f) {
-                    return Status.FAILURE;
-                }
-            }
-
             Status result;
             LocationComponent location = actor().location();
             Vector3f worldPos = new Vector3f(location.getWorldPosition());
-            lastPos = worldPos;
             Vector3f targetDirection = new Vector3f();
             targetDirection.sub(currentTarget, worldPos);
             Vector3f drive = new Vector3f();

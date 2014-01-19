@@ -23,6 +23,7 @@ import org.terasology.entitySystem.entity.EntityRef;
  *
  * @author synopia
  */
+
 public class JobMinionComponent implements Component {
     public transient EntityRef currentJob;
 

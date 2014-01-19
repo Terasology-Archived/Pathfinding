@@ -17,35 +17,35 @@ package org.terasology.jobSystem;
 
 import org.terasology.engine.CoreRegistry;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.logic.behavior.tree.Node;
+import org.terasology.logic.behavior.tree.DecoratorNode;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
 
 /**
  * @author synopia
  */
-public class FindJobNode extends Node {
+public class FindJobNode extends DecoratorNode {
     @Override
     public Task createTask() {
         return new FindJobTask(this);
     }
 
-    public static class FindJobTask extends Task {
+    public static class FindJobTask extends DecoratorTask implements Task.Observer {
+        private boolean jobAssigned;
+
         public FindJobTask(FindJobNode node) {
             super(node);
         }
 
         @Override
         public void onInitialize() {
-        }
-
-        @Override
-        public Status update(float dt) {
             JobMinionComponent actorJob = actor().component(JobMinionComponent.class);
             if (actorJob.currentJob != null) {
                 JobBlockComponent currentJob = actorJob.currentJob.getComponent(JobBlockComponent.class);
-                currentJob.assignedMinion = null;
-                actorJob.currentJob.saveComponent(currentJob);
+                if (currentJob != null) {
+                    currentJob.assignedMinion = null;
+                    actorJob.currentJob.saveComponent(currentJob);
+                }
             }
             CoreRegistry.get(JobBoard.class).refresh();
             EntityRef job = CoreRegistry.get(JobBoard.class).getJob(actor().minion());
@@ -56,12 +56,38 @@ public class FindJobNode extends Node {
 
                 actorJob.currentJob = job;
                 actor().save(actorJob);
-                return Status.SUCCESS;
+                jobAssigned = true;
+
+                interpreter().start(getNode().child, this);
             } else {
                 actorJob.currentJob = null;
                 actor().save(actorJob);
-                return Status.FAILURE;
+                jobAssigned = false;
             }
+        }
+
+        @Override
+        public Status update(float dt) {
+            return jobAssigned ? Status.RUNNING : Status.SUCCESS;
+        }
+
+        @Override
+        public void handle(Status result) {
+            JobMinionComponent actorJob = actor().component(JobMinionComponent.class);
+
+            if (actorJob.currentJob != null) {
+                JobBlockComponent currentJob = actorJob.currentJob.getComponent(JobBlockComponent.class);
+                if (currentJob != null) {
+                    currentJob.assignedMinion = null;
+                }
+                if (result == Status.SUCCESS) {
+                    actorJob.currentJob.removeComponent(JobBlockComponent.class);
+                }
+            }
+            actorJob.currentJob = null;
+            actor().save(actorJob);
+
+            interpreter().stop(this, result);
         }
 
         @Override

@@ -15,7 +15,6 @@
  */
 package org.terasology.jobSystem;
 
-import org.terasology.engine.CoreRegistry;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
@@ -43,18 +42,20 @@ public class FinishJobNode extends Node {
         public Status update(float dt) {
             JobMinionComponent actorJob = actor().component(JobMinionComponent.class);
             EntityRef currentJob = actorJob.currentJob;
-            if (currentJob != null) {
-                Job job = currentJob.getComponent(JobBlockComponent.class).getJob();
-                List<WalkableBlock> targetPositions = job.getTargetPositions(currentJob);
-                WalkableBlock currentBlock = actor().component(MinionMoveComponent.class).currentBlock;
-                if (!targetPositions.contains(currentBlock)) {
-                    return Status.FAILURE;
-                }
-                CoreRegistry.get(JobBoard.class).removeJob(currentJob);
-                actorJob.currentJob = null;
-                actor().save(actorJob);
-                job.letMinionWork(currentJob, actor().minion());
+            if (currentJob == null) {
+                return Status.FAILURE;
             }
+            JobBlockComponent jobBlockComponent = currentJob.getComponent(JobBlockComponent.class);
+            if (jobBlockComponent == null) {
+                return Status.FAILURE;
+            }
+            Job job = jobBlockComponent.getJob();
+            List<WalkableBlock> targetPositions = job.getTargetPositions(currentJob);
+            WalkableBlock currentBlock = actor().component(MinionMoveComponent.class).currentBlock;
+            if (!targetPositions.contains(currentBlock)) {
+                return Status.FAILURE;
+            }
+            job.letMinionWork(currentJob, actor().minion());
             return Status.SUCCESS;
         }
     }

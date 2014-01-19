@@ -52,24 +52,25 @@ public class MoveAlongPathNode extends DecoratorNode {
         @Override
         public void onInitialize() {
             MinionPathComponent pathComponent = actor().component(MinionPathComponent.class);
-            assert pathComponent.pathState == MinionPathComponent.PathState.PATH_RECEIVED;
-            pathComponent.pathState = MinionPathComponent.PathState.MOVING_PATH;
-            actor().save(pathComponent);
+            if (pathComponent.pathState == MinionPathComponent.PathState.PATH_RECEIVED) {
+                pathComponent.pathState = MinionPathComponent.PathState.MOVING_PATH;
+                actor().save(pathComponent);
 
-            path = pathComponent.path;
-            currentIndex = 0;
-            WalkableBlock block = path.get(currentIndex);
+                path = pathComponent.path;
+                currentIndex = 0;
+                WalkableBlock block = path.get(currentIndex);
 
-            MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
-            moveComponent.target = block.getBlockPosition().toVector3f();
-            actor().save(moveComponent);
+                MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
+                moveComponent.target = block.getBlockPosition().toVector3f();
+                actor().save(moveComponent);
 
-            interpreter().start(getNode().child, this);
+                interpreter().start(getNode().child, this);
+            }
         }
 
         @Override
         public Status update(float dt) {
-            return Status.RUNNING;
+            return path != null ? Status.RUNNING : Status.FAILURE;
         }
 
         @Override
