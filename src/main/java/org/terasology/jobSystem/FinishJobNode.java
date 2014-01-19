@@ -50,10 +50,10 @@ public class FinishJobNode extends Node {
                 if (!targetPositions.contains(currentBlock)) {
                     return Status.FAILURE;
                 }
-                job.letMinionWork(currentJob, actor().minion());
                 CoreRegistry.get(JobBoard.class).removeJob(currentJob);
                 actorJob.currentJob = null;
                 actor().save(actorJob);
+                job.letMinionWork(currentJob, actor().minion());
             }
             return Status.SUCCESS;
         }
