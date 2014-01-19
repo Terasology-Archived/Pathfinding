@@ -15,6 +15,8 @@
  */
 package org.terasology.minion.move;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
@@ -34,6 +36,7 @@ public class MoveToNode extends Node {
     }
 
     public static class MoveToTask extends Task {
+        private Logger logger = LoggerFactory.getLogger(MoveToTask.class);
         private Vector3f lastPos;
 
         public MoveToTask(MoveToNode node) {
@@ -47,23 +50,22 @@ public class MoveToNode extends Node {
             if (moveComponent != null && moveComponent.target != null) {
                 status = setMovement(moveComponent.target);
             }
-
             return status;
         }
 
         private Status setMovement(Vector3f currentTarget) {
-            Status result;
-            LocationComponent location = actor().location();
-            Vector3f worldPos = new Vector3f(location.getWorldPosition());
-            if( lastPos!=null ) {
-                lastPos.sub(worldPos);
-                if( lastPos.lengthSquared()<0.1f ) {
-                    // no movement
+            if (lastPos != null) {
+                // anti stuck control
+                lastPos.sub(actor().location().getWorldPosition());
+                if (lastPos.lengthSquared() < 1e-7f) {
                     return Status.FAILURE;
                 }
             }
-            lastPos = new Vector3f(worldPos);
 
+            Status result;
+            LocationComponent location = actor().location();
+            Vector3f worldPos = new Vector3f(location.getWorldPosition());
+            lastPos = worldPos;
             Vector3f targetDirection = new Vector3f();
             targetDirection.sub(currentTarget, worldPos);
             Vector3f drive = new Vector3f();

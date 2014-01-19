@@ -21,7 +21,6 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.logic.location.LocationComponent;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.pathfinding.componentSystem.PathReadyEvent;
 import org.terasology.pathfinding.model.Path;
@@ -40,13 +39,18 @@ public class MinionPathSystem implements ComponentSystem {
             return;
         }
         if (event.getPath() == null) {
+            logger.info("Minion " + minion + " received path (id = " + event.getPathId() + ") " +
+                    " invalid path " +
+                    " old path state " + pathComponent.pathState);
+
             pathComponent.path = Path.INVALID;
             pathComponent.pathState = MinionPathComponent.PathState.IDLE;
         } else {
 
-            logger.info("Minion received paths " + event.getPathId() +
-                    " from " + minion.getComponent(LocationComponent.class).getWorldPosition() +
-                    " to " + event.getTarget().getBlockPosition());
+            logger.info("Minion " + minion + " received path (id = " + event.getPathId() + ") " +
+                    minion.getComponent(MinionMoveComponent.class).target +
+                    " to " + event.getTarget().getBlockPosition() +
+                    " old path state " + pathComponent.pathState);
 
             pathComponent.path = event.getPath().get(0);
             pathComponent.pathState = MinionPathComponent.PathState.PATH_RECEIVED;

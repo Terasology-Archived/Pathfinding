@@ -15,11 +15,12 @@
  */
 package org.terasology.minion.path;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terasology.logic.behavior.tree.DecoratorNode;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
 import org.terasology.minion.move.MinionMoveComponent;
-import org.terasology.minion.move.MoveToNode;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.WalkableBlock;
 
@@ -30,6 +31,7 @@ import javax.vecmath.Vector3f;
  */
 public class MoveAlongPathNode extends DecoratorNode {
 
+
     public MoveAlongPathNode() {
     }
 
@@ -39,6 +41,7 @@ public class MoveAlongPathNode extends DecoratorNode {
     }
 
     public static class MoveAlongPathTask extends DecoratorNode.DecoratorTask implements Task.Observer {
+        private Logger logger = LoggerFactory.getLogger(MoveAlongPathTask.class);
         private Path path;
         private int currentIndex;
 
@@ -55,7 +58,7 @@ public class MoveAlongPathNode extends DecoratorNode {
 
             path = pathComponent.path;
             currentIndex = 0;
-            WalkableBlock block = pathComponent.path.get(currentIndex);
+            WalkableBlock block = path.get(currentIndex);
 
             MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
             moveComponent.target = block.getBlockPosition().toVector3f();
@@ -71,13 +74,15 @@ public class MoveAlongPathNode extends DecoratorNode {
 
         @Override
         public void handle(Status result) {
-            if (result != Status.SUCCESS) {
+            if (result == Status.FAILURE) {
                 interpreter().stop(this, Status.FAILURE);
+                return;
             }
             MinionPathComponent pathComponent = actor().component(MinionPathComponent.class);
+//            assert pathComponent.path == path;
             currentIndex++;
             if (currentIndex < path.size()) {
-                WalkableBlock block = pathComponent.path.get(currentIndex);
+                WalkableBlock block = path.get(currentIndex);
                 MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
                 Vector3f pos = block.getBlockPosition().toVector3f();
                 pos.add(new Vector3f(0, 1, 0));
