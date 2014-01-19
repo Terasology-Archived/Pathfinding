@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class PathfinderTestGenerator implements FirstPassGenerator {
     public Block air = BlockManager.getAir();
-    public Block ground = CoreRegistry.get(BlockManager.class).getBlock("engine:Dirt");
+    public Block ground = CoreRegistry.get(BlockManager.class).getBlock("core:Dirt");
     public boolean generateStairs;
 
     public PathfinderTestGenerator() {

@@ -9,7 +9,8 @@
     	sounds = "engine:click"
   	},
   	"BuildWall" : {
-  	    blockType = "engine:dirt"
+  	    blockType = "core:dirt"
   	},
-    "BlockSelection" : {}
+    "BlockSelection" : {},
+    "OnItemActivateSelection" : {}
 }

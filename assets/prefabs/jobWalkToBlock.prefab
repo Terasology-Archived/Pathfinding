@@ -11,5 +11,6 @@
     "Job" : {
         jobType = "Pathfinding:walkToBlock"
     },
-    "BlockSelection" : {}
+    "BlockSelection" : {},
+    "OnItemActivateSelection" : {}
 }

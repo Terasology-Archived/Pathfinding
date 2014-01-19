@@ -11,5 +11,6 @@
     "Job" : {
         jobType = "Pathfinding:removeBlock"
     },
-    "BlockSelection" : {}
+    "BlockSelection" : {},
+    "OnItemActivateSelection" : {}
 }
