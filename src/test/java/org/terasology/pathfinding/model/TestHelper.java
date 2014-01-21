@@ -17,6 +17,7 @@ package org.terasology.pathfinding.model;
 
 import org.terasology.config.Config;
 import org.terasology.engine.CoreRegistry;
+import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
 import org.terasology.world.WorldChangeListener;
@@ -296,6 +297,12 @@ public class TestHelper {
         public TestWorld(Block air, FirstPassGenerator chunkGenerator) {
             this.air = air;
             this.chunkGenerator = chunkGenerator;
+        }
+
+        @Override
+        public EntityRef getWorldEntity() {
+            // TODO: Review - added for simple compile fix
+            return null;
         }
 
         @Override
