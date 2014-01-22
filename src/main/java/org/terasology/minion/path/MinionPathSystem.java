@@ -39,7 +39,7 @@ public class MinionPathSystem implements ComponentSystem {
             return;
         }
         if (event.getPath() == null) {
-            logger.info("Minion " + minion + " received path (id = " + event.getPathId() + ") " +
+            logger.warn("Minion " + minion + " received path (id = " + event.getPathId() + ") " +
                     " invalid path " +
                     " old path state " + pathComponent.pathState);
 
