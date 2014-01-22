@@ -21,6 +21,7 @@ import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
 import org.terasology.logic.characters.CharacterMoveInputEvent;
+import org.terasology.logic.characters.CharacterMovementComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.TeraMath;
 
@@ -67,14 +68,60 @@ public class MoveToNode extends Node {
                 drive.set(0, 0, 0);
                 result = Status.SUCCESS;
             }
-            actor().minion().send(new CharacterMoveInputEvent(0, 0, 180 + yaw * TeraMath.RAD_TO_DEG, drive, false, jump));
+            
+            float requestedYaw = 180f + yaw * TeraMath.RAD_TO_DEG;
+
+            CharacterMoveInputEvent wantedInput = new CharacterMoveInputEvent(0, 0, requestedYaw, drive, false, jump);
+
+            CharacterMovementComponent characterMovement = actor().minion().getComponent(CharacterMovementComponent.class);
+
+            CharacterMoveInputEvent adjustedInput = calculateMovementInput(location, characterMovement, wantedInput, currentTarget);
+
+            actor().minion().send(adjustedInput);
 
             return result;
         }
 
-        @Override
+        protected CharacterMoveInputEvent calculateMovementInput(LocationComponent location,
+        		CharacterMovementComponent movementComp, CharacterMoveInputEvent input,
+        		Vector3f currentTarget) {
+        	
+        	Vector3f moveDelta = input.getMovementDirection();
+        	float delta = input.getDelta();
+        	
+        	Vector3f term1 = new Vector3f(moveDelta);
+        	moveDelta.scale(1f / delta);
+        	
+        	Vector3f term2 = new Vector3f(term1);
+        	term2.sub( movementComp.getVelocity() );
+        	
+        	Vector3f term3 = new Vector3f(term2);
+        	term3.scale ( 1f /  Math.min(movementComp.groundFriction * delta, 1f));
+        	
+        	Vector3f term4 = new Vector3f(term3);
+        	term4.add(movementComp.getVelocity());
+        	
+        	Vector3f term5 = new Vector3f(term4);
+        	term5.scale(1f / movementComp.maxGroundSpeed);
+        	
+        	Vector3f desiredVelocity = term5;
+
+        	
+            // Does not account for runFactor -- we are not currently supporting running
+            // Does not account for removing y component while maintaining speed -- we are not currently setting a non-zero y component
+            // Does not account for gravity's effect on the Y axis. -- this shouldn't affect horizontal travel.
+            // Does not account for anything the physics engine might be doing
+
+            CharacterMoveInputEvent newInput = new CharacterMoveInputEvent(input.getSequenceNumber(),
+            			input.getPitch(), input.getYaw(), desiredVelocity, input.isRunning(), input.isJumpRequested());
+            
+            return newInput;
+        }
+
+      	@Override
         public MoveToNode getNode() {
             return (MoveToNode) super.getNode();
         }
     }
+  
 }
