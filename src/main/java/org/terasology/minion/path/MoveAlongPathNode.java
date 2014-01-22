@@ -15,8 +15,6 @@
  */
 package org.terasology.minion.path;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.terasology.logic.behavior.tree.DecoratorNode;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
@@ -41,7 +39,6 @@ public class MoveAlongPathNode extends DecoratorNode {
     }
 
     public static class MoveAlongPathTask extends DecoratorNode.DecoratorTask implements Task.Observer {
-        private Logger logger = LoggerFactory.getLogger(MoveAlongPathTask.class);
         private Path path;
         private int currentIndex;
 
@@ -79,8 +76,6 @@ public class MoveAlongPathNode extends DecoratorNode {
                 interpreter().stop(this, Status.FAILURE);
                 return;
             }
-            MinionPathComponent pathComponent = actor().component(MinionPathComponent.class);
-//            assert pathComponent.path == path;
             currentIndex++;
             if (currentIndex < path.size()) {
                 WalkableBlock block = path.get(currentIndex);

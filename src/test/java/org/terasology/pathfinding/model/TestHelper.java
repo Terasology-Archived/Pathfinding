@@ -301,7 +301,6 @@ public class TestHelper {
 
         @Override
         public EntityRef getWorldEntity() {
-            // TODO: Review - added for simple compile fix
             return null;
         }
 
