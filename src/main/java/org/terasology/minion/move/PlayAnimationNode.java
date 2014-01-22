@@ -29,7 +29,7 @@ import java.util.Random;
  * @author synopia
  */
 public class PlayAnimationNode extends Node {
-    @OneOf.List(items= {"idle", "walk", "attack", "die", "fadeIn", "fadeOut", "work", "terraform", "random"})
+    @OneOf.List(items = {"idle", "walk", "attack", "die", "fadeIn", "fadeOut", "work", "terraform", "random"})
     private String animation;
 
     @Checkbox
