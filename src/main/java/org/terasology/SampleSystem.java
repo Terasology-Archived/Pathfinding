@@ -20,13 +20,13 @@ import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.ComponentSystem;
-import org.terasology.entitySystem.systems.In;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.players.event.OnPlayerSpawnedEvent;
 import org.terasology.logic.selection.ApplyBlockSelectionEvent;
 import org.terasology.math.Vector3i;
+import org.terasology.registry.In;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockManager;
@@ -45,7 +45,6 @@ public class SampleSystem implements ComponentSystem {
 
     @ReceiveEvent
     public void onPlayerSpawn(OnPlayerSpawnedEvent event, EntityRef player, InventoryComponent inventory) {
-        inventoryManager.giveItem(player, entityManager.create("LightAndShadowResources:redSpawner"));
         inventoryManager.giveItem(player, entityManager.create("Pathfinding:jobWalkToBlock"));
         inventoryManager.giveItem(player, entityManager.create("Pathfinding:jobBuildBlock"));
         inventoryManager.giveItem(player, entityManager.create("Pathfinding:jobRemoveBlock"));
