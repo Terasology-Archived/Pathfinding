@@ -15,9 +15,12 @@
  */
 package org.terasology.minion.path;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terasology.logic.behavior.tree.DecoratorNode;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
+import org.terasology.logic.location.LocationComponent;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.WalkableBlock;
@@ -39,6 +42,7 @@ public class MoveAlongPathNode extends DecoratorNode {
     }
 
     public static class MoveAlongPathTask extends DecoratorNode.DecoratorTask implements Task.Observer {
+        private final Logger logger = LoggerFactory.getLogger(MoveAlongPathNode.class);
         private Path path;
         private int currentIndex;
 
@@ -50,13 +54,13 @@ public class MoveAlongPathNode extends DecoratorNode {
         public void onInitialize() {
             MinionPathComponent pathComponent = actor().component(MinionPathComponent.class);
             if (pathComponent.pathState == MinionPathComponent.PathState.PATH_RECEIVED) {
-                pathComponent.pathState = MinionPathComponent.PathState.MOVING_PATH;
+                pathComponent.pathState = MinionPathComponent.PathState.MOVING_ALONG_PATH;
                 actor().save(pathComponent);
 
                 path = pathComponent.path;
                 currentIndex = 0;
                 WalkableBlock block = path.get(currentIndex);
-
+                logger.info("Start moving along path to step " + currentIndex + " " + block.getBlockPosition());
                 MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
                 moveComponent.target = block.getBlockPosition().toVector3f();
                 actor().save(moveComponent);
@@ -72,13 +76,15 @@ public class MoveAlongPathNode extends DecoratorNode {
 
         @Override
         public void handle(Status result) {
+            logger.info(" Finished moving along path to step " + currentIndex + " " + result);
             if (result == Status.FAILURE) {
                 interpreter().stop(this, Status.FAILURE);
                 return;
             }
-            currentIndex++;
-            if (currentIndex < path.size()) {
+            currentIndex = findNextPathIndex();
+            if (currentIndex >= 0) {
                 WalkableBlock block = path.get(currentIndex);
+                logger.info(" Continue moving along path to step " + currentIndex + " " + block.getBlockPosition());
                 MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
                 Vector3f pos = block.getBlockPosition().toVector3f();
                 pos.add(new Vector3f(0, 1, 0));
@@ -86,8 +92,29 @@ public class MoveAlongPathNode extends DecoratorNode {
                 actor().save(moveComponent);
                 interpreter().start(getNode().child, this);
             } else {
+                logger.info("Finished moving along path " + currentIndex + " " + result);
                 interpreter().stop(this, Status.SUCCESS);
             }
+        }
+
+        private int findNextPathIndex() {
+            LocationComponent location = actor().location();
+            Vector3f pos = location.getWorldPosition();
+            float lastDist = Float.MAX_VALUE;
+            currentIndex++;
+            if (currentIndex == path.size() - 1) {
+                return currentIndex;
+            }
+            for (; currentIndex < path.size(); currentIndex++) {
+                Vector3f diff = path.get(currentIndex).getBlockPosition().toVector3f();
+                diff.sub(pos);
+                float dist = diff.lengthSquared();
+                if (dist > lastDist) {
+                    return currentIndex - 1;
+                }
+                lastDist = dist;
+            }
+            return -1;
         }
 
         @Override

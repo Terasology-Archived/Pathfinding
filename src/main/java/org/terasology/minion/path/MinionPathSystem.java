@@ -48,8 +48,8 @@ public class MinionPathSystem implements ComponentSystem {
         } else {
 
             logger.info("Minion " + minion + " received path (id = " + event.getPathId() + ") " +
-                    minion.getComponent(MinionMoveComponent.class).target +
-                    " to " + event.getTarget().getBlockPosition() +
+                    minion.getComponent(MinionMoveComponent.class).currentBlock.getBlockPosition() +
+                    " to " + event.getStart().get(0).getBlockPosition() +
                     " old path state " + pathComponent.pathState);
 
             pathComponent.path = event.getPath().get(0);

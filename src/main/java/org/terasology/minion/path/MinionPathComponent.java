@@ -34,12 +34,11 @@ public class MinionPathComponent implements Component {
         NEW_TARGET,
         PATH_REQUESTED,
         PATH_RECEIVED,
-        MOVING_PATH,
+        MOVING_ALONG_PATH,
         FINISHED_MOVING
     }
 
     public transient Path path;
     public transient int pathId = -1;
-    public transient int pathStep;
     public transient PathState pathState = PathState.IDLE;
 }

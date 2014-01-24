@@ -44,12 +44,12 @@ public class MoveToNode extends Node {
             Status status = Status.FAILURE;
             MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
             if (moveComponent != null && moveComponent.target != null) {
-                status = setMovement(moveComponent.target);
+                status = setMovement(moveComponent.target, dt);
             }
             return status;
         }
 
-        private Status setMovement(Vector3f currentTarget) {
+        private Status setMovement(Vector3f currentTarget, float dt) {
             Status result;
             LocationComponent location = actor().location();
             Vector3f worldPos = new Vector3f(location.getWorldPosition());
@@ -69,13 +69,13 @@ public class MoveToNode extends Node {
 
             float requestedYaw = 180f + yaw * TeraMath.RAD_TO_DEG;
 
-            CharacterMoveInputEvent wantedInput = new CharacterMoveInputEvent(0, 0, requestedYaw, drive, false, jump);
+            CharacterMoveInputEvent wantedInput = new CharacterMoveInputEvent(0, 0, requestedYaw, drive, false, jump, (long) (dt * 1000));
 
             CharacterMovementComponent characterMovement = actor().minion().getComponent(CharacterMovementComponent.class);
 
             CharacterMoveInputEvent adjustedInput = calculateMovementInput(location, characterMovement, wantedInput, currentTarget);
 
-            actor().minion().send(adjustedInput);
+            actor().minion().send(wantedInput);
 
             return result;
         }

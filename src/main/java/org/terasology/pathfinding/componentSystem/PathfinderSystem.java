@@ -18,11 +18,9 @@ package org.terasology.pathfinding.componentSystem;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.engine.CoreRegistry;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.ComponentSystem;
-import org.terasology.entitySystem.systems.In;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.TeraMath;
@@ -31,6 +29,10 @@ import org.terasology.pathfinding.model.HeightMap;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.Pathfinder;
 import org.terasology.pathfinding.model.WalkableBlock;
+import org.terasology.registry.CoreRegistry;
+import org.terasology.registry.In;
+import org.terasology.utilities.concurrency.Task;
+import org.terasology.utilities.concurrency.TaskMaster;
 import org.terasology.world.WorldChangeListener;
 import org.terasology.world.WorldComponent;
 import org.terasology.world.WorldProvider;
@@ -38,23 +40,21 @@ import org.terasology.world.block.Block;
 import org.terasology.world.chunks.event.OnChunkLoaded;
 
 import javax.vecmath.Vector3f;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This systems helps finding a paths through the game world.
  * <p/>
  * Since paths finding takes some time, it completely runs in a background thread. So, a requested paths is not
  * available in the moment it is requested. Instead you need to listen for a PathReadyEvent.
+ * <p/>
+ * Here we also listen for world changes (OnChunkReady and OnBlockChanged). Currently, both events reset the
+ * pathfinder (clear path cache) and rebuild the modified chunk.
+ * </p>
+ * Chunk updates are processed before any pathfinding request. However, this system does not inform about
+ * paths getting invalid.
  *
  * @author synopia
  */
@@ -65,12 +65,10 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
     @In
     private WorldProvider world;
 
-    private BlockingQueue<UpdateChunkTask> updateChunkQueue = new ArrayBlockingQueue<>(100);
-    private BlockingQueue<FindPathTask> findPathTasks = new ArrayBlockingQueue<>(1000);
-    private Set<Vector3i> invalidChunks = Collections.synchronizedSet(new HashSet<Vector3i>());
+    private TaskMaster<PathfinderTask> taskMaster = TaskMaster.createPriorityTaskMaster("Pathfinder", 1, 1024);
 
-    private ExecutorService inputThreads;
-
+    private int pathsSearched;
+    private int chunkUpdates;
     private Map<Vector3i, HeightMap> maps = new HashMap<>();
     private Pathfinder pathfinder;
     private int nextId;
@@ -81,7 +79,8 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
 
     public int requestPath(EntityRef requestor, Vector3i target, List<Vector3i> start) {
         FindPathTask task = new FindPathTask(start, target, requestor);
-        findPathTasks.add(task);
+        taskMaster.offer(task);
+
         return task.pathId;
     }
 
@@ -113,97 +112,81 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
     @Override
     public void initialise() {
         world.registerListener(this);
-        pathfinder = new Pathfinder(world);
+        pathfinder = createPathfinder();
         logger.info("Pathfinder started");
-
-        inputThreads = Executors.newFixedThreadPool(1);
-        inputThreads.execute(new Runnable() {
-            @Override
-            public void run() {
-
-                boolean running = true;
-                Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-                while (running) {
-                    try {
-                        UpdateChunkTask task = updateChunkQueue.poll(1, TimeUnit.SECONDS);
-                        if (task != null) {
-                            for (FindPathTask t : findPathTasks) {
-                                t.cancel();
-                            }
-                            findPathTasks.clear();
-
-                            task.process();
-                        } else {
-                            findPaths();
-                        }
-                    } catch (InterruptedException e) {
-                        logger.error("Thread interrupted", e);
-                    } catch (Exception e) {
-                        logger.error("Error in thread", e);
-                    }
-                }
-                logger.debug("Thread shutdown safely");
-            }
-        });
     }
 
-    private void findPaths() {
-        long time = System.nanoTime();
-        int count = 0;
-        while (!findPathTasks.isEmpty()) {
-            FindPathTask pathTask = findPathTasks.poll();
-            if (pathTask.processed) {
-                continue;
-            }
-            pathTask.process();
-            count++;
-        }
-        float ms = (System.nanoTime() - time) / 1000 / 1000f;
-        if (count > 0) {
-            logger.info("Searching " + count + " paths took " + ms + " ms");
-        }
+    protected Pathfinder createPathfinder() {
+        return new Pathfinder(world);
     }
 
     @Override
     public void shutdown() {
-        inputThreads.shutdown();
     }
 
     @Override
     public void onBlockChanged(Vector3i pos, Block newBlock, Block originalBlock) {
         Vector3i chunkPos = TeraMath.calcChunkPos(pos);
-        invalidChunks.add(chunkPos);
-        updateChunkQueue.offer(new UpdateChunkTask(chunkPos));
+        taskMaster.offer(new UpdateChunkTask(chunkPos));
     }
 
     @ReceiveEvent(components = WorldComponent.class)
     public void chunkReady(OnChunkLoaded event, EntityRef worldEntity) {
-        invalidChunks.add(event.getChunkPos());
-        updateChunkQueue.offer(new UpdateChunkTask(event.getChunkPos()));
+        taskMaster.offer(new UpdateChunkTask(event.getChunkPos()));
+    }
+
+    public int getPathsSearched() {
+        return pathsSearched;
+    }
+
+    public int getChunkUpdates() {
+        return chunkUpdates;
+    }
+
+    private abstract class PathfinderTask implements Task, Comparable<PathfinderTask> {
+        @Override
+        public boolean isTerminateSignal() {
+            return false;
+        }
     }
 
     /**
      * Task to update a chunk
      */
-    private final class UpdateChunkTask {
+    private final class UpdateChunkTask extends PathfinderTask {
         public Vector3i chunkPos;
 
         private UpdateChunkTask(Vector3i chunkPos) {
             this.chunkPos = chunkPos;
         }
 
-        public void process() {
+        @Override
+        public String getName() {
+            return "Pathfinder:UpdateChunk";
+        }
+
+        @Override
+        public void enact() {
+            chunkUpdates++;
             maps.remove(chunkPos);
             HeightMap map = pathfinder.update(chunkPos);
             maps.put(chunkPos, map);
             pathfinder.clearCache();
         }
+
+        @Override
+        public int compareTo(PathfinderTask o) {
+            if (o instanceof FindPathTask) {
+                return -1;
+            }
+            return 0;
+        }
     }
 
     /**
-     * Task to find a paths.
+     * Task to find a path.
      */
-    private final class FindPathTask {
+    private final class FindPathTask extends PathfinderTask {
         public EntityRef entity;
         public List<Path> paths;
         public List<Vector3i> start;
@@ -219,11 +202,14 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
             nextId++;
         }
 
-        /**
-         * Does the actual paths finding. When its done, the outputQueue is filled with the result.
-         * This method should be called from a thread only, it may take long.
-         */
-        public void process() {
+        @Override
+        public String getName() {
+            return "Pathfinder:FindPath";
+        }
+
+        @Override
+        public void enact() {
+            pathsSearched++;
             List<WalkableBlock> startBlocks = Lists.newArrayList();
             for (Vector3i pos : start) {
                 if (pos != null) {
@@ -239,8 +225,16 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
             entity.send(new PathReadyEvent(pathId, paths, targetBlock, startBlocks));
         }
 
-        public void cancel() {
-            entity.send(new PathReadyEvent(pathId, null, null, null));
+        @Override
+        public int compareTo(PathfinderTask o) {
+            if (o instanceof UpdateChunkTask) {
+                return 1;
+            }
+            if (o instanceof FindPathTask) {
+                FindPathTask find = (FindPathTask) o;
+                return Integer.compare(pathId, find.pathId);
+            }
+            return 0;
         }
     }
 }
