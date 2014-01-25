@@ -42,7 +42,7 @@ public class MoveAlongPathNode extends DecoratorNode {
     }
 
     public static class MoveAlongPathTask extends DecoratorNode.DecoratorTask implements Task.Observer {
-        private final Logger logger = LoggerFactory.getLogger(MoveAlongPathNode.class);
+        private static final Logger logger = LoggerFactory.getLogger(MoveAlongPathNode.class);
         private Path path;
         private int currentIndex;
 

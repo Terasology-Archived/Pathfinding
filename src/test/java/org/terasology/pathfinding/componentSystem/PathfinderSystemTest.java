@@ -24,7 +24,6 @@ import org.terasology.entitySystem.entity.internal.PojoEntityManager;
 import org.terasology.entitySystem.event.internal.EventReceiver;
 import org.terasology.entitySystem.event.internal.EventSystem;
 import org.terasology.entitySystem.event.internal.EventSystemImpl;
-import org.terasology.entitySystem.metadata.ComponentLibrary;
 import org.terasology.entitySystem.metadata.EntitySystemLibrary;
 import org.terasology.entitySystem.prefab.internal.PojoPrefabManager;
 import org.terasology.math.Vector3i;
@@ -132,7 +131,6 @@ public class PathfinderSystemTest {
         TypeSerializationLibrary serializationLibrary = new TypeSerializationLibrary(reflectFactory, copyStrategies);
 
         EntitySystemLibrary entitySystemLibrary = new EntitySystemLibrary(reflectFactory, copyStrategies, serializationLibrary);
-        ComponentLibrary compLibrary = entitySystemLibrary.getComponentLibrary();
         entityManager = new PojoEntityManager();
         entityManager.setEntitySystemLibrary(entitySystemLibrary);
         entityManager.setPrefabManager(new PojoPrefabManager());
