@@ -30,7 +30,7 @@ public class FindJobNode extends DecoratorNode {
         return new FindJobTask(this);
     }
 
-    public static class FindJobTask extends DecoratorTask implements Task.Observer {
+    public static class FindJobTask extends DecoratorTask {
         private boolean jobAssigned;
 
         public FindJobTask(FindJobNode node) {

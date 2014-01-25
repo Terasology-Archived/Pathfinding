@@ -55,5 +55,10 @@ public class SetTargetJobNode extends Node {
             }
             return Status.FAILURE;
         }
+
+        @Override
+        public void handle(Status result) {
+
+        }
     }
 }

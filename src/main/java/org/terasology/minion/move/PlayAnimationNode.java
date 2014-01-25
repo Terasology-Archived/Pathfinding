@@ -98,6 +98,11 @@ public class PlayAnimationNode extends Node {
         }
 
         @Override
+        public void handle(Status result) {
+
+        }
+
+        @Override
         public Status update(float dt) {
             return actor().skeletalMesh().animation == null ? Status.SUCCESS : Status.RUNNING;
         }

@@ -58,5 +58,10 @@ public class FinishJobNode extends Node {
             job.letMinionWork(currentJob, actor().minion());
             return Status.SUCCESS;
         }
+
+        @Override
+        public void handle(Status result) {
+
+        }
     }
 }

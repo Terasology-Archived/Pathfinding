@@ -55,6 +55,11 @@ public class SetTargetLocalPlayerNode extends Node {
         }
 
         @Override
+        public void handle(Status result) {
+
+        }
+
+        @Override
         public SetTargetLocalPlayerNode getNode() {
             return (SetTargetLocalPlayerNode) super.getNode();
         }

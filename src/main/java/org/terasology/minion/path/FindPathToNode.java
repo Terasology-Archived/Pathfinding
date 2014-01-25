@@ -63,6 +63,11 @@ public class FindPathToNode extends Node {
         }
 
         @Override
+        public void handle(Status result) {
+
+        }
+
+        @Override
         public FindPathToNode getNode() {
             return (FindPathToNode) super.getNode();
         }

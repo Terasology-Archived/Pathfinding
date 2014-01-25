@@ -61,6 +61,11 @@ public class FindWalkableBlockNode extends Node {
         }
 
         @Override
+        public void handle(Status result) {
+
+        }
+
+        @Override
         public FindWalkableBlockNode getNode() {
             return (FindWalkableBlockNode) super.getNode();
         }

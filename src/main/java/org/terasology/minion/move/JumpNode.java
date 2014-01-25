@@ -46,5 +46,10 @@ public class JumpNode extends Node {
         public Status update(float dt) {
             return actor().component(CharacterMovementComponent.class).grounded ? Status.SUCCESS : Status.RUNNING;
         }
+
+        @Override
+        public void handle(Status result) {
+
+        }
     }
 }

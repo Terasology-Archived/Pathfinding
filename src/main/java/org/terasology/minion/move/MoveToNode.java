@@ -49,6 +49,11 @@ public class MoveToNode extends Node {
             return status;
         }
 
+        @Override
+        public void handle(Status result) {
+
+        }
+
         private Status setMovement(Vector3f currentTarget, float dt) {
             Status result;
             LocationComponent location = actor().location();

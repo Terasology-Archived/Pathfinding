@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.logic.behavior.tree.DecoratorNode;
 import org.terasology.logic.behavior.tree.Status;
-import org.terasology.logic.behavior.tree.Task;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.pathfinding.model.Path;
@@ -41,7 +40,7 @@ public class MoveAlongPathNode extends DecoratorNode {
         return new MoveAlongPathTask(this);
     }
 
-    public static class MoveAlongPathTask extends DecoratorNode.DecoratorTask implements Task.Observer {
+    public static class MoveAlongPathTask extends DecoratorNode.DecoratorTask {
         private static final Logger logger = LoggerFactory.getLogger(MoveAlongPathNode.class);
         private Path path;
         private int currentIndex;
