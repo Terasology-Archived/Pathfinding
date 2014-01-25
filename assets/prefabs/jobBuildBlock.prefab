@@ -2,7 +2,7 @@
     "parent" : "engine:iconItem",
     "Item" : {
         "name" : "Build block",
-        "icon" : "scissors",
+        "icon" : "buildBlockJob",
 		"usage" : "ON_BLOCK"
     },
   	"PlaySoundAction" : {
