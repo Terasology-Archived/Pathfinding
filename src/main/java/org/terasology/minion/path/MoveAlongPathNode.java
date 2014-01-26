@@ -62,7 +62,7 @@ public class MoveAlongPathNode extends DecoratorNode {
                 moveComponent.target = block.getBlockPosition().toVector3f();
                 actor().save(moveComponent);
 
-                interpreter().start(getNode().child, this);
+                start(getNode().child);
             }
         }
 
@@ -75,7 +75,7 @@ public class MoveAlongPathNode extends DecoratorNode {
         public void handle(Status result) {
             logger.info(" Finished moving along path to step " + currentIndex + " " + result);
             if (result == Status.FAILURE) {
-                interpreter().stop(this, Status.FAILURE);
+                stop(Status.FAILURE);
                 return;
             }
             currentIndex = findNextPathIndex();
@@ -87,10 +87,10 @@ public class MoveAlongPathNode extends DecoratorNode {
                 pos.add(new Vector3f(0, 1, 0));
                 moveComponent.target = pos;
                 actor().save(moveComponent);
-                interpreter().start(getNode().child, this);
+                start(getNode().child);
             } else {
                 logger.info("Finished moving along path " + currentIndex + " " + result);
-                interpreter().stop(this, Status.SUCCESS);
+                stop(Status.SUCCESS);
             }
         }
 
