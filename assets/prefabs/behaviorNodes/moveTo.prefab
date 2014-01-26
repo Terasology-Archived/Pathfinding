@@ -1,6 +1,6 @@
 {
      "BehaviorNode" : {
-         "type"      : "org.terasology.minion.move.MoveToNode",
+         "type"      : "MoveToNode",
          "name"      : "Move To",
          "category"  : "moving",
          "shape"     : "rect",

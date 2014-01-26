@@ -1,6 +1,6 @@
 {
     "BehaviorNode" : {
-        "type"      : "org.terasology.minion.move.JumpNode",
+        "type"      : "JumpNode",
         "name"      : "Jump",
         "category"  : "moving",
         "shape"     : "rect",

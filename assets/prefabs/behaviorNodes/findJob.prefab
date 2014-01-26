@@ -1,6 +1,6 @@
 {
     "BehaviorNode" : {
-        "type"      : "org.terasology.jobSystem.FindJobNode",
+        "type"      : "FindJobNode",
         "name"      : "Find Job",
         "category"  : "job",
         "shape"     : "rect",

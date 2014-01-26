@@ -1,6 +1,6 @@
 {
     "BehaviorNode" : {
-        "type"      : "org.terasology.minion.path.MoveAlongPathNode",
+        "type"      : "MoveAlongPathNode",
         "name"      : "Move Along Path",
         "category"  : "path",
         "shape"     : "rect",

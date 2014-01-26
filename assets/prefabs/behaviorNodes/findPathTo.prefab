@@ -1,6 +1,6 @@
 {
     "BehaviorNode" : {
-        "type"      : "org.terasology.minion.path.FindPathToNode",
+        "type"      : "FindPathToNode",
         "name"      : "Find Path",
         "category"  : "path",
         "shape"     : "rect",

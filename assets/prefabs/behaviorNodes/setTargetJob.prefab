@@ -1,6 +1,6 @@
 {
     "BehaviorNode" : {
-        "type"      : "org.terasology.jobSystem.SetTargetJobNode",
+        "type"      : "SetTargetJobNode",
         "name"      : "Set target to Job",
         "category"  : "job",
         "shape"     : "rect",
