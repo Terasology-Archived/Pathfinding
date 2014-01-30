@@ -2,7 +2,7 @@
     "parent" : "engine:iconItem",
     "Item" : {
         "name" : "Remove block",
-        "icon" : "removeBlockJob",
+        "icon" : "engine:items.removeBlockJob",
 		"usage" : "ON_BLOCK"
     },
   	"PlaySoundAction" : {

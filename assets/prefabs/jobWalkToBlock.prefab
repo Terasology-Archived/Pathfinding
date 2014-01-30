@@ -2,7 +2,7 @@
     "parent" : "engine:iconItem",
     "Item" : {
         "name" : "Walk to block",
-        "icon" : "walkToJob",
+        "icon" : "engine:items.walkToJob",
 		"usage" : "ON_BLOCK"
     },
   	"PlaySoundAction" : {
