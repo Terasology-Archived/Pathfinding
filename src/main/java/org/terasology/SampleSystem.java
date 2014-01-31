@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 MovingBlocks
+ * Copyright 2014 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.terasology;
 
-import org.terasology.engine.CoreRegistry;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
@@ -42,6 +41,8 @@ public class SampleSystem implements ComponentSystem {
     private InventoryManager inventoryManager;
     @In
     private WorldProvider worldProvider;
+    @In
+    private BlockManager blockManager;
 
     @ReceiveEvent
     public void onPlayerSpawn(OnPlayerSpawnedEvent event, EntityRef player, InventoryComponent inventory) {
@@ -57,7 +58,7 @@ public class SampleSystem implements ComponentSystem {
         if (buildWallComponent == null) {
             return;
         }
-        Block solid = CoreRegistry.get(BlockManager.class).getBlock(buildWallComponent.blockType);
+        Block solid = blockManager.getBlock(buildWallComponent.blockType);
         Vector3i size = event.getSelection().size();
         Vector3i pos = event.getSelection().min();
         for (int z = 0; z < size.z; z++) {

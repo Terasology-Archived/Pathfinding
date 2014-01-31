@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 MovingBlocks
+ * Copyright 2014 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,9 @@
 package org.terasology.jobSystem.jobs;
 
 import com.google.common.collect.Lists;
-import org.terasology.engine.CoreRegistry;
 import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.systems.ComponentSystem;
-import org.terasology.entitySystem.systems.In;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.jobSystem.Job;
 import org.terasology.jobSystem.JobFactory;
@@ -28,6 +26,7 @@ import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.WalkableBlock;
+import org.terasology.registry.In;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockComponent;
@@ -52,6 +51,8 @@ public class RemoveBlock implements Job, ComponentSystem {
     private PathfinderSystem pathfinderSystem;
     @In
     private WorldProvider worldProvider;
+    @In
+    private JobFactory jobFactory;
 
     private final SimpleUri uri;
 
@@ -61,7 +62,7 @@ public class RemoveBlock implements Job, ComponentSystem {
 
     @Override
     public void initialise() {
-        CoreRegistry.get(JobFactory.class).register(this);
+        jobFactory.register(this);
     }
 
     @Override

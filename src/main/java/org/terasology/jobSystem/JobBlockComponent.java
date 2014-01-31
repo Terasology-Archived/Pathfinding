@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 MovingBlocks
+ * Copyright 2014 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 package org.terasology.jobSystem;
 
-import org.terasology.engine.CoreRegistry;
 import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.pathfinding.model.WalkableBlock;
+import org.terasology.registry.CoreRegistry;
 import org.terasology.world.block.ForceBlockActive;
 
 import java.util.List;

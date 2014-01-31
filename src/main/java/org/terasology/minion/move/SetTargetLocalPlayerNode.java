@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 MovingBlocks
+ * Copyright 2014 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.terasology.minion.move;
 
-import org.terasology.engine.CoreRegistry;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
@@ -23,6 +22,7 @@ import org.terasology.logic.players.LocalPlayer;
 import org.terasology.minion.path.MinionPathComponent;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.WalkableBlock;
+import org.terasology.registry.In;
 
 import javax.vecmath.Vector3f;
 
@@ -36,15 +36,19 @@ public class SetTargetLocalPlayerNode extends Node {
     }
 
     public static class SetTargetLocalPlayerTask extends Task {
+        @In
+        private LocalPlayer localPlayer;
+        @In
+        private PathfinderSystem pathfinderSystem;
+
         public SetTargetLocalPlayerTask(Node node) {
             super(node);
         }
 
         @Override
         public Status update(float dt) {
-            LocalPlayer localPlayer = CoreRegistry.get(LocalPlayer.class);
             Vector3f position = localPlayer.getPosition();
-            WalkableBlock block = CoreRegistry.get(PathfinderSystem.class).getBlock(position);
+            WalkableBlock block = pathfinderSystem.getBlock(position);
             if (block != null) {
                 MinionPathComponent pathComponent = actor().component(MinionPathComponent.class);
                 pathComponent.targetBlock = block.getBlockPosition();
