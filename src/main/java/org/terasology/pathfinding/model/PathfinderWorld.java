@@ -68,4 +68,8 @@ public class PathfinderWorld {
             return null;
         }
     }
+
+    public WorldProvider getWorld() {
+        return world;
+    }
 }

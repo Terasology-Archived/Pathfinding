@@ -33,9 +33,9 @@ public class Pathfinder {
     private PathCache cache;
     private PathfinderWorld world;
 
-    public Pathfinder(PathfinderWorld world) {
+    public Pathfinder(PathfinderWorld world, LineOfSight lineOfSight) {
         this.world = world;
-        haStar = new HAStar();
+        haStar = new HAStar(lineOfSight);
         cache = new PathCache();
     }
 

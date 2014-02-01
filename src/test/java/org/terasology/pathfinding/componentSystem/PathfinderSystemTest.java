@@ -31,6 +31,7 @@ import org.terasology.minion.path.MinionPathComponent;
 import org.terasology.network.NetworkMode;
 import org.terasology.network.NetworkSystem;
 import org.terasology.pathfinding.model.Pathfinder;
+import org.terasology.pathfinding.model.PathfinderWorld;
 import org.terasology.persistence.typeSerialization.TypeSerializationLibrary;
 import org.terasology.reflection.copy.CopyStrategyLibrary;
 import org.terasology.reflection.reflect.ReflectFactory;
@@ -62,6 +63,11 @@ public class PathfinderSystemTest {
             @Override
             protected Pathfinder createPathfinder() {
                 return mock(Pathfinder.class);
+            }
+
+            @Override
+            protected PathfinderWorld createWorld() {
+                return mock(PathfinderWorld.class);
             }
         };
         InjectionHelper.inject(system);
@@ -97,6 +103,11 @@ public class PathfinderSystemTest {
             @Override
             protected Pathfinder createPathfinder() {
                 return mock(Pathfinder.class);
+            }
+
+            @Override
+            protected PathfinderWorld createWorld() {
+                return mock(PathfinderWorld.class);
             }
         };
         InjectionHelper.inject(system);

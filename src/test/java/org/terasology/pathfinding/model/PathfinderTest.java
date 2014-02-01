@@ -86,7 +86,7 @@ public class PathfinderTest {
         helper.setAir(x + 7, 50, z + 8);
 
         world.update(new Vector3i(chunkX, 0, chunkZ));
-
+        pathfinder.clearCache();
         path = pathfinder.findPath(targetBlock, startBlock);
         Assert.assertTrue(0 < path.size());
     }
@@ -96,7 +96,7 @@ public class PathfinderTest {
         helper = new TestHelper();
         helper.init(new PathfinderTestGenerator(true));
         world = new PathfinderWorld(helper.world);
-        pathfinder = new Pathfinder(world);
+        pathfinder = new Pathfinder(world, new LineOfSight3d(helper.world));
     }
 
 }

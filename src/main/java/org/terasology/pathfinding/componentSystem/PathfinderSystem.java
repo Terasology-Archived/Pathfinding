@@ -26,6 +26,7 @@ import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.model.HeightMap;
+import org.terasology.pathfinding.model.LineOfSight3d;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.Pathfinder;
 import org.terasology.pathfinding.model.PathfinderWorld;
@@ -114,13 +115,17 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
     @Override
     public void initialise() {
         world.registerListener(this);
+        pathfinderWorld = createWorld();
         pathfinder = createPathfinder();
         logger.info("Pathfinder started");
     }
 
     protected Pathfinder createPathfinder() {
-        pathfinderWorld = new PathfinderWorld(world);
-        return new Pathfinder(pathfinderWorld);
+        return new Pathfinder(pathfinderWorld, new LineOfSight3d(world));
+    }
+
+    protected PathfinderWorld createWorld() {
+         return new PathfinderWorld(world);
     }
 
     @Override

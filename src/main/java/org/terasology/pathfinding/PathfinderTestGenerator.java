@@ -32,15 +32,21 @@ import java.util.Map;
  */
 public class PathfinderTestGenerator implements FirstPassGenerator {
     public Block air = BlockManager.getAir();
-    public Block ground = CoreRegistry.get(BlockManager.class).getBlock("engine:Dirt");
+    public Block ground = CoreRegistry.get(BlockManager.class).getBlock("core:Dirt");
     public boolean generateStairs;
+    public boolean openStairs;
 
     public PathfinderTestGenerator() {
         this(true);
     }
 
     public PathfinderTestGenerator(boolean generateStairs) {
+        this(true, false);
+    }
+
+    public PathfinderTestGenerator(boolean generateStairs, boolean openStairs) {
         this.generateStairs = generateStairs;
+        this.openStairs = openStairs;
     }
 
     @Override
@@ -108,6 +114,9 @@ public class PathfinderTestGenerator implements FirstPassGenerator {
         chunk.setBlock(x, y, z, ground);
         chunk.setBlock(x, y + 1, z, air);
         chunk.setBlock(x, y + 2, z, air);
+        if (openStairs) {
+            chunk.setBlock(x, y + 3, z, air);
+        }
     }
 
     @Override

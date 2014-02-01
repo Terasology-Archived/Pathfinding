@@ -67,9 +67,6 @@ public class WalkableBlockFinder {
                     for (int i = 0; i < HeightMap.DIRECTIONS.length; i++) {
                         connectToDirection(map, x, z, block, i);
                     }
-//                    for (int i = 1; i < HeightMap.DIRECTIONS.length; i+=2) {
-//                        connectToDirectionDiagonal(map, x, z, block, i);
-//                    }
                 }
             }
         }

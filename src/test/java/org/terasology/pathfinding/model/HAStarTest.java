@@ -141,7 +141,12 @@ public class HAStarTest {
         expected.put(0, start.getBlockPosition());
 //        expected.put(expected.size(), targetPos.getBlockPosition());
 
-        HAStar haStar = new HAStar();
+        HAStar haStar = new HAStar(new LineOfSight() {
+            @Override
+            public boolean inSight(WalkableBlock one, WalkableBlock two) {
+                return false;
+            }
+        });
 
         haStar.run(end, start);
         List<WalkableBlock> path = haStar.getPath();

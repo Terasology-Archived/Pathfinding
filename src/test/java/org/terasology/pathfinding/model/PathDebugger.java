@@ -17,6 +17,7 @@ package org.terasology.pathfinding.model;
 
 import com.google.common.collect.Sets;
 import org.terasology.math.Vector3i;
+import org.terasology.pathfinding.PathfinderTestGenerator;
 
 import javax.swing.*;
 import java.awt.*;
@@ -40,15 +41,16 @@ public class PathDebugger extends JFrame {
     private WalkableBlock target;
     private Path path;
     private final PathfinderWorld world;
+    private boolean isSight;
 
     public PathDebugger() throws HeadlessException {
         mapWidth = 160;
         mapHeight = 100;
         helper = new TestHelper();
 //        helper.init(new MazeChunkGenerator(mapWidth, mapHeight, 4, 0, 20));
-//        helper = new TestHelper(new PathfinderTestGenerator(true));
+        helper.init(new PathfinderTestGenerator(true, true));
         world = new PathfinderWorld(helper.world);
-        pathfinder = new Pathfinder(world);
+        pathfinder = new Pathfinder(world, new LineOfSight2d(world));
         for (int x = 0; x < mapWidth / 16 + 1; x++) {
             for (int z = 0; z < mapHeight / 16 + 1; z++) {
                 world.init(new Vector3i(x, 0, z));
@@ -107,11 +109,19 @@ public class PathDebugger extends JFrame {
                     WalkableBlock block = world.getBlock(new Vector3i(clickedX, level, clickedZ));
                     if (start == null) {
                         start = block;
+                        isSight = false;
                     } else {
                         if (target == null) {
                             target = block;
-                            path = pathfinder.findPath(target, start);
+                            if (e.getButton() == MouseEvent.BUTTON1) {
+                                path = pathfinder.findPath(target, start);
+                                isSight = false;
+                            } else {
+                                LineOfSight2d lineOfSight = new LineOfSight2d(world);
+                                isSight = lineOfSight.inSight(start, target);
+                            }
                         } else {
+                            isSight = false;
                             start = block;
                             target = null;
                         }
@@ -211,6 +221,14 @@ public class PathDebugger extends JFrame {
                     }
                     g.drawLine(x, y, ex, ey);
                 }
+            }
+            if (start != null && target != null && isSight) {
+                int x0 = start.x() * getWidth() / mapWidth;
+                int z0 = start.z() * getHeight() / mapHeight;
+                int x1 = target.x() * getWidth() / mapWidth;
+                int z1 = target.z() * getHeight() / mapHeight;
+                g.setColor(Color.BLUE);
+                g.drawLine(x0, z0, x1, z1);
             }
         }
     }

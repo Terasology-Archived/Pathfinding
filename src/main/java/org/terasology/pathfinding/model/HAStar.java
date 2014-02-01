@@ -20,7 +20,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
 
 import java.util.BitSet;
@@ -49,12 +48,10 @@ public class HAStar {
 
     private BitSet closedList = new BitSet(16 * 1024);
     private boolean useContour;
+    private LineOfSight lineOfSight;
 
-    public HAStar() {
-        this(true);
-    }
-
-    public HAStar(boolean useContour) {
+    public HAStar(LineOfSight lineOfSight, boolean useContour) {
+        this.lineOfSight = lineOfSight;
         this.useContour = useContour;
         openList = new BinaryHeap(new Comparator<Integer>() {
             @Override
@@ -65,8 +62,12 @@ public class HAStar {
             }
         }, MAX_NODES, MAX_NODES);
         if (useContour) {
-            localAStar = new HAStar(false);
+            localAStar = new HAStar(null, false);
         }
+    }
+
+    public HAStar(LineOfSight lineOfSight) {
+        this(lineOfSight, true);
     }
 
     public void reset() {
@@ -179,7 +180,7 @@ public class HAStar {
     private void updateNode(int current, Node currentNode, int successor, Node successorNode) {
         float oldG = successorNode.g;
         computeCosts(current, currentNode, successor, successorNode);
-        if (successorNode.g < oldG) {
+        if (successorNode.g <= oldG) {
             if (openList.contains(successor)) {
                 openList.update(successor);
             } else {
@@ -189,9 +190,9 @@ public class HAStar {
     }
 
     private void computeCosts(int current, Node currentNode, int successor, Node successorNode) {
-        if (lineOfSight(currentNode.p, successorNode)) {
-            float tentativeG = currentNode.p.g + c(nodeMap.get(currentNode.p.block), successor, true);
-            if (tentativeG < successorNode.g) {
+        if (lineOfSight != null && currentNode.p != null && lineOfSight.inSight(currentNode.p.block, successorNode.block)) {
+            float tentativeG = currentNode.p.g + c(currentNode.p.id, successor, true);
+            if (tentativeG <= successorNode.g) {
                 successorNode.path = null;
                 successorNode.p = currentNode.p;
                 successorNode.g = tentativeG;
@@ -199,80 +200,13 @@ public class HAStar {
             }
         } else {
             float tentativeG = currentNode.g + c(current, successor, false);
-            if (tentativeG < successorNode.g) {
-                successorNode.path = localPath;
+            if (tentativeG <= successorNode.g) {
+                successorNode.path = null;
                 successorNode.p = currentNode;
                 successorNode.g = tentativeG;
                 successorNode.f = tentativeG + h(successor);
             }
         }
-    }
-
-    private boolean lineOfSight(Node a, Node b) {
-        if (a == null || b == null || a.block.floor != b.block.floor) {
-            return false;
-        }
-        BitMap map = a.block.floor.getMap();
-
-        int x0 = TeraMath.calcBlockPosX(a.block.x());
-        int y0 = TeraMath.calcBlockPosZ(a.block.z());
-        int x1 = TeraMath.calcBlockPosX(b.block.x());
-        int y1 = TeraMath.calcBlockPosZ(b.block.z());
-        int dy = y1 - y0;
-        int dx = x1 - x0;
-        int sx;
-        int sy;
-        int f = 0;
-        if (dy < 0) {
-            dy = -dy;
-            sy = -1;
-        } else {
-            sy = 1;
-        }
-        if (dx < 0) {
-            dx = -dx;
-            sx = -1;
-        } else {
-            sx = 1;
-        }
-        if (dx > dy) {
-            while (x0 != x1) {
-                f += dy;
-                if (f > dx) {
-                    if (!map.isPassable(x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2))) {
-                        return false;
-                    }
-                    y0 += sy;
-                    f -= dx;
-                }
-                if (f != 0 && !map.isPassable(x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2))) {
-                    return false;
-                }
-                if (dy == 0 && !map.isPassable(x0 + ((sx - 1) / 2), y0) && !map.isPassable(x0 + ((sx - 1) / 2), y0 - 1)) {
-                    return false;
-                }
-                x0 += sx;
-            }
-        } else {
-            while (y0 != y1) {
-                f += dx;
-                if (f > dy) {
-                    if (!map.isPassable(x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2))) {
-                        return false;
-                    }
-                    x0 += sx;
-                    f -= dy;
-                }
-                if (f != 0 && !map.isPassable(x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2))) {
-                    return false;
-                }
-                if (dx == 0 && !map.isPassable(x0, y0 + ((sy - 1) / 2)) && !map.isPassable(x0 - 1, y0 + ((sy - 1) / 2))) {
-                    return false;
-                }
-                y0 += sy;
-            }
-        }
-        return true;
     }
 
     protected float c(int from, int to, boolean inSight) {
@@ -282,7 +216,7 @@ public class HAStar {
         if (inSight) {
             Vector3i dist = new Vector3i(fromNode.block.getBlockPosition());
             dist.sub(toNode.block.getBlockPosition());
-            return dist.lengthSquared();
+            return dist.length();
         } else {
             Vector3i fromPos = fromNode.block.getBlockPosition();
             Vector3i toPos = toNode.block.getBlockPosition();

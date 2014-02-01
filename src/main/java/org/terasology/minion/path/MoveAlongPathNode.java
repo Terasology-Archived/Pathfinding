@@ -21,8 +21,10 @@ import org.terasology.logic.behavior.tree.DecoratorNode;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.minion.move.MinionMoveComponent;
+import org.terasology.pathfinding.componentSystem.PathRenderSystem;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.WalkableBlock;
+import org.terasology.registry.CoreRegistry;
 
 import javax.vecmath.Vector3f;
 
@@ -55,6 +57,7 @@ public class MoveAlongPathNode extends DecoratorNode {
                 actor().save(pathComponent);
 
                 path = pathComponent.path;
+                CoreRegistry.get(PathRenderSystem.class).addPath(path);
                 currentIndex = 0;
                 WalkableBlock block = path.get(currentIndex);
                 logger.info("Start moving along path to step " + currentIndex + " " + block.getBlockPosition());
@@ -89,6 +92,7 @@ public class MoveAlongPathNode extends DecoratorNode {
                 actor().save(moveComponent);
                 start(getNode().child);
             } else {
+                CoreRegistry.get(PathRenderSystem.class).removePath(path);
                 logger.info("Finished moving along path " + currentIndex + " " + result);
                 stop(Status.SUCCESS);
             }
