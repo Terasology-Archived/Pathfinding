@@ -15,6 +15,8 @@
  */
 package org.terasology.minion.move;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
@@ -35,6 +37,8 @@ public class MoveToNode extends Node {
     }
 
     public static class MoveToTask extends Task {
+        private static final Logger logger = LoggerFactory.getLogger(MoveToTask.class);
+
         public MoveToTask(MoveToNode node) {
             super(node);
         }
@@ -108,7 +112,6 @@ public class MoveToNode extends Node {
             term5.scale(1f / movementComp.maxGroundSpeed);
 
             Vector3f desiredVelocity = term5;
-
 
             // Does not account for runFactor -- we are not currently supporting running
             // Does not account for removing y component while maintaining speed -- we are not currently setting a non-zero y component

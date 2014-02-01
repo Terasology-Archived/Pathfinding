@@ -39,6 +39,7 @@ public class PathDebugger extends JFrame {
     private WalkableBlock start;
     private WalkableBlock target;
     private Path path;
+    private final PathfinderWorld world;
 
     public PathDebugger() throws HeadlessException {
         mapWidth = 160;
@@ -46,10 +47,11 @@ public class PathDebugger extends JFrame {
         helper = new TestHelper();
 //        helper.init(new MazeChunkGenerator(mapWidth, mapHeight, 4, 0, 20));
 //        helper = new TestHelper(new PathfinderTestGenerator(true));
-        pathfinder = new Pathfinder(helper.world);
+        world = new PathfinderWorld(helper.world);
+        pathfinder = new Pathfinder(world);
         for (int x = 0; x < mapWidth / 16 + 1; x++) {
             for (int z = 0; z < mapHeight / 16 + 1; z++) {
-                pathfinder.init(new Vector3i(x, 0, z));
+                world.init(new Vector3i(x, 0, z));
             }
         }
         level = 6;
@@ -85,7 +87,7 @@ public class PathDebugger extends JFrame {
                 public void mouseMoved(MouseEvent e) {
                     int hoverX = e.getX() * mapWidth / getWidth();
                     int hoverZ = e.getY() * mapHeight / getHeight();
-                    hovered = pathfinder.getBlock(new Vector3i(hoverX, level, hoverZ));
+                    hovered = world.getBlock(new Vector3i(hoverX, level, hoverZ));
                     repaint();
                 }
 
@@ -102,7 +104,7 @@ public class PathDebugger extends JFrame {
                 public void mouseReleased(MouseEvent e) {
                     int clickedX = e.getX() * mapWidth / getWidth();
                     int clickedZ = e.getY() * mapHeight / getHeight();
-                    WalkableBlock block = pathfinder.getBlock(new Vector3i(clickedX, level, clickedZ));
+                    WalkableBlock block = world.getBlock(new Vector3i(clickedX, level, clickedZ));
                     if (start == null) {
                         start = block;
                     } else {
@@ -132,7 +134,7 @@ public class PathDebugger extends JFrame {
                     int screenY = z * getHeight() / mapHeight;
                     int tileWidth = (x + 1) * getWidth() / mapWidth - screenX;
                     int tileHeight = (z + 1) * getHeight() / mapHeight - screenY;
-                    WalkableBlock block = pathfinder.getBlock(new Vector3i(x, level, z));
+                    WalkableBlock block = world.getBlock(new Vector3i(x, level, z));
 
                     if (block != null) {
                         boolean isEntrance = isEntrance(block);

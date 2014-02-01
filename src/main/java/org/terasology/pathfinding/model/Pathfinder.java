@@ -29,12 +29,11 @@ import java.util.Map;
  * @author synopia
  */
 public class Pathfinder {
-    private WorldProvider world;
-    private Map<Vector3i, HeightMap> heightMaps = new HashMap<>();
     private HAStar haStar;
     private PathCache cache;
+    private PathfinderWorld world;
 
-    public Pathfinder(WorldProvider world) {
+    public Pathfinder(PathfinderWorld world) {
         this.world = world;
         haStar = new HAStar();
         cache = new PathCache();
@@ -58,8 +57,8 @@ public class Pathfinder {
                     if (from == null || to == null) {
                         return Path.INVALID;
                     }
-                    WalkableBlock refFrom = getBlock(from.getBlockPosition());
-                    WalkableBlock refTo = getBlock(to.getBlockPosition());
+                    WalkableBlock refFrom = world.getBlock(from.getBlockPosition());
+                    WalkableBlock refTo = world.getBlock(to.getBlockPosition());
 
                     Path path;
                     if (haStar.run(refFrom, refTo)) {
@@ -75,42 +74,6 @@ public class Pathfinder {
         return result;
     }
 
-    public HeightMap init(Vector3i chunkPos) {
-        clearCache();
-        HeightMap heightMap = heightMaps.get(chunkPos);
-        if (heightMap == null) {
-            heightMap = new HeightMap(world, chunkPos);
-            heightMap.update();
-            heightMaps.put(chunkPos, heightMap);
-            heightMap.connectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1), getNeighbor(chunkPos, 1, 0), getNeighbor(chunkPos, 0, 1));
-        }
-        return heightMap;
-    }
-
-    private HeightMap getNeighbor(Vector3i chunkPos, int x, int z) {
-        Vector3i neighborPos = new Vector3i(chunkPos);
-        neighborPos.add(x, 0, z);
-        return heightMaps.get(neighborPos);
-    }
-
-    public HeightMap update(Vector3i chunkPos) {
-        HeightMap heightMap = heightMaps.remove(chunkPos);
-        if (heightMap != null) {
-            heightMap.disconnectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1), getNeighbor(chunkPos, 1, 0), getNeighbor(chunkPos, 0, 1));
-            heightMap.cells = null;
-        }
-        return init(chunkPos);
-    }
-
-    public WalkableBlock getBlock(Vector3i pos) {
-        Vector3i chunkPos = TeraMath.calcChunkPos(pos);
-        HeightMap heightMap = heightMaps.get(chunkPos);
-        if (heightMap != null) {
-            return heightMap.getBlock(pos.x, pos.y, pos.z);
-        } else {
-            return null;
-        }
-    }
 
     @Override
     public String toString() {

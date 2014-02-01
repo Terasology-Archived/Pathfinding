@@ -27,20 +27,21 @@ import org.terasology.pathfinding.PathfinderTestGenerator;
 public class PathfinderTest {
     private Pathfinder pathfinder;
     private TestHelper helper;
+    private PathfinderWorld world;
 
     @Test
     public void test() {
-        pathfinder.init(new Vector3i(0, 0, 0));
-        pathfinder.init(new Vector3i(1, 0, 0));
-        pathfinder.init(new Vector3i(2, 0, 0));
-        pathfinder.init(new Vector3i(0, 0, 1));
-        pathfinder.init(new Vector3i(1, 0, 1));
-        pathfinder.init(new Vector3i(2, 0, 1));
-        pathfinder.init(new Vector3i(0, 0, 2));
-        pathfinder.init(new Vector3i(1, 0, 2));
-        pathfinder.init(new Vector3i(2, 0, 2));
+        world.init(new Vector3i(0, 0, 0));
+        world.init(new Vector3i(1, 0, 0));
+        world.init(new Vector3i(2, 0, 0));
+        world.init(new Vector3i(0, 0, 1));
+        world.init(new Vector3i(1, 0, 1));
+        world.init(new Vector3i(2, 0, 1));
+        world.init(new Vector3i(0, 0, 2));
+        world.init(new Vector3i(1, 0, 2));
+        world.init(new Vector3i(2, 0, 2));
 
-        Path path = pathfinder.findPath(pathfinder.getBlock(new Vector3i(14 + 16, 45, 12)), pathfinder.getBlock(new Vector3i(0, 51, 1)));
+        Path path = pathfinder.findPath(world.getBlock(new Vector3i(14 + 16, 45, 12)), world.getBlock(new Vector3i(0, 51, 1)));
         Assert.assertEquals(0, path.size());
 
         helper.setAir(7, 50, 7);
@@ -51,10 +52,10 @@ public class PathfinderTest {
         helper.setAir(HeightMap.SIZE_X, 47, 8);
 
 
-        pathfinder.update(new Vector3i(0, 0, 0));
-        pathfinder.update(new Vector3i(1, 0, 0));
+        world.update(new Vector3i(0, 0, 0));
+        world.update(new Vector3i(1, 0, 0));
 
-        path = pathfinder.findPath(pathfinder.getBlock(new Vector3i(14 + 16, 45, 12)), pathfinder.getBlock(new Vector3i(0, 51, 1)));
+        path = pathfinder.findPath(world.getBlock(new Vector3i(14 + 16, 45, 12)), world.getBlock(new Vector3i(0, 51, 1)));
         Assert.assertTrue(0 < path.size());
     }
 
@@ -69,10 +70,10 @@ public class PathfinderTest {
     public void assertStairs(int chunkX, int chunkZ) {
         int x = chunkX * HeightMap.SIZE_X;
         int z = chunkZ * HeightMap.SIZE_Z;
-        HeightMap map = pathfinder.init(new Vector3i(chunkX, 0, chunkZ));
+        HeightMap map = world.init(new Vector3i(chunkX, 0, chunkZ));
 
-        WalkableBlock startBlock = pathfinder.getBlock(new Vector3i(0 + x, 51, 1 + z));
-        WalkableBlock targetBlock = pathfinder.getBlock(new Vector3i(x + HeightMap.SIZE_X - 2, 45, z + HeightMap.SIZE_Z - 4));
+        WalkableBlock startBlock = world.getBlock(new Vector3i(0 + x, 51, 1 + z));
+        WalkableBlock targetBlock = world.getBlock(new Vector3i(x + HeightMap.SIZE_X - 2, 45, z + HeightMap.SIZE_Z - 4));
 
         Assert.assertEquals(map, startBlock.floor.heightMap);
         Assert.assertEquals(map, targetBlock.floor.heightMap);
@@ -84,7 +85,7 @@ public class PathfinderTest {
         helper.setAir(x + 7, 50, z + 7);
         helper.setAir(x + 7, 50, z + 8);
 
-        pathfinder.update(new Vector3i(chunkX, 0, chunkZ));
+        world.update(new Vector3i(chunkX, 0, chunkZ));
 
         path = pathfinder.findPath(targetBlock, startBlock);
         Assert.assertTrue(0 < path.size());
@@ -94,7 +95,8 @@ public class PathfinderTest {
     public void setup() {
         helper = new TestHelper();
         helper.init(new PathfinderTestGenerator(true));
-        pathfinder = new Pathfinder(helper.world);
+        world = new PathfinderWorld(helper.world);
+        pathfinder = new Pathfinder(world);
     }
 
 }

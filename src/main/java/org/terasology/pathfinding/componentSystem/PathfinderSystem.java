@@ -28,6 +28,7 @@ import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.model.HeightMap;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.Pathfinder;
+import org.terasology.pathfinding.model.PathfinderWorld;
 import org.terasology.pathfinding.model.WalkableBlock;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.registry.In;
@@ -70,6 +71,7 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
     private int pathsSearched;
     private int chunkUpdates;
     private Map<Vector3i, HeightMap> maps = new HashMap<>();
+    private PathfinderWorld pathfinderWorld;
     private Pathfinder pathfinder;
     private int nextId;
 
@@ -89,7 +91,7 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
     }
 
     public WalkableBlock getBlock(Vector3i pos) {
-        return pathfinder.getBlock(pos);
+        return pathfinderWorld.getBlock(pos);
     }
 
     public WalkableBlock getBlock(EntityRef minion) {
@@ -99,10 +101,10 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
 
     public WalkableBlock getBlock(Vector3f pos) {
         Vector3i blockPos = new Vector3i(pos.x + 0.25f, pos.y, pos.z + 0.25f);
-        WalkableBlock block = pathfinder.getBlock(blockPos);
+        WalkableBlock block = pathfinderWorld.getBlock(blockPos);
         if (block == null) {
             blockPos.y += 2;
-            while (blockPos.y >= (int) pos.y - 4 && (block = pathfinder.getBlock(blockPos)) == null) {
+            while (blockPos.y >= (int) pos.y - 4 && (block = pathfinderWorld.getBlock(blockPos)) == null) {
                 blockPos.y--;
             }
         }
@@ -117,7 +119,8 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
     }
 
     protected Pathfinder createPathfinder() {
-        return new Pathfinder(world);
+        pathfinderWorld = new PathfinderWorld(world);
+        return new Pathfinder(pathfinderWorld);
     }
 
     @Override
@@ -169,7 +172,7 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
         public void enact() {
             chunkUpdates++;
             maps.remove(chunkPos);
-            HeightMap map = pathfinder.update(chunkPos);
+            HeightMap map = pathfinderWorld.update(chunkPos);
             maps.put(chunkPos, map);
             pathfinder.clearCache();
         }
@@ -213,10 +216,10 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
             List<WalkableBlock> startBlocks = Lists.newArrayList();
             for (Vector3i pos : start) {
                 if (pos != null) {
-                    startBlocks.add(pathfinder.getBlock(pos));
+                    startBlocks.add(pathfinderWorld.getBlock(pos));
                 }
             }
-            WalkableBlock targetBlock = pathfinder.getBlock(this.target);
+            WalkableBlock targetBlock = pathfinderWorld.getBlock(this.target);
             paths = null;
             if (targetBlock != null && startBlocks.size() > 0) {
                 paths = pathfinder.findPath(targetBlock, startBlocks);

@@ -17,13 +17,14 @@ package org.terasology.pathfinding.model;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
 
 import java.util.BitSet;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -136,7 +137,7 @@ public class HAStar {
     protected void expand(int current) {
         Node currentNode = nodes.get(current);
         Floor currentFloor = currentNode.block.floor;
-        Set<WalkableBlock> neighbors = new HashSet<WalkableBlock>();
+        Set<WalkableBlock> neighbors = Sets.newHashSet();
         boolean onEndHeightMap = nodes.get(end).block.floor.heightMap == currentFloor.heightMap;
         boolean onStartHeightMap = nodes.get(start).block.floor.heightMap == currentFloor.heightMap;
         if (!useContour || onEndHeightMap || onStartHeightMap) {
@@ -166,58 +167,155 @@ public class HAStar {
         if (closedList.get(successor)) {
             return;
         }
-        float tentativeG = currentNode.g + c(current, successor);
         Node successorNode = nodes.get(successor);
-        if (openList.contains(successor) && tentativeG >= successorNode.g) {
-            return;
+        if (!openList.contains(successor)) {
+            successorNode.g = Float.MAX_VALUE;
+            successorNode.path = null;
+            successorNode.p = null;
         }
-        successorNode.path = localPath;
-        successorNode.p = currentNode;
-        successorNode.g = tentativeG;
-        successorNode.f = tentativeG + h(successor);
+        updateNode(current, currentNode, successor, successorNode);
+    }
 
-        if (openList.contains(successor)) {
-            openList.update(successor);
-        } else {
-            openList.insert(successor);
+    private void updateNode(int current, Node currentNode, int successor, Node successorNode) {
+        float oldG = successorNode.g;
+        computeCosts(current, currentNode, successor, successorNode);
+        if (successorNode.g < oldG) {
+            if (openList.contains(successor)) {
+                openList.update(successor);
+            } else {
+                openList.insert(successor);
+            }
         }
     }
 
-    protected float c(int from, int to) {
+    private void computeCosts(int current, Node currentNode, int successor, Node successorNode) {
+        if (lineOfSight(currentNode.p, successorNode)) {
+            float tentativeG = currentNode.p.g + c(nodeMap.get(currentNode.p.block), successor, true);
+            if (tentativeG < successorNode.g) {
+                successorNode.path = null;
+                successorNode.p = currentNode.p;
+                successorNode.g = tentativeG;
+                successorNode.f = tentativeG + h(successor);
+            }
+        } else {
+            float tentativeG = currentNode.g + c(current, successor, false);
+            if (tentativeG < successorNode.g) {
+                successorNode.path = localPath;
+                successorNode.p = currentNode;
+                successorNode.g = tentativeG;
+                successorNode.f = tentativeG + h(successor);
+            }
+        }
+    }
+
+    private boolean lineOfSight(Node a, Node b) {
+        if (a == null || b == null || a.block.floor != b.block.floor) {
+            return false;
+        }
+        BitMap map = a.block.floor.getMap();
+
+        int x0 = TeraMath.calcBlockPosX(a.block.x());
+        int y0 = TeraMath.calcBlockPosZ(a.block.z());
+        int x1 = TeraMath.calcBlockPosX(b.block.x());
+        int y1 = TeraMath.calcBlockPosZ(b.block.z());
+        int dy = y1 - y0;
+        int dx = x1 - x0;
+        int sx;
+        int sy;
+        int f = 0;
+        if (dy < 0) {
+            dy = -dy;
+            sy = -1;
+        } else {
+            sy = 1;
+        }
+        if (dx < 0) {
+            dx = -dx;
+            sx = -1;
+        } else {
+            sx = 1;
+        }
+        if (dx > dy) {
+            while (x0 != x1) {
+                f += dy;
+                if (f > dx) {
+                    if (!map.isPassable(x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2))) {
+                        return false;
+                    }
+                    y0 += sy;
+                    f -= dx;
+                }
+                if (f != 0 && !map.isPassable(x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2))) {
+                    return false;
+                }
+                if (dy == 0 && !map.isPassable(x0 + ((sx - 1) / 2), y0) && !map.isPassable(x0 + ((sx - 1) / 2), y0 - 1)) {
+                    return false;
+                }
+                x0 += sx;
+            }
+        } else {
+            while (y0 != y1) {
+                f += dx;
+                if (f > dy) {
+                    if (!map.isPassable(x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2))) {
+                        return false;
+                    }
+                    x0 += sx;
+                    f -= dy;
+                }
+                if (f != 0 && !map.isPassable(x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2))) {
+                    return false;
+                }
+                if (dx == 0 && !map.isPassable(x0, y0 + ((sy - 1) / 2)) && !map.isPassable(x0 - 1, y0 + ((sy - 1) / 2))) {
+                    return false;
+                }
+                y0 += sy;
+            }
+        }
+        return true;
+    }
+
+    protected float c(int from, int to, boolean inSight) {
         localPath = null;
         Node fromNode = nodes.get(from);
         Node toNode = nodes.get(to);
-        Vector3i fromPos = fromNode.block.getBlockPosition();
-        Vector3i toPos = toNode.block.getBlockPosition();
-        int diffX = Math.abs(fromPos.x - toPos.x);
-        int diffZ = Math.abs(fromPos.z - toPos.z);
-        if (toNode.block.hasNeighbor(fromNode.block)) {
-            if (diffX + diffZ == 1) {
-                return 1;
-            } else {
-                return BitMap.SQRT_2;
-            }
-        }
-        if (fromNode.block.floor.heightMap.pathCache.hasPath(fromNode.block, toNode.block)) {
-            cacheHits++;
-        }
-        localPath = fromNode.block.floor.heightMap.pathCache.findPath(
-                fromNode.block, toNode.block, new PathCache.Callback() {
-            @Override
-            public Path run(WalkableBlock from, WalkableBlock to) {
-
-                localAStar.reset();
-                if (localAStar.run(from, to)) {
-                    return localAStar.getPath();
+        if (inSight) {
+            Vector3i dist = new Vector3i(fromNode.block.getBlockPosition());
+            dist.sub(toNode.block.getBlockPosition());
+            return dist.lengthSquared();
+        } else {
+            Vector3i fromPos = fromNode.block.getBlockPosition();
+            Vector3i toPos = toNode.block.getBlockPosition();
+            int diffX = Math.abs(fromPos.x - toPos.x);
+            int diffZ = Math.abs(fromPos.z - toPos.z);
+            if (toNode.block.hasNeighbor(fromNode.block)) {
+                if (diffX + diffZ == 1) {
+                    return 1;
+                } else {
+                    return BitMap.SQRT_2;
                 }
-                return Path.INVALID;
             }
-        });
-        if (localPath == null || localPath == Path.INVALID) {
-            throw new IllegalStateException(fromNode + ", " + toNode + " no costs found!");
-        }
+            if (fromNode.block.floor.heightMap.pathCache.hasPath(fromNode.block, toNode.block)) {
+                cacheHits++;
+            }
+            localPath = fromNode.block.floor.heightMap.pathCache.findPath(
+                    fromNode.block, toNode.block, new PathCache.Callback() {
+                @Override
+                public Path run(WalkableBlock from, WalkableBlock to) {
 
-        return localPath.size();
+                    localAStar.reset();
+                    if (localAStar.run(from, to)) {
+                        return localAStar.getPath();
+                    }
+                    return Path.INVALID;
+                }
+            });
+            if (localPath == null || localPath == Path.INVALID) {
+                throw new IllegalStateException(fromNode + ", " + toNode + " no costs found!");
+            }
+
+            return localPath.size();
+        }
     }
 
     protected float h(int current) {
