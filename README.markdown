@@ -1,3 +1,148 @@
+# Terasology Behavior Tree
+
+## Behavior nodes
+
+### `Counter` *Decorator*
+Starts child a limit number of times.
+
+`SUCCESS`: when child finished with `SUCCESS`n times.
+`FAILURE`: as soon as child finishes with `FAILURE`.
+
+### `Inverter` *Decorator*
+Inverts the child.
+
+`SUCCESS`: when child finishes `FAILURE`.
+`FAILURE`: when child finishes `SUCCESS`.
+
+### `Lookup` *Decorator*
+Node that runs a behavior tree.
+
+`SUCCESS`: when tree finishes with `SUCCESS`.
+`FAILURE`: when tree finishes with `FAILURE`.
+
+### `Monitor` *Parallel*
+
+`SUCCESS`: as soon as one child node finishes SUCCESS
+`FAILURE`: as soon as one child node finishes `FAILURE`.
+
+### `Parallel` *Composite*
+All children are evaluated in parallel. Policies for success and failure will define when this node finishes and in which state.
+
+`SUCCESS`: when success policy is fulfilled (one or all children `SUCCESS`).
+`FAILURE`, when failure policy is fulfilled (one or all children `FAILURE`).
+
+### `Repeat` *Decorator*
+Repeats the child node forever.
+
+`SUCCESS`: Never.
+`FAILURE`: as soon as decorated node finishes with `FAILURE`.
+
+### `Selector` *Composite*
+Evaluates the children one by one.
+Starts next child, if previous child finishes with `FAILURE`.
+
+`SUCCESS`: as soon as a child finishes `SUCCESS`.
+`FAILURE`: when all children finished with `FAILURE`.
+
+### `Sequence` *Composite*
+Evaluates the children one by one.
+Starts next child, if previous child finishes with `SUCCESS`.
+
+`SUCCESS`: when all children finishes `SUCCESS`.
+`FAILURE`: as soon as a child finished with `FAILURE`.
+
+### `Timer` *Decorator*
+Starts the decorated node.
+
+`SUCCESS`: after x seconds.
+`FAILURE`: as soon as decorated node finishes with `FAILURE`.
+
+### `Wrapper` *Decorator*
+Always finishes with `SUCCESS`.
+
+# Terasology Job module
+
+## Behavior nodes
+
+### `FindJob` *Decorator*
+*Properties*: `filter`
+
+Searches for an open job of specific type (`filter`). If a job is found, the actor is assigned to that job and child is started.
+
+`SUCCESS`: if child returned with `SUCCESS`.
+`FAILURE`: if no open job can be found.
+
+### `FinishJob`
+Finishes or work at a job.
+
+`SUCCESS`: when job is done (depends on job type).
+`FAILURE`: if no job assigned or job is not reachable.
+
+### `SetTargetJob`
+Set `MinionPathComponent`'s target to the job's target.
+
+`SUCCESS`: if valid job target position found.
+`FAILURE`: otherwise
+
+# Terasology Move module
+
+## Behavior nodes
+
+### `FindPathTo`
+Requests a path to a target defined using the `MinionPathComponent`.
+
+`SUCCESS` / `FAILURE`: when paths is found or not found (invalid).
+`RUNNING`: as long as path is searched.
+
+### `MoveAlongPath` *Decorator*
+Call child node, as long as the actor has not reached the end of the path.
+
+`SUCCESS`: when actor has reached end of path.
+`FAILURE`: if no path was found previously.
+
+### `FindWalkableBlock` *Decorator*
+Searches for the next valid walkable block for pathfinder. Best use of this node is probably
+using a `Parallel` on top of the behavior tree and a `MoveTo` as the child.
+
+This node must be run successfully **before** calling `FindPathTo`, because here the start position for pathfinding is queried.
+
+The walkable block is stored into `MinionMoveComponent`.
+
+`SUCCESS`: if the child returns `SUCCESS`.
+`FAILURE`: if no walkable block can be found.
+
+### `SetTargetLocalPlayer`
+Set `MinionPathComponent`'s target to the block below local player.
+
+Always returns `SUCCESS`.
+
+### `MoveTo`
+*Properties:* `distance`
+
+Moves the actor to the target defined by `MinionMoveComponent`.
+
+`SUCCESS`: when distance between actor and target is below `distance`.
+`FAILURE`: when there is no target.
+
+### `Jump`
+Trigger a single jump into the air.
+
+`SUCCESS`: when the actor is grounded after the jump again.
+
+### `PlayAnimation`
+*Properties:* `animation`, `loop`
+
+Play a specific animation. Notice, if `loop` is false, this node will return `RUNNING` forever.
+
+`SUCCESS`: when the animation ended (only if `loop`==false)
+
+## `MinionPathSystem`
+
+The path system helps finding paths and keep track of their current state.
+
+This system listens for `OnPathReady` events and assign `PATH_RECEIVED` state to the minion that requested the path.
+To store this state a `MinionPathComponent` is used.
+
 # Terasology Pathfinding module
 
 ## Systems
@@ -67,6 +212,13 @@ If so, we can reach any other border block of the neighboring region (or floor),
 
 The actual paths from border block to border block can be precalculated (or at least be cached). We may not consider ALL border blocks of a region/floor. Current implementation uses corners only.
 
+## Theta*
+The Theta* algorithm slightly modifies the default A*, in a way to produce more natural paths.
+
+Instead of having every single step in a path, only the the endpoints of lines of sight are stored in a path (basically only the points, where the minion need to turn).
+
+There are two implementations of the line of sight algorithm. One is crawling through walkable block using a 2d bresenham algorithm (recommended). The other uses a 3d bresenham with the real world blocks.
+
 ## Related
-* todo
+* http://aigamedev.com/open/tutorials/theta-star-any-angle-paths/
 

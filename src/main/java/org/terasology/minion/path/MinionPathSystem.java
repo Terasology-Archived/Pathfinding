@@ -1,11 +1,11 @@
 /*
- * Copyright 2013 MovingBlocks
+ * Copyright 2014 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.pathfinding.componentSystem.PathReadyEvent;
 import org.terasology.pathfinding.model.Path;
+import org.terasology.pathfinding.model.WalkableBlock;
 
 /**
  * @author synopia
@@ -51,9 +52,13 @@ public class MinionPathSystem implements ComponentSystem {
                     minion.getComponent(MinionMoveComponent.class).currentBlock.getBlockPosition() +
                     " to " + event.getStart().get(0).getBlockPosition() +
                     " old path state " + pathComponent.pathState);
-
             pathComponent.path = event.getPath().get(0);
             pathComponent.pathState = MinionPathComponent.PathState.PATH_RECEIVED;
+            String path = "";
+            for (WalkableBlock block : pathComponent.path) {
+                path += "[" + block.getBlockPosition() + "]-> ";
+            }
+            logger.info(path);
         }
         minion.saveComponent(pathComponent);
     }

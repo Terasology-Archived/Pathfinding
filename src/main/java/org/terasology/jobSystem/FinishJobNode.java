@@ -1,11 +1,11 @@
 /*
- * Copyright 2013 MovingBlocks
+ * Copyright 2014 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,11 +45,11 @@ public class FinishJobNode extends Node {
             if (currentJob == null) {
                 return Status.FAILURE;
             }
-            JobBlockComponent jobBlockComponent = currentJob.getComponent(JobBlockComponent.class);
-            if (jobBlockComponent == null) {
+            JobTargetComponent jobTargetComponent = currentJob.getComponent(JobTargetComponent.class);
+            if (jobTargetComponent == null) {
                 return Status.FAILURE;
             }
-            Job job = jobBlockComponent.getJob();
+            Job job = jobTargetComponent.getJob();
             List<WalkableBlock> targetPositions = job.getTargetPositions(currentJob);
             WalkableBlock currentBlock = actor().component(MinionMoveComponent.class).currentBlock;
             if (!targetPositions.contains(currentBlock)) {

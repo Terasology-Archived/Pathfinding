@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,6 +25,7 @@ import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Vector3i;
 import org.terasology.registry.In;
 import org.terasology.rendering.world.selection.BlockSelectionRenderer;
+import org.terasology.world.block.BlockComponent;
 
 import javax.vecmath.Vector3f;
 
@@ -46,11 +47,11 @@ public class JobRenderSystem implements RenderSystem {
     public void renderOverlay() {
         selectionRenderer.beginRenderOverlay();
         Vector3i pos = new Vector3i();
-        for (EntityRef entityRef : entityManager.getEntitiesWith(JobBlockComponent.class)) {
+        for (EntityRef entityRef : entityManager.getEntitiesWith(BlockComponent.class, JobTargetComponent.class)) {
             LocationComponent location = entityRef.getComponent(LocationComponent.class);
             Vector3f worldPosition = location.getWorldPosition();
             pos.set((int) worldPosition.x, (int) worldPosition.y, (int) worldPosition.z);
-            JobBlockComponent job = entityRef.getComponent(JobBlockComponent.class);
+            JobTargetComponent job = entityRef.getComponent(JobTargetComponent.class);
             if (job.isRequestable(entityRef)) {
                 selectionRenderer.renderMark(pos);
             } else if (job.isAssignable(entityRef)) {

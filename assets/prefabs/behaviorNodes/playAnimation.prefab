@@ -4,6 +4,7 @@
         "name"      : "Play Animation",
         "category"  : "moving",
         "shape"     : "rect",
+        "description": "Properties: animation, loop\nPlay a specific animation. Notice, if loop is false, this node will return RUNNING forever.\nSUCCESS: when the animation ended (only if loop==false)",
         "color"     : [0.7, 0.7, 0.7],
         "textColor" : [  0,   0,   0]
     }

@@ -1,141 +1,56 @@
 {
   "model": {
-    "nodeType": "RepeatNode",
+    "nodeType": "engine:RepeatNode",
     "nodeId": 0,
     "node": {
       "child": {
-        "nodeType": "SequenceNode",
+        "nodeType": "engine:ParallelNode",
         "nodeId": 1,
         "node": {
+          "successPolicy": "RequireAll",
+          "failurePolicy": "RequireOne",
           "children": [
             {
-              "nodeType": "SelectorNode",
+              "nodeType": "pathfinding:FindWalkableBlockNode",
               "nodeId": 2,
+              "node": {
+                "distance": 0.4,
+                "child": {
+                  "nodeType": "pathfinding:MoveToNode",
+                  "nodeId": 3,
+                  "node": {
+                    "distance" : 0.5
+                  }
+                }
+              }
+            },
+            {
+              "nodeType": "engine:SelectorNode",
+              "nodeId": 4,
               "node": {
                 "children": [
                   {
-                    "nodeType": "FindJobNode",
-                    "nodeId": 3,
+                    "nodeType": "pathfinding:FindJobNode",
+                    "nodeId": 5,
                     "node": {
+                      "filter": "pathfinding:walkToBlock",
                       "child": {
-                        "nodeType": "SequenceNode",
-                        "nodeId": 4,
+                        "nodeType": "engine:LookupNode",
+                        "nodeId": 6,
                         "node": {
-                          "children": [
-                            {
-                              "nodeType": "SetTargetJobNode",
-                              "nodeId": 5,
-                              "node": {}
-                            },
-                            {
-                              "nodeType": "FindWalkableBlockNode",
-                              "nodeId": 6,
-                              "node": {}
-                            },
-                            {
-                              "nodeType": "MoveToNode",
-                              "nodeId": 7,
-                              "node": {}
-                            },
-                            {
-                              "nodeType": "FindPathToNode",
-                              "nodeId": 8,
-                              "node": {}
-                            },
-                            {
-                              "nodeType": "MoveAlongPathNode",
-                              "nodeId": 9,
-                              "node": {
-                                "child": {
-                                  "nodeType": "MonitorNode",
-                                  "nodeId": 10,
-                                  "node": {
-                                    "successPolicy": "RequireOne",
-                                    "failurePolicy": "RequireOne",
-                                    "children": [
-                                      {
-                                        "nodeType": "TimerNode",
-                                        "nodeId": 11,
-                                        "node": {
-                                          "result": "FAILURE",
-                                          "time": 5.0
-                                        }
-                                      },
-                                      {
-                                        "nodeType": "ParallelNode",
-                                        "nodeId": 12,
-                                        "node": {
-                                          "successPolicy": "RequireAll",
-                                          "failurePolicy": "RequireOne",
-                                          "children": [
-                                            {
-                                              "nodeType": "MoveToNode",
-                                              "nodeId": 13,
-                                              "node": {}
-                                            },
-                                            {
-                                              "nodeType": "PlayAnimationNode",
-                                              "nodeId": 14,
-                                              "node": {
-                                                "animation": "walk",
-                                                "loop": false
-                                              }
-                                            }
-                                          ]
-                                        }
-                                      }
-                                    ]
-                                  }
-                                }
-                              }
-                            },
-                            {
-                              "nodeType": "FindWalkableBlockNode",
-                              "nodeId": 15,
-                              "node": {}
-                            },
-                            {
-                              "nodeType": "ParallelNode",
-                              "nodeId": 16,
-                              "node": {
-                                "successPolicy": "RequireAll",
-                                "failurePolicy": "RequireOne",
-                                "children": [
-                                  {
-                                    "nodeType": "FinishJobNode",
-                                    "nodeId": 17,
-                                    "node": {}
-                                  },
-                                  {
-                                    "nodeType": "PlayAnimationNode",
-                                    "nodeId": 18,
-                                    "node": {
-                                      "animation": "work",
-                                      "loop": false
-                                    }
-                                  }
-                                ]
-                              }
-                            }
-                          ]
+                          "tree": "pathfinding:runjob"
                         }
                       }
                     }
                   },
                   {
-                    "nodeType": "JumpNode",
-                    "nodeId": 19,
-                    "node": {}
+                    "nodeType": "pathfinding:PlayAnimationNode",
+                    "nodeId": 7,
+                    "node": {
+                      "loop": false
+                    }
                   }
                 ]
-              }
-            },
-            {
-              "nodeType": "PlayAnimationNode",
-              "nodeId": 20,
-              "node": {
-                "animation": "idle",
-                "loop": false
               }
             }
           ]

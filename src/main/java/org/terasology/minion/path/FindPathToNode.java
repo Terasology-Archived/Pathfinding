@@ -1,11 +1,11 @@
 /*
- * Copyright 2013 MovingBlocks
+ * Copyright 2014 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,7 +27,14 @@ import org.terasology.registry.CoreRegistry;
 import java.util.Arrays;
 
 /**
- * @author synopia
+ * <strong>FindPathTo</strong>
+ * <p/>
+ * Requests a path to a target defined using the <code>MinionPathComponent</code>.
+ * <p/>
+ * <code>SUCCESS</code> / <code>FAILURE</code>: when paths is found or not found (invalid).
+ * <code>RUNNING</code>: as long as path is searched.
+ * <p/>
+ * Auto generated javadoc - modify README.markdown instead!
  */
 public class FindPathToNode extends Node {
     @Override
@@ -46,9 +53,11 @@ public class FindPathToNode extends Node {
             if (pathComponent.pathState == MinionPathComponent.PathState.NEW_TARGET) {
                 PathfinderSystem pathfinder = CoreRegistry.get(PathfinderSystem.class);
                 WalkableBlock currentBlock = actor().component(MinionMoveComponent.class).currentBlock;
-                pathComponent.pathId = pathfinder.requestPath(actor().minion(), currentBlock.getBlockPosition(), Arrays.asList(pathComponent.targetBlock));
-                pathComponent.pathState = MinionPathComponent.PathState.PATH_REQUESTED;
-                actor().save(pathComponent);
+                if (currentBlock != null) {
+                    pathComponent.pathId = pathfinder.requestPath(actor().minion(), currentBlock.getBlockPosition(), Arrays.asList(pathComponent.targetBlock));
+                    pathComponent.pathState = MinionPathComponent.PathState.PATH_REQUESTED;
+                    actor().save(pathComponent);
+                }
             }
         }
 

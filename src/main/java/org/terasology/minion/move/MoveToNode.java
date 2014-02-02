@@ -1,11 +1,11 @@
 /*
- * Copyright 2013 MovingBlocks
+ * Copyright 2014 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,13 +24,26 @@ import org.terasology.logic.characters.CharacterMoveInputEvent;
 import org.terasology.logic.characters.CharacterMovementComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.TeraMath;
+import org.terasology.rendering.nui.properties.Range;
 
 import javax.vecmath.Vector3f;
 
 /**
- * @author synopia
+ * <strong>MoveTo</strong>
+ * <p/>
+ * <strong>Properties:</stong> <code>distance</code>
+ * <p/>
+ * Moves the actor to the target defined by <code>MinionMoveComponent</code>.
+ * <p/>
+ * <code>SUCCESS</code>: when distance between actor and target is below <code>distance</code>.
+ * <code>FAILURE</code>: when there is no target.
+ * <p/>
+ * Auto generated javadoc - modify README.markdown instead!
  */
 public class MoveToNode extends Node {
+    @Range(min = 0, max = 10)
+    private float distance;
+
     @Override
     public MoveToTask createTask() {
         return new MoveToTask(this);
@@ -68,7 +81,7 @@ public class MoveToNode extends Node {
             boolean jump = currentTarget.y - worldPos.y > 0.5f;
             float yaw = (float) Math.atan2(targetDirection.x, targetDirection.z);
 
-            if (targetDirection.x * targetDirection.x + targetDirection.z * targetDirection.z > 0.01f) {
+            if (targetDirection.x * targetDirection.x + targetDirection.z * targetDirection.z > getNode().distance) {
                 drive.set(targetDirection);
                 result = Status.RUNNING;
             } else {

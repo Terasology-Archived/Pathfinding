@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,7 +24,13 @@ import org.terasology.logic.characters.CharacterMovementComponent;
 import javax.vecmath.Vector3f;
 
 /**
- * @author synopia
+ * <strong>Jump</strong>
+ * <p/>
+ * Trigger a single jump into the air.
+ * <p/>
+ * <code>SUCCESS</code>: when the actor is grounded after the jump again.
+ * <p/>
+ * Auto generated javadoc - modify README.markdown instead!
  */
 public class JumpNode extends Node {
     @Override

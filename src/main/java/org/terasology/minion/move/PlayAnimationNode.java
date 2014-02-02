@@ -1,11 +1,11 @@
 /*
- * Copyright 2013 MovingBlocks
+ * Copyright 2014 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,7 +26,15 @@ import org.terasology.rendering.nui.properties.OneOf;
 import java.util.Random;
 
 /**
- * @author synopia
+ * <strong>PlayAnimation</strong>
+ * <p/>
+ * <strong>Properties:</stong> <code>animation</code>, <code>loop</code>
+ * <p/>
+ * Play a specific animation. Notice, if <code>loop</code> is false, this node will return <code>RUNNING</code> forever.
+ * <p/>
+ * <code>SUCCESS</code>: when the animation ended (only if <code>loop</code>==false)
+ * <p/>
+ * Auto generated javadoc - modify README.markdown instead!
  */
 public class PlayAnimationNode extends Node {
     @OneOf.List(items = {"idle", "walk", "attack", "die", "fadeIn", "fadeOut", "work", "terraform", "random"})

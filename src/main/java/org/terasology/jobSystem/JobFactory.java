@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,10 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.registry.CoreRegistry;
+import org.terasology.registry.In;
+import org.terasology.rendering.nui.databinding.ReadOnlyBinding;
+import org.terasology.rendering.nui.itemRendering.StringTextRenderer;
+import org.terasology.rendering.nui.properties.OneOfProviderFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -34,6 +38,9 @@ import java.util.Map;
 @RegisterSystem
 public class JobFactory implements ComponentSystem {
     private static final Logger logger = LoggerFactory.getLogger(JobFactory.class);
+
+    @In
+    private OneOfProviderFactory providerFactory;
 
     private Map<SimpleUri, Job> jobRegistry = Maps.newHashMap();
     private List<Job> jobs = Lists.newArrayList();
@@ -68,6 +75,22 @@ public class JobFactory implements ComponentSystem {
     @Override
     public void initialise() {
         logger.info("Initialize JobFactory");
+        providerFactory.register("jobs", new ReadOnlyBinding<List<String>>() {
+                    @Override
+                    public List<String> get() {
+                        List<String> result = Lists.newArrayList();
+                        for (Job job : jobs) {
+                            result.add(job.getUri().toString());
+                        }
+                        return result;
+                    }
+                }, new StringTextRenderer<String>() {
+                    @Override
+                    public String getString(String value) {
+                        return value.substring(value.indexOf(':') + 1);
+                    }
+                }
+        );
     }
 
     @Override
