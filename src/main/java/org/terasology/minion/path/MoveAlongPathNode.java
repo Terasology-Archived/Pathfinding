@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.logic.behavior.tree.DecoratorNode;
 import org.terasology.logic.behavior.tree.Status;
+import org.terasology.logic.location.LocationComponent;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.pathfinding.componentSystem.PathRenderSystem;
 import org.terasology.pathfinding.model.Path;
@@ -28,13 +29,11 @@ import org.terasology.registry.CoreRegistry;
 import javax.vecmath.Vector3f;
 
 /**
- * <strong>MoveAlongPath</strong> <code>Decorator</code>
- * <p/>
- * Call child node, as long as the actor has not reached the end of the path.
- * <p/>
- * <code>SUCCESS</code>: when actor has reached end of path.
- * <code>FAILURE</code>: if no path was found previously.
- * <p/>
+ * Call child node, as long as the actor has not reached the end of the path.<br/>
+ * <br/>
+ * <b>SUCCESS</b>: when actor has reached end of path.<br/>
+ * <b>FAILURE</b>: if no path was found previously.<br/>
+ * <br/>
  * Auto generated javadoc - modify README.markdown instead!
  */
 public class MoveAlongPathNode extends DecoratorNode {
@@ -82,8 +81,8 @@ public class MoveAlongPathNode extends DecoratorNode {
 
         @Override
         public void handle(Status result) {
-            logger.info(" Finished moving along path to step " + currentIndex + " " + result);
             if (result == Status.FAILURE) {
+                logger.info("FAILURE abort moving along path ");
                 stop(Status.FAILURE);
                 return;
             }
@@ -99,7 +98,9 @@ public class MoveAlongPathNode extends DecoratorNode {
                 start(getNode().child);
             } else {
                 CoreRegistry.get(PathRenderSystem.class).removePath(path);
-                logger.info("Finished moving along path " + currentIndex + " " + result);
+                LocationComponent locationComponent = actor().location();
+                MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
+                logger.info("Finished moving along path pos = " + locationComponent.getWorldPosition() + " block = " + moveComponent.currentBlock);
                 stop(Status.SUCCESS);
             }
         }

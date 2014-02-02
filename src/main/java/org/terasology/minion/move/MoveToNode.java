@@ -29,15 +29,13 @@ import org.terasology.rendering.nui.properties.Range;
 import javax.vecmath.Vector3f;
 
 /**
- * <strong>MoveTo</strong>
- * <p/>
- * <strong>Properties:</stong> <code>distance</code>
- * <p/>
- * Moves the actor to the target defined by <code>MinionMoveComponent</code>.
- * <p/>
- * <code>SUCCESS</code>: when distance between actor and target is below <code>distance</code>.
- * <code>FAILURE</code>: when there is no target.
- * <p/>
+ * <b>Properties:</b> <b>distance</b><br/>
+ * <br/>
+ * Moves the actor to the target defined by <b>MinionMoveComponent</b>.<br/>
+ * <br/>
+ * <b>SUCCESS</b>: when distance between actor and target is below <b>distance</b>.<br/>
+ * <b>FAILURE</b>: when there is no target.<br/>
+ * <br/>
  * Auto generated javadoc - modify README.markdown instead!
  */
 public class MoveToNode extends Node {
@@ -81,7 +79,9 @@ public class MoveToNode extends Node {
             boolean jump = currentTarget.y - worldPos.y > 0.5f;
             float yaw = (float) Math.atan2(targetDirection.x, targetDirection.z);
 
-            if (targetDirection.x * targetDirection.x + targetDirection.z * targetDirection.z > getNode().distance) {
+            float dist = getNode().distance;
+            if (targetDirection.x * targetDirection.x + targetDirection.z * targetDirection.z > dist * dist) {
+                targetDirection.scale(0.5f);
                 drive.set(targetDirection);
                 result = Status.RUNNING;
             } else {

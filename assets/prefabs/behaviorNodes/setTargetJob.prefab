@@ -5,7 +5,7 @@
         "category"  : "job",
         "shape"     : "rect",
         "color"     : [0.7, 0.7, 0.7],
-        "description": "",
+        "description": "Set MinionPathComponent's target to the job's target.\nSUCCESS: if valid job target position found.\nFAILURE: otherwise",
         "textColor" : [  0,   0,   0]
     }
 }

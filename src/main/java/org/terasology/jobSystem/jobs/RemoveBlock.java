@@ -22,6 +22,7 @@ import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.jobSystem.Job;
 import org.terasology.jobSystem.JobFactory;
+import org.terasology.jobSystem.JobTargetComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
@@ -101,8 +102,10 @@ public class RemoveBlock implements Job, ComponentSystem {
     }
 
     @Override
-    public void letMinionWork(EntityRef block, EntityRef minion) {
+    public boolean letMinionWork(EntityRef block, EntityRef minion, float dt) {
+        block.removeComponent(JobTargetComponent.class);
         worldProvider.setBlock(block.getComponent(BlockComponent.class).getPosition(), BlockManager.getAir());
+        return false;
     }
 
     @Override

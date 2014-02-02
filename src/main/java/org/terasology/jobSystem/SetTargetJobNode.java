@@ -25,7 +25,12 @@ import org.terasology.pathfinding.model.WalkableBlock;
 import java.util.List;
 
 /**
- * @author synopia
+ * Set <b>MinionPathComponent</b>'s target to the job's target.<br/>
+ * <br/>
+ * <b>SUCCESS</b>: if valid job target position found.<br/>
+ * <b>FAILURE</b>: otherwise<br/>
+ * <br/>
+ * Auto generated javadoc - modify README.markdown instead!
  */
 public class SetTargetJobNode extends Node {
     @Override

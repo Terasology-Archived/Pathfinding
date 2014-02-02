@@ -26,14 +26,12 @@ import org.terasology.rendering.nui.properties.OneOf;
 import java.util.Random;
 
 /**
- * <strong>PlayAnimation</strong>
- * <p/>
- * <strong>Properties:</stong> <code>animation</code>, <code>loop</code>
- * <p/>
- * Play a specific animation. Notice, if <code>loop</code> is false, this node will return <code>RUNNING</code> forever.
- * <p/>
- * <code>SUCCESS</code>: when the animation ended (only if <code>loop</code>==false)
- * <p/>
+ * <b>Properties:</b> <b>animation</b>, <b>loop</b><br/>
+ * <br/>
+ * Play a specific animation. Notice, if <b>loop</b> is false, this node will return <b>RUNNING</b> forever.<br/>
+ * <br/>
+ * <b>SUCCESS</b>: when the animation ended (only if <b>loop</b>==false)<br/>
+ * <br/>
  * Auto generated javadoc - modify README.markdown instead!
  */
 public class PlayAnimationNode extends Node {

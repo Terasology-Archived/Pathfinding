@@ -1,11 +1,11 @@
 /*
- * Copyright 2013 MovingBlocks
+ * Copyright 2014 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,10 +18,12 @@ package org.terasology.pathfinding.componentSystem;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
@@ -61,11 +63,15 @@ import java.util.Map;
  * @author synopia
  */
 @RegisterSystem
-public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
+public class PathfinderSystem implements ComponentSystem, UpdateSubscriberSystem, WorldChangeListener {
+    private static final float EVENT_COOLDOWN = 0.4f;
+
     private static final Logger logger = LoggerFactory.getLogger(PathfinderSystem.class);
 
     @In
     private WorldProvider world;
+    @In
+    private EntityManager entityManager;
 
     private TaskMaster<PathfinderTask> taskMaster = TaskMaster.createPriorityTaskMaster("Pathfinder", 1, 1024);
 
@@ -75,6 +81,9 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
     private PathfinderWorld pathfinderWorld;
     private Pathfinder pathfinder;
     private int nextId;
+    private EntityRef eventHandler;
+    private boolean dirty;
+    private float coolDown = EVENT_COOLDOWN;
 
     public PathfinderSystem() {
         CoreRegistry.put(PathfinderSystem.class, this);
@@ -104,7 +113,6 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
         Vector3i blockPos = new Vector3i(pos.x + 0.25f, pos.y, pos.z + 0.25f);
         WalkableBlock block = pathfinderWorld.getBlock(blockPos);
         if (block == null) {
-            blockPos.y += 2;
             while (blockPos.y >= (int) pos.y - 4 && (block = pathfinderWorld.getBlock(blockPos)) == null) {
                 blockPos.y--;
             }
@@ -114,10 +122,23 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
 
     @Override
     public void initialise() {
+        eventHandler = entityManager.create();
         world.registerListener(this);
         pathfinderWorld = createWorld();
         pathfinder = createPathfinder();
         logger.info("Pathfinder started");
+    }
+
+    @Override
+    public void update(float delta) {
+        if (dirty) {
+            coolDown -= delta;
+            if (coolDown < 0) {
+                coolDown = EVENT_COOLDOWN;
+                dirty = false;
+                eventHandler.send(new PathfinderWorldChanged());
+            }
+        }
     }
 
     protected Pathfinder createPathfinder() {
@@ -125,7 +146,7 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
     }
 
     protected PathfinderWorld createWorld() {
-         return new PathfinderWorld(world);
+        return new PathfinderWorld(world);
     }
 
     @Override
@@ -180,6 +201,8 @@ public class PathfinderSystem implements ComponentSystem, WorldChangeListener {
             HeightMap map = pathfinderWorld.update(chunkPos);
             maps.put(chunkPos, map);
             pathfinder.clearCache();
+
+            dirty = true;
         }
 
         @Override

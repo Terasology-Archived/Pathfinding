@@ -27,12 +27,10 @@ import org.terasology.registry.In;
 import javax.vecmath.Vector3f;
 
 /**
- * <strong>SetTargetLocalPlayer</strong>
- * <p/>
- * Set <code>MinionPathComponent</code>'s target to the block below local player.
- * <p/>
- * Always returns <code>SUCCESS</code>.
- * <p/>
+ * Set <b>MinionPathComponent</b>'s target to the block below local player.<br/>
+ * <br/>
+ * Always returns <b>SUCCESS</b>.<br/>
+ * <br/>
  * Auto generated javadoc - modify README.markdown instead!
  */
 public class SetTargetLocalPlayerNode extends Node {

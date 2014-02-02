@@ -66,8 +66,8 @@ public class JobTargetComponent implements Component, Job {
     }
 
     @Override
-    public void letMinionWork(EntityRef block, EntityRef minion) {
-        getJob().letMinionWork(block, minion);
+    public boolean letMinionWork(EntityRef block, EntityRef minion, float dt) {
+        return getJob().letMinionWork(block, minion, dt);
     }
 
     @Override

@@ -1,0 +1,29 @@
+{
+  "model": {
+    "nodeType": "engine:SequenceNode",
+    "nodeId": 0,
+    "node": {
+      "children": [
+        {
+          "nodeType": "pathfinding:FindJobNode",
+          "nodeId": 1,
+          "node": {
+            "filter": "Pathfinding:walkToBlock",
+            "child": {
+              "nodeType": "engine:LookupNode",
+              "nodeId": 2,
+              "node": {
+                "tree": "pathfinding:movetojobtarget"
+              }
+            }
+          }
+        },
+        {
+          "nodeType": "pathfinding:FinishJobNode",
+          "nodeId": 3,
+          "node": {}
+        }
+      ]
+    }
+  }
+}

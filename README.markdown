@@ -60,7 +60,15 @@ Starts the decorated node.
 ### `Wrapper` *Decorator*
 Always finishes with `SUCCESS`.
 
+### `PlaySound`
+*Properties*: `sound`, `volume`
+
+`SUCCESS`: when sound has started playing.
+`FAILURE`: otherwise
+
 # Terasology Job module
+
+
 
 ## Behavior nodes
 
@@ -69,14 +77,14 @@ Always finishes with `SUCCESS`.
 
 Searches for an open job of specific type (`filter`). If a job is found, the actor is assigned to that job and child is started.
 
-`SUCCESS`: if child returned with `SUCCESS`.
+`SUCCESS`: when actor reached a target position.
 `FAILURE`: if no open job can be found.
 
-### `FinishJob`
-Finishes or work at a job.
+### `FinishJob` *Decorator*
+Work at a job. If actor is in range of currently assigned job, the child node is started.
 
 `SUCCESS`: when job is done (depends on job type).
-`FAILURE`: if no job assigned or job is not reachable.
+`FAILURE`: if no job is assigned or job is not reachable.
 
 ### `SetTargetJob`
 Set `MinionPathComponent`'s target to the job's target.
@@ -102,7 +110,7 @@ Call child node, as long as the actor has not reached the end of the path.
 
 ### `FindWalkableBlock` *Decorator*
 Searches for the next valid walkable block for pathfinder. Best use of this node is probably
-using a `Parallel` on top of the behavior tree and a `MoveTo` as the child.
+using a `Sequence` on top of the behavior tree and a `MoveTo` as the child.
 
 This node must be run successfully **before** calling `FindPathTo`, because here the start position for pathfinding is queried.
 

@@ -21,15 +21,21 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.logic.behavior.tree.DecoratorNode;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
+import org.terasology.minion.move.MinionMoveComponent;
+import org.terasology.pathfinding.model.WalkableBlock;
 import org.terasology.registry.In;
 import org.terasology.rendering.nui.properties.OneOf;
 
+import java.util.List;
+
 /**
- * <strong>FindJob</strong>
- * <p/>
- * <p/>
- * <p/>
- * <p/>
+ * <b>Properties</b>: <b>filter</b><br/>
+ * <br/>
+ * Searches for an open job of specific type (<b>filter</b>). If a job is found, the actor is assigned to that job and child is started.<br/>
+ * <br/>
+ * <b>SUCCESS</b>: when actor reached a target position.<br/>
+ * <b>FAILURE</b>: if no open job can be found.<br/>
+ * <br/>
  * Auto generated javadoc - modify README.markdown instead!
  */
 public class FindJobNode extends DecoratorNode {
@@ -44,11 +50,12 @@ public class FindJobNode extends DecoratorNode {
     public static class FindJobTask extends DecoratorTask {
         private static final Logger logger = LoggerFactory.getLogger(FindJobTask.class);
 
-        private boolean jobAssigned;
+        private EntityRef assignedJob;
         @In
         private JobBoard jobBoard;
         @In
         private JobFactory jobFactory;
+        private boolean firstTick = true;
 
         public FindJobTask(FindJobNode node) {
             super(node);
@@ -67,50 +74,47 @@ public class FindJobNode extends DecoratorNode {
             }
             EntityRef job = jobBoard.getJob(actor().minion(), getNode().filter != null ? jobFactory.getJob(getNode().filter) : null);
             if (job != null) {
-                logger.info("Found job entity for " + interpreter().toString() + " " + job);
                 JobTargetComponent jobTargetComponent = job.getComponent(JobTargetComponent.class);
-                logger.info(" found new job " + jobTargetComponent.getUri() + " at " + job);
+                logger.info("Found new job for " + interpreter().toString() + " " + jobTargetComponent.getUri() + " at " + job);
                 jobTargetComponent.assignedMinion = actor().minion();
                 job.saveComponent(jobTargetComponent);
-
-                actorJob.currentJob = job;
-                actor().save(actorJob);
-                jobAssigned = true;
-
-                start(getNode().child);
+                assignedJob = job;
             } else {
-                actorJob.currentJob = null;
-                actor().save(actorJob);
-                jobAssigned = false;
+                assignedJob = null;
+            }
+            actorJob.currentJob = assignedJob;
+            actor().save(actorJob);
+            if (assignedJob != null) {
+                start(getNode().child);
             }
         }
 
         @Override
         public Status update(float dt) {
-            return jobAssigned ? Status.RUNNING : Status.FAILURE;
+            if (firstTick) {
+                firstTick = false;
+                return Status.RUNNING;
+            }
+            if (assignedJob != null) {
+                JobTargetComponent jobTargetComponent = assignedJob.getComponent(JobTargetComponent.class);
+                List<WalkableBlock> targetPositions = jobTargetComponent.getTargetPositions(assignedJob);
+                MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
+                if (moveComponent != null) {
+                    WalkableBlock currentBlock = moveComponent.currentBlock;
+                    for (WalkableBlock targetPosition : targetPositions) {
+                        if (currentBlock == targetPosition) {
+                            return Status.SUCCESS;
+                        }
+                    }
+                }
+                return Status.RUNNING;
+            }
+            return Status.FAILURE;
         }
 
         @Override
         public void handle(Status result) {
-            logger.info("FindJob.handle for " + interpreter().toString());
-
-            JobMinionComponent actorJob = actor().component(JobMinionComponent.class);
-
-            if (actorJob.currentJob != null) {
-                JobTargetComponent currentJob = actorJob.currentJob.getComponent(JobTargetComponent.class);
-                if (currentJob != null) {
-                    logger.info(" finished job " + currentJob.getUri() + " at " + currentJob);
-                    currentJob.assignedMinion = null;
-                }
-                if (result == Status.SUCCESS) {
-                    actorJob.currentJob.removeComponent(JobTargetComponent.class);
-                }
-            }
-            actorJob.currentJob = null;
-            actor().save(actorJob);
-
             stop(result);
-            logger.info("finished with " + result);
         }
 
         @Override

@@ -24,12 +24,10 @@ import org.terasology.logic.characters.CharacterMovementComponent;
 import javax.vecmath.Vector3f;
 
 /**
- * <strong>Jump</strong>
- * <p/>
- * Trigger a single jump into the air.
- * <p/>
- * <code>SUCCESS</code>: when the actor is grounded after the jump again.
- * <p/>
+ * Trigger a single jump into the air.<br/>
+ * <br/>
+ * <b>SUCCESS</b>: when the actor is grounded after the jump again.<br/>
+ * <br/>
  * Auto generated javadoc - modify README.markdown instead!
  */
 public class JumpNode extends Node {

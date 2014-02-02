@@ -85,21 +85,18 @@ public class JobBoard implements ComponentSystem, UpdateSubscriberSystem {
 
     @ReceiveEvent
     public void onActivated(OnActivatedComponent event, EntityRef entityRef, JobTargetComponent jobTarget) {
-        logger.info("activated " + entityRef + " " + jobTarget);
         JobType jobType = getJobType(jobTarget.getJob());
         jobType.update(entityRef);
     }
 
     @ReceiveEvent
     public void onRemove(BeforeRemoveComponent event, EntityRef entityRef, JobTargetComponent jobTarget) {
-        logger.info("removed " + entityRef + " " + jobTarget);
         JobType jobType = getJobType(jobTarget.getJob());
         jobType.remove(entityRef);
     }
 
     @ReceiveEvent
     public void onChange(OnChangedComponent event, EntityRef entityRef, JobTargetComponent jobTarget) {
-        logger.info("changed " + entityRef + " " + jobTarget);
         JobType jobType = getJobType(jobTarget.getJob());
         jobType.update(entityRef);
     }
@@ -178,7 +175,7 @@ public class JobBoard implements ComponentSystem, UpdateSubscriberSystem {
 
         public void update(EntityRef jobEntity) {
             JobTargetComponent jobComponent = jobEntity.getComponent(JobTargetComponent.class);
-            if (jobComponent != null && jobComponent.assignedMinion == null) {
+            if (jobComponent != null && jobComponent.assignedMinion == null && job.isAssignable(jobEntity)) {
                 openJobs.add(jobEntity);
             } else {
                 openJobs.remove(jobEntity);

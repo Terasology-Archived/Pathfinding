@@ -27,13 +27,11 @@ import org.terasology.registry.CoreRegistry;
 import java.util.Arrays;
 
 /**
- * <strong>FindPathTo</strong>
- * <p/>
- * Requests a path to a target defined using the <code>MinionPathComponent</code>.
- * <p/>
- * <code>SUCCESS</code> / <code>FAILURE</code>: when paths is found or not found (invalid).
- * <code>RUNNING</code>: as long as path is searched.
- * <p/>
+ * Requests a path to a target defined using the <b>MinionPathComponent</b>.<br/>
+ * <br/>
+ * <b>SUCCESS</b> / <b>FAILURE</b>: when paths is found or not found (invalid).<br/>
+ * <b>RUNNING</b>: as long as path is searched.<br/>
+ * <br/>
  * Auto generated javadoc - modify README.markdown instead!
  */
 public class FindPathToNode extends Node {
