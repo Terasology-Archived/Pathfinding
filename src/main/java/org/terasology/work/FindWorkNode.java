@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.jobSystem;
+package org.terasology.work;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,51 +31,51 @@ import java.util.List;
 /**
  * <b>Properties</b>: <b>filter</b><br/>
  * <br/>
- * Searches for an open job of specific type (<b>filter</b>). If a job is found, the actor is assigned to that job and child is started.<br/>
+ * Searches for open work of specific type (<b>filter</b>). If work is found, the actor is assigned to that and the child is started.<br/>
  * <br/>
  * <b>SUCCESS</b>: when actor reached a target position.<br/>
- * <b>FAILURE</b>: if no open job can be found.<br/>
+ * <b>FAILURE</b>: if no open work can be found.<br/>
  * <br/>
  * Auto generated javadoc - modify README.markdown instead!
  */
-public class FindJobNode extends DecoratorNode {
-    @OneOf.Provider(name = "jobs")
+public class FindWorkNode extends DecoratorNode {
+    @OneOf.Provider(name = "work")
     private String filter;
 
     @Override
     public Task createTask() {
-        return new FindJobTask(this);
+        return new FindWorkTask(this);
     }
 
-    public static class FindJobTask extends DecoratorTask {
-        private static final Logger logger = LoggerFactory.getLogger(FindJobTask.class);
+    public static class FindWorkTask extends DecoratorTask {
+        private static final Logger logger = LoggerFactory.getLogger(FindWorkTask.class);
 
         private EntityRef assignedJob;
         @In
-        private JobBoard jobBoard;
+        private WorkBoard workBoard;
         @In
-        private JobFactory jobFactory;
+        private WorkFactory workFactory;
         private boolean firstTick = true;
 
-        public FindJobTask(FindJobNode node) {
+        public FindWorkTask(FindWorkNode node) {
             super(node);
         }
 
         @Override
         public void onInitialize() {
-            JobMinionComponent actorJob = actor().component(JobMinionComponent.class);
+            MinionWorkComponent actorJob = actor().component(MinionWorkComponent.class);
             if (actorJob.currentJob != null) {
-                JobTargetComponent currentJob = actorJob.currentJob.getComponent(JobTargetComponent.class);
+                WorkTargetComponent currentJob = actorJob.currentJob.getComponent(WorkTargetComponent.class);
                 if (currentJob != null) {
-                    logger.info("Removing current job from actor " + currentJob.getUri() + " at " + actorJob.currentJob);
+                    logger.info("Removing current work from actor " + currentJob.getUri() + " at " + actorJob.currentJob);
                     currentJob.assignedMinion = null;
                     actorJob.currentJob.saveComponent(currentJob);
                 }
             }
-            EntityRef job = jobBoard.getJob(actor().minion(), getNode().filter != null ? jobFactory.getJob(getNode().filter) : null);
+            EntityRef job = workBoard.getJob(actor().minion(), getNode().filter != null ? workFactory.getWork(getNode().filter) : null);
             if (job != null) {
-                JobTargetComponent jobTargetComponent = job.getComponent(JobTargetComponent.class);
-                logger.info("Found new job for " + interpreter().toString() + " " + jobTargetComponent.getUri() + " at " + job);
+                WorkTargetComponent jobTargetComponent = job.getComponent(WorkTargetComponent.class);
+                logger.info("Found new work for " + interpreter().toString() + " " + jobTargetComponent.getUri() + " at " + job);
                 jobTargetComponent.assignedMinion = actor().minion();
                 job.saveComponent(jobTargetComponent);
                 assignedJob = job;
@@ -96,7 +96,7 @@ public class FindJobNode extends DecoratorNode {
                 return Status.RUNNING;
             }
             if (assignedJob != null) {
-                JobTargetComponent jobTargetComponent = assignedJob.getComponent(JobTargetComponent.class);
+                WorkTargetComponent jobTargetComponent = assignedJob.getComponent(WorkTargetComponent.class);
                 List<WalkableBlock> targetPositions = jobTargetComponent.getTargetPositions(assignedJob);
                 MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
                 if (moveComponent != null) {
@@ -118,8 +118,8 @@ public class FindJobNode extends DecoratorNode {
         }
 
         @Override
-        public FindJobNode getNode() {
-            return (FindJobNode) super.getNode();
+        public FindWorkNode getNode() {
+            return (FindWorkNode) super.getNode();
         }
     }
 }

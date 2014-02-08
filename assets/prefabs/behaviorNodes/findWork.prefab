@@ -1,0 +1,11 @@
+{
+    "BehaviorNode" : {
+        "type"      : "FindWorkNode",
+        "name"      : "Find Work",
+        "category"  : "work",
+        "shape"     : "rect",
+        "description": "Decorator\nProperties: filter\nSearches for open work of specific type (filter). If work is found, the actor is assigned to that and the child is started.\nSUCCESS: when actor reached a target position.\nFAILURE: if no open work can be found.",
+        "color"     : [0.7, 0.7, 0.7],
+        "textColor" : [  0,   0,   0]
+    }
+}

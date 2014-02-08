@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.jobSystem.jobs;
+package org.terasology.work.systems;
 
 import com.google.common.collect.Lists;
 import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.jobSystem.Job;
-import org.terasology.jobSystem.JobFactory;
-import org.terasology.jobSystem.JobTargetComponent;
 import org.terasology.math.Vector3i;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.registry.In;
+import org.terasology.work.Work;
+import org.terasology.work.WorkFactory;
+import org.terasology.work.WorkTargetComponent;
 import org.terasology.world.block.BlockComponent;
 
 import java.util.List;
@@ -35,12 +35,12 @@ import java.util.List;
  * @author synopia
  */
 @RegisterSystem
-public class WalkToBlock implements Job, ComponentSystem {
+public class WalkToBlock implements Work, ComponentSystem {
     private final SimpleUri uri;
     @In
     private PathfinderSystem pathfinderSystem;
     @In
-    private JobFactory jobFactory;
+    private WorkFactory workFactory;
 
     public WalkToBlock() {
         uri = new SimpleUri("Pathfinding:walkToBlock");
@@ -48,7 +48,7 @@ public class WalkToBlock implements Job, ComponentSystem {
 
     @Override
     public void initialise() {
-        jobFactory.register(this);
+        workFactory.register(this);
     }
 
     @Override
@@ -88,7 +88,7 @@ public class WalkToBlock implements Job, ComponentSystem {
 
     @Override
     public boolean letMinionWork(EntityRef block, EntityRef minion, float dt) {
-        block.removeComponent(JobTargetComponent.class);
+        block.removeComponent(WorkTargetComponent.class);
         return false;
     }
 

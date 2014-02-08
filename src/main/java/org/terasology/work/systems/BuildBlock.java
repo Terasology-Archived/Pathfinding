@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.jobSystem.jobs;
+package org.terasology.work.systems;
 
 import com.google.common.collect.Lists;
 import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.jobSystem.Job;
-import org.terasology.jobSystem.JobFactory;
-import org.terasology.jobSystem.JobTargetComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Vector3i;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.registry.In;
+import org.terasology.work.Work;
+import org.terasology.work.WorkFactory;
+import org.terasology.work.WorkTargetComponent;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockComponent;
@@ -40,10 +40,9 @@ import java.util.List;
  * @author synopia
  */
 @RegisterSystem
-public class BuildBlock implements Job, ComponentSystem {
+public class BuildBlock implements Work, ComponentSystem {
     private static final int[][] NEIGHBORS = new int[][]{
             {-1, 0, 0}, {1, 0, 0}, {0, 0, -1}, {0, 0, 1},
-//            {-1, 1, 0}, {1, 1, 0}, {0, 1, -1}, {0, 1, 1},
             {-1, -1, 0}, {1, -1, 0}, {0, -1, -1}, {0, -1, 1},
             {-1, -2, 0}, {1, -2, 0}, {0, -2, -1}, {0, -2, 1},
     };
@@ -58,7 +57,7 @@ public class BuildBlock implements Job, ComponentSystem {
     @In
     private BlockManager blockManager;
     @In
-    private JobFactory jobFactory;
+    private WorkFactory workFactory;
 
     private Block blockType;
     private final SimpleUri uri;
@@ -69,7 +68,7 @@ public class BuildBlock implements Job, ComponentSystem {
 
     @Override
     public void initialise() {
-        jobFactory.register(this);
+        workFactory.register(this);
         blockType = blockManager.getBlock("core:Dirt");
     }
 
@@ -110,7 +109,7 @@ public class BuildBlock implements Job, ComponentSystem {
 
     @Override
     public boolean letMinionWork(EntityRef block, EntityRef minion, float dt) {
-        block.removeComponent(JobTargetComponent.class);
+        block.removeComponent(WorkTargetComponent.class);
         worldProvider.setBlock(block.getComponent(BlockComponent.class).getPosition(), blockType);
         return false;
     }

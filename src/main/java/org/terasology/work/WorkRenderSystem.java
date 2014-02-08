@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.jobSystem;
+package org.terasology.work;
 
 import org.terasology.asset.Assets;
 import org.terasology.entitySystem.entity.EntityManager;
@@ -33,7 +33,7 @@ import javax.vecmath.Vector3f;
  * @author synopia
  */
 @RegisterSystem(RegisterMode.CLIENT)
-public class JobRenderSystem implements RenderSystem {
+public class WorkRenderSystem implements RenderSystem {
     @In
     private EntityManager entityManager;
     private BlockSelectionRenderer selectionRenderer;
@@ -47,14 +47,14 @@ public class JobRenderSystem implements RenderSystem {
     public void renderOverlay() {
         selectionRenderer.beginRenderOverlay();
         Vector3i pos = new Vector3i();
-        for (EntityRef entityRef : entityManager.getEntitiesWith(BlockComponent.class, JobTargetComponent.class)) {
+        for (EntityRef entityRef : entityManager.getEntitiesWith(BlockComponent.class, WorkTargetComponent.class)) {
             LocationComponent location = entityRef.getComponent(LocationComponent.class);
             Vector3f worldPosition = location.getWorldPosition();
             pos.set((int) worldPosition.x, (int) worldPosition.y, (int) worldPosition.z);
-            JobTargetComponent job = entityRef.getComponent(JobTargetComponent.class);
-            if (job.isRequestable(entityRef)) {
+            WorkTargetComponent work = entityRef.getComponent(WorkTargetComponent.class);
+            if (work.isRequestable(entityRef)) {
                 selectionRenderer.renderMark(pos);
-            } else if (job.isAssignable(entityRef)) {
+            } else if (work.isAssignable(entityRef)) {
                 selectionRenderer.renderMark2(pos);
             }
         }

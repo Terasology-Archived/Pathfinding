@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.jobSystem;
+package org.terasology.work;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Sets;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.internal.PojoEntityManager;
-import org.terasology.jobSystem.jobs.WalkToBlock;
-import org.terasology.jobSystem.kmeans.Cluster;
 import org.terasology.math.Vector3i;
 import org.terasology.navgraph.Entrance;
 import org.terasology.navgraph.Floor;
@@ -32,6 +30,8 @@ import org.terasology.pathfinding.TestHelper;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.registry.InjectionHelper;
+import org.terasology.work.kmeans.Cluster;
+import org.terasology.work.systems.WalkToBlock;
 import org.terasology.world.block.BlockComponent;
 
 import javax.swing.*;
@@ -92,7 +92,7 @@ public class ClusterDebugger extends JFrame {
                 return diff.lengthSquared();
             }
         });
-        CoreRegistry.put(JobFactory.class, new JobFactory());
+        CoreRegistry.put(WorkFactory.class, new WorkFactory());
         walkToBlock = new WalkToBlock();
         InjectionHelper.inject(walkToBlock);
         walkToBlock.initialise();
@@ -167,8 +167,8 @@ public class ClusterDebugger extends JFrame {
                                 WalkableBlock currentBlock = world.getBlock(pos);
                                 if (currentBlock != null) {
                                     EntityRef job = entityManager.create();
-                                    JobTargetComponent jobTargetComponent = new JobTargetComponent();
-                                    jobTargetComponent.setJob(walkToBlock);
+                                    WorkTargetComponent jobTargetComponent = new WorkTargetComponent();
+                                    jobTargetComponent.setWork(walkToBlock);
                                     BlockComponent blockComponent = new BlockComponent();
                                     blockComponent.setPosition(currentBlock.getBlockPosition());
 

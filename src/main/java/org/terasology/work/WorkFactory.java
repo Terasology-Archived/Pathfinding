@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.jobSystem;
+package org.terasology.work;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -36,51 +36,51 @@ import java.util.Map;
  * @author synopia
  */
 @RegisterSystem
-public class JobFactory implements ComponentSystem {
-    private static final Logger logger = LoggerFactory.getLogger(JobFactory.class);
+public class WorkFactory implements ComponentSystem {
+    private static final Logger logger = LoggerFactory.getLogger(WorkFactory.class);
 
     @In
     private OneOfProviderFactory providerFactory;
 
-    private Map<SimpleUri, Job> jobRegistry = Maps.newHashMap();
-    private List<Job> jobs = Lists.newArrayList();
+    private Map<SimpleUri, Work> workRegistry = Maps.newHashMap();
+    private List<Work> works = Lists.newArrayList();
     private SimpleUri idle = new SimpleUri("Pathfinding:idle");
 
-    public JobFactory() {
-        logger.info("Create JobFactory");
-        CoreRegistry.put(JobFactory.class, this);
+    public WorkFactory() {
+        logger.info("Create WorkFactory");
+        CoreRegistry.put(WorkFactory.class, this);
     }
 
-    public void register(Job job) {
-        jobRegistry.put(job.getUri(), job);
-        jobs.add(job);
+    public void register(Work work) {
+        workRegistry.put(work.getUri(), work);
+        works.add(work);
     }
 
-    public List<Job> getJobs() {
-        return jobs;
+    public List<Work> getWorks() {
+        return works;
     }
 
-    public Job getJob(String uri) {
-        return jobRegistry.get(new SimpleUri(uri));
+    public Work getWork(String uri) {
+        return workRegistry.get(new SimpleUri(uri));
     }
 
-    public Job getJob(EntityRef jobItem) {
-        JobComponent jobComponent = jobItem.getComponent(JobComponent.class);
-        if (jobComponent != null) {
-            return jobRegistry.get(jobComponent.getUri());
+    public Work getWork(EntityRef workItem) {
+        WorkComponent workComponent = workItem.getComponent(WorkComponent.class);
+        if (workComponent != null) {
+            return workRegistry.get(workComponent.getUri());
         }
-        return jobRegistry.get(idle);
+        return workRegistry.get(idle);
     }
 
     @Override
     public void initialise() {
-        logger.info("Initialize JobFactory");
-        providerFactory.register("jobs", new ReadOnlyBinding<List<String>>() {
+        logger.info("Initialize WorkFactory");
+        providerFactory.register("work", new ReadOnlyBinding<List<String>>() {
                     @Override
                     public List<String> get() {
                         List<String> result = Lists.newArrayList();
-                        for (Job job : jobs) {
-                            result.add(job.getUri().toString());
+                        for (Work work : works) {
+                            result.add(work.getUri().toString());
                         }
                         return result;
                     }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.jobSystem;
+package org.terasology.work;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,63 +24,63 @@ import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
 
 /**
- * Work at a job. If actor is in range of currently assigned job, the child node is started.<br/>
+ * Does the actual work, once the actor is in range. The child node is started.<br/>
  * <br/>
- * <b>SUCCESS</b>: when job is done (depends on job type).<br/>
- * <b>FAILURE</b>: if no job is assigned or job is not reachable.<br/>
+ * <b>SUCCESS</b>: when work is done (depends on work type).<br/>
+ * <b>FAILURE</b>: if no work is assigned or target is not reachable.<br/>
  * <br/>
  * Auto generated javadoc - modify README.markdown instead!
  */
-public class FinishJobNode extends DecoratorNode {
+public class FinishWorkNode extends DecoratorNode {
     @Override
     public Task createTask() {
-        return new FinishJobTask(this);
+        return new FinishWorkTask(this);
     }
 
-    public static class FinishJobTask extends DecoratorTask {
-        private static final Logger logger = LoggerFactory.getLogger(FinishJobTask.class);
-        private Job job;
+    public static class FinishWorkTask extends DecoratorTask {
+        private static final Logger logger = LoggerFactory.getLogger(FinishWorkTask.class);
+        private Work work;
         private EntityRef currentJob;
 
-        public FinishJobTask(Node node) {
+        public FinishWorkTask(Node node) {
             super(node);
         }
 
         @Override
         public void onInitialize() {
-            JobMinionComponent actorJob = actor().component(JobMinionComponent.class);
+            MinionWorkComponent actorJob = actor().component(MinionWorkComponent.class);
             currentJob = actorJob.currentJob;
             if (currentJob == null) {
                 return;
             }
-            JobTargetComponent jobTargetComponent = currentJob.getComponent(JobTargetComponent.class);
+            WorkTargetComponent jobTargetComponent = currentJob.getComponent(WorkTargetComponent.class);
             if (jobTargetComponent == null) {
                 return;
             }
-            job = jobTargetComponent.getJob();
-            if (!job.canMinionWork(currentJob, actor().minion())) {
-                logger.info("Not in range, job aborted " + currentJob);
+            work = jobTargetComponent.getWork();
+            if (!work.canMinionWork(currentJob, actor().minion())) {
+                logger.info("Not in range, work aborted " + currentJob);
                 jobTargetComponent.assignedMinion = null;
                 currentJob.saveComponent(jobTargetComponent);
                 actorJob.currentJob = null;
                 actor().save(actorJob);
-                job = null;
+                work = null;
                 return;
             }
 
-            logger.info("Reached job " + currentJob);
+            logger.info("Reached work " + currentJob);
             start(getNode().child);
         }
 
         @Override
         public Status update(float dt) {
-            if (job != null) {
-                boolean result = job.letMinionWork(currentJob, actor().minion(), dt);
+            if (work != null) {
+                boolean result = work.letMinionWork(currentJob, actor().minion(), dt);
                 if (result) {
                     return Status.RUNNING;
                 } else {
-                    logger.info("Job finished");
-                    JobMinionComponent actorJob = actor().component(JobMinionComponent.class);
+                    logger.info("Work finished");
+                    MinionWorkComponent actorJob = actor().component(MinionWorkComponent.class);
                     actorJob.currentJob = null;
                     actor().save(actorJob);
                     return Status.SUCCESS;
@@ -97,8 +97,8 @@ public class FinishJobNode extends DecoratorNode {
         }
 
         @Override
-        public FinishJobNode getNode() {
-            return (FinishJobNode) super.getNode();
+        public FinishWorkNode getNode() {
+            return (FinishWorkNode) super.getNode();
         }
     }
 }

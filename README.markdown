@@ -66,30 +66,30 @@ Always finishes with `SUCCESS`.
 `SUCCESS`: when sound has started playing.
 `FAILURE`: otherwise
 
-# Terasology Job module
+# Terasology Work module
 
 
 
 ## Behavior nodes
 
-### `FindJob` *Decorator*
+### `FindWork` *Decorator*
 *Properties*: `filter`
 
-Searches for an open job of specific type (`filter`). If a job is found, the actor is assigned to that job and child is started.
+Searches for open work of specific type (`filter`). If work is found, the actor is assigned to that and the child is started.
 
 `SUCCESS`: when actor reached a target position.
-`FAILURE`: if no open job can be found.
+`FAILURE`: if no open work can be found.
 
-### `FinishJob` *Decorator*
-Work at a job. If actor is in range of currently assigned job, the child node is started.
+### `FinishWork` *Decorator*
+Does the actual work, once the actor is in range. The child node is started.
 
-`SUCCESS`: when job is done (depends on job type).
-`FAILURE`: if no job is assigned or job is not reachable.
+`SUCCESS`: when work is done (depends on work type).
+`FAILURE`: if no work is assigned or target is not reachable.
 
-### `SetTargetJob`
-Set `MinionPathComponent`'s target to the job's target.
+### `SetTargetToWork`
+Set `MinionPathComponent`'s target to the work's target.
 
-`SUCCESS`: if valid job target position found.
+`SUCCESS`: if valid work target position found.
 `FAILURE`: otherwise
 
 # Terasology Move module

@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.jobSystem.kmeans;
+package org.terasology.work.kmeans;
 
 import com.google.common.collect.Lists;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.jobSystem.JobTargetComponent;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.utilities.random.MersenneRandom;
 import org.terasology.utilities.random.Random;
+import org.terasology.work.WorkTargetComponent;
 
 import javax.vecmath.Vector3f;
 import java.util.List;
@@ -46,7 +46,7 @@ public class Cluster {
     }
 
     public void add(EntityRef target) {
-        JobTargetComponent jobTarget = target.getComponent(JobTargetComponent.class);
+        WorkTargetComponent jobTarget = target.getComponent(WorkTargetComponent.class);
         List<WalkableBlock> targetPositions = jobTarget.getTargetPositions(target);
         for (WalkableBlock targetPosition : targetPositions) {
             add(new Distance(targetPosition.getBlockPosition().toVector3f(), target));

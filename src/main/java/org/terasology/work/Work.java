@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.jobSystem;
+package org.terasology.work;
 
 import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.entity.EntityRef;
@@ -22,13 +22,13 @@ import org.terasology.navgraph.WalkableBlock;
 import java.util.List;
 
 /**
- * Defines a job on a block.
+ * Defines a work on a block.
  *
  * @author synopia
  */
-public interface Job {
+public interface Work {
     /**
-     * Returns list of positions that are valid to work on this job.
+     * Returns list of positions that are valid to work on this work.
      */
     List<WalkableBlock> getTargetPositions(EntityRef block);
 

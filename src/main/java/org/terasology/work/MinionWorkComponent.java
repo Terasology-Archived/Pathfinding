@@ -1,11 +1,11 @@
 /*
- * Copyright 2013 MovingBlocks
+ * Copyright 2014 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,23 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.jobSystem;
+package org.terasology.work;
 
-import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.Component;
+import org.terasology.entitySystem.entity.EntityRef;
 
 /**
+ * Work's minion component. Indicates, the minion is currently executing a work.
+ *
  * @author synopia
  */
-public class JobComponent implements Component {
-    public String jobType;
-    public transient SimpleUri uri;
 
-    public SimpleUri getUri() {
-        if (uri == null) {
-            uri = new SimpleUri(jobType);
-        }
-        return uri;
+public class MinionWorkComponent implements Component {
+    public transient EntityRef currentJob;
+
+    public MinionWorkComponent() {
     }
-
 }

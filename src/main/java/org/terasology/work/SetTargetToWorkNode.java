@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.jobSystem;
+package org.terasology.work;
 
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.logic.behavior.tree.Node;
@@ -25,30 +25,30 @@ import org.terasology.navgraph.WalkableBlock;
 import java.util.List;
 
 /**
- * Set <b>MinionPathComponent</b>'s target to the job's target.<br/>
+ * Set <b>MinionPathComponent</b>'s target to the work's target.<br/>
  * <br/>
- * <b>SUCCESS</b>: if valid job target position found.<br/>
+ * <b>SUCCESS</b>: if valid work target position found.<br/>
  * <b>FAILURE</b>: otherwise<br/>
  * <br/>
  * Auto generated javadoc - modify README.markdown instead!
  */
-public class SetTargetJobNode extends Node {
+public class SetTargetToWorkNode extends Node {
     @Override
     public Task createTask() {
-        return new SetTargetJobTask(this);
+        return new SetTargetToWorkTask(this);
     }
 
-    public static class SetTargetJobTask extends Task {
-        public SetTargetJobTask(Node node) {
+    public static class SetTargetToWorkTask extends Task {
+        public SetTargetToWorkTask(Node node) {
             super(node);
         }
 
         @Override
         public Status update(float dt) {
-            EntityRef job = actor().component(JobMinionComponent.class).currentJob;
+            EntityRef job = actor().component(MinionWorkComponent.class).currentJob;
             if (job != null) {
-                JobTargetComponent jobComponent = job.getComponent(JobTargetComponent.class);
-                List<WalkableBlock> targetPositions = jobComponent.getJob().getTargetPositions(job);
+                WorkTargetComponent jobComponent = job.getComponent(WorkTargetComponent.class);
+                List<WalkableBlock> targetPositions = jobComponent.getWork().getTargetPositions(job);
                 if (targetPositions.size() > 0) {
                     WalkableBlock block = targetPositions.get(0);
                     MinionPathComponent pathComponent = actor().component(MinionPathComponent.class);
