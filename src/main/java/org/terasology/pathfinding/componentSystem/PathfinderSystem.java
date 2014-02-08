@@ -110,13 +110,14 @@ public class PathfinderSystem implements ComponentSystem {
 
     /**
      * Task to find a path.
+     * <p/>
+     * Note: this class has a natural ordering that is inconsistent with equals.
      */
     private final class FindPathTask implements NavGraphSystem.NavGraphTask {
         public EntityRef entity;
         public List<Path> paths;
         public List<Vector3i> start;
         public Vector3i target;
-        public boolean processed;
         public int pathId;
 
         private FindPathTask(List<Vector3i> start, Vector3i target, EntityRef entity) {
@@ -146,7 +147,6 @@ public class PathfinderSystem implements ComponentSystem {
             if (targetBlock != null && startBlocks.size() > 0) {
                 paths = pathfinder.findPath(targetBlock, startBlocks);
             }
-            processed = true;
             entity.send(new PathReadyEvent(pathId, paths, targetBlock, startBlocks));
         }
 

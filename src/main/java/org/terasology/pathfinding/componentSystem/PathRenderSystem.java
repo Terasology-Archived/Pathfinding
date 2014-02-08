@@ -17,13 +17,11 @@ package org.terasology.pathfinding.componentSystem;
 
 import com.google.common.collect.Lists;
 import org.terasology.asset.Assets;
-import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.RenderSystem;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.registry.CoreRegistry;
-import org.terasology.registry.In;
 import org.terasology.rendering.world.selection.BlockSelectionRenderer;
 
 import java.util.List;
@@ -33,8 +31,6 @@ import java.util.List;
  */
 @RegisterSystem
 public class PathRenderSystem implements RenderSystem {
-    @In
-    private EntityManager entityManager;
     private BlockSelectionRenderer selectionRenderer;
     private List<Path> paths = Lists.newArrayList();
 

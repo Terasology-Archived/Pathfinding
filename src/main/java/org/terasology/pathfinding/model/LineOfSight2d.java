@@ -16,17 +16,13 @@
 package org.terasology.pathfinding.model;
 
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.navgraph.NavGraphSystem;
 import org.terasology.navgraph.WalkableBlock;
-import org.terasology.registry.In;
 
 /**
  * Created by synopia on 01.02.14.
  */
 @RegisterSystem
 public class LineOfSight2d implements LineOfSight {
-    @In
-    private NavGraphSystem world;
     private WalkableBlock current;
 
     @Override
@@ -49,9 +45,7 @@ public class LineOfSight2d implements LineOfSight {
         int dx = x1 - x0;
         int sx;
         int sy;
-        int xd = 0;
         int f = 0;
-        int zd = 0;
         if (dy < 0) {
             dy = -dy;
             sy = -1;

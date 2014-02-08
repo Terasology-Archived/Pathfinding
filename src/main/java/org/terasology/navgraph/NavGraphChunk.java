@@ -41,7 +41,7 @@ public class NavGraphChunk {
     public static final int DIR_RD = 5;
     public static final int DIR_DOWN = 6;
     public static final int DIR_LD = 7;
-    public static final int[][] DIRECTIONS = new int[][]{
+    static final int[][] DIRECTIONS = new int[][]{
             {-1, 0}, {-1, -1}, {0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}
     };
 

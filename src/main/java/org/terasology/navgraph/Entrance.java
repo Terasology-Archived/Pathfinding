@@ -84,7 +84,7 @@ public class Entrance {
         return floor.getBlock(mx, my);
     }
 
-    private final class Rect {
+    private static final class Rect {
         int x;
         int y;
         int w;

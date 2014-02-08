@@ -19,7 +19,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.lifecycleEvents.BeforeRemoveComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
@@ -50,8 +49,6 @@ public class JobBoard implements ComponentSystem, UpdateSubscriberSystem {
 
     @In
     private BlockEntityRegistry blockEntityRegistry;
-    @In
-    private EntityManager entityManager;
 
     @In
     private JobFactory jobFactory;
@@ -68,11 +65,17 @@ public class JobBoard implements ComponentSystem, UpdateSubscriberSystem {
         cooldown -= delta;
         if (cooldown < 0) {
             for (JobType type : jobTypes.values()) {
-                String s = "";
+                StringBuffer sb = new StringBuffer();
+                int remaining = 10;
                 for (EntityRef openJob : type.openJobs) {
-                    s += openJob + ", ";
+                    remaining--;
+                    if (remaining == 0) {
+                        break;
+                    }
+                    sb.append(openJob);
+                    sb.append(", ");
                 }
-                logger.info(type.job.getUri() + ": " + type.openJobs.size() + "[" + s + "]");
+                logger.info("{}: {} [{}]", type.job.getUri(), type.openJobs.size(), sb.toString());
             }
             cooldown = 5;
         }
@@ -165,7 +168,7 @@ public class JobBoard implements ComponentSystem, UpdateSubscriberSystem {
         return jobType;
     }
 
-    private final class JobType {
+    private static final class JobType {
         public final Job job;
         public final Set<EntityRef> openJobs = Sets.newHashSet();
 

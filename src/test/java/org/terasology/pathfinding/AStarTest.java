@@ -122,6 +122,8 @@ public class AStarTest {
                     case ' ':
                         map.setPassable(offset);
                         break;
+                    default:
+                        break;
                 }
             }
         }

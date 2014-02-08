@@ -22,7 +22,6 @@ import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.minion.move.MinionMoveComponent;
-import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.componentSystem.PathReadyEvent;
 import org.terasology.pathfinding.model.Path;
 
@@ -40,25 +39,16 @@ public class MinionPathSystem implements ComponentSystem {
             return;
         }
         if (event.getPath() == null) {
-            logger.warn("Minion " + minion + " received path (id = " + event.getPathId() + ") " +
-                    " invalid path " +
-                    " old path state " + pathComponent.pathState);
+            logger.warn("Minion {} received path (id = {}) invalid path old path state {}", minion, event.getPathId(), pathComponent.pathState);
 
             pathComponent.path = Path.INVALID;
             pathComponent.pathState = MinionPathComponent.PathState.IDLE;
         } else {
 
-            logger.info("Minion " + minion + " received path (id = " + event.getPathId() + ") " +
-                    minion.getComponent(MinionMoveComponent.class).currentBlock.getBlockPosition() +
-                    " to " + event.getStart().get(0).getBlockPosition() +
-                    " old path state " + pathComponent.pathState);
+            logger.info("Minion {} received path (id = {}) {} to {} old path state {}", minion, event.getPathId(), minion.getComponent(MinionMoveComponent.class).currentBlock.getBlockPosition(), event.getStart().get(0).getBlockPosition(), pathComponent.pathState);
             pathComponent.path = event.getPath().get(0);
             pathComponent.pathState = MinionPathComponent.PathState.PATH_RECEIVED;
-            String path = "";
-            for (WalkableBlock block : pathComponent.path) {
-                path += "[" + block.getBlockPosition() + "]-> ";
-            }
-            logger.info(path);
+            logger.info(pathComponent.path.toString());
         }
         minion.saveComponent(pathComponent);
     }

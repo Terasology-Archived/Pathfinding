@@ -21,7 +21,6 @@ import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.inventory.InventoryComponent;
-import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.action.GiveItemAction;
 import org.terasology.logic.players.event.OnPlayerSpawnedEvent;
 import org.terasology.logic.selection.ApplyBlockSelectionEvent;
@@ -38,8 +37,6 @@ import org.terasology.world.block.BlockManager;
 public class SampleSystem implements ComponentSystem {
     @In
     private EntityManager entityManager;
-    @In
-    private InventoryManager inventoryManager;
     @In
     private WorldProvider worldProvider;
     @In

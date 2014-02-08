@@ -39,5 +39,13 @@ public class Path extends ArrayList<WalkableBlock> {
         return get(0);
     }
 
-
+    @Override
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        for (WalkableBlock block : this) {
+            sb.append(block.getBlockPosition().toString());
+            sb.append("->");
+        }
+        return sb.toString();
+    }
 }

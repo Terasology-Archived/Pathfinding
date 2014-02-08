@@ -162,6 +162,8 @@ public class NavGraphSystem implements ComponentSystem, UpdateSubscriberSystem, 
 
     /**
      * Task to update a chunk
+     * <p/>
+     * Note: this class has a natural ordering that is inconsistent with equals.
      */
     private final class UpdateChunkTask implements NavGraphTask {
         public Vector3i chunkPos;

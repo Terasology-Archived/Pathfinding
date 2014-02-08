@@ -69,7 +69,7 @@ public class PlayAnimationNode extends Node {
         public void onInitialize() {
             if (getNode().animation != null) {
                 AnimationComponent animationComponent = actor().component(AnimationComponent.class);
-                MeshAnimation animation = null;
+                MeshAnimation animation;
                 switch (getNode().animation) {
                     case "idle":
                         animation = animationComponent.idleAnim;
@@ -97,6 +97,9 @@ public class PlayAnimationNode extends Node {
                         break;
                     case "random":
                         animation = animationComponent.randomAnim.get(random.nextInt(animationComponent.randomAnim.size()));
+                        break;
+                    default:
+                        animation = null;
                         break;
                 }
                 changeAnimation(animation, getNode().loop);

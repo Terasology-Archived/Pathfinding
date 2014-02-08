@@ -205,7 +205,7 @@ public class HAStar {
         } else {
             float tentativeG = currentNode.g + c(current, successor, false);
             if (tentativeG <= successorNode.g) {
-                successorNode.path = null;
+                successorNode.path = localPath;
                 successorNode.p = currentNode;
                 successorNode.g = tentativeG;
                 successorNode.f = tentativeG + h(successor);

@@ -85,7 +85,7 @@ public class AStar {
         List<Integer> path = Lists.newArrayList();
         getPath(path);
         int id = 0;
-        String text = "";
+        StringBuffer sb = new StringBuffer();
         for (int y = 0; y < graph.getHeight(); y++) {
             for (int x = 0; x < graph.getWidth(); x++) {
                 char ch = ' ';
@@ -95,12 +95,12 @@ public class AStar {
                 if (path.contains(id)) {
                     ch = '*';
                 }
-                text += ch;
+                sb.append(ch);
                 id++;
             }
-            text += "\n";
+            sb.append("\n");
         }
-        return text;
+        return sb.toString();
     }
 
     public List<Integer> getPath() {

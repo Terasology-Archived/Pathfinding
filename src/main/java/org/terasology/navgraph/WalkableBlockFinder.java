@@ -89,7 +89,7 @@ public class WalkableBlockFinder {
 
     private void connectBlocks(WalkableBlock block, WalkableBlock neighborBlock, int direction) {
         int heightDiff = block.height() - neighborBlock.height();
-        boolean diagonal = (direction % 2) == 1;
+        boolean diagonal = (direction % 2) != 0;
         if (heightDiff == 0) {
             if (!diagonal) {
                 block.neighbors[direction] = neighborBlock;

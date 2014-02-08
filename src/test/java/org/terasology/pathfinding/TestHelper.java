@@ -192,6 +192,8 @@ public class TestHelper {
                     case ' ':
                         setAir(x, y, z);
                         break;
+                    default:
+                        break;
                 }
                 return 0;
             }

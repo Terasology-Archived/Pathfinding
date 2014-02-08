@@ -30,7 +30,7 @@ import java.util.Set;
  * @author synopia
  */
 public class ConnectNavGraphChunkTest {
-    public static String[] contourExpected = new String[]{
+    public static final String[] CONTOUR_EXPECTED = new String[]{
             "       C        ",
             "                ",
             "                ",
@@ -67,13 +67,13 @@ public class ConnectNavGraphChunkTest {
         right.update();
 
         center.connectNeighborMaps(left, up, right, down);
-        assertCenter(center, left, up, right, down, contourExpected);
+        assertCenter(center, left, up, right, down, CONTOUR_EXPECTED);
 
         center.disconnectNeighborMaps(left, up, right, down);
         center = new NavGraphChunk(world, new Vector3i(1, 0, 1));
         center.update();
         center.connectNeighborMaps(left, up, right, down);
-        assertCenter(center, left, up, right, down, contourExpected);
+        assertCenter(center, left, up, right, down, CONTOUR_EXPECTED);
     }
 
     @Test
@@ -111,7 +111,7 @@ public class ConnectNavGraphChunkTest {
         rd.update();
         rd.connectNeighborMaps(down, right, null, null);
 
-        assertCenter(center, left, up, right, down, contourExpected);
+        assertCenter(center, left, up, right, down, CONTOUR_EXPECTED);
     }
 
     @Before

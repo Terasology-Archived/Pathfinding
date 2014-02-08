@@ -91,7 +91,6 @@ public class Cluster {
         float dist = Float.MAX_VALUE;
         while (dist > 100f) {
             dist = iterate() / distances.size();
-            System.out.println(dist);
         }
 
         for (Cluster cluster : children) {
@@ -137,7 +136,7 @@ public class Cluster {
         position.scale(1.f / distances.size());
     }
 
-    public class Distance {
+    public static final class Distance {
         private final Vector3f position;
         private final EntityRef job;
         private float distance;
