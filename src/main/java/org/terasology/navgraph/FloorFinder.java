@@ -1,11 +1,11 @@
 /*
- * Copyright 2013 MovingBlocks
+ * Copyright 2014 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.pathfinding.model;
+package org.terasology.navgraph;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -47,7 +47,7 @@ public class FloorFinder {
         return regions;
     }
 
-    public void findFloors(HeightMap map) {
+    public void findFloors(NavGraphChunk map) {
         findRegions(map);
 
         map.floors.clear();
@@ -90,19 +90,19 @@ public class FloorFinder {
         }
     }
 
-    void findRegions(HeightMap map) {
+    void findRegions(NavGraphChunk map) {
         Vector3i worldPos = map.worldPos;
         regions.clear();
         regionMap.clear();
         sweepMap.clear();
 
-        for (int z = 0; z < HeightMap.SIZE_Z; z++) {
+        for (int z = 0; z < NavGraphChunk.SIZE_Z; z++) {
             count.clear();
             sweeps.clear();
             // find sweeps
-            for (int x = 0; x < HeightMap.SIZE_X; x++) {
-                int offset = x + z * HeightMap.SIZE_Z;
-                HeightMapCell cell = map.cells[offset];
+            for (int x = 0; x < NavGraphChunk.SIZE_X; x++) {
+                int offset = x + z * NavGraphChunk.SIZE_Z;
+                NavGraphCell cell = map.cells[offset];
 
                 findSweeps(cell);
             }
@@ -115,9 +115,9 @@ public class FloorFinder {
                     regions.add(sweep.region);
                 }
             }
-            for (int x = 0; x < HeightMap.SIZE_X; x++) {
-                int offset = x + z * HeightMap.SIZE_Z;
-                HeightMapCell cell = map.cells[offset];
+            for (int x = 0; x < NavGraphChunk.SIZE_X; x++) {
+                int offset = x + z * NavGraphChunk.SIZE_Z;
+                NavGraphCell cell = map.cells[offset];
 
                 for (WalkableBlock block : cell.blocks) {
                     Sweep sweep = sweepMap.remove(block);
@@ -130,17 +130,17 @@ public class FloorFinder {
         findRegionNeighbors(map);
     }
 
-    private void findSweeps(HeightMapCell cell) {
+    private void findSweeps(NavGraphCell cell) {
         for (WalkableBlock block : cell.blocks) {
             Sweep sweep;
-            WalkableBlock leftNeighbor = block.neighbors[HeightMap.DIR_LEFT];
+            WalkableBlock leftNeighbor = block.neighbors[NavGraphChunk.DIR_LEFT];
             if (leftNeighbor != null) {
                 sweep = sweepMap.get(leftNeighbor);
             } else {
                 sweep = new Sweep();
                 sweeps.add(sweep);
             }
-            WalkableBlock upNeighbor = block.neighbors[HeightMap.DIR_UP];
+            WalkableBlock upNeighbor = block.neighbors[NavGraphChunk.DIR_UP];
             if (upNeighbor != null) {
                 Region neighborRegion = regionMap.get(upNeighbor);
                 if (neighborRegion != null) {
@@ -161,17 +161,17 @@ public class FloorFinder {
         }
     }
 
-    private void findRegionNeighbors(HeightMap map) {
-        for (int z = 0; z < HeightMap.SIZE_Z; z++) {
-            for (int x = 0; x < HeightMap.SIZE_X; x++) {
-                int offset = x + z * HeightMap.SIZE_Z;
-                HeightMapCell cell = map.cells[offset];
+    private void findRegionNeighbors(NavGraphChunk map) {
+        for (int z = 0; z < NavGraphChunk.SIZE_Z; z++) {
+            for (int x = 0; x < NavGraphChunk.SIZE_X; x++) {
+                int offset = x + z * NavGraphChunk.SIZE_Z;
+                NavGraphCell cell = map.cells[offset];
                 findRegionNeighbors(cell);
             }
         }
     }
 
-    private void findRegionNeighbors(HeightMapCell cell) {
+    private void findRegionNeighbors(NavGraphCell cell) {
         for (WalkableBlock block : cell.blocks) {
             Region region = regionMap.get(block);
             if (region == null) {

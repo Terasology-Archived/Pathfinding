@@ -21,9 +21,9 @@ import org.terasology.logic.behavior.tree.DecoratorNode;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.minion.move.MinionMoveComponent;
+import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.componentSystem.PathRenderSystem;
 import org.terasology.pathfinding.model.Path;
-import org.terasology.pathfinding.model.WalkableBlock;
 import org.terasology.registry.CoreRegistry;
 
 import javax.vecmath.Vector3f;

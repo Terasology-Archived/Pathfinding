@@ -1,11 +1,11 @@
 /*
- * Copyright 2013 MovingBlocks
+ * Copyright 2014 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.pathfinding.model;
+package org.terasology.navgraph;
 
 import org.terasology.math.Vector3i;
 import org.terasology.world.WorldProvider;
@@ -29,17 +29,17 @@ public class WalkableBlockFinder {
         this.world = world;
     }
 
-    public void findWalkableBlocks(HeightMap map) {
-        int[] airMap = new int[HeightMap.SIZE_X * HeightMap.SIZE_Z];
+    public void findWalkableBlocks(NavGraphChunk map) {
+        int[] airMap = new int[NavGraphChunk.SIZE_X * NavGraphChunk.SIZE_Z];
         Vector3i blockPos = new Vector3i();
         map.walkableBlocks.clear();
         Vector3i worldPos = map.worldPos;
-        for (int y = HeightMap.SIZE_Y - 1; y >= 0; y--) {
-            for (int z = 0; z < HeightMap.SIZE_Z; z++) {
-                for (int x = 0; x < HeightMap.SIZE_X; x++) {
+        for (int y = NavGraphChunk.SIZE_Y - 1; y >= 0; y--) {
+            for (int z = 0; z < NavGraphChunk.SIZE_Z; z++) {
+                for (int x = 0; x < NavGraphChunk.SIZE_X; x++) {
                     blockPos.set(x + worldPos.x, y + worldPos.y, z + worldPos.z);
                     Block block = world.getBlock(blockPos);
-                    int offset = x + z * HeightMap.SIZE_Z;
+                    int offset = x + z * NavGraphChunk.SIZE_Z;
                     if (block.isPenetrable()) {
                         airMap[offset]++;
                     } else {
@@ -57,14 +57,14 @@ public class WalkableBlockFinder {
         findNeighbors(map);
     }
 
-    private void findNeighbors(HeightMap map) {
+    private void findNeighbors(NavGraphChunk map) {
         map.borderBlocks.clear();
-        for (int z = 0; z < HeightMap.SIZE_Z; z++) {
-            for (int x = 0; x < HeightMap.SIZE_X; x++) {
-                int offset = x + z * HeightMap.SIZE_Z;
-                HeightMapCell cell = map.cells[offset];
+        for (int z = 0; z < NavGraphChunk.SIZE_Z; z++) {
+            for (int x = 0; x < NavGraphChunk.SIZE_X; x++) {
+                int offset = x + z * NavGraphChunk.SIZE_Z;
+                NavGraphCell cell = map.cells[offset];
                 for (WalkableBlock block : cell.blocks) {
-                    for (int i = 0; i < HeightMap.DIRECTIONS.length; i++) {
+                    for (int i = 0; i < NavGraphChunk.DIRECTIONS.length; i++) {
                         connectToDirection(map, x, z, block, i);
                     }
                 }
@@ -72,16 +72,16 @@ public class WalkableBlockFinder {
         }
     }
 
-    private void connectToDirection(HeightMap map, int x, int z, WalkableBlock block, int direction) {
-        int dx = HeightMap.DIRECTIONS[direction][0];
-        int dy = HeightMap.DIRECTIONS[direction][1];
+    private void connectToDirection(NavGraphChunk map, int x, int z, WalkableBlock block, int direction) {
+        int dx = NavGraphChunk.DIRECTIONS[direction][0];
+        int dy = NavGraphChunk.DIRECTIONS[direction][1];
         int nx = x + dx;
         int nz = z + dy;
-        if (nx < 0 || nz < 0 || nx >= HeightMap.SIZE_X || nz >= HeightMap.SIZE_Z) {
+        if (nx < 0 || nz < 0 || nx >= NavGraphChunk.SIZE_X || nz >= NavGraphChunk.SIZE_Z) {
             map.borderBlocks.add(block);
             return;
         }
-        HeightMapCell neighbor = map.cells[nx + nz * HeightMap.SIZE_Z];
+        NavGraphCell neighbor = map.cells[nx + nz * NavGraphChunk.SIZE_Z];
         for (WalkableBlock neighborBlock : neighbor.blocks) {
             connectBlocks(block, neighborBlock, direction);
         }

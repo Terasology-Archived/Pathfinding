@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,7 @@ import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.logic.inventory.InventoryManager;
+import org.terasology.logic.inventory.action.GiveItemAction;
 import org.terasology.logic.players.event.OnPlayerSpawnedEvent;
 import org.terasology.logic.selection.ApplyBlockSelectionEvent;
 import org.terasology.math.Vector3i;
@@ -46,9 +47,9 @@ public class SampleSystem implements ComponentSystem {
 
     @ReceiveEvent
     public void onPlayerSpawn(OnPlayerSpawnedEvent event, EntityRef player, InventoryComponent inventory) {
-        inventoryManager.giveItem(player, entityManager.create("Pathfinding:jobWalkToBlock"));
-        inventoryManager.giveItem(player, entityManager.create("Pathfinding:jobBuildBlock"));
-        inventoryManager.giveItem(player, entityManager.create("Pathfinding:jobRemoveBlock"));
+        player.send(new GiveItemAction(player, entityManager.create("Pathfinding:jobWalkToBlock")));
+        player.send(new GiveItemAction(player, entityManager.create("Pathfinding:jobBuildBlock")));
+        player.send(new GiveItemAction(player, entityManager.create("Pathfinding:jobRemoveBlock")));
     }
 
     @ReceiveEvent

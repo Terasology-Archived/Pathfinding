@@ -15,9 +15,12 @@
  */
 package org.terasology.pathfinding.model;
 
+import org.terasology.entitySystem.systems.ComponentSystem;
+import org.terasology.navgraph.WalkableBlock;
+
 /**
  * Created by synopia on 01.02.14.
  */
-public interface LineOfSight {
+public interface LineOfSight extends ComponentSystem {
     boolean inSight(WalkableBlock one, WalkableBlock two);
 }

@@ -18,35 +18,20 @@ package org.terasology.pathfinding.componentSystem;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
-import org.terasology.logic.location.LocationComponent;
-import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
-import org.terasology.pathfinding.model.HeightMap;
-import org.terasology.pathfinding.model.LineOfSight3d;
+import org.terasology.navgraph.NavGraphSystem;
+import org.terasology.navgraph.WalkableBlock;
+import org.terasology.pathfinding.model.LineOfSight;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.Pathfinder;
-import org.terasology.pathfinding.model.PathfinderWorld;
-import org.terasology.pathfinding.model.WalkableBlock;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.registry.In;
-import org.terasology.utilities.concurrency.Task;
-import org.terasology.utilities.concurrency.TaskMaster;
-import org.terasology.world.WorldChangeListener;
-import org.terasology.world.WorldComponent;
-import org.terasology.world.WorldProvider;
-import org.terasology.world.block.Block;
-import org.terasology.world.chunks.event.OnChunkLoaded;
 
 import javax.vecmath.Vector3f;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This systems helps finding a paths through the game world.
@@ -63,161 +48,70 @@ import java.util.Map;
  * @author synopia
  */
 @RegisterSystem
-public class PathfinderSystem implements ComponentSystem, UpdateSubscriberSystem, WorldChangeListener {
-    private static final float EVENT_COOLDOWN = 0.4f;
+public class PathfinderSystem implements ComponentSystem {
 
     private static final Logger logger = LoggerFactory.getLogger(PathfinderSystem.class);
 
     @In
-    private WorldProvider world;
+    private NavGraphSystem navGraphSystem;
     @In
-    private EntityManager entityManager;
-
-    private TaskMaster<PathfinderTask> taskMaster = TaskMaster.createPriorityTaskMaster("Pathfinder", 1, 1024);
-
-    private int pathsSearched;
-    private int chunkUpdates;
-    private Map<Vector3i, HeightMap> maps = new HashMap<>();
-    private PathfinderWorld pathfinderWorld;
+    private LineOfSight lineOfSight;
     private Pathfinder pathfinder;
     private int nextId;
-    private EntityRef eventHandler;
-    private boolean dirty;
-    private float coolDown = EVENT_COOLDOWN;
+    private int pathsSearched;
 
     public PathfinderSystem() {
         CoreRegistry.put(PathfinderSystem.class, this);
     }
 
-    public int requestPath(EntityRef requestor, Vector3i target, List<Vector3i> start) {
-        FindPathTask task = new FindPathTask(start, target, requestor);
-        taskMaster.offer(task);
-
-        return task.pathId;
-    }
-
-    public HeightMap getHeightMap(Vector3i chunkPos) {
-        return maps.get(chunkPos);
-    }
-
-    public WalkableBlock getBlock(Vector3i pos) {
-        return pathfinderWorld.getBlock(pos);
-    }
-
-    public WalkableBlock getBlock(EntityRef minion) {
-        Vector3f pos = minion.getComponent(LocationComponent.class).getWorldPosition();
-        return getBlock(pos);
-    }
-
-    public WalkableBlock getBlock(Vector3f pos) {
-        Vector3i blockPos = new Vector3i(pos.x + 0.25f, pos.y, pos.z + 0.25f);
-        WalkableBlock block = pathfinderWorld.getBlock(blockPos);
-        if (block == null) {
-            while (blockPos.y >= (int) pos.y - 4 && (block = pathfinderWorld.getBlock(blockPos)) == null) {
-                blockPos.y--;
-            }
-        }
-        return block;
-    }
-
     @Override
     public void initialise() {
-        eventHandler = entityManager.create();
-        world.registerListener(this);
-        pathfinderWorld = createWorld();
         pathfinder = createPathfinder();
-        logger.info("Pathfinder started");
-    }
-
-    @Override
-    public void update(float delta) {
-        if (dirty) {
-            coolDown -= delta;
-            if (coolDown < 0) {
-                coolDown = EVENT_COOLDOWN;
-                dirty = false;
-                eventHandler.send(new PathfinderWorldChanged());
-            }
-        }
-    }
-
-    protected Pathfinder createPathfinder() {
-        return new Pathfinder(pathfinderWorld, new LineOfSight3d(world));
-    }
-
-    protected PathfinderWorld createWorld() {
-        return new PathfinderWorld(world);
+        logger.info("PathfinderSystem started");
     }
 
     @Override
     public void shutdown() {
     }
 
-    @Override
-    public void onBlockChanged(Vector3i pos, Block newBlock, Block originalBlock) {
-        Vector3i chunkPos = TeraMath.calcChunkPos(pos);
-        taskMaster.offer(new UpdateChunkTask(chunkPos));
+    public int requestPath(EntityRef requestor, Vector3i target, List<Vector3i> start) {
+        FindPathTask task = new FindPathTask(start, target, requestor);
+        navGraphSystem.offer(task);
+        return task.pathId;
     }
 
-    @ReceiveEvent(components = WorldComponent.class)
-    public void chunkReady(OnChunkLoaded event, EntityRef worldEntity) {
-        taskMaster.offer(new UpdateChunkTask(event.getChunkPos()));
+    public Path findPath(final WalkableBlock target, final WalkableBlock start) {
+        return pathfinder.findPath(target, start);
+    }
+
+    public List<Path> findPath(final WalkableBlock target, final List<WalkableBlock> starts) {
+        return pathfinder.findPath(target, starts);
+    }
+
+    public WalkableBlock getBlock(Vector3i pos) {
+        return navGraphSystem.getBlock(pos);
+    }
+
+    public WalkableBlock getBlock(EntityRef minion) {
+        return navGraphSystem.getBlock(minion);
+    }
+
+    public WalkableBlock getBlock(Vector3f pos) {
+        return navGraphSystem.getBlock(pos);
     }
 
     public int getPathsSearched() {
         return pathsSearched;
     }
 
-    public int getChunkUpdates() {
-        return chunkUpdates;
-    }
-
-    private abstract class PathfinderTask implements Task, Comparable<PathfinderTask> {
-        @Override
-        public boolean isTerminateSignal() {
-            return false;
-        }
-    }
-
-    /**
-     * Task to update a chunk
-     */
-    private final class UpdateChunkTask extends PathfinderTask {
-        public Vector3i chunkPos;
-
-        private UpdateChunkTask(Vector3i chunkPos) {
-            this.chunkPos = chunkPos;
-        }
-
-        @Override
-        public String getName() {
-            return "Pathfinder:UpdateChunk";
-        }
-
-        @Override
-        public void enact() {
-            chunkUpdates++;
-            maps.remove(chunkPos);
-            HeightMap map = pathfinderWorld.update(chunkPos);
-            maps.put(chunkPos, map);
-            pathfinder.clearCache();
-
-            dirty = true;
-        }
-
-        @Override
-        public int compareTo(PathfinderTask o) {
-            if (o instanceof FindPathTask) {
-                return -1;
-            }
-            return 0;
-        }
+    protected Pathfinder createPathfinder() {
+        return new Pathfinder(navGraphSystem, lineOfSight);
     }
 
     /**
      * Task to find a path.
      */
-    private final class FindPathTask extends PathfinderTask {
+    private final class FindPathTask implements NavGraphSystem.NavGraphTask {
         public EntityRef entity;
         public List<Path> paths;
         public List<Vector3i> start;
@@ -244,10 +138,10 @@ public class PathfinderSystem implements ComponentSystem, UpdateSubscriberSystem
             List<WalkableBlock> startBlocks = Lists.newArrayList();
             for (Vector3i pos : start) {
                 if (pos != null) {
-                    startBlocks.add(pathfinderWorld.getBlock(pos));
+                    startBlocks.add(navGraphSystem.getBlock(pos));
                 }
             }
-            WalkableBlock targetBlock = pathfinderWorld.getBlock(this.target);
+            WalkableBlock targetBlock = navGraphSystem.getBlock(this.target);
             paths = null;
             if (targetBlock != null && startBlocks.size() > 0) {
                 paths = pathfinder.findPath(targetBlock, startBlocks);
@@ -257,15 +151,19 @@ public class PathfinderSystem implements ComponentSystem, UpdateSubscriberSystem
         }
 
         @Override
-        public int compareTo(PathfinderTask o) {
-            if (o instanceof UpdateChunkTask) {
-                return 1;
-            }
-            if (o instanceof FindPathTask) {
-                FindPathTask find = (FindPathTask) o;
-                return Integer.compare(pathId, find.pathId);
-            }
-            return 0;
+        public int getPriority() {
+            return 1 + pathId;
         }
+
+        @Override
+        public boolean isTerminateSignal() {
+            return false;
+        }
+
+        @Override
+        public int compareTo(NavGraphSystem.NavGraphTask o) {
+            return Integer.compare(this.getPriority(), o.getPriority());
+        }
+
     }
 }

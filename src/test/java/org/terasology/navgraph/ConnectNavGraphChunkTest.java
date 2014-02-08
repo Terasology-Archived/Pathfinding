@@ -1,11 +1,11 @@
 /*
- * Copyright 2013 MovingBlocks
+ * Copyright 2014 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.pathfinding.model;
+package org.terasology.navgraph;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.PathfinderTestGenerator;
+import org.terasology.pathfinding.TestHelper;
 import org.terasology.world.WorldProvider;
 
 import java.util.HashSet;
@@ -28,7 +29,7 @@ import java.util.Set;
 /**
  * @author synopia
  */
-public class ConnectHeightMapTest {
+public class ConnectNavGraphChunkTest {
     public static String[] contourExpected = new String[]{
             "       C        ",
             "                ",
@@ -53,11 +54,11 @@ public class ConnectHeightMapTest {
 
     @Test
     public void test1() {
-        HeightMap center = new HeightMap(world, new Vector3i(1, 0, 1));
-        HeightMap up = new HeightMap(world, new Vector3i(1, 0, 0));
-        HeightMap down = new HeightMap(world, new Vector3i(1, 0, 2));
-        HeightMap left = new HeightMap(world, new Vector3i(0, 0, 1));
-        HeightMap right = new HeightMap(world, new Vector3i(2, 0, 1));
+        NavGraphChunk center = new NavGraphChunk(world, new Vector3i(1, 0, 1));
+        NavGraphChunk up = new NavGraphChunk(world, new Vector3i(1, 0, 0));
+        NavGraphChunk down = new NavGraphChunk(world, new Vector3i(1, 0, 2));
+        NavGraphChunk left = new NavGraphChunk(world, new Vector3i(0, 0, 1));
+        NavGraphChunk right = new NavGraphChunk(world, new Vector3i(2, 0, 1));
 
         center.update();
         up.update();
@@ -69,7 +70,7 @@ public class ConnectHeightMapTest {
         assertCenter(center, left, up, right, down, contourExpected);
 
         center.disconnectNeighborMaps(left, up, right, down);
-        center = new HeightMap(world, new Vector3i(1, 0, 1));
+        center = new NavGraphChunk(world, new Vector3i(1, 0, 1));
         center.update();
         center.connectNeighborMaps(left, up, right, down);
         assertCenter(center, left, up, right, down, contourExpected);
@@ -77,15 +78,15 @@ public class ConnectHeightMapTest {
 
     @Test
     public void test2() {
-        HeightMap center = new HeightMap(world, new Vector3i(1, 0, 1));
-        HeightMap up = new HeightMap(world, new Vector3i(1, 0, 0));
-        HeightMap down = new HeightMap(world, new Vector3i(1, 0, 2));
-        HeightMap left = new HeightMap(world, new Vector3i(0, 0, 1));
-        HeightMap right = new HeightMap(world, new Vector3i(2, 0, 1));
-        HeightMap lu = new HeightMap(world, new Vector3i(0, 0, 0));
-        HeightMap ru = new HeightMap(world, new Vector3i(2, 0, 0));
-        HeightMap ld = new HeightMap(world, new Vector3i(0, 0, 2));
-        HeightMap rd = new HeightMap(world, new Vector3i(2, 0, 2));
+        NavGraphChunk center = new NavGraphChunk(world, new Vector3i(1, 0, 1));
+        NavGraphChunk up = new NavGraphChunk(world, new Vector3i(1, 0, 0));
+        NavGraphChunk down = new NavGraphChunk(world, new Vector3i(1, 0, 2));
+        NavGraphChunk left = new NavGraphChunk(world, new Vector3i(0, 0, 1));
+        NavGraphChunk right = new NavGraphChunk(world, new Vector3i(2, 0, 1));
+        NavGraphChunk lu = new NavGraphChunk(world, new Vector3i(0, 0, 0));
+        NavGraphChunk ru = new NavGraphChunk(world, new Vector3i(2, 0, 0));
+        NavGraphChunk ld = new NavGraphChunk(world, new Vector3i(0, 0, 2));
+        NavGraphChunk rd = new NavGraphChunk(world, new Vector3i(2, 0, 2));
 
 
         lu.update();
@@ -120,7 +121,7 @@ public class ConnectHeightMapTest {
         world = helper.world;
     }
 
-    private void assertCenter(final HeightMap center, HeightMap left, HeightMap up, HeightMap right, HeightMap down, String[] contours) {
+    private void assertCenter(final NavGraphChunk center, NavGraphChunk left, NavGraphChunk up, NavGraphChunk right, NavGraphChunk down, String[] contours) {
         final Floor centerFloor = center.getFloor(0);
         Floor upFloor = up.getFloor(0);
         Floor downFloor = down.getFloor(0);

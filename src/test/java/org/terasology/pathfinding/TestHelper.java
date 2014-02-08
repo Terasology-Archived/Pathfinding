@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.pathfinding.model;
+package org.terasology.pathfinding;
 
 import org.terasology.config.Config;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
+import org.terasology.navgraph.NavGraphChunk;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.WorldChangeListener;
 import org.terasology.world.WorldProvider;
@@ -45,7 +46,7 @@ import java.util.Map;
  * @author synopia
  */
 public class TestHelper {
-    public HeightMap map;
+    public NavGraphChunk map;
     public WorldProvider world;
     public int sizeX;
     public int sizeY;
@@ -168,8 +169,8 @@ public class TestHelper {
     public void init(FirstPassGenerator generator) {
         WorldProviderCore worldStub = new TestWorld(BlockManager.getAir(), generator);
         world = new WorldProviderWrapper(worldStub);
-        map = new HeightMap(world, new Vector3i(0, 0, 0));
-
+        map = new NavGraphChunk(world, new Vector3i(0, 0, 0));
+        CoreRegistry.put(WorldProvider.class, world);
     }
 
     public void setGround(int x, int y, int z) {

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.pathfinding.componentSystem;
+package org.terasology.navgraph;
 
 import org.terasology.entitySystem.event.Event;
 
 /**
  * Created by synopia on 02.02.14.
  */
-public class PathfinderWorldChanged implements Event {
+public class NavGraphChanged implements Event {
 }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.pathfinding.componentSystem;
+package org.terasology.pathfinding;
 
 import com.google.common.collect.Lists;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.internal.PojoEntityManager;
 import org.terasology.entitySystem.event.internal.EventReceiver;
@@ -28,10 +29,12 @@ import org.terasology.entitySystem.metadata.EntitySystemLibrary;
 import org.terasology.entitySystem.prefab.internal.PojoPrefabManager;
 import org.terasology.math.Vector3i;
 import org.terasology.minion.path.MinionPathComponent;
+import org.terasology.navgraph.NavGraphSystem;
 import org.terasology.network.NetworkMode;
 import org.terasology.network.NetworkSystem;
+import org.terasology.pathfinding.componentSystem.PathReadyEvent;
+import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.Pathfinder;
-import org.terasology.pathfinding.model.PathfinderWorld;
 import org.terasology.persistence.typeSerialization.TypeSerializationLibrary;
 import org.terasology.reflection.copy.CopyStrategyLibrary;
 import org.terasology.reflection.reflect.ReflectFactory;
@@ -59,19 +62,17 @@ public class PathfinderSystemTest {
     public void updateChunkBeforePathRequests() throws InterruptedException {
         WorldProvider worldProvider = mock(WorldProvider.class);
         CoreRegistry.put(WorldProvider.class, worldProvider);
+        final NavGraphSystem navGraphSystem = new NavGraphSystem();
+        InjectionHelper.inject(navGraphSystem);
+        navGraphSystem.initialise();
+
         final PathfinderSystem system = new PathfinderSystem() {
             @Override
             protected Pathfinder createPathfinder() {
                 return mock(Pathfinder.class);
             }
-
-            @Override
-            protected PathfinderWorld createWorld() {
-                return mock(PathfinderWorld.class);
-            }
         };
         InjectionHelper.inject(system);
-
         system.initialise();
 
         final List<Integer> list = Lists.newArrayList();
@@ -80,11 +81,11 @@ public class PathfinderSystemTest {
         eventSystem.registerEventReceiver(new EventReceiver<PathReadyEvent>() {
             @Override
             public void onEvent(PathReadyEvent event, EntityRef entity) {
-                Assert.assertEquals(1, system.getChunkUpdates());
+                Assert.assertEquals(1, navGraphSystem.getChunkUpdates());
                 list.add(event.getPathId());
             }
         }, PathReadyEvent.class, MinionPathComponent.class);
-        system.chunkReady(mock(OnChunkLoaded.class), entityRef);
+        navGraphSystem.chunkReady(mock(OnChunkLoaded.class), entityRef);
         int id1 = system.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
         int id2 = system.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
         int id3 = system.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
@@ -99,15 +100,14 @@ public class PathfinderSystemTest {
     public void updateChunkAfterPathRequests() throws InterruptedException {
         WorldProvider worldProvider = mock(WorldProvider.class);
         CoreRegistry.put(WorldProvider.class, worldProvider);
+        final NavGraphSystem navGraphSystem = new NavGraphSystem();
+        InjectionHelper.inject(navGraphSystem);
+        navGraphSystem.initialise();
+
         final PathfinderSystem system = new PathfinderSystem() {
             @Override
             protected Pathfinder createPathfinder() {
                 return mock(Pathfinder.class);
-            }
-
-            @Override
-            protected PathfinderWorld createWorld() {
-                return mock(PathfinderWorld.class);
             }
         };
         InjectionHelper.inject(system);
@@ -120,14 +120,14 @@ public class PathfinderSystemTest {
         eventSystem.registerEventReceiver(new EventReceiver<PathReadyEvent>() {
             @Override
             public void onEvent(PathReadyEvent event, EntityRef entity) {
-                Assert.assertEquals(1, system.getChunkUpdates());
+                Assert.assertEquals(1, navGraphSystem.getChunkUpdates());
                 list.add(event.getPathId());
             }
         }, PathReadyEvent.class, MinionPathComponent.class);
         int id1 = system.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
         int id2 = system.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
         int id3 = system.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
-        system.chunkReady(mock(OnChunkLoaded.class), entityRef);
+        navGraphSystem.chunkReady(mock(OnChunkLoaded.class), entityRef);
         while (system.getPathsSearched() != 3) {
             Thread.sleep(10);
             eventSystem.process();
@@ -149,5 +149,6 @@ public class PathfinderSystemTest {
         when(networkSystem.getMode()).thenReturn(NetworkMode.NONE);
         eventSystem = new EventSystemImpl(entitySystemLibrary.getEventLibrary(), networkSystem);
         entityManager.setEventSystem(eventSystem);
+        CoreRegistry.put(EntityManager.class, entityManager);
     }
 }

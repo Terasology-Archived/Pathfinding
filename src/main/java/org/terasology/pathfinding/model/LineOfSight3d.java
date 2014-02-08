@@ -15,18 +15,29 @@
  */
 package org.terasology.pathfinding.model;
 
+import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.math.Vector3i;
+import org.terasology.navgraph.WalkableBlock;
+import org.terasology.registry.In;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.block.Block;
 
 /**
  * Created by synopia on 01.02.14.
  */
+@RegisterSystem
 public class LineOfSight3d implements LineOfSight {
+    @In
     private WorldProvider world;
 
-    public LineOfSight3d(WorldProvider world) {
-        this.world = world;
+    @Override
+    public void initialise() {
+
+    }
+
+    @Override
+    public void shutdown() {
+
     }
 
     public boolean inSight(WalkableBlock one, WalkableBlock two) {

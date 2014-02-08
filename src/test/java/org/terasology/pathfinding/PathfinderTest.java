@@ -1,11 +1,11 @@
 /*
- * Copyright 2013 MovingBlocks
+ * Copyright 2014 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,13 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.pathfinding.model;
+package org.terasology.pathfinding;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.terasology.math.Vector3i;
-import org.terasology.pathfinding.PathfinderTestGenerator;
+import org.terasology.navgraph.NavGraphChunk;
+import org.terasology.navgraph.NavGraphSystem;
+import org.terasology.navgraph.WalkableBlock;
+import org.terasology.pathfinding.model.Path;
+import org.terasology.pathfinding.model.Pathfinder;
+import org.terasology.registry.InjectionHelper;
 
 /**
  * @author synopia
@@ -27,33 +32,33 @@ import org.terasology.pathfinding.PathfinderTestGenerator;
 public class PathfinderTest {
     private Pathfinder pathfinder;
     private TestHelper helper;
-    private PathfinderWorld world;
+    private NavGraphSystem world;
 
     @Test
     public void test() {
-        world.init(new Vector3i(0, 0, 0));
-        world.init(new Vector3i(1, 0, 0));
-        world.init(new Vector3i(2, 0, 0));
-        world.init(new Vector3i(0, 0, 1));
-        world.init(new Vector3i(1, 0, 1));
-        world.init(new Vector3i(2, 0, 1));
-        world.init(new Vector3i(0, 0, 2));
-        world.init(new Vector3i(1, 0, 2));
-        world.init(new Vector3i(2, 0, 2));
+        world.updateChunk(new Vector3i(0, 0, 0));
+        world.updateChunk(new Vector3i(1, 0, 0));
+        world.updateChunk(new Vector3i(2, 0, 0));
+        world.updateChunk(new Vector3i(0, 0, 1));
+        world.updateChunk(new Vector3i(1, 0, 1));
+        world.updateChunk(new Vector3i(2, 0, 1));
+        world.updateChunk(new Vector3i(0, 0, 2));
+        world.updateChunk(new Vector3i(1, 0, 2));
+        world.updateChunk(new Vector3i(2, 0, 2));
 
         Path path = pathfinder.findPath(world.getBlock(new Vector3i(14 + 16, 45, 12)), world.getBlock(new Vector3i(0, 51, 1)));
         Assert.assertEquals(0, path.size());
 
         helper.setAir(7, 50, 7);
         helper.setAir(7, 50, 8);
-        helper.setAir(HeightMap.SIZE_X - 1, 47, 7);
-        helper.setAir(HeightMap.SIZE_X - 1, 47, 8);
-        helper.setAir(HeightMap.SIZE_X, 47, 7);
-        helper.setAir(HeightMap.SIZE_X, 47, 8);
+        helper.setAir(NavGraphChunk.SIZE_X - 1, 47, 7);
+        helper.setAir(NavGraphChunk.SIZE_X - 1, 47, 8);
+        helper.setAir(NavGraphChunk.SIZE_X, 47, 7);
+        helper.setAir(NavGraphChunk.SIZE_X, 47, 8);
 
 
-        world.update(new Vector3i(0, 0, 0));
-        world.update(new Vector3i(1, 0, 0));
+        world.updateChunk(new Vector3i(0, 0, 0));
+        world.updateChunk(new Vector3i(1, 0, 0));
 
         path = pathfinder.findPath(world.getBlock(new Vector3i(14 + 16, 45, 12)), world.getBlock(new Vector3i(0, 51, 1)));
         Assert.assertTrue(0 < path.size());
@@ -68,15 +73,15 @@ public class PathfinderTest {
     }
 
     public void assertStairs(int chunkX, int chunkZ) {
-        int x = chunkX * HeightMap.SIZE_X;
-        int z = chunkZ * HeightMap.SIZE_Z;
-        HeightMap map = world.init(new Vector3i(chunkX, 0, chunkZ));
+        int x = chunkX * NavGraphChunk.SIZE_X;
+        int z = chunkZ * NavGraphChunk.SIZE_Z;
+        NavGraphChunk map = world.updateChunk(new Vector3i(chunkX, 0, chunkZ));
 
         WalkableBlock startBlock = world.getBlock(new Vector3i(0 + x, 51, 1 + z));
-        WalkableBlock targetBlock = world.getBlock(new Vector3i(x + HeightMap.SIZE_X - 2, 45, z + HeightMap.SIZE_Z - 4));
+        WalkableBlock targetBlock = world.getBlock(new Vector3i(x + NavGraphChunk.SIZE_X - 2, 45, z + NavGraphChunk.SIZE_Z - 4));
 
-        Assert.assertEquals(map, startBlock.floor.heightMap);
-        Assert.assertEquals(map, targetBlock.floor.heightMap);
+        Assert.assertEquals(map, startBlock.floor.navGraphChunk);
+        Assert.assertEquals(map, targetBlock.floor.navGraphChunk);
         Assert.assertEquals(map.getBlock(x + 0, 51, z + 1), startBlock);
         Assert.assertEquals(map.getBlock(x + 14, 45, z + 12), targetBlock);
         Path path = pathfinder.findPath(targetBlock, startBlock);
@@ -85,7 +90,7 @@ public class PathfinderTest {
         helper.setAir(x + 7, 50, z + 7);
         helper.setAir(x + 7, 50, z + 8);
 
-        world.update(new Vector3i(chunkX, 0, chunkZ));
+        world.updateChunk(new Vector3i(chunkX, 0, chunkZ));
         pathfinder.clearCache();
         path = pathfinder.findPath(targetBlock, startBlock);
         Assert.assertTrue(0 < path.size());
@@ -95,8 +100,10 @@ public class PathfinderTest {
     public void setup() {
         helper = new TestHelper();
         helper.init(new PathfinderTestGenerator(true));
-        world = new PathfinderWorld(helper.world);
-        pathfinder = new Pathfinder(world, new LineOfSight3d(helper.world));
+        world = new NavGraphSystem();
+        InjectionHelper.inject(world);
+
+        pathfinder = new Pathfinder(world, null);
     }
 
 }

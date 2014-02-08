@@ -24,8 +24,8 @@ import org.terasology.jobSystem.Job;
 import org.terasology.jobSystem.JobFactory;
 import org.terasology.jobSystem.JobTargetComponent;
 import org.terasology.math.Vector3i;
+import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
-import org.terasology.pathfinding.model.WalkableBlock;
 import org.terasology.registry.In;
 import org.terasology.world.block.BlockComponent;
 

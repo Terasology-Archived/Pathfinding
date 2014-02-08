@@ -26,9 +26,9 @@ import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.characters.events.OnEnterBlockEvent;
 import org.terasology.logic.location.LocationComponent;
+import org.terasology.navgraph.NavGraphChanged;
+import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
-import org.terasology.pathfinding.componentSystem.PathfinderWorldChanged;
-import org.terasology.pathfinding.model.WalkableBlock;
 import org.terasology.registry.In;
 
 import java.util.Set;
@@ -45,7 +45,7 @@ public class MinionMoveSystem implements ComponentSystem {
     private Set<EntityRef> entities = Sets.newHashSet();
 
     @ReceiveEvent
-    public void worldChanged(PathfinderWorldChanged event, EntityRef entityRef) {
+    public void worldChanged(NavGraphChanged event, EntityRef entityRef) {
         for (EntityRef entity : entities) {
             setupEntity(entity);
         }

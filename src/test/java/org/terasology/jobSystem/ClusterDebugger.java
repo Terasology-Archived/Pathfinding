@@ -1,11 +1,11 @@
 /*
- * Copyright 2013 MovingBlocks
+ * Copyright 2014 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,50 +13,90 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.pathfinding.model;
+package org.terasology.jobSystem;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Sets;
+import org.terasology.entitySystem.entity.EntityManager;
+import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.entitySystem.entity.internal.PojoEntityManager;
+import org.terasology.jobSystem.jobs.WalkToBlock;
+import org.terasology.jobSystem.kmeans.Cluster;
 import org.terasology.math.Vector3i;
+import org.terasology.navgraph.Entrance;
+import org.terasology.navgraph.Floor;
+import org.terasology.navgraph.NavGraphSystem;
+import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.PathfinderTestGenerator;
+import org.terasology.pathfinding.TestHelper;
+import org.terasology.pathfinding.componentSystem.PathfinderSystem;
+import org.terasology.registry.CoreRegistry;
+import org.terasology.registry.InjectionHelper;
+import org.terasology.world.block.BlockComponent;
 
 import javax.swing.*;
+import javax.vecmath.Vector3f;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author synopia
  */
-public class PathDebugger extends JFrame {
-    private Pathfinder pathfinder;
+public class ClusterDebugger extends JFrame {
     private TestHelper helper;
     private final int mapWidth;
     private final int mapHeight;
     private int level;
     private WalkableBlock hovered;
-    private WalkableBlock start;
-    private WalkableBlock target;
-    private Path path;
-    private final PathfinderWorld world;
-    private boolean isSight;
+    private NavGraphSystem world;
+    private Cluster rootCluster;
+    private final EntityManager entityManager;
+    private WalkToBlock walkToBlock;
+    private int distanceChecks;
 
-    public PathDebugger() throws HeadlessException {
+    public ClusterDebugger() throws HeadlessException {
+        entityManager = new PojoEntityManager();
         mapWidth = 160;
         mapHeight = 100;
         helper = new TestHelper();
+
 //        helper.init(new MazeChunkGenerator(mapWidth, mapHeight, 4, 0, 20));
         helper.init(new PathfinderTestGenerator(true, true));
-        world = new PathfinderWorld(helper.world);
-        pathfinder = new Pathfinder(world, new LineOfSight2d(world));
+
+        CoreRegistry.put(EntityManager.class, entityManager);
+        world = new NavGraphSystem();
+        InjectionHelper.inject(world);
+        world.initialise();
+        PathfinderSystem pathfinderSystem = new PathfinderSystem();
+        InjectionHelper.inject(pathfinderSystem);
+        pathfinderSystem.initialise();
+
         for (int x = 0; x < mapWidth / 16 + 1; x++) {
             for (int z = 0; z < mapHeight / 16 + 1; z++) {
-                world.init(new Vector3i(x, 0, z));
+                world.updateChunk(new Vector3i(x, 0, z));
             }
         }
-        level = 6;
+        level = 45;
+        rootCluster = new Cluster(8, new Cluster.DistanceFunction() {
+            @Override
+            public float distance(Vector3f target, Cluster cluster) {
+                distanceChecks++;
+                Vector3f diff = new Vector3f(target);
+                diff.sub(cluster.getPosition());
+                return diff.lengthSquared();
+            }
+        });
+        CoreRegistry.put(JobFactory.class, new JobFactory());
+        walkToBlock = new WalkToBlock();
+        InjectionHelper.inject(walkToBlock);
+        walkToBlock.initialise();
+
         add(new DebugPanel());
     }
 
@@ -72,13 +112,16 @@ public class PathDebugger extends JFrame {
     }
 
     public static void main(String[] args) {
-        PathDebugger debugger = new PathDebugger();
+        ClusterDebugger debugger = new ClusterDebugger();
         debugger.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         debugger.pack();
         debugger.setVisible(true);
     }
 
     private final class DebugPanel extends JPanel {
+
+        private WalkableBlock block;
+
         private DebugPanel() {
             addMouseMotionListener(new MouseMotionListener() {
                 @Override
@@ -103,29 +146,45 @@ public class PathDebugger extends JFrame {
             });
             addMouseListener(new MouseAdapter() {
                 @Override
+                public void mousePressed(MouseEvent e) {
+                    int clickedX = e.getX() * mapWidth / getWidth();
+                    int clickedZ = e.getY() * mapHeight / getHeight();
+                    block = world.getBlock(new Vector3i(clickedX, level, clickedZ));
+                    repaint();
+                }
+
+                @Override
                 public void mouseReleased(MouseEvent e) {
                     int clickedX = e.getX() * mapWidth / getWidth();
                     int clickedZ = e.getY() * mapHeight / getHeight();
-                    WalkableBlock block = world.getBlock(new Vector3i(clickedX, level, clickedZ));
-                    if (start == null) {
-                        start = block;
-                        isSight = false;
-                    } else {
-                        if (target == null) {
-                            target = block;
-                            if (e.getButton() == MouseEvent.BUTTON1) {
-                                path = pathfinder.findPath(target, start);
-                                isSight = false;
-                            } else {
-                                LineOfSight2d lineOfSight = new LineOfSight2d(world);
-                                isSight = lineOfSight.inSight(start, target);
+                    WalkableBlock lastBlock = world.getBlock(new Vector3i(clickedX, level, clickedZ));
+
+                    Vector3i pos = new Vector3i();
+                    for (int x = Math.min(block.x(), lastBlock.x()); x <= Math.max(block.x(), lastBlock.x()); x++) {
+                        for (int y = Math.min(block.height(), lastBlock.height()); y <= Math.max(block.height(), lastBlock.height()); y++) {
+                            for (int z = Math.min(block.z(), lastBlock.z()); z <= Math.max(block.z(), lastBlock.z()); z++) {
+                                pos.set(x, y, z);
+                                WalkableBlock currentBlock = world.getBlock(pos);
+                                if (currentBlock != null) {
+                                    EntityRef job = entityManager.create();
+                                    JobTargetComponent jobTargetComponent = new JobTargetComponent();
+                                    jobTargetComponent.setJob(walkToBlock);
+                                    BlockComponent blockComponent = new BlockComponent();
+                                    blockComponent.setPosition(currentBlock.getBlockPosition());
+
+                                    job.addComponent(blockComponent);
+                                    job.addComponent(jobTargetComponent);
+                                    rootCluster.add(job);
+                                }
                             }
-                        } else {
-                            isSight = false;
-                            start = block;
-                            target = null;
+
                         }
+
                     }
+                    distanceChecks = 0;
+                    Stopwatch stopwatch = Stopwatch.createStarted();
+                    rootCluster.kmean();
+                    System.out.println("kmean = " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms  n=" + rootCluster.getDistances().size() + " distance checks=" + distanceChecks);
                     repaint();
                 }
             });
@@ -167,26 +226,8 @@ public class PathDebugger extends JFrame {
                         g.setColor(Color.black);
                     }
                     g.fillRect(screenX, screenY, tileWidth, tileHeight);
-                    if (block != null && (block == start || block == target)) {
-                        g.setColor(Color.yellow);
-                        g.fillOval(screenX, screenY, tileWidth, tileHeight);
-                    }
                 }
             }
-            if (path != null) {
-                for (WalkableBlock block : path) {
-                    if (block.height() != level) {
-                        continue;
-                    }
-                    int screenX = block.x() * getWidth() / mapWidth;
-                    int screenY = block.z() * getHeight() / mapHeight;
-                    int tileWidth = (block.x() + 1) * getWidth() / mapWidth - screenX;
-                    int tileHeight = (block.z() + 1) * getHeight() / mapHeight - screenY;
-                    g.setColor(Color.yellow);
-                    g.fillOval(screenX, screenY, tileWidth, tileHeight);
-                }
-            }
-
             if (hovered != null) {
                 boolean isEntrance = isEntrance(hovered);
 
@@ -222,13 +263,48 @@ public class PathDebugger extends JFrame {
                     g.drawLine(x, y, ex, ey);
                 }
             }
-            if (start != null && target != null && isSight) {
-                int x0 = start.x() * getWidth() / mapWidth;
-                int z0 = start.z() * getHeight() / mapHeight;
-                int x1 = target.x() * getWidth() / mapWidth;
-                int z1 = target.z() * getHeight() / mapHeight;
+            drawCluster(g, rootCluster);
+        }
+
+        private void drawCluster(Graphics g, Cluster parent) {
+            int id = 0;
+            for (Cluster cluster : parent.getChildren()) {
+                id++;
+                if (cluster.getChildren().size() > 0) {
+                    drawCluster(g, cluster);
+                } else {
+                    List<Cluster.Distance> distances = cluster.getDistances();
+                    for (Cluster.Distance distance : distances) {
+                        Vector3f position = distance.getPosition();
+                        int x = (int) position.x;
+                        int z = (int) position.z;
+                        int screenX = x * getWidth() / mapWidth;
+                        int screenY = z * getHeight() / mapHeight;
+                        int tileWidth = (x + 1) * getWidth() / mapWidth - screenX;
+                        int tileHeight = (z + 1) * getHeight() / mapHeight - screenY;
+                        g.setColor(Color.yellow);
+                        g.fillRect(screenX, screenY, tileWidth, tileHeight);
+                        g.setColor(Color.black);
+                        g.drawString(id + "", screenX, screenY + 8);
+                    }
+                }
+            }
+            id = 0;
+            for (Cluster cluster : parent.getChildren()) {
+                id++;
+                if (cluster.getChildren().size() > 0) {
+                    continue;
+                }
                 g.setColor(Color.BLUE);
-                g.drawLine(x0, z0, x1, z1);
+                int x = (int) cluster.getPosition().x;
+                int z = (int) cluster.getPosition().z;
+                int screenX = x * getWidth() / mapWidth;
+                int screenY = z * getHeight() / mapHeight;
+                int tileWidth = (x + 1) * getWidth() / mapWidth - screenX;
+                int tileHeight = (z + 1) * getHeight() / mapHeight - screenY;
+                g.fillRect(screenX, screenY, tileWidth, tileHeight);
+                g.setColor(Color.black);
+                g.drawString(id + "", screenX, screenY + 8);
             }
         }
     }

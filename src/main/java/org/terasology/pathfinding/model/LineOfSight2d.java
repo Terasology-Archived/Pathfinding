@@ -15,15 +15,28 @@
  */
 package org.terasology.pathfinding.model;
 
+import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.navgraph.NavGraphSystem;
+import org.terasology.navgraph.WalkableBlock;
+import org.terasology.registry.In;
+
 /**
  * Created by synopia on 01.02.14.
  */
+@RegisterSystem
 public class LineOfSight2d implements LineOfSight {
-    private PathfinderWorld world;
+    @In
+    private NavGraphSystem world;
     private WalkableBlock current;
 
-    public LineOfSight2d(PathfinderWorld world) {
-        this.world = world;
+    @Override
+    public void initialise() {
+
+    }
+
+    @Override
+    public void shutdown() {
+
     }
 
     public boolean inSight(WalkableBlock one, WalkableBlock two) {

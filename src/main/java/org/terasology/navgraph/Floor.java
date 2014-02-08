@@ -1,11 +1,11 @@
 /*
- * Copyright 2013 MovingBlocks
+ * Copyright 2014 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.pathfinding.model;
+package org.terasology.navgraph;
 
 import com.google.common.collect.Lists;
 import org.terasology.math.TeraMath;
@@ -25,14 +25,14 @@ import java.util.List;
  * @author synopia
  */
 public class Floor extends BaseRegion<Floor> {
-    public HeightMap heightMap;
+    public NavGraphChunk navGraphChunk;
     private Entrance[] entranceMap;
     private List<Entrance> entrances;
 
-    public Floor(HeightMap heightMap, int id) {
+    public Floor(NavGraphChunk navGraphChunk, int id) {
         super(id);
-        this.heightMap = heightMap;
-        entranceMap = new Entrance[HeightMap.SIZE_X * HeightMap.SIZE_Z];
+        this.navGraphChunk = navGraphChunk;
+        entranceMap = new Entrance[NavGraphChunk.SIZE_X * NavGraphChunk.SIZE_Z];
         entrances = Lists.newArrayList();
     }
 
@@ -69,24 +69,24 @@ public class Floor extends BaseRegion<Floor> {
     }
 
     public boolean isEntrance(int x, int y) {
-        return entranceMap[x + y * HeightMap.SIZE_Z] != null;
+        return entranceMap[x + y * NavGraphChunk.SIZE_Z] != null;
     }
 
     public Entrance setEntrance(int x, int y) {
-        if (entranceMap[x + y * HeightMap.SIZE_Z] != null) {
-            return entranceMap[x + y * HeightMap.SIZE_Z];
+        if (entranceMap[x + y * NavGraphChunk.SIZE_Z] != null) {
+            return entranceMap[x + y * NavGraphChunk.SIZE_Z];
         }
         Entrance left = null;
         Entrance up = null;
         Entrance leftUp = null;
         if (x > 0) {
-            left = entranceMap[x - 1 + y * HeightMap.SIZE_Z];
+            left = entranceMap[x - 1 + y * NavGraphChunk.SIZE_Z];
         }
         if (y > 0) {
-            up = entranceMap[x + (y - 1) * HeightMap.SIZE_Z];
+            up = entranceMap[x + (y - 1) * NavGraphChunk.SIZE_Z];
         }
         if (x > 0 && y > 0) {
-            leftUp = entranceMap[x - 1 + (y - 1) * HeightMap.SIZE_Z];
+            leftUp = entranceMap[x - 1 + (y - 1) * NavGraphChunk.SIZE_Z];
         }
         Entrance entrance;
         if (left == null && up == null && leftUp == null) {
@@ -103,7 +103,7 @@ public class Floor extends BaseRegion<Floor> {
                 entrances.add(entrance);
             }
         }
-        entranceMap[x + y * HeightMap.SIZE_Z] = entrance;
+        entranceMap[x + y * NavGraphChunk.SIZE_Z] = entrance;
         return entrance;
     }
 
@@ -117,7 +117,7 @@ public class Floor extends BaseRegion<Floor> {
     }
 
     WalkableBlock getBlock(int fx, int fy) {
-        HeightMapCell cell = heightMap.getCell(fx, fy);
+        NavGraphCell cell = navGraphChunk.getCell(fx, fy);
         for (WalkableBlock block : cell.blocks) {
             if (block.floor == this) {
                 return block;

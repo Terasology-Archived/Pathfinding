@@ -1,11 +1,11 @@
 /*
- * Copyright 2013 MovingBlocks
+ * Copyright 2014 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,10 @@ import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.math.Vector3i;
+import org.terasology.navgraph.BitMap;
+import org.terasology.navgraph.Entrance;
+import org.terasology.navgraph.Floor;
+import org.terasology.navgraph.WalkableBlock;
 
 import java.util.BitSet;
 import java.util.Comparator;
@@ -139,8 +143,8 @@ public class HAStar {
         Node currentNode = nodes.get(current);
         Floor currentFloor = currentNode.block.floor;
         Set<WalkableBlock> neighbors = Sets.newHashSet();
-        boolean onEndHeightMap = nodes.get(end).block.floor.heightMap == currentFloor.heightMap;
-        boolean onStartHeightMap = nodes.get(start).block.floor.heightMap == currentFloor.heightMap;
+        boolean onEndHeightMap = nodes.get(end).block.floor.navGraphChunk == currentFloor.navGraphChunk;
+        boolean onStartHeightMap = nodes.get(start).block.floor.navGraphChunk == currentFloor.navGraphChunk;
         if (!useContour || onEndHeightMap || onStartHeightMap) {
             // normal A* if on start or end height map
             for (WalkableBlock neighbor : currentNode.block.neighbors) {
@@ -229,10 +233,10 @@ public class HAStar {
                     return BitMap.SQRT_2;
                 }
             }
-            if (fromNode.block.floor.heightMap.pathCache.hasPath(fromNode.block, toNode.block)) {
+            if (fromNode.block.floor.navGraphChunk.pathCache.hasPath(fromNode.block, toNode.block)) {
                 cacheHits++;
             }
-            localPath = fromNode.block.floor.heightMap.pathCache.findPath(
+            localPath = fromNode.block.floor.navGraphChunk.pathCache.findPath(
                     fromNode.block, toNode.block, new PathCache.Callback() {
                 @Override
                 public Path run(WalkableBlock from, WalkableBlock to) {

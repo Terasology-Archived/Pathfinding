@@ -17,7 +17,7 @@ package org.terasology.jobSystem;
 
 import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.pathfinding.model.WalkableBlock;
+import org.terasology.navgraph.WalkableBlock;
 
 import java.util.List;
 

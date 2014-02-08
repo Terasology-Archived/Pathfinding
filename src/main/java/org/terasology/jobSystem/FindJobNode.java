@@ -22,7 +22,7 @@ import org.terasology.logic.behavior.tree.DecoratorNode;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
 import org.terasology.minion.move.MinionMoveComponent;
-import org.terasology.pathfinding.model.WalkableBlock;
+import org.terasology.navgraph.WalkableBlock;
 import org.terasology.registry.In;
 import org.terasology.rendering.nui.properties.OneOf;
 

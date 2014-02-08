@@ -1,11 +1,11 @@
 /*
- * Copyright 2013 MovingBlocks
+ * Copyright 2014 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,14 +16,11 @@
 package org.terasology.pathfinding.model;
 
 import com.google.common.collect.Lists;
-import org.terasology.math.TeraMath;
-import org.terasology.math.Vector3i;
-import org.terasology.world.WorldProvider;
+import org.terasology.navgraph.NavGraphSystem;
+import org.terasology.navgraph.WalkableBlock;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author synopia
@@ -31,9 +28,9 @@ import java.util.Map;
 public class Pathfinder {
     private HAStar haStar;
     private PathCache cache;
-    private PathfinderWorld world;
+    private NavGraphSystem world;
 
-    public Pathfinder(PathfinderWorld world, LineOfSight lineOfSight) {
+    public Pathfinder(NavGraphSystem world, LineOfSight lineOfSight) {
         this.world = world;
         haStar = new HAStar(lineOfSight);
         cache = new PathCache();

@@ -1,11 +1,11 @@
 /*
- * Copyright 2013 MovingBlocks
+ * Copyright 2014 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.pathfinding.model;
+package org.terasology.navgraph;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
+import org.terasology.pathfinding.model.PathCache;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.chunks.ChunkConstants;
 
@@ -28,7 +29,7 @@ import java.util.Set;
 /**
  * @author synopia
  */
-public class HeightMap {
+public class NavGraphChunk {
     public static final int SIZE_X = ChunkConstants.SIZE_X;
     public static final int SIZE_Y = ChunkConstants.SIZE_Y;
     public static final int SIZE_Z = ChunkConstants.SIZE_Z;
@@ -51,15 +52,15 @@ public class HeightMap {
     public Vector3i worldPos;
     public PathCache pathCache = new PathCache();
 
-    /* package protected */ HeightMapCell[] cells = new HeightMapCell[SIZE_X * SIZE_Z];
+    /* package protected */ NavGraphCell[] cells = new NavGraphCell[SIZE_X * SIZE_Z];
     private WorldProvider world;
 
-    public HeightMap(WorldProvider world, Vector3i chunkPos) {
+    public NavGraphChunk(WorldProvider world, Vector3i chunkPos) {
         this.world = world;
         this.worldPos = new Vector3i(chunkPos);
         worldPos.mult(SIZE_X, SIZE_Y, SIZE_Z);
         for (int i = 0; i < cells.length; i++) {
-            cells[i] = new HeightMapCell();
+            cells[i] = new NavGraphCell();
         }
     }
 
@@ -68,26 +69,26 @@ public class HeightMap {
         new FloorFinder().findFloors(this);
     }
 
-    public void connectNeighborMaps(HeightMap left, HeightMap up, HeightMap right, HeightMap down) {
+    public void connectNeighborMaps(NavGraphChunk left, NavGraphChunk up, NavGraphChunk right, NavGraphChunk down) {
         for (WalkableBlock block : borderBlocks) {
             int x = TeraMath.calcBlockPosX(block.getBlockPosition().x);
             int z = TeraMath.calcBlockPosZ(block.getBlockPosition().z);
             if (left != null && x == 0) {
-                connectToNeighbor(block, HeightMap.SIZE_X - 1, z, left, DIR_LEFT);
-                connectToNeighbor(block, HeightMap.SIZE_X - 1, z - 1, left, DIR_LU);
-                connectToNeighbor(block, HeightMap.SIZE_X - 1, z + 1, left, DIR_LD);
+                connectToNeighbor(block, NavGraphChunk.SIZE_X - 1, z, left, DIR_LEFT);
+                connectToNeighbor(block, NavGraphChunk.SIZE_X - 1, z - 1, left, DIR_LU);
+                connectToNeighbor(block, NavGraphChunk.SIZE_X - 1, z + 1, left, DIR_LD);
             }
-            if (right != null && x == HeightMap.SIZE_X - 1) {
+            if (right != null && x == NavGraphChunk.SIZE_X - 1) {
                 connectToNeighbor(block, 0, z, right, DIR_RIGHT);
                 connectToNeighbor(block, 0, z - 1, right, DIR_RU);
                 connectToNeighbor(block, 0, z + 1, right, DIR_RD);
             }
             if (up != null && z == 0) {
-                connectToNeighbor(block, x, HeightMap.SIZE_Z - 1, up, DIR_UP);
-                connectToNeighbor(block, x - 1, HeightMap.SIZE_Z - 1, up, DIR_LU);
-                connectToNeighbor(block, x + 1, HeightMap.SIZE_Z - 1, up, DIR_RU);
+                connectToNeighbor(block, x, NavGraphChunk.SIZE_Z - 1, up, DIR_UP);
+                connectToNeighbor(block, x - 1, NavGraphChunk.SIZE_Z - 1, up, DIR_LU);
+                connectToNeighbor(block, x + 1, NavGraphChunk.SIZE_Z - 1, up, DIR_RU);
             }
-            if (down != null && z == HeightMap.SIZE_Z - 1) {
+            if (down != null && z == NavGraphChunk.SIZE_Z - 1) {
                 connectToNeighbor(block, x, 0, down, DIR_DOWN);
                 connectToNeighbor(block, x - 1, 0, down, DIR_LD);
                 connectToNeighbor(block, x + 1, 0, down, DIR_RD);
@@ -118,8 +119,8 @@ public class HeightMap {
         for (Floor floor : floors) {
             floor.resetEntrances();
         }
-        for (int z = 0; z < HeightMap.SIZE_Z; z++) {
-            for (int x = 0; x < HeightMap.SIZE_X; x++) {
+        for (int z = 0; z < NavGraphChunk.SIZE_Z; z++) {
+            for (int x = 0; x < NavGraphChunk.SIZE_X; x++) {
                 for (WalkableBlock block : getCell(x, z).blocks) {
                     Floor floor = block.floor;
                     for (WalkableBlock neighbor : block.neighbors) {
@@ -132,15 +133,15 @@ public class HeightMap {
         }
     }
 
-    private void connectToNeighbor(WalkableBlock block, int dx, int dz, HeightMap neighbor, int neighborId) {
-        if (dx < 0 || dx >= HeightMap.SIZE_X || dz < 0 || dz >= HeightMap.SIZE_Z) {
+    private void connectToNeighbor(WalkableBlock block, int dx, int dz, NavGraphChunk neighbor, int neighborId) {
+        if (dx < 0 || dx >= NavGraphChunk.SIZE_X || dz < 0 || dz >= NavGraphChunk.SIZE_Z) {
             return;
         }
-        HeightMapCell neighborCell = neighbor.getCell(dx, dz);
+        NavGraphCell neighborCell = neighbor.getCell(dx, dz);
         Floor floor = block.floor;
 
         for (WalkableBlock candidate : neighborCell.blocks) {
-            if (Math.abs(candidate.height() - block.height()) < 2 && candidate.floor.heightMap != this) {
+            if (Math.abs(candidate.height() - block.height()) < 2 && candidate.floor.navGraphChunk != this) {
                 block.neighbors[neighborId] = candidate;
                 candidate.neighbors[(neighborId + 4) % 8] = block;
 
@@ -150,26 +151,26 @@ public class HeightMap {
         }
     }
 
-    public void disconnectNeighborMaps(HeightMap left, HeightMap up, HeightMap right, HeightMap down) {
+    public void disconnectNeighborMaps(NavGraphChunk left, NavGraphChunk up, NavGraphChunk right, NavGraphChunk down) {
         for (WalkableBlock block : borderBlocks) {
             int x = TeraMath.calcBlockPosX(block.getBlockPosition().x);
             int z = TeraMath.calcBlockPosZ(block.getBlockPosition().z);
             if (left != null && x == 0) {
-                disconnectFromNeighbor(block, HeightMap.SIZE_X - 1, z, left, DIR_LEFT);
-                disconnectFromNeighbor(block, HeightMap.SIZE_X - 1, z - 1, left, DIR_LU);
-                disconnectFromNeighbor(block, HeightMap.SIZE_X - 1, z + 1, left, DIR_LD);
+                disconnectFromNeighbor(block, NavGraphChunk.SIZE_X - 1, z, left, DIR_LEFT);
+                disconnectFromNeighbor(block, NavGraphChunk.SIZE_X - 1, z - 1, left, DIR_LU);
+                disconnectFromNeighbor(block, NavGraphChunk.SIZE_X - 1, z + 1, left, DIR_LD);
             }
-            if (right != null && x == HeightMap.SIZE_X - 1) {
+            if (right != null && x == NavGraphChunk.SIZE_X - 1) {
                 disconnectFromNeighbor(block, 0, z, right, DIR_RIGHT);
                 disconnectFromNeighbor(block, 0, z - 1, right, DIR_RU);
                 disconnectFromNeighbor(block, 0, z + 1, right, DIR_RD);
             }
             if (up != null && z == 0) {
-                disconnectFromNeighbor(block, x, HeightMap.SIZE_Z - 1, up, DIR_UP);
-                disconnectFromNeighbor(block, x - 1, HeightMap.SIZE_Z - 1, up, DIR_LU);
-                disconnectFromNeighbor(block, x + 1, HeightMap.SIZE_Z - 1, up, DIR_RU);
+                disconnectFromNeighbor(block, x, NavGraphChunk.SIZE_Z - 1, up, DIR_UP);
+                disconnectFromNeighbor(block, x - 1, NavGraphChunk.SIZE_Z - 1, up, DIR_LU);
+                disconnectFromNeighbor(block, x + 1, NavGraphChunk.SIZE_Z - 1, up, DIR_RU);
             }
-            if (down != null && z == HeightMap.SIZE_Z - 1) {
+            if (down != null && z == NavGraphChunk.SIZE_Z - 1) {
                 disconnectFromNeighbor(block, x, 0, down, DIR_DOWN);
                 disconnectFromNeighbor(block, x - 1, 0, down, DIR_LD);
                 disconnectFromNeighbor(block, x + 1, 0, down, DIR_RD);
@@ -189,14 +190,14 @@ public class HeightMap {
         }
     }
 
-    private void disconnectFromNeighbor(WalkableBlock block, int dx, int dz, HeightMap neighbor, int neighborId) {
-        if (dx < 0 || dx >= HeightMap.SIZE_X || dz < 0 || dz >= HeightMap.SIZE_Z) {
+    private void disconnectFromNeighbor(WalkableBlock block, int dx, int dz, NavGraphChunk neighbor, int neighborId) {
+        if (dx < 0 || dx >= NavGraphChunk.SIZE_X || dz < 0 || dz >= NavGraphChunk.SIZE_Z) {
             return;
         }
-        HeightMapCell neighborCell = neighbor.getCell(dx, dz);
+        NavGraphCell neighborCell = neighbor.getCell(dx, dz);
         Floor floor = block.floor;
         for (WalkableBlock candidate : neighborCell.blocks) {
-            if (Math.abs(candidate.height() - block.height()) < 2 && candidate.floor.heightMap != this) {
+            if (Math.abs(candidate.height() - block.height()) < 2 && candidate.floor.navGraphChunk != this) {
                 block.neighbors[neighborId] = null;
                 candidate.neighbors[(neighborId + 4) % 8] = null;
                 floor.removeNeighborBlock(candidate);
@@ -206,7 +207,7 @@ public class HeightMap {
     }
 
 
-    public HeightMapCell getCell(int x, int z) {
+    public NavGraphCell getCell(int x, int z) {
         return cells[x + z * SIZE_Z];
     }
 

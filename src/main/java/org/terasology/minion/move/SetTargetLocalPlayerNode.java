@@ -20,8 +20,8 @@ import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
 import org.terasology.logic.players.LocalPlayer;
 import org.terasology.minion.path.MinionPathComponent;
+import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
-import org.terasology.pathfinding.model.WalkableBlock;
 import org.terasology.registry.In;
 
 import javax.vecmath.Vector3f;

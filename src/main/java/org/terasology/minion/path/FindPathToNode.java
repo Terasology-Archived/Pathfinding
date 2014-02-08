@@ -19,9 +19,9 @@ import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
 import org.terasology.minion.move.MinionMoveComponent;
+import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.Path;
-import org.terasology.pathfinding.model.WalkableBlock;
 import org.terasology.registry.CoreRegistry;
 
 import java.util.Arrays;

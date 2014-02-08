@@ -22,9 +22,9 @@ import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.minion.move.MinionMoveComponent;
+import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.componentSystem.PathReadyEvent;
 import org.terasology.pathfinding.model.Path;
-import org.terasology.pathfinding.model.WalkableBlock;
 
 /**
  * @author synopia
