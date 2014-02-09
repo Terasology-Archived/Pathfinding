@@ -94,7 +94,9 @@ public class BuildBlock implements Work, ComponentSystem {
     @Override
     public boolean canMinionWork(EntityRef block, EntityRef minion) {
         WalkableBlock actualBlock = pathfinderSystem.getBlock(minion);
-        WalkableBlock expectedBlock = pathfinderSystem.getBlock(block.getComponent(BlockComponent.class).getPosition());
+        Vector3i position = new Vector3i(block.getComponent(BlockComponent.class).getPosition());
+        position.y--;
+        WalkableBlock expectedBlock = pathfinderSystem.getBlock(position);
         logger.info("{} - {}", actualBlock.getBlockPosition(), expectedBlock.getBlockPosition());
         return actualBlock == expectedBlock;
     }

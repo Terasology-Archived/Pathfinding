@@ -49,7 +49,6 @@ public class MinionMoveSystem implements ComponentSystem {
         for (EntityRef entity : entities) {
             setupEntity(entity);
         }
-        entities.clear();
     }
 
     @ReceiveEvent
