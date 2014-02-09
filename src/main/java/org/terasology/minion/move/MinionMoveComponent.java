@@ -17,6 +17,7 @@ package org.terasology.minion.move;
 
 import org.terasology.entitySystem.Component;
 import org.terasology.navgraph.WalkableBlock;
+import org.terasology.pathfinding.model.Path;
 
 import javax.vecmath.Vector3f;
 
@@ -26,4 +27,5 @@ import javax.vecmath.Vector3f;
 public class MinionMoveComponent implements Component {
     public transient Vector3f target;
     public transient WalkableBlock currentBlock;
+    public transient Path path;
 }

@@ -13,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion.path;
+package org.terasology.minion.move;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.logic.behavior.tree.DecoratorNode;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.location.LocationComponent;
-import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.componentSystem.PathRenderSystem;
 import org.terasology.pathfinding.model.Path;
-import org.terasology.registry.CoreRegistry;
+import org.terasology.registry.In;
 
 import javax.vecmath.Vector3f;
 
@@ -49,6 +48,8 @@ public class MoveAlongPathNode extends DecoratorNode {
         private static final Logger logger = LoggerFactory.getLogger(MoveAlongPathNode.class);
         private Path path;
         private int currentIndex;
+        @In
+        private PathRenderSystem pathRenderSystem;
 
         public MoveAlongPathTask(MoveAlongPathNode node) {
             super(node);
@@ -56,17 +57,13 @@ public class MoveAlongPathNode extends DecoratorNode {
 
         @Override
         public void onInitialize() {
-            MinionPathComponent pathComponent = actor().component(MinionPathComponent.class);
-            if (pathComponent.pathState == MinionPathComponent.PathState.PATH_RECEIVED) {
-                pathComponent.pathState = MinionPathComponent.PathState.MOVING_ALONG_PATH;
-                actor().save(pathComponent);
-
-                path = pathComponent.path;
-                CoreRegistry.get(PathRenderSystem.class).addPath(path);
+            MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
+            if (moveComponent != null && moveComponent.path != null && moveComponent.path != Path.INVALID) {
+                path = moveComponent.path;
+                pathRenderSystem.addPath(path);
                 currentIndex = 0;
                 WalkableBlock block = path.get(currentIndex);
                 logger.info("Start moving along path to step " + currentIndex + " " + block.getBlockPosition());
-                MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
                 moveComponent.target = block.getBlockPosition().toVector3f();
                 actor().save(moveComponent);
 
@@ -97,7 +94,7 @@ public class MoveAlongPathNode extends DecoratorNode {
                 actor().save(moveComponent);
                 start(getNode().child);
             } else {
-                CoreRegistry.get(PathRenderSystem.class).removePath(path);
+                pathRenderSystem.removePath(path);
                 LocationComponent locationComponent = actor().location();
                 MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
                 logger.info("Finished moving along path pos = " + locationComponent.getWorldPosition() + " block = " + moveComponent.currentBlock);

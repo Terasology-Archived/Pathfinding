@@ -19,7 +19,7 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
-import org.terasology.minion.path.MinionPathComponent;
+import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.navgraph.WalkableBlock;
 
 import java.util.List;
@@ -51,10 +51,9 @@ public class SetTargetToWorkNode extends Node {
                 List<WalkableBlock> targetPositions = workTargetComponent.getWork().getTargetPositions(work);
                 if (targetPositions.size() > 0) {
                     WalkableBlock block = targetPositions.get(0);
-                    MinionPathComponent pathComponent = actor().component(MinionPathComponent.class);
-                    pathComponent.targetBlock = block.getBlockPosition();
-                    pathComponent.pathState = MinionPathComponent.PathState.NEW_TARGET;
-                    actor().save(pathComponent);
+                    MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
+                    moveComponent.target = block.getBlockPosition().toVector3f();
+                    actor().save(moveComponent);
                     return Status.SUCCESS;
                 }
             }

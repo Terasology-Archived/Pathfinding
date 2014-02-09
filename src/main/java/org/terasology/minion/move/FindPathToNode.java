@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.minion.path;
+package org.terasology.minion.move;
 
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
-import org.terasology.minion.move.MinionMoveComponent;
+import org.terasology.navgraph.NavGraphSystem;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.Path;
-import org.terasology.registry.CoreRegistry;
+import org.terasology.registry.In;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Requests a path to a target defined using the <b>MinionPathComponent</b>.<br/>
@@ -41,37 +42,45 @@ public class FindPathToNode extends Node {
     }
 
     public static class FindPathToTask extends Task {
+        @In
+        private NavGraphSystem navGraphSystem;
+        @In
+        private PathfinderSystem pathfinderSystem;
+        private Path foundPath;
+
         public FindPathToTask(FindPathToNode node) {
             super(node);
         }
 
         @Override
         public void onInitialize() {
-            MinionPathComponent pathComponent = actor().component(MinionPathComponent.class);
-            if (pathComponent.pathState == MinionPathComponent.PathState.NEW_TARGET) {
-                PathfinderSystem pathfinder = CoreRegistry.get(PathfinderSystem.class);
-                WalkableBlock currentBlock = actor().component(MinionMoveComponent.class).currentBlock;
-                if (currentBlock != null) {
-                    pathComponent.pathId = pathfinder.requestPath(actor().minion(), currentBlock.getBlockPosition(), Arrays.asList(pathComponent.targetBlock));
-                    pathComponent.pathState = MinionPathComponent.PathState.PATH_REQUESTED;
-                    actor().save(pathComponent);
-                }
+            MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
+            WalkableBlock workTarget = navGraphSystem.getBlock(moveComponent.target);
+            if (moveComponent.currentBlock != null && workTarget != null) {
+                pathfinderSystem.requestPath(actor().minion(), moveComponent.currentBlock.getBlockPosition(), Arrays.asList(workTarget.getBlockPosition()), new PathfinderSystem.PathReadyCallback() {
+                    @Override
+                    public void pathReady(int pathId, List<Path> path, WalkableBlock target, List<WalkableBlock> start) {
+                        if (path.size() > 0) {
+                            foundPath = path.get(0);
+                        }
+                    }
+                });
             }
         }
 
         @Override
         public Status update(float dt) {
-            MinionPathComponent pathComponent = actor().component(MinionPathComponent.class);
-            if (pathComponent.pathState == MinionPathComponent.PathState.PATH_REQUESTED) {
+            if (foundPath == null) {
                 return Status.RUNNING;
-            } else {
-                return pathComponent.path == Path.INVALID ? Status.FAILURE : Status.SUCCESS;
             }
+            MinionMoveComponent component = actor().component(MinionMoveComponent.class);
+            component.path = foundPath;
+            actor().save(component);
+            return foundPath == Path.INVALID ? Status.FAILURE : Status.SUCCESS;
         }
 
         @Override
         public void handle(Status result) {
-
         }
 
         @Override

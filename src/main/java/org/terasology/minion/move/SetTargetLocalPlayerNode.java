@@ -19,7 +19,6 @@ import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
 import org.terasology.logic.players.LocalPlayer;
-import org.terasology.minion.path.MinionPathComponent;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.registry.In;
@@ -54,10 +53,9 @@ public class SetTargetLocalPlayerNode extends Node {
             Vector3f position = localPlayer.getPosition();
             WalkableBlock block = pathfinderSystem.getBlock(position);
             if (block != null) {
-                MinionPathComponent pathComponent = actor().component(MinionPathComponent.class);
-                pathComponent.targetBlock = block.getBlockPosition();
-                pathComponent.pathState = MinionPathComponent.PathState.NEW_TARGET;
-                actor().save(pathComponent);
+                MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
+                moveComponent.target = block.getBlockPosition().toVector3f();
+                actor().save(moveComponent);
             }
             return Status.SUCCESS;
         }

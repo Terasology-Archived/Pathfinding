@@ -28,7 +28,7 @@ import org.terasology.entitySystem.event.internal.EventSystemImpl;
 import org.terasology.entitySystem.metadata.EntitySystemLibrary;
 import org.terasology.entitySystem.prefab.internal.PojoPrefabManager;
 import org.terasology.math.Vector3i;
-import org.terasology.minion.path.MinionPathComponent;
+import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.navgraph.NavGraphSystem;
 import org.terasology.network.NetworkMode;
 import org.terasology.network.NetworkSystem;
@@ -77,14 +77,14 @@ public class PathfinderSystemTest {
 
         final List<Integer> list = Lists.newArrayList();
         EntityRef entityRef = entityManager.create();
-        entityRef.addComponent(new MinionPathComponent());
+        entityRef.addComponent(new MinionMoveComponent());
         eventSystem.registerEventReceiver(new EventReceiver<PathReadyEvent>() {
             @Override
             public void onEvent(PathReadyEvent event, EntityRef entity) {
                 Assert.assertEquals(1, navGraphSystem.getChunkUpdates());
                 list.add(event.getPathId());
             }
-        }, PathReadyEvent.class, MinionPathComponent.class);
+        }, PathReadyEvent.class, MinionMoveComponent.class);
         navGraphSystem.chunkReady(mock(OnChunkLoaded.class), entityRef);
         int id1 = system.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
         int id2 = system.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
@@ -116,14 +116,14 @@ public class PathfinderSystemTest {
 
         final List<Integer> list = Lists.newArrayList();
         EntityRef entityRef = entityManager.create();
-        entityRef.addComponent(new MinionPathComponent());
+        entityRef.addComponent(new MinionMoveComponent());
         eventSystem.registerEventReceiver(new EventReceiver<PathReadyEvent>() {
             @Override
             public void onEvent(PathReadyEvent event, EntityRef entity) {
                 Assert.assertEquals(1, navGraphSystem.getChunkUpdates());
                 list.add(event.getPathId());
             }
-        }, PathReadyEvent.class, MinionPathComponent.class);
+        }, PathReadyEvent.class, MinionMoveComponent.class);
         int id1 = system.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
         int id2 = system.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
         int id3 = system.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
