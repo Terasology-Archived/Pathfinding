@@ -1,3 +1,5 @@
+https://cacoo.com/diagrams/huo1Fw2Xvwfy6q1N
+
 # Terasology Work module
 
 `Work` in terms of this document is a process that a minion can operate on. Every `Work` is designated to a
