@@ -141,8 +141,7 @@ public class HAStarTest {
                 return 0;
             }
         }, pathData);
-        expected.put(0, start.getBlockPosition());
-//        expected.put(expected.size(), targetPos.getBlockPosition());
+        expected.put(expected.size() + 1, end.getBlockPosition());
 
         HAStar haStar = new HAStar(new LineOfSight() {
             @Override
@@ -163,7 +162,7 @@ public class HAStarTest {
 
         haStar.run(end, start);
         List<WalkableBlock> path = haStar.getPath();
-        int pos = 0;
+        int pos = 1;
         Assert.assertEquals(expected.size(), path.size());
         for (WalkableBlock block : path) {
             Vector3i p = expected.get(pos);

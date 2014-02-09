@@ -129,7 +129,7 @@ public class PathfinderSystemTest {
         int id3 = system.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
         navGraphSystem.chunkReady(mock(OnChunkLoaded.class), entityRef);
         while (system.getPathsSearched() != 3) {
-            Thread.sleep(10);
+            Thread.sleep(50);
             eventSystem.process();
         }
         Assert.assertEquals(Arrays.asList(id1, id2, id3), list);
