@@ -18,15 +18,12 @@ package org.terasology.work;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.logic.behavior.tree.DecoratorNode;
+import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
-import org.terasology.minion.move.MinionMoveComponent;
-import org.terasology.navgraph.WalkableBlock;
+import org.terasology.math.Vector3i;
 import org.terasology.registry.In;
 import org.terasology.rendering.nui.properties.OneOf;
-
-import java.util.List;
 
 /**
  * <b>Properties</b>: <b>filter</b><br/>
@@ -38,7 +35,7 @@ import java.util.List;
  * <br/>
  * Auto generated javadoc - modify README.markdown instead!
  */
-public class FindWorkNode extends DecoratorNode {
+public class FindWorkNode extends Node {
     @OneOf.Provider(name = "work")
     private String filter;
 
@@ -47,15 +44,16 @@ public class FindWorkNode extends DecoratorNode {
         return new FindWorkTask(this);
     }
 
-    public static class FindWorkTask extends DecoratorTask {
+    public static class FindWorkTask extends Task {
         private static final Logger logger = LoggerFactory.getLogger(FindWorkTask.class);
 
-        private EntityRef assignedWork;
         @In
         private WorkBoard workBoard;
         @In
         private WorkFactory workFactory;
-        private boolean firstTick = true;
+
+        private EntityRef foundWork;
+        private Vector3i foundPosition;
 
         public FindWorkTask(FindWorkNode node) {
             super(node);
@@ -72,46 +70,35 @@ public class FindWorkNode extends DecoratorNode {
                     actorWork.currentWork.saveComponent(currentJob);
                 }
             }
-            EntityRef work = workBoard.getWork(actor().minion(), getNode().filter != null ? workFactory.getWork(getNode().filter) : null);
-            assignedWork = null;
-            if (work != null) {
-                WorkTargetComponent workTargetComponent = work.getComponent(WorkTargetComponent.class);
-                if (workTargetComponent != null && workTargetComponent.getWork() != null) {
-                    workBoard.removeRequestable(work);
-                    logger.info("Found new work for " + interpreter().toString() + " " + workTargetComponent.getUri() + " at " + work);
-                    workTargetComponent.assignedMinion = actor().minion();
-                    work.saveComponent(workTargetComponent);
-                    assignedWork = work;
+            Work filter = getNode().filter != null ? workFactory.getWork(getNode().filter) : null;
+            workBoard.getWork(actor().minion(), filter, new WorkBoard.WorkBoardCallback() {
+                @Override
+                public boolean workReady(Vector3i position, EntityRef work) {
+                    foundWork = work;
+                    foundPosition = position;
+                    return true;
                 }
-            }
-            actorWork.currentWork = assignedWork;
-            actor().save(actorWork);
-            if (assignedWork != null) {
-                start(getNode().child);
-            }
+            });
         }
 
         @Override
         public Status update(float dt) {
-            if (firstTick) {
-                firstTick = false;
+            if (foundWork == null) {
                 return Status.RUNNING;
             }
-            if (assignedWork != null && assignedWork.hasComponent(WorkTargetComponent.class)) {
-                WorkTargetComponent jobTargetComponent = assignedWork.getComponent(WorkTargetComponent.class);
-                List<WalkableBlock> targetPositions = jobTargetComponent.getTargetPositions(assignedWork);
-                MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
-                if (moveComponent != null) {
-                    WalkableBlock currentBlock = moveComponent.currentBlock;
-                    for (WalkableBlock targetPosition : targetPositions) {
-                        if (currentBlock == targetPosition) {
-                            return Status.SUCCESS;
-                        }
-                    }
-                }
-                return Status.RUNNING;
+            WorkTargetComponent workTargetComponent = foundWork.getComponent(WorkTargetComponent.class);
+            if (workTargetComponent != null && workTargetComponent.getWork() != null) {
+                logger.info("Found new work for " + interpreter().toString() + " " + workTargetComponent.getUri() + " at " + foundWork);
+                workTargetComponent.assignedMinion = actor().minion();
+                foundWork.saveComponent(workTargetComponent);
+                MinionWorkComponent actorWork = actor().component(MinionWorkComponent.class);
+                actorWork.currentWork = foundWork;
+                actorWork.target = foundPosition;
+                actor().save(actorWork);
+                return Status.SUCCESS;
+            } else {
+                return Status.FAILURE;
             }
-            return Status.FAILURE;
         }
 
         @Override

@@ -200,7 +200,6 @@ public class NavGraphSystem implements ComponentSystem, UpdateSubscriberSystem, 
         public int compareTo(NavGraphTask o) {
             return Integer.compare(this.getPriority(), o.getPriority());
         }
-
     }
 
 }

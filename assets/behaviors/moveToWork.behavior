@@ -3,31 +3,32 @@
     "nodeType": "engine:SequenceNode",
     "nodeId": 0,
     "node": {
-      "children": [
-        {
-          "nodeType": "pathfinding:SetTargetToWorkNode",
-          "nodeId": 1,
-          "node": {}
-        },
-        {
-          "nodeType": "pathfinding:FindPathToNode",
-          "nodeId": 2,
-          "node": {}
-        },
-        {
-          "nodeType": "pathfinding:MoveAlongPathNode",
-          "nodeId": 3,
-          "node": {
-            "child": {
-              "nodeType": "pathfinding:MoveToNode",
-              "nodeId": 4,
+        "children": [
+          {
+            "nodeType": "pathfinding:SetTargetToWorkNode",
+            "nodeId": 1,
+            "node": {}
+          },
+          {
+            "nodeType": "pathfinding:FindPathToNode",
+            "nodeId": 2,
+            "node": {}
+          },
+            {
+              "nodeType": "pathfinding:MoveAlongPathNode",
+              "nodeId": 3,
               "node": {
-                "distance": 0.1
+                "child": {
+                  "nodeType": "pathfinding:MoveToNode",
+                  "nodeId": 4,
+                  "node": {
+                    "distance": 0.1
+                  }
+                }
               }
             }
-          }
-        }
       ]
     }
   }
 }
+

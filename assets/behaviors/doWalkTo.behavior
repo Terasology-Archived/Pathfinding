@@ -8,14 +8,14 @@
           "nodeType": "pathfinding:FindWorkNode",
           "nodeId": 1,
           "node": {
-            "filter": "Pathfinding:walkToBlock",
-            "child": {
-              "nodeType": "engine:LookupNode",
-              "nodeId": 2,
-              "node": {
-                "tree": "pathfinding:movetowork"
-              }
-            }
+            "filter": "Pathfinding:walkToBlock"
+          }
+        },
+        {
+          "nodeType": "engine:LookupNode",
+          "nodeId": 2,
+          "node": {
+            "tree": "pathfinding:movetowork"
           }
         },
         {

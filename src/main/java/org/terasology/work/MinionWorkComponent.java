@@ -17,6 +17,7 @@ package org.terasology.work;
 
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.math.Vector3i;
 
 /**
  * Work's minion component. Indicates, the minion is currently executing a work.
@@ -26,6 +27,7 @@ import org.terasology.entitySystem.entity.EntityRef;
 
 public class MinionWorkComponent implements Component {
     public transient EntityRef currentWork;
+    public transient Vector3i target;
 
     public MinionWorkComponent() {
     }
