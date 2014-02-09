@@ -49,7 +49,7 @@ public class FinishWorkNode extends DecoratorNode {
         @Override
         public void onInitialize() {
             MinionWorkComponent actorJob = actor().component(MinionWorkComponent.class);
-            currentJob = actorJob.currentJob;
+            currentJob = actorJob.currentWork;
             if (currentJob == null) {
                 return;
             }
@@ -62,7 +62,7 @@ public class FinishWorkNode extends DecoratorNode {
                 logger.info("Not in range, work aborted " + currentJob);
                 jobTargetComponent.assignedMinion = null;
                 currentJob.saveComponent(jobTargetComponent);
-                actorJob.currentJob = null;
+                actorJob.currentWork = null;
                 actor().save(actorJob);
                 work = null;
                 return;
@@ -81,7 +81,7 @@ public class FinishWorkNode extends DecoratorNode {
                 } else {
                     logger.info("Work finished");
                     MinionWorkComponent actorJob = actor().component(MinionWorkComponent.class);
-                    actorJob.currentJob = null;
+                    actorJob.currentWork = null;
                     actor().save(actorJob);
                     return Status.SUCCESS;
                 }

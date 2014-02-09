@@ -25,7 +25,7 @@ import org.terasology.entitySystem.entity.EntityRef;
  */
 
 public class MinionWorkComponent implements Component {
-    public transient EntityRef currentJob;
+    public transient EntityRef currentWork;
 
     public MinionWorkComponent() {
     }

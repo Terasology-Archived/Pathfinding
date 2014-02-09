@@ -45,10 +45,10 @@ public class SetTargetToWorkNode extends Node {
 
         @Override
         public Status update(float dt) {
-            EntityRef job = actor().component(MinionWorkComponent.class).currentJob;
-            if (job != null) {
-                WorkTargetComponent jobComponent = job.getComponent(WorkTargetComponent.class);
-                List<WalkableBlock> targetPositions = jobComponent.getWork().getTargetPositions(job);
+            EntityRef work = actor().component(MinionWorkComponent.class).currentWork;
+            if (work != null) {
+                WorkTargetComponent workTargetComponent = work.getComponent(WorkTargetComponent.class);
+                List<WalkableBlock> targetPositions = workTargetComponent.getWork().getTargetPositions(work);
                 if (targetPositions.size() > 0) {
                     WalkableBlock block = targetPositions.get(0);
                     MinionPathComponent pathComponent = actor().component(MinionPathComponent.class);

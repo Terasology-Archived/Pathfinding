@@ -63,6 +63,9 @@ public class WalkToBlock implements Work, ComponentSystem {
 
     public List<WalkableBlock> getTargetPositions(EntityRef block) {
         List<WalkableBlock> targetPositions = Lists.newArrayList();
+        if (block == null || !block.hasComponent(BlockComponent.class)) {
+            return targetPositions;
+        }
         Vector3i position = block.getComponent(BlockComponent.class).getPosition();
         WalkableBlock walkableBlock = pathfinderSystem.getBlock(position);
         if (walkableBlock != null) {
@@ -82,6 +85,9 @@ public class WalkToBlock implements Work, ComponentSystem {
 
     @Override
     public boolean isAssignable(EntityRef block) {
+        if (block == null || !block.hasComponent(BlockComponent.class)) {
+            return false;
+        }
         WalkableBlock walkableBlock = pathfinderSystem.getBlock(block.getComponent(BlockComponent.class).getPosition());
         return walkableBlock != null;
     }

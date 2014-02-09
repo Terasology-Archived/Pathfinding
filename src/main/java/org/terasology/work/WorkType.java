@@ -15,32 +15,89 @@
  */
 package org.terasology.work;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.math.Vector3i;
+import org.terasology.navgraph.WalkableBlock;
+import org.terasology.work.kmeans.Cluster;
 
+import javax.vecmath.Vector3f;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * Created by synopia on 08.02.14.
  */
 public class WorkType {
-    public final Work work;
-    public final Set<EntityRef> openWork = Sets.newHashSet();
+    private final Work work;
+    private final Set<EntityRef> openWork = Sets.newHashSet();
+    private final Set<EntityRef> requestableWork = Sets.newHashSet();
+    private final Map<Vector3i, EntityRef> mapping = Maps.newHashMap();
+    private Cluster cluster;
 
     public WorkType(Work work) {
         this.work = work;
+        cluster = new Cluster(8, 4, 1, new Cluster.DistanceFunction() {
+            @Override
+            public float distance(Vector3i element, Vector3f target) {
+                Vector3f diff = element.toVector3f();
+                diff.sub(target);
+                return diff.length();
+            }
+        });
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        int remaining = 10;
+        for (EntityRef workEntity : openWork) {
+            remaining--;
+            if (remaining == 0) {
+                break;
+            }
+            sb.append(workEntity);
+            sb.append(", ");
+        }
+        return work.getUri() + ": open=" + openWork.size() + " requestable=" + requestableWork.size() + " targets=" + mapping.size() + " " + sb;
     }
 
     public void update(EntityRef workEntity) {
         WorkTargetComponent workComponent = workEntity.getComponent(WorkTargetComponent.class);
         if (workComponent != null && workComponent.assignedMinion == null && work.isAssignable(workEntity)) {
             openWork.add(workEntity);
+            if (workComponent.isRequestable(workEntity)) {
+                requestableWork.add(workEntity);
+                for (WalkableBlock block : work.getTargetPositions(workEntity)) {
+                    cluster.add(block.getBlockPosition());
+                    mapping.put(block.getBlockPosition(), workEntity);
+                }
+            }
         } else {
-            openWork.remove(workEntity);
+            remove(workEntity);
         }
     }
 
+    public Vector3i findNearestTarget(Vector3i position) {
+        return cluster.findNearest(position);
+    }
+
+    public EntityRef getWorkForTarget(Vector3i position) {
+        return mapping.get(position);
+    }
+
     public void remove(EntityRef workEntity) {
-        openWork.remove(workEntity);
+        if (workEntity != null) {
+            openWork.remove(workEntity);
+            requestableWork.remove(workEntity);
+            for (WalkableBlock block : work.getTargetPositions(workEntity)) {
+                mapping.remove(block.getBlockPosition());
+            }
+        }
+    }
+
+    public Cluster getCluster() {
+        return cluster;
     }
 }

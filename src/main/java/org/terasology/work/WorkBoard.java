@@ -31,10 +31,12 @@ import org.terasology.logic.location.LocationComponent;
 import org.terasology.logic.selection.ApplyBlockSelectionEvent;
 import org.terasology.math.Region3i;
 import org.terasology.math.Vector3i;
+import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.registry.In;
 import org.terasology.world.BlockEntityRegistry;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -63,17 +65,7 @@ public class WorkBoard implements ComponentSystem, UpdateSubscriberSystem {
         cooldown -= delta;
         if (cooldown < 0) {
             for (WorkType type : workTypes.values()) {
-                StringBuilder sb = new StringBuilder();
-                int remaining = 10;
-                for (EntityRef work : type.openWork) {
-                    remaining--;
-                    if (remaining == 0) {
-                        break;
-                    }
-                    sb.append(work);
-                    sb.append(", ");
-                }
-                logger.info("{}: {} [{}]", type.work.getUri(), type.openWork.size(), sb.toString());
+                logger.info(type.toString());
             }
             cooldown = 5;
         }
@@ -86,6 +78,9 @@ public class WorkBoard implements ComponentSystem, UpdateSubscriberSystem {
 
     @ReceiveEvent
     public void onActivated(OnActivatedComponent event, EntityRef entityRef, WorkTargetComponent workTarget) {
+        if (workTarget == null) {
+            return;
+        }
         WorkType workType = getWorkType(workTarget.getWork());
         workType.update(entityRef);
     }
@@ -102,23 +97,25 @@ public class WorkBoard implements ComponentSystem, UpdateSubscriberSystem {
         workType.update(entityRef);
     }
 
-    public EntityRef getJob(EntityRef entity) {
+    public EntityRef getWork(EntityRef entity) {
         for (Work work : workFactory.getWorks()) {
             WorkType workType = getWorkType(work);
-            if (workType.openWork.size() > 0) {
-                return workType.openWork.iterator().next();
+            Vector3i target = workType.findNearestTarget(entity.getComponent(MinionMoveComponent.class).currentBlock.getBlockPosition());
+            if (target != null) {
+                return workType.getWorkForTarget(target);
             }
         }
         return null;
     }
 
-    public EntityRef getJob(EntityRef entity, Work work) {
+    public EntityRef getWork(EntityRef entity, Work work) {
         if (work == null) {
-            return getJob(entity);
+            return getWork(entity);
         }
         WorkType workType = getWorkType(work);
-        if (workType.openWork.size() > 0) {
-            return workType.openWork.iterator().next();
+        Vector3i target = workType.findNearestTarget(entity.getComponent(MinionMoveComponent.class).currentBlock.getBlockPosition());
+        if (target != null) {
+            return workType.getWorkForTarget(target);
         }
         return null;
     }
@@ -153,11 +150,15 @@ public class WorkBoard implements ComponentSystem, UpdateSubscriberSystem {
         }
     }
 
+    public Collection<WorkType> getWorkTypes() {
+        return workTypes.values();
+    }
+
     @Override
     public void shutdown() {
     }
 
-    private WorkType getWorkType(Work work) {
+    public WorkType getWorkType(Work work) {
         WorkType workType = workTypes.get(work);
         if (workType == null) {
             workType = new WorkType(work);

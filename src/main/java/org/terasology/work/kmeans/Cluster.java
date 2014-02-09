@@ -16,59 +16,227 @@
 package org.terasology.work.kmeans;
 
 import com.google.common.collect.Lists;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.navgraph.WalkableBlock;
+import com.google.common.collect.Maps;
+import org.terasology.math.Vector3i;
 import org.terasology.utilities.random.MersenneRandom;
 import org.terasology.utilities.random.Random;
-import org.terasology.work.WorkTargetComponent;
 
 import javax.vecmath.Vector3f;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 /**
  * Created by synopia on 07.02.14.
  */
 public class Cluster {
-    private List<Distance> distances = Lists.newArrayList();
+    private Map<Vector3i, Distance> distances = Maps.newHashMap();
     private List<Cluster> children = Lists.newArrayList();
-    private Vector3f position;
+    private Vector3f position = new Vector3f();
     private DistanceFunction distanceFunction;
-    private int maxNumberOfCluster;
+    private float maxDistanceBeforeSplit;
+    private int splitCount;
     private Random random = new MersenneRandom();
+    private boolean dirty = true;
+    private int depth;
 
-    public Cluster(int maxNumberOfCluster, DistanceFunction distanceFunction) {
-        this.maxNumberOfCluster = maxNumberOfCluster;
+    public Cluster(float maxDistanceBeforeSplit, int splitCount, int depth, DistanceFunction distanceFunction) {
+        this.maxDistanceBeforeSplit = maxDistanceBeforeSplit;
         this.distanceFunction = distanceFunction;
+        this.splitCount = splitCount;
+        this.depth = depth;
     }
 
     protected Cluster create() {
-        return new Cluster(maxNumberOfCluster, distanceFunction);
+        return new Cluster(maxDistanceBeforeSplit, splitCount, depth + 1, distanceFunction);
     }
 
-    public void add(EntityRef target) {
-        WorkTargetComponent jobTarget = target.getComponent(WorkTargetComponent.class);
-        List<WalkableBlock> targetPositions = jobTarget.getTargetPositions(target);
-        for (WalkableBlock targetPosition : targetPositions) {
-            add(new Distance(targetPosition.getBlockPosition().toVector3f(), target));
+    public void add(Vector3i element) {
+        distances.put(element, new Distance(Float.MAX_VALUE));
+        dirty = true;
+    }
+
+    public void add(Vector3i element, Distance distance) {
+        distances.put(element, distance);
+        dirty = true;
+    }
+
+    public Vector3i findNearest(Vector3i target) {
+        hkMean();
+
+        Cluster cluster = findNearestCluster(target);
+        if (cluster != null) {
+            float minDist = Float.MAX_VALUE;
+            Vector3i nearest = null;
+            for (Map.Entry<Vector3i, Distance> entry : cluster.distances.entrySet()) {
+                Vector3i element = entry.getKey();
+                Distance distance = entry.getValue();
+                if (distance.getDistance() < minDist) {
+                    nearest = element;
+                    minDist = distance.getDistance();
+                }
+            }
+            if (nearest != null) {
+                return nearest;
+            }
+        }
+        return null;
+    }
+
+    public Cluster findNearestCluster(Vector3i target) {
+        if (children.size() == 0) {
+            return this;
+        }
+        float minDist = Float.MAX_VALUE;
+        Cluster nearestCluster = null;
+        for (Cluster cluster : children) {
+            Distance distance = distances.get(target);
+            if (distance == null) {
+                distance = new Distance(distanceFunction.distance(target, cluster.getPosition()));
+            }
+            if (distance.getDistance() < minDist) {
+                nearestCluster = cluster;
+                minDist = distance.getDistance();
+            }
+        }
+        if (nearestCluster != null) {
+            return nearestCluster.findNearestCluster(target);
+        }
+        return null;
+    }
+
+    public boolean hkMean() {
+        if (!dirty) {
+            return false;
+        }
+
+        Stack<Cluster> stack = new Stack<>();
+        stack.push(this);
+
+        while (!stack.isEmpty()) {
+            Cluster current = stack.pop();
+            float maxDistance = 0;
+            for (Map.Entry<Vector3i, Distance> entry : current.distances.entrySet()) {
+                float distance = entry.getValue().getDistance();
+                if (distance > maxDistance) {
+                    maxDistance = distance;
+                }
+            }
+
+            if (maxDistance > current.maxDistanceBeforeSplit) {
+                current.kMean();
+                stack.addAll(current.children);
+            }
+        }
+        dirty = false;
+        return true;
+    }
+
+    public void kMean() {
+        int max = Math.min(splitCount, distances.size());
+        if (max >= children.size()) {
+            for (int i = children.size(); i < max; i++) {
+                Cluster cluster = create();
+                children.add(cluster);
+                cluster.setPosition(new Vector3f(randomAround(position.x), randomAround(position.y), randomAround(position.z)));
+            }
+        }
+
+        float dist = Float.MAX_VALUE;
+        while (dist > 0.1f) {
+            dist = iterate();
+            updateChildren();
         }
     }
 
-    public List<Distance> getDistances() {
-        return distances;
+    public List<Cluster> getLeafCluster() {
+        return getLeafCluster(new ArrayList<Cluster>());
     }
 
-    public void add(Distance distance) {
-        distances.add(distance);
+    public List<Cluster> getLeafCluster(List<Cluster> list) {
+        if (getChildren().size() > 0) {
+            for (Cluster cluster : getChildren()) {
+                list = cluster.getLeafCluster(list);
+            }
+            return list;
+        } else if (getDistances().size() > 0) {
+            list.add(this);
+            return list;
+        }
+        return list;
+    }
+
+    private float randomAround(float value) {
+        return random.nextFloat(value - maxDistanceBeforeSplit / 2, value + maxDistanceBeforeSplit / 2);
+    }
+
+    public float iterate() {
+        float totalDistChange = 0;
+
+        clearChildren();
+        for (Map.Entry<Vector3i, Distance> entry : distances.entrySet()) {
+            float minDist = Float.MAX_VALUE;
+            Cluster nearestCluster = null;
+            Vector3i element = entry.getKey();
+            Distance distance = entry.getValue();
+
+            for (Cluster cluster : children) {
+                float dist = distanceFunction.distance(element, cluster.getPosition());
+                if (dist < minDist) {
+                    nearestCluster = cluster;
+                    minDist = dist;
+                }
+            }
+            if (nearestCluster != null) {
+                totalDistChange += distance.setDistance(minDist);
+                nearestCluster.add(element, distance);
+            }
+        }
+        if (distances.size() > 0) {
+            totalDistChange /= distances.size();
+        } else {
+            totalDistChange = 0;
+        }
+
+        return totalDistChange;
+    }
+
+    public int getElementCount() {
+        return distances.size();
+    }
+
+    private void updateChildren() {
+        for (Cluster cluster : children) {
+            cluster.updateCluster();
+        }
+    }
+
+    private void clearChildren() {
+        for (Cluster cluster : children) {
+            cluster.clear();
+        }
     }
 
     public void clear() {
         distances.clear();
+        dirty = true;
     }
 
-    public void clearChildren() {
-        for (Cluster cluster : children) {
-            cluster.clear();
+    public List<Cluster> getChildren() {
+        return children;
+    }
+
+    public void updateCluster() {
+        position = new Vector3f();
+        for (Vector3i element : distances.keySet()) {
+            position.add(element.toVector3f());
         }
+        position.scale(1.f / distances.size());
+    }
+
+    public int getDepth() {
+        return depth;
     }
 
     public Vector3f getPosition() {
@@ -79,93 +247,34 @@ public class Cluster {
         this.position = position;
     }
 
-    public void kmean() {
-        int max = Math.min(maxNumberOfCluster, distances.size());
-        children.clear();
-        for (int i = 0; i < max; i++) {
-            Cluster cluster = create();
-            children.add(cluster);
-            cluster.setPosition(new Vector3f(random.nextFloat(0, 8 * 16), 45, random.nextFloat(0, 8 * 16)));
-        }
-
-        float dist = Float.MAX_VALUE;
-        while (dist > 100f) {
-            dist = iterate() / distances.size();
-        }
-
-        for (Cluster cluster : children) {
-            if (cluster.getDistances().size() > 16 * 16) {
-                cluster.kmean();
-            }
-        }
+    public Map<Vector3i, Distance> getDistances() {
+        return distances;
     }
 
-    public float iterate() {
-        float totalDistChange = 0;
-        clearChildren();
-        for (Distance distance : distances) {
-            float minDist = Float.MAX_VALUE;
-            Cluster nearestCluster = null;
-            for (Cluster cluster : children) {
-                float dist = distanceFunction.distance(distance.getPosition(), cluster);
-                if (dist < minDist) {
-                    nearestCluster = cluster;
-                    minDist = dist;
-                }
-            }
-            if (nearestCluster != null) {
-                totalDistChange += distance.setDistance(minDist);
-                nearestCluster.add(distance);
-            }
-        }
-        for (Cluster cluster : children) {
-            cluster.update();
-        }
-        return totalDistChange;
-    }
-
-    public List<Cluster> getChildren() {
-        return children;
-    }
-
-    public void update() {
-        position = new Vector3f();
-        for (Distance distance : distances) {
-            position.add(distance.getPosition());
-        }
-        position.scale(1.f / distances.size());
+    @Override
+    public String toString() {
+        return position.toString() + " " + distances.size();
     }
 
     public static final class Distance {
-        private final Vector3f position;
-        private final EntityRef job;
         private float distance;
 
-        private Distance(Vector3f position, EntityRef job) {
-            this.position = position;
-            this.job = job;
+        private Distance(float distance) {
+            this.distance = distance;
         }
 
         public float getDistance() {
             return distance;
         }
 
-        public float setDistance(float dist) {
-            float old = this.distance;
-            this.distance = dist;
-            return Math.abs(old - dist);
-        }
-
-        public Vector3f getPosition() {
-            return position;
-        }
-
-        public EntityRef getJob() {
-            return job;
+        public float setDistance(float value) {
+            float diff = Math.abs(distance - value);
+            distance = value;
+            return diff;
         }
     }
 
     public interface DistanceFunction {
-        float distance(Vector3f target, Cluster cluster);
+        float distance(Vector3i element, Vector3f target);
     }
 }

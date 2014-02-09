@@ -50,7 +50,7 @@ public class FindWorkNode extends DecoratorNode {
     public static class FindWorkTask extends DecoratorTask {
         private static final Logger logger = LoggerFactory.getLogger(FindWorkTask.class);
 
-        private EntityRef assignedJob;
+        private EntityRef assignedWork;
         @In
         private WorkBoard workBoard;
         @In
@@ -63,28 +63,28 @@ public class FindWorkNode extends DecoratorNode {
 
         @Override
         public void onInitialize() {
-            MinionWorkComponent actorJob = actor().component(MinionWorkComponent.class);
-            if (actorJob.currentJob != null) {
-                WorkTargetComponent currentJob = actorJob.currentJob.getComponent(WorkTargetComponent.class);
+            MinionWorkComponent actorWork = actor().component(MinionWorkComponent.class);
+            if (actorWork.currentWork != null) {
+                WorkTargetComponent currentJob = actorWork.currentWork.getComponent(WorkTargetComponent.class);
                 if (currentJob != null) {
-                    logger.info("Removing current work from actor " + currentJob.getUri() + " at " + actorJob.currentJob);
+                    logger.info("Removing current work from actor " + currentJob.getUri() + " at " + actorWork.currentWork);
                     currentJob.assignedMinion = null;
-                    actorJob.currentJob.saveComponent(currentJob);
+                    actorWork.currentWork.saveComponent(currentJob);
                 }
             }
-            EntityRef job = workBoard.getJob(actor().minion(), getNode().filter != null ? workFactory.getWork(getNode().filter) : null);
-            if (job != null) {
-                WorkTargetComponent jobTargetComponent = job.getComponent(WorkTargetComponent.class);
-                logger.info("Found new work for " + interpreter().toString() + " " + jobTargetComponent.getUri() + " at " + job);
-                jobTargetComponent.assignedMinion = actor().minion();
-                job.saveComponent(jobTargetComponent);
-                assignedJob = job;
+            EntityRef work = workBoard.getWork(actor().minion(), getNode().filter != null ? workFactory.getWork(getNode().filter) : null);
+            if (work != null) {
+                WorkTargetComponent workTargetComponent = work.getComponent(WorkTargetComponent.class);
+                logger.info("Found new work for " + interpreter().toString() + " " + workTargetComponent.getUri() + " at " + work);
+                workTargetComponent.assignedMinion = actor().minion();
+                work.saveComponent(workTargetComponent);
+                assignedWork = work;
             } else {
-                assignedJob = null;
+                assignedWork = null;
             }
-            actorJob.currentJob = assignedJob;
-            actor().save(actorJob);
-            if (assignedJob != null) {
+            actorWork.currentWork = assignedWork;
+            actor().save(actorWork);
+            if (assignedWork != null) {
                 start(getNode().child);
             }
         }
@@ -95,9 +95,9 @@ public class FindWorkNode extends DecoratorNode {
                 firstTick = false;
                 return Status.RUNNING;
             }
-            if (assignedJob != null) {
-                WorkTargetComponent jobTargetComponent = assignedJob.getComponent(WorkTargetComponent.class);
-                List<WalkableBlock> targetPositions = jobTargetComponent.getTargetPositions(assignedJob);
+            if (assignedWork != null) {
+                WorkTargetComponent jobTargetComponent = assignedWork.getComponent(WorkTargetComponent.class);
+                List<WalkableBlock> targetPositions = jobTargetComponent.getTargetPositions(assignedWork);
                 MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
                 if (moveComponent != null) {
                     WalkableBlock currentBlock = moveComponent.currentBlock;
