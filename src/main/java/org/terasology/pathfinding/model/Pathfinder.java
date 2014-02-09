@@ -48,7 +48,7 @@ public class Pathfinder {
         List<Path> result = Lists.newArrayList();
         haStar.reset();
         for (WalkableBlock start : starts) {
-            result.add(cache.findPath(start, target, new PathCache.Callback() {
+            Path path = cache.findPath(start, target, new PathCache.Callback() {
                 @Override
                 public Path run(WalkableBlock from, WalkableBlock to) {
                     if (from == null || to == null) {
@@ -60,14 +60,15 @@ public class Pathfinder {
                     Path path;
                     if (haStar.run(refFrom, refTo)) {
                         path = haStar.getPath();
-                        path.add(refFrom);
                     } else {
                         path = Path.INVALID;
                     }
                     return path;
                 }
-            }));
+            });
+            result.add(path);
         }
+
         return result;
     }
 

@@ -63,7 +63,7 @@ public class Cluster {
     }
 
     public void remove(Vector3i element) {
-        if (distances.remove(element) == null) {
+        if (distances.remove(element) != null) {
             for (Cluster cluster : children) {
                 cluster.remove(element);
             }
@@ -72,29 +72,26 @@ public class Cluster {
     }
 
     public Vector3i findNearest(Vector3i target) {
-        hkMean();
-
-        Cluster cluster = findNearestCluster(target);
-        if (cluster != null) {
-            float minDist = Float.MAX_VALUE;
-            Vector3i nearest = null;
-            for (Map.Entry<Vector3i, Distance> entry : cluster.distances.entrySet()) {
-                Vector3i element = entry.getKey();
-                float distance = distanceFunction.distance(target, element.toVector3f());
-                if (distance < minDist) {
-                    nearest = element;
-                    minDist = distance;
-                }
+        float minDist = Float.MAX_VALUE;
+        Vector3i nearest = null;
+        for (Map.Entry<Vector3i, Distance> entry : distances.entrySet()) {
+            Vector3i element = entry.getKey();
+            float distance = distanceFunction.distance(element, target.toVector3f());
+            if (distance < minDist) {
+                nearest = element;
+                minDist = distance;
             }
-            if (nearest != null) {
-                return nearest;
-            }
+        }
+        if (nearest != null) {
+            return nearest;
         }
         return null;
     }
 
     public Cluster findNearestCluster(Vector3i target) {
-        if (children.size() == 0) {
+        hkMean();
+
+        if (children.size() == 0 || distances.size() == 0) {
             return this;
         }
         float minDist = Float.MAX_VALUE;
@@ -103,13 +100,11 @@ public class Cluster {
             if (cluster.distances.size() == 0) {
                 continue;
             }
-            Distance distance = distances.get(target);
-            if (distance == null) {
-                distance = new Distance(distanceFunction.distance(target, cluster.getPosition()));
-            }
-            if (distance.getDistance() < minDist) {
+
+            float distance = distanceFunction.distance(target, cluster.getPosition());
+            if (distance < minDist) {
                 nearestCluster = cluster;
-                minDist = distance.getDistance();
+                minDist = distance;
             }
         }
         if (nearestCluster != null) {
@@ -288,5 +283,7 @@ public class Cluster {
 
     public interface DistanceFunction {
         float distance(Vector3i element, Vector3f target);
+
+        float distance(Vector3i element, Vector3i target);
     }
 }

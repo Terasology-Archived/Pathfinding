@@ -25,7 +25,7 @@ import org.terasology.navgraph.WalkableBlock;
 import java.util.List;
 
 /**
- * Set <b>MinionPathComponent</b>'s target to the work's target.<br/>
+ * Set <b>MinionMoveComponent</b>'s target to the work's target.<br/>
  * <br/>
  * <b>SUCCESS</b>: if valid work target position found.<br/>
  * <b>FAILURE</b>: otherwise<br/>

@@ -69,16 +69,14 @@ Always finishes with `SUCCESS`.
 # Terasology Work module
 
 
-
 ## Behavior nodes
 
-### `FindWork` *Decorator*
+### `FindWork`
 *Properties*: `filter`
 
-Searches for open work of specific type (`filter`). If work is found, the actor is assigned to that and the child is started.
+Searches for open work of specific type (`filter`). If work is found, the actor is assigned.
 
-`SUCCESS`: when actor reached a target position.
-`FAILURE`: if no open work can be found.
+`SUCCESS`: When work is found and assigned.
 
 ### `FinishWork` *Decorator*
 Does the actual work, once the actor is in range. The child node is started.
@@ -87,7 +85,7 @@ Does the actual work, once the actor is in range. The child node is started.
 `FAILURE`: if no work is assigned or target is not reachable.
 
 ### `SetTargetToWork`
-Set `MinionPathComponent`'s target to the work's target.
+Set `MinionMoveComponent`'s target to the work's target.
 
 `SUCCESS`: if valid work target position found.
 `FAILURE`: otherwise
@@ -97,30 +95,19 @@ Set `MinionPathComponent`'s target to the work's target.
 ## Behavior nodes
 
 ### `FindPathTo`
-Requests a path to a target defined using the `MinionPathComponent`.
+Requests a path to a target defined using the `MinionMoveComponent.target`.
 
 `SUCCESS` / `FAILURE`: when paths is found or not found (invalid).
 `RUNNING`: as long as path is searched.
 
 ### `MoveAlongPath` *Decorator*
-Call child node, as long as the actor has not reached the end of the path.
+Call child node, as long as the actor has not reached the end of the path. Sets `MinionMoveComponent.target` to next step in path.
 
 `SUCCESS`: when actor has reached end of path.
 `FAILURE`: if no path was found previously.
 
-### `FindWalkableBlock` *Decorator*
-Searches for the next valid walkable block for pathfinder. Best use of this node is probably
-using a `Sequence` on top of the behavior tree and a `MoveTo` as the child.
-
-This node must be run successfully **before** calling `FindPathTo`, because here the start position for pathfinding is queried.
-
-The walkable block is stored into `MinionMoveComponent`.
-
-`SUCCESS`: if the child returns `SUCCESS`.
-`FAILURE`: if no walkable block can be found.
-
 ### `SetTargetLocalPlayer`
-Set `MinionPathComponent`'s target to the block below local player.
+Set `MinionMoveComponent.target` to the block below local player.
 
 Always returns `SUCCESS`.
 
@@ -130,6 +117,12 @@ Always returns `SUCCESS`.
 Moves the actor to the target defined by `MinionMoveComponent`.
 
 `SUCCESS`: when distance between actor and target is below `distance`.
+`FAILURE`: when there is no target.
+
+### `MoveToCluster` *Decorator*
+Moves the actor to the cluster defined by `MinionMoveComponent.target`.
+
+`SUCCESS`: when actor reaches the cluster
 `FAILURE`: when there is no target.
 
 ### `Jump`
@@ -143,13 +136,6 @@ Trigger a single jump into the air.
 Play a specific animation. Notice, if `loop` is false, this node will return `RUNNING` forever.
 
 `SUCCESS`: when the animation ended (only if `loop`==false)
-
-## `MinionPathSystem`
-
-The path system helps finding paths and keep track of their current state.
-
-This system listens for `OnPathReady` events and assign `PATH_RECEIVED` state to the minion that requested the path.
-To store this state a `MinionPathComponent` is used.
 
 # Terasology Pathfinding module
 

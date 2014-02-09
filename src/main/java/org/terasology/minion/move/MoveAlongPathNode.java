@@ -28,7 +28,7 @@ import org.terasology.registry.In;
 import javax.vecmath.Vector3f;
 
 /**
- * Call child node, as long as the actor has not reached the end of the path.<br/>
+ * Call child node, as long as the actor has not reached the end of the path. Sets <b>MinionMoveComponent.target</b> to next step in path.<br/>
  * <br/>
  * <b>SUCCESS</b>: when actor has reached end of path.<br/>
  * <b>FAILURE</b>: if no path was found previously.<br/>

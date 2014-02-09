@@ -24,14 +24,14 @@ import org.terasology.logic.behavior.tree.Task;
 import org.terasology.math.Vector3i;
 import org.terasology.registry.In;
 import org.terasology.rendering.nui.properties.OneOf;
+import org.terasology.work.kmeans.Cluster;
 
 /**
  * <b>Properties</b>: <b>filter</b><br/>
  * <br/>
- * Searches for open work of specific type (<b>filter</b>). If work is found, the actor is assigned to that and the child is started.<br/>
+ * Searches for open work of specific type (<b>filter</b>). If work is found, the actor is assigned.<br/>
  * <br/>
- * <b>SUCCESS</b>: when actor reached a target position.<br/>
- * <b>FAILURE</b>: if no open work can be found.<br/>
+ * <b>SUCCESS</b>: When work is found and assigned.<br/>
  * <br/>
  * Auto generated javadoc - modify README.markdown instead!
  */
@@ -54,6 +54,7 @@ public class FindWorkNode extends Node {
 
         private EntityRef foundWork;
         private Vector3i foundPosition;
+        private Work filter;
 
         public FindWorkTask(FindWorkNode node) {
             super(node);
@@ -70,10 +71,10 @@ public class FindWorkNode extends Node {
                     actorWork.currentWork.saveComponent(currentJob);
                 }
             }
-            Work filter = getNode().filter != null ? workFactory.getWork(getNode().filter) : null;
+            filter = getNode().filter != null ? workFactory.getWork(getNode().filter) : null;
             workBoard.getWork(actor().minion(), filter, new WorkBoard.WorkBoardCallback() {
                 @Override
-                public boolean workReady(Vector3i position, EntityRef work) {
+                public boolean workReady(Cluster cluster, Vector3i position, EntityRef work) {
                     foundWork = work;
                     foundPosition = position;
                     return true;

@@ -115,6 +115,11 @@ public class ClusterDebugger extends JFrame {
                 diff.sub(target);
                 return diff.length();
             }
+
+            @Override
+            public float distance(Vector3i element, Vector3i target) {
+                return 0;
+            }
         });
         start(WorkFactory.class, new WorkFactory());
         walkToBlock = start(WalkToBlock.class, new WalkToBlock());

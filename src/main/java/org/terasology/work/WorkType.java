@@ -40,6 +40,15 @@ public class WorkType {
         this.work = work;
         cluster = new Cluster(8, 4, 1, new Cluster.DistanceFunction() {
             @Override
+            public float distance(Vector3i element, Vector3i target) {
+                EntityRef workEntity = mapping.get(element);
+                if (workEntity != null && requestableWork.contains(workEntity)) {
+                    return element.distance(target);
+                }
+                return Float.MAX_VALUE;
+            }
+
+            @Override
             public float distance(Vector3i element, Vector3f target) {
                 Vector3f diff = element.toVector3f();
                 diff.sub(target);
@@ -108,6 +117,11 @@ public class WorkType {
         requestableWork.remove(workEntity);
         for (WalkableBlock block : work.getTargetPositions(workEntity)) {
             cluster.remove(block.getBlockPosition());
+            mapping.remove(block.getBlockPosition());
         }
+    }
+
+    public Cluster findNearestCluster(Vector3i position) {
+        return cluster.findNearestCluster(position);
     }
 }

@@ -26,7 +26,7 @@ import org.terasology.registry.In;
 import javax.vecmath.Vector3f;
 
 /**
- * Set <b>MinionPathComponent</b>'s target to the block below local player.<br/>
+ * Set <b>MinionMoveComponent.target</b> to the block below local player.<br/>
  * <br/>
  * Always returns <b>SUCCESS</b>.<br/>
  * <br/>

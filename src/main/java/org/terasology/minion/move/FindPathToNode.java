@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Requests a path to a target defined using the <b>MinionPathComponent</b>.<br/>
+ * Requests a path to a target defined using the <b>MinionMoveComponent.target</b>.<br/>
  * <br/>
  * <b>SUCCESS</b> / <b>FAILURE</b>: when paths is found or not found (invalid).<br/>
  * <b>RUNNING</b>: as long as path is searched.<br/>

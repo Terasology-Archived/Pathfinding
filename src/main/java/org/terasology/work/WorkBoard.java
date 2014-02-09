@@ -35,10 +35,13 @@ import org.terasology.math.Region3i;
 import org.terasology.math.Vector3i;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.navgraph.NavGraphChanged;
+import org.terasology.navgraph.NavGraphSystem;
+import org.terasology.navgraph.WalkableBlock;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.registry.In;
 import org.terasology.utilities.concurrency.Task;
 import org.terasology.utilities.concurrency.TaskMaster;
+import org.terasology.work.kmeans.Cluster;
 import org.terasology.world.BlockEntityRegistry;
 
 import java.util.Map;
@@ -56,6 +59,9 @@ public class WorkBoard implements ComponentSystem, UpdateSubscriberSystem {
     private BlockEntityRegistry blockEntityRegistry;
     @In
     private EntityManager entityManager;
+    @In
+    private NavGraphSystem navGraphSystem;
+
 
     @In
     private WorkFactory workFactory;
@@ -173,7 +179,7 @@ public class WorkBoard implements ComponentSystem, UpdateSubscriberSystem {
     }
 
     public interface WorkBoardCallback {
-        boolean workReady(Vector3i position, EntityRef work);
+        boolean workReady(Cluster cluster, Vector3i position, EntityRef work);
     }
 
     private interface WorkBoardTask extends Task, Comparable<WorkBoardTask> {
@@ -314,19 +320,24 @@ public class WorkBoard implements ComponentSystem, UpdateSubscriberSystem {
 
         @Override
         public void enact() {
-            Vector3i position = workType.findNearestTarget(target.getComponent(MinionMoveComponent.class).currentBlock.getBlockPosition());
-            if (position != null) {
-                EntityRef work = workType.getWorkForTarget(position);
-                if (work != null) {
-                    if (callback.workReady(position, work)) {
+            WalkableBlock block;
+            block = target.getComponent(MinionMoveComponent.class).currentBlock;
+            if (block == null) {
+                throw new IllegalStateException("No block " + target);
+            }
+            Vector3i currentPosition = block.getBlockPosition();
+            Cluster nearestCluster = workType.getCluster().findNearestCluster(currentPosition);
+            if (nearestCluster != null) {
+                Vector3i nearestTarget = nearestCluster.findNearest(currentPosition);
+                if (nearestTarget != null) {
+                    EntityRef work = workType.getWorkForTarget(nearestTarget);
+                    if (callback.workReady(nearestCluster, nearestTarget, work)) {
                         workType.removeRequestable(work);
                     }
-                } else {
-                    offer(this);
+                    return;
                 }
-            } else {
-                offer(this);
             }
+            offer(this);
         }
 
         @Override
