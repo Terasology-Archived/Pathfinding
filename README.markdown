@@ -54,8 +54,8 @@ Starts next child, if previous child finishes with `SUCCESS`.
 ### `Timer` *Decorator*
 Starts the decorated node.
 
-`SUCCESS`: after x seconds.
-`FAILURE`: as soon as decorated node finishes with `FAILURE`.
+`SUCCESS`: as soon as decorated node finishes with `SUCCESS`.
+`FAILURE`: after x seconds.
 
 ### `Wrapper` *Decorator*
 Always finishes with `SUCCESS`.

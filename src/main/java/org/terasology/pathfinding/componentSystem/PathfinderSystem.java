@@ -25,6 +25,7 @@ import org.terasology.math.Vector3i;
 import org.terasology.navgraph.NavGraphSystem;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.model.LineOfSight;
+import org.terasology.pathfinding.model.LineOfSight2d;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.Pathfinder;
 import org.terasology.registry.CoreRegistry;
@@ -62,6 +63,7 @@ public class PathfinderSystem implements ComponentSystem {
 
     public PathfinderSystem() {
         CoreRegistry.put(PathfinderSystem.class, this);
+        CoreRegistry.put(LineOfSight.class, new LineOfSight2d());
     }
 
     @Override

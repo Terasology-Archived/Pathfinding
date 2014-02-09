@@ -1,26 +1,52 @@
 {
   "model": {
-    "nodeType": "engine:SequenceNode",
+    "nodeType": "engine:SelectorNode",
     "nodeId": 0,
     "node": {
       "children": [
         {
-          "nodeType": "pathfinding:FindWorkNode",
+          "nodeType": "engine:SequenceNode",
           "nodeId": 1,
           "node": {
-            "filter": "Pathfinding:buildBlock",
-            "child": {
-              "nodeType": "engine:LookupNode",
-              "nodeId": 2,
-              "node": {
-                "tree": "pathfinding:movetowork"
+            "children": [
+              {
+                "nodeType": "engine:TimerNode",
+                "nodeId": 2,
+                "node": {
+                  "time": 1.0,
+                  "child": {
+                    "nodeType": "pathfinding:FindWorkNode",
+                    "nodeId": 3,
+                    "node": {
+                      "filter": "Pathfinding:buildBlock"
+                    }
+                  }
+                }
+              },
+              {
+                "nodeType": "engine:LookupNode",
+                "nodeId": 4,
+                "node": {
+                  "tree": "pathfinding:movetowork"
+                }
+              },
+              {
+                "nodeType": "pathfinding:FinishWorkNode",
+                "nodeId": 5,
+                "node": {
+                  "child" : {
+                    "nodeType" : "pathfinding:JumpNode",
+                    "nodeId" : 6,
+                    "node" : {}
+                  }
+                }
               }
-            }
+            ]
           }
         },
         {
           "nodeType": "pathfinding:FinishWorkNode",
-          "nodeId": 3,
+          "nodeId": 7,
           "node": {}
         }
       ]

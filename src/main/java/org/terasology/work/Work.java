@@ -36,9 +36,11 @@ public interface Work {
 
     boolean isAssignable(EntityRef block);
 
-    boolean letMinionWork(EntityRef block, EntityRef minion, float dt);
+    void letMinionWork(EntityRef block, EntityRef minion);
 
     boolean isRequestable(EntityRef block);
 
     SimpleUri getUri();
+
+    float cooldownTime();
 }

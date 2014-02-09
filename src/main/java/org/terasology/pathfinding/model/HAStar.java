@@ -136,7 +136,9 @@ public class HAStar {
             }
             current = current.p;
         }
-        path.remove(0);
+        if (path.size() > 0) {
+            path.remove(0);
+        }
         path.add(startNode.block);
         return path;
     }

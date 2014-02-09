@@ -60,7 +60,9 @@ public class FindPathToNode extends Node {
                 pathfinderSystem.requestPath(actor().minion(), moveComponent.currentBlock.getBlockPosition(), Arrays.asList(workTarget.getBlockPosition()), new PathfinderSystem.PathReadyCallback() {
                     @Override
                     public void pathReady(int pathId, List<Path> path, WalkableBlock target, List<WalkableBlock> start) {
-                        if (path.size() > 0) {
+                        if (path == null) {
+                            foundPath = Path.INVALID;
+                        } else if (path.size() > 0) {
                             foundPath = path.get(0);
                         }
                     }

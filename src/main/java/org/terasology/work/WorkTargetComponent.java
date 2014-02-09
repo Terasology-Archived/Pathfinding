@@ -66,8 +66,13 @@ public class WorkTargetComponent implements Component, Work {
     }
 
     @Override
-    public boolean letMinionWork(EntityRef block, EntityRef minion, float dt) {
-        return getWork().letMinionWork(block, minion, dt);
+    public void letMinionWork(EntityRef block, EntityRef minion) {
+        getWork().letMinionWork(block, minion);
+    }
+
+    @Override
+    public float cooldownTime() {
+        return getWork().cooldownTime();
     }
 
     @Override

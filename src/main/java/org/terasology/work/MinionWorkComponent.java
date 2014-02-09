@@ -28,6 +28,7 @@ import org.terasology.math.Vector3i;
 public class MinionWorkComponent implements Component {
     public transient EntityRef currentWork;
     public transient Vector3i target;
+    public transient float cooldown;
 
     public MinionWorkComponent() {
     }

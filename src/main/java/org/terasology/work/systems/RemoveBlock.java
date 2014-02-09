@@ -102,10 +102,9 @@ public class RemoveBlock implements Work, ComponentSystem {
     }
 
     @Override
-    public boolean letMinionWork(EntityRef block, EntityRef minion, float dt) {
+    public void letMinionWork(EntityRef block, EntityRef minion) {
         block.removeComponent(WorkTargetComponent.class);
         worldProvider.setBlock(block.getComponent(BlockComponent.class).getPosition(), BlockManager.getAir());
-        return false;
     }
 
     @Override
@@ -118,6 +117,11 @@ public class RemoveBlock implements Work, ComponentSystem {
     @Override
     public boolean isRequestable(EntityRef block) {
         return true;
+    }
+
+    @Override
+    public float cooldownTime() {
+        return 0;
     }
 
     @Override

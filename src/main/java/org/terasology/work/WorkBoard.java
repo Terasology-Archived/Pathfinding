@@ -334,10 +334,8 @@ public class WorkBoard implements ComponentSystem, UpdateSubscriberSystem {
                     if (callback.workReady(nearestCluster, nearestTarget, work)) {
                         workType.removeRequestable(work);
                     }
-                    return;
                 }
             }
-            offer(this);
         }
 
         @Override

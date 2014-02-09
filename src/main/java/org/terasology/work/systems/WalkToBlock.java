@@ -96,9 +96,8 @@ public class WalkToBlock implements Work, ComponentSystem {
     }
 
     @Override
-    public boolean letMinionWork(EntityRef block, EntityRef minion, float dt) {
+    public void letMinionWork(EntityRef block, EntityRef minion) {
         block.removeComponent(WorkTargetComponent.class);
-        return false;
     }
 
     @Override
@@ -106,6 +105,10 @@ public class WalkToBlock implements Work, ComponentSystem {
         return true;
     }
 
+    @Override
+    public float cooldownTime() {
+        return 0;
+    }
 
     @Override
     public String toString() {

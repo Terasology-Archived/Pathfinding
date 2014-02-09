@@ -97,7 +97,7 @@ public class Cluster {
         float minDist = Float.MAX_VALUE;
         Cluster nearestCluster = null;
         for (Cluster cluster : children) {
-            if (cluster.distances.size() == 0) {
+            if (cluster.distances.size() == 0 && cluster.children.size() == 0) {
                 continue;
             }
 

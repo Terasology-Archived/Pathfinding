@@ -16,11 +16,12 @@
 package org.terasology.work.systems;
 
 import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Vector3i;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
@@ -33,7 +34,6 @@ import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockComponent;
 import org.terasology.world.block.BlockManager;
 
-import javax.vecmath.Vector3f;
 import java.util.List;
 
 /**
@@ -41,26 +41,20 @@ import java.util.List;
  */
 @RegisterSystem
 public class BuildBlock implements Work, ComponentSystem {
-    private static final int[][] NEIGHBORS = new int[][]{
-            {-1, 0, 0}, {1, 0, 0}, {0, 0, -1}, {0, 0, 1},
-            {-1, -1, 0}, {1, -1, 0}, {0, -1, -1}, {0, -1, 1},
-            {-1, -2, 0}, {1, -2, 0}, {0, -2, -1}, {0, -2, 1},
-    };
     private static final int[][] DIRECT_NEIGHBORS = new int[][]{
             {-1, 0, 0}, {1, 0, 0}, {0, -1, 0}, {0, 1, 0}, {0, 0, -1}, {0, 0, 1}
     };
-
+    private static final Logger logger = LoggerFactory.getLogger(WalkToBlock.class);
+    private final SimpleUri uri;
     @In
     private PathfinderSystem pathfinderSystem;
+    @In
+    private WorkFactory workFactory;
     @In
     private WorldProvider worldProvider;
     @In
     private BlockManager blockManager;
-    @In
-    private WorkFactory workFactory;
-
     private Block blockType;
-    private final SimpleUri uri;
 
     public BuildBlock() {
         uri = new SimpleUri("Pathfinding:buildBlock");
@@ -74,6 +68,7 @@ public class BuildBlock implements Work, ComponentSystem {
 
     @Override
     public void shutdown() {
+
     }
 
     @Override
@@ -81,37 +76,27 @@ public class BuildBlock implements Work, ComponentSystem {
         return uri;
     }
 
-    @Override
     public List<WalkableBlock> getTargetPositions(EntityRef block) {
-        List<WalkableBlock> result = Lists.newArrayList();
-
-        Vector3i worldPos = block.getComponent(BlockComponent.class).getPosition();
-        WalkableBlock walkableBlock;
-        Vector3i pos = new Vector3i();
-        for (int[] neighbor : NEIGHBORS) {
-            pos.set(worldPos.x + neighbor[0], worldPos.y + neighbor[1], worldPos.z + neighbor[2]);
-            walkableBlock = pathfinderSystem.getBlock(pos);
-            if (walkableBlock != null) {
-                result.add(walkableBlock);
-            }
+        List<WalkableBlock> targetPositions = Lists.newArrayList();
+        if (block == null || !block.hasComponent(BlockComponent.class)) {
+            return targetPositions;
         }
-        return result;
+        Vector3i position = new Vector3i(block.getComponent(BlockComponent.class).getPosition());
+        position.y--;
+        WalkableBlock walkableBlock = pathfinderSystem.getBlock(position);
+        if (walkableBlock != null) {
+            targetPositions.add(walkableBlock);
+        }
+
+        return targetPositions;
     }
 
     @Override
     public boolean canMinionWork(EntityRef block, EntityRef minion) {
-        Vector3f pos = new Vector3f();
-        pos.sub(block.getComponent(LocationComponent.class).getWorldPosition(), minion.getComponent(LocationComponent.class).getWorldPosition());
-        pos.y /= 4;
-        float length = pos.length();
-        return length < 2;
-    }
-
-    @Override
-    public boolean letMinionWork(EntityRef block, EntityRef minion, float dt) {
-        block.removeComponent(WorkTargetComponent.class);
-        worldProvider.setBlock(block.getComponent(BlockComponent.class).getPosition(), blockType);
-        return false;
+        WalkableBlock actualBlock = pathfinderSystem.getBlock(minion);
+        WalkableBlock expectedBlock = pathfinderSystem.getBlock(block.getComponent(BlockComponent.class).getPosition());
+        logger.info("{} - {}", actualBlock.getBlockPosition(), expectedBlock.getBlockPosition());
+        return actualBlock == expectedBlock;
     }
 
     @Override
@@ -119,6 +104,12 @@ public class BuildBlock implements Work, ComponentSystem {
         Vector3i position = new Vector3i(block.getComponent(BlockComponent.class).getPosition());
         Block type = worldProvider.getBlock(position);
         return type.isPenetrable();
+    }
+
+    @Override
+    public void letMinionWork(EntityRef block, EntityRef minion) {
+        block.removeComponent(WorkTargetComponent.class);
+        worldProvider.setBlock(block.getComponent(BlockComponent.class).getPosition(), blockType);
     }
 
     @Override
@@ -133,6 +124,11 @@ public class BuildBlock implements Work, ComponentSystem {
             }
         }
         return false;
+    }
+
+    @Override
+    public float cooldownTime() {
+        return 1;
     }
 
     @Override

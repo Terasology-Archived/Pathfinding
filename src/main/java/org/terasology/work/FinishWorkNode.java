@@ -67,20 +67,24 @@ public class FinishWorkNode extends DecoratorNode {
                 work = null;
                 return;
             }
-
+            actorJob.cooldown = work.cooldownTime();
+            actor().save(actorJob);
             logger.info("Reached work " + currentJob);
+            work.letMinionWork(currentJob, actor().minion());
             start(getNode().child);
         }
 
         @Override
         public Status update(float dt) {
             if (work != null) {
-                boolean result = work.letMinionWork(currentJob, actor().minion(), dt);
-                if (result) {
+                MinionWorkComponent actorJob = actor().component(MinionWorkComponent.class);
+                actorJob.cooldown -= dt;
+                actor().save(actorJob);
+
+                if (actorJob.cooldown > 0) {
                     return Status.RUNNING;
                 } else {
                     logger.info("Work finished");
-                    MinionWorkComponent actorJob = actor().component(MinionWorkComponent.class);
                     actorJob.currentWork = null;
                     actor().save(actorJob);
                     return Status.SUCCESS;
