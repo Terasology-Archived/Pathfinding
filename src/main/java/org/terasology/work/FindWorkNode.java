@@ -73,14 +73,16 @@ public class FindWorkNode extends DecoratorNode {
                 }
             }
             EntityRef work = workBoard.getWork(actor().minion(), getNode().filter != null ? workFactory.getWork(getNode().filter) : null);
+            assignedWork = null;
             if (work != null) {
                 WorkTargetComponent workTargetComponent = work.getComponent(WorkTargetComponent.class);
-                logger.info("Found new work for " + interpreter().toString() + " " + workTargetComponent.getUri() + " at " + work);
-                workTargetComponent.assignedMinion = actor().minion();
-                work.saveComponent(workTargetComponent);
-                assignedWork = work;
-            } else {
-                assignedWork = null;
+                if (workTargetComponent != null && workTargetComponent.getWork() != null) {
+                    workBoard.removeRequestable(work);
+                    logger.info("Found new work for " + interpreter().toString() + " " + workTargetComponent.getUri() + " at " + work);
+                    workTargetComponent.assignedMinion = actor().minion();
+                    work.saveComponent(workTargetComponent);
+                    assignedWork = work;
+                }
             }
             actorWork.currentWork = assignedWork;
             actor().save(actorWork);
@@ -95,7 +97,7 @@ public class FindWorkNode extends DecoratorNode {
                 firstTick = false;
                 return Status.RUNNING;
             }
-            if (assignedWork != null) {
+            if (assignedWork != null && assignedWork.hasComponent(WorkTargetComponent.class)) {
                 WorkTargetComponent jobTargetComponent = assignedWork.getComponent(WorkTargetComponent.class);
                 List<WalkableBlock> targetPositions = jobTargetComponent.getTargetPositions(assignedWork);
                 MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);

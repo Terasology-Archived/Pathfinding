@@ -8,8 +8,8 @@
   	"PlaySoundAction" : {
     	sounds = "engine:click"
   	},
-    "Job" : {
-        jobType = "Pathfinding:buildBlock"
+    "Work" : {
+        workType = "Pathfinding:buildBlock"
     },
     "BlockSelection" : {
         "shouldRender" : true

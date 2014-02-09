@@ -4,47 +4,53 @@
     "nodeId": 0,
     "node": {
       "child": {
-        "nodeType": "engine:SequenceNode",
+        "nodeType": "engine:WrapperNode",
         "nodeId": 1,
         "node": {
-          "children": [
-            {
-              "nodeType": "pathfinding:MoveToNode",
-              "nodeId": 2,
-              "node": {
-                "distance": 0.1
-              }
-            },
-            {
-              "nodeType": "engine:SelectorNode",
-              "nodeId": 3,
-              "node": {
-                "children": [
-                  {
-                    "nodeType": "engine:LookupNode",
-                    "nodeId": 4,
-                    "node": {
-                      "tree": "pathfinding:dowalkto"
-                    }
-                  },
-                  {
-                    "nodeType": "engine:LookupNode",
-                    "nodeId": 5,
-                    "node": {
-                      "tree": "pathfinding:dobuildblock"
-                    }
-                  },
-                  {
-                    "nodeType": "engine:LookupNode",
-                    "nodeId": 6,
-                    "node": {
-                      "tree": "pathfinding:doremoveblock"
-                    }
+          "child": {
+            "nodeType": "engine:SequenceNode",
+            "nodeId": 2,
+            "node": {
+              "children": [
+                {
+                  "nodeType": "pathfinding:MoveToNode",
+                  "nodeId": 3,
+                  "node": {
+                    "distance": 0.1
                   }
-                ]
-              }
+                },
+                {
+                  "nodeType": "engine:SelectorNode",
+                  "nodeId": 4,
+                  "node": {
+                    "children": [
+                      {
+                        "nodeType": "engine:LookupNode",
+                        "nodeId": 5,
+                        "node": {
+                          "tree": "pathfinding:dowalkto"
+                        }
+                      },
+                      {
+                        "nodeType": "engine:LookupNode",
+                        "nodeId": 6,
+                        "node": {
+                          "tree": "pathfinding:dobuildblock"
+                        }
+                      },
+                      {
+                        "nodeType": "engine:LookupNode",
+                        "nodeId": 7,
+                        "node": {
+                          "tree": "pathfinding:doremoveblock"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
             }
-          ]
+          }
         }
       }
     }

@@ -16,6 +16,8 @@
 package org.terasology.work.systems;
 
 import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.systems.ComponentSystem;
@@ -36,6 +38,7 @@ import java.util.List;
  */
 @RegisterSystem
 public class WalkToBlock implements Work, ComponentSystem {
+    private static final Logger logger = LoggerFactory.getLogger(WalkToBlock.class);
     private final SimpleUri uri;
     @In
     private PathfinderSystem pathfinderSystem;
@@ -79,7 +82,7 @@ public class WalkToBlock implements Work, ComponentSystem {
     public boolean canMinionWork(EntityRef block, EntityRef minion) {
         WalkableBlock actualBlock = pathfinderSystem.getBlock(minion);
         WalkableBlock expectedBlock = pathfinderSystem.getBlock(block.getComponent(BlockComponent.class).getPosition());
-
+        logger.info("{} - {}", actualBlock.getBlockPosition(), expectedBlock.getBlockPosition());
         return actualBlock == expectedBlock;
     }
 

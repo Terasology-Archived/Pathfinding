@@ -18,9 +18,11 @@ package org.terasology.work;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.lifecycleEvents.BeforeRemoveComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
+import org.terasology.entitySystem.entity.lifecycleEvents.OnAddedComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnChangedComponent;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.ComponentSystem;
@@ -32,9 +34,11 @@ import org.terasology.logic.selection.ApplyBlockSelectionEvent;
 import org.terasology.math.Region3i;
 import org.terasology.math.Vector3i;
 import org.terasology.minion.move.MinionMoveComponent;
+import org.terasology.navgraph.NavGraphChanged;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.registry.In;
 import org.terasology.world.BlockEntityRegistry;
+import org.terasology.world.block.BlockComponent;
 
 import java.util.Collection;
 import java.util.Map;
@@ -49,6 +53,8 @@ public class WorkBoard implements ComponentSystem, UpdateSubscriberSystem {
 
     @In
     private BlockEntityRegistry blockEntityRegistry;
+    @In
+    private EntityManager entityManager;
 
     @In
     private WorkFactory workFactory;
@@ -77,6 +83,27 @@ public class WorkBoard implements ComponentSystem, UpdateSubscriberSystem {
     }
 
     @ReceiveEvent
+    public void onNavGraph(NavGraphChanged event, EntityRef entityRef) {
+        logger.info("rebuild after nav graph change");
+        for (EntityRef work : entityManager.getEntitiesWith(WorkTargetComponent.class, BlockComponent.class)) {
+            WorkTargetComponent workTargetComponent = work.getComponent(WorkTargetComponent.class);
+            WorkType workType = getWorkType(workTargetComponent.getWork());
+            if (workType != null) {
+                workType.update(work);
+            }
+        }
+    }
+
+    @ReceiveEvent
+    public void onAdded(OnAddedComponent event, EntityRef entityRef, WorkTargetComponent workTarget) {
+        if (workTarget == null) {
+            return;
+        }
+        WorkType workType = getWorkType(workTarget.getWork());
+        workType.update(entityRef);
+    }
+
+    @ReceiveEvent
     public void onActivated(OnActivatedComponent event, EntityRef entityRef, WorkTargetComponent workTarget) {
         if (workTarget == null) {
             return;
@@ -95,6 +122,12 @@ public class WorkBoard implements ComponentSystem, UpdateSubscriberSystem {
     public void onChange(OnChangedComponent event, EntityRef entityRef, WorkTargetComponent workTarget) {
         WorkType workType = getWorkType(workTarget.getWork());
         workType.update(entityRef);
+    }
+
+    public void removeRequestable(EntityRef work) {
+        WorkTargetComponent workTarget = work.getComponent(WorkTargetComponent.class);
+        WorkType workType = getWorkType(workTarget.getWork());
+        workType.removeRequestable(work);
     }
 
     public EntityRef getWork(EntityRef entity) {
@@ -159,6 +192,9 @@ public class WorkBoard implements ComponentSystem, UpdateSubscriberSystem {
     }
 
     public WorkType getWorkType(Work work) {
+        if (work == null) {
+            return null;
+        }
         WorkType workType = workTypes.get(work);
         if (workType == null) {
             workType = new WorkType(work);
@@ -166,5 +202,4 @@ public class WorkBoard implements ComponentSystem, UpdateSubscriberSystem {
         }
         return workType;
     }
-
 }

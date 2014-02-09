@@ -62,6 +62,15 @@ public class Cluster {
         dirty = true;
     }
 
+    public void remove(Vector3i element) {
+        if (distances.remove(element) == null) {
+            for (Cluster cluster : children) {
+                cluster.remove(element);
+            }
+        }
+        dirty = true;
+    }
+
     public Vector3i findNearest(Vector3i target) {
         hkMean();
 
@@ -71,10 +80,10 @@ public class Cluster {
             Vector3i nearest = null;
             for (Map.Entry<Vector3i, Distance> entry : cluster.distances.entrySet()) {
                 Vector3i element = entry.getKey();
-                Distance distance = entry.getValue();
-                if (distance.getDistance() < minDist) {
+                float distance = distanceFunction.distance(target, element.toVector3f());
+                if (distance < minDist) {
                     nearest = element;
-                    minDist = distance.getDistance();
+                    minDist = distance;
                 }
             }
             if (nearest != null) {
@@ -91,6 +100,9 @@ public class Cluster {
         float minDist = Float.MAX_VALUE;
         Cluster nearestCluster = null;
         for (Cluster cluster : children) {
+            if (cluster.distances.size() == 0) {
+                continue;
+            }
             Distance distance = distances.get(target);
             if (distance == null) {
                 distance = new Distance(distanceFunction.distance(target, cluster.getPosition()));

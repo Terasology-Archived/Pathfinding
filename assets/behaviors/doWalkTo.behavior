@@ -5,7 +5,7 @@
     "node": {
       "children": [
         {
-          "nodeType": "pathfinding:FindJobNode",
+          "nodeType": "pathfinding:FindWorkNode",
           "nodeId": 1,
           "node": {
             "filter": "Pathfinding:walkToBlock",
@@ -13,13 +13,13 @@
               "nodeType": "engine:LookupNode",
               "nodeId": 2,
               "node": {
-                "tree": "pathfinding:movetojobtarget"
+                "tree": "pathfinding:movetowork"
               }
             }
           }
         },
         {
-          "nodeType": "pathfinding:FinishJobNode",
+          "nodeType": "pathfinding:FinishWorkNode",
           "nodeId": 3,
           "node": {}
         }

@@ -5,7 +5,7 @@
     "node": {
       "children": [
         {
-          "nodeType": "pathfinding:SetTargetJobNode",
+          "nodeType": "pathfinding:SetTargetToWorkNode",
           "nodeId": 1,
           "node": {}
         },
@@ -22,7 +22,7 @@
               "nodeType": "pathfinding:MoveToNode",
               "nodeId": 4,
               "node": {
-                "distance": 0.3
+                "distance": 0.1
               }
             }
           }

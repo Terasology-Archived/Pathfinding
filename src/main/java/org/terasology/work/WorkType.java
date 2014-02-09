@@ -65,14 +65,16 @@ public class WorkType {
 
     public void update(EntityRef workEntity) {
         WorkTargetComponent workComponent = workEntity.getComponent(WorkTargetComponent.class);
-        if (workComponent != null && workComponent.assignedMinion == null && work.isAssignable(workEntity)) {
+        if (workComponent != null && work.isAssignable(workEntity)) {
             openWork.add(workEntity);
-            if (workComponent.isRequestable(workEntity)) {
+            if (workComponent.assignedMinion == null && workComponent.isRequestable(workEntity)) {
                 requestableWork.add(workEntity);
                 for (WalkableBlock block : work.getTargetPositions(workEntity)) {
                     cluster.add(block.getBlockPosition());
                     mapping.put(block.getBlockPosition(), workEntity);
                 }
+            } else {
+                remove(workEntity);
             }
         } else {
             remove(workEntity);
@@ -92,6 +94,7 @@ public class WorkType {
             openWork.remove(workEntity);
             requestableWork.remove(workEntity);
             for (WalkableBlock block : work.getTargetPositions(workEntity)) {
+                cluster.remove(block.getBlockPosition());
                 mapping.remove(block.getBlockPosition());
             }
         }
@@ -99,5 +102,12 @@ public class WorkType {
 
     public Cluster getCluster() {
         return cluster;
+    }
+
+    public void removeRequestable(EntityRef workEntity) {
+        requestableWork.remove(workEntity);
+        for (WalkableBlock block : work.getTargetPositions(workEntity)) {
+            cluster.remove(block.getBlockPosition());
+        }
     }
 }
