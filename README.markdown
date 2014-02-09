@@ -1,73 +1,103 @@
-# Terasology Behavior Tree
-
-## Behavior nodes
-
-### `Counter` *Decorator*
-Starts child a limit number of times.
-
-`SUCCESS`: when child finished with `SUCCESS`n times.
-`FAILURE`: as soon as child finishes with `FAILURE`.
-
-### `Inverter` *Decorator*
-Inverts the child.
-
-`SUCCESS`: when child finishes `FAILURE`.
-`FAILURE`: when child finishes `SUCCESS`.
-
-### `Lookup` *Decorator*
-Node that runs a behavior tree.
-
-`SUCCESS`: when tree finishes with `SUCCESS`.
-`FAILURE`: when tree finishes with `FAILURE`.
-
-### `Monitor` *Parallel*
-
-`SUCCESS`: as soon as one child node finishes SUCCESS
-`FAILURE`: as soon as one child node finishes `FAILURE`.
-
-### `Parallel` *Composite*
-All children are evaluated in parallel. Policies for success and failure will define when this node finishes and in which state.
-
-`SUCCESS`: when success policy is fulfilled (one or all children `SUCCESS`).
-`FAILURE`, when failure policy is fulfilled (one or all children `FAILURE`).
-
-### `Repeat` *Decorator*
-Repeats the child node forever.
-
-`SUCCESS`: Never.
-`FAILURE`: as soon as decorated node finishes with `FAILURE`.
-
-### `Selector` *Composite*
-Evaluates the children one by one.
-Starts next child, if previous child finishes with `FAILURE`.
-
-`SUCCESS`: as soon as a child finishes `SUCCESS`.
-`FAILURE`: when all children finished with `FAILURE`.
-
-### `Sequence` *Composite*
-Evaluates the children one by one.
-Starts next child, if previous child finishes with `SUCCESS`.
-
-`SUCCESS`: when all children finishes `SUCCESS`.
-`FAILURE`: as soon as a child finished with `FAILURE`.
-
-### `Timer` *Decorator*
-Starts the decorated node.
-
-`SUCCESS`: as soon as decorated node finishes with `SUCCESS`.
-`FAILURE`: after x seconds.
-
-### `Wrapper` *Decorator*
-Always finishes with `SUCCESS`.
-
-### `PlaySound`
-*Properties*: `sound`, `volume`
-
-`SUCCESS`: when sound has started playing.
-`FAILURE`: otherwise
-
 # Terasology Work module
 
+`Work` in terms of this document is a process that a minion can operate on. Every `Work` is designated to a
+ target. This may be any entity (normal or block entity). This is done using the `WorkTargetComponent` - entities having
+ this component are targets of some work to do (for example, kill or build block).
+
+To start operating, several preconditions must be fulfilled (most commonly this is the exact positions to operate). The
+ definition of those preconditions and the process itself is done in a `WorkType`.
+
+A `WorkType` is a component system which registers itself to the `WorkFactory`. So, modules can bring their own job
+ type implementations into the system.
+
+The central system of the work module is the `WorkBoard`. This systems manages all the work.
+
+Internally a hierarchical k-means clustering algorithm is used to build a tree of clusters, to minimize the search space
+ when looking for work for a minion. The `WorkBoard` hides this complexity - you simply request for work described by
+ optional filters. Once work becomes available, you get informed through a callback.
+
+For now, there are 4 `WorkTypes`:
+
+*   `BuildBlock` - go to a target and place a block
+*   `RemoveBlock` - go to a target and remove a block
+*   `WalkToBlock` - just go to a target and do nothing
+*   `AttackMinionSystem` - spawns 2 additional work types, one for each LightAndShadow team. Also tags entities with the
+    `WorkTargetComponent` and a attack work type of the opposing team side. (WIP)
+
+## Example `Work`
+
+<pre>
+@RegisterSystem
+public class WalkToBlock implements Work, ComponentSystem {
+    private static final Logger logger = LoggerFactory.getLogger(WalkToBlock.class);
+
+    private final SimpleUri uri;
+    @In
+    private PathfinderSystem pathfinderSystem;
+    @In
+    private WorkFactory workFactory;
+
+    public WalkToBlock() {
+        uri = new SimpleUri("Pathfinding:walkToBlock");
+    }
+
+    @Override
+    public void initialise() {
+        // register this work type to the factory
+        workFactory.register(this);
+    }
+
+    @Override
+    public void shutdown() {
+    }
+
+    @Override
+    public SimpleUri getUri() {
+        return uri;
+    }
+
+    public List<WalkableBlock> getTargetPositions(EntityRef block) {
+        // returns a list of valid blocks to operate on block
+        return ...;
+    }
+
+    @Override
+    public boolean canMinionWork(EntityRef block, EntityRef minion) {
+        // return true if minion can work on block, right now
+        return ...;
+    }
+
+    @Override
+    public boolean isAssignable(EntityRef block) {
+        // return true if block is valid target. only valid block
+        // will be considered when work is searched
+        return ...;
+    }
+
+    @Override
+    public void letMinionWork(EntityRef block, EntityRef minion) {
+        // do the actual work
+        block.removeComponent(WorkTargetComponent.class);
+    }
+
+    @Override
+    public boolean isRequestable(EntityRef block) {
+        // return true is block can be worked on right now (all preconditions are true)
+        return ...;
+    }
+
+    @Override
+    public float cooldownTime() {
+        // returns the seconds it takes to finish working
+        return 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Walk To Block";
+    }
+}
+</pre>
 
 ## Behavior nodes
 
@@ -117,12 +147,6 @@ Always returns `SUCCESS`.
 Moves the actor to the target defined by `MinionMoveComponent`.
 
 `SUCCESS`: when distance between actor and target is below `distance`.
-`FAILURE`: when there is no target.
-
-### `MoveToCluster` *Decorator*
-Moves the actor to the cluster defined by `MinionMoveComponent.target`.
-
-`SUCCESS`: when actor reaches the cluster
 `FAILURE`: when there is no target.
 
 ### `Jump`
@@ -216,3 +240,158 @@ There are two implementations of the line of sight algorithm. One is crawling th
 ## Related
 * http://aigamedev.com/open/tutorials/theta-star-any-angle-paths/
 
+
+# Terasology Behavior Tree
+
+Behavior trees form an API to everything AI/behavior related. They consist of nodes ordered in a strong hierarchical form.
+
+Nodes run isolated code to either read or write values from/to the game world. Each behavior tree can be run by multiple
+ `Actors`. To keep the internal state of the tree for each actor, nodes are not run directly. Instead for each node to run
+ by an `Actor`, the node creates a `Task`.
+
+`Tasks` are scheduled in a way that they can inform parent `Tasks` using an observer pattern. The management of the
+state is maintained by an `Interpreter`.
+
+The `Interpreter` keeps a list of active `Tasks`. Tasks are considered active, when the currently return `RUNNING` state.
+Each tick, the `update` methods is called for all active tasks.
+
+`Nodes` are identified using behavior prefabs. There some general settings may be applied.
+
+## Example Node and Task
+
+<pre>
+import org.terasology.rendering.nui.properties.Range;
+
+public class TimerNode extends DecoratorNode {
+    @Range(min = 0, max = 20)
+    private float time;  // this becomes a slider in the property editor for this node
+
+    @Override
+    public Task createTask() {
+        // tasks are injected, so using @In is possible in the task class
+        return new TimerTask(this);
+    }
+
+    public static class TimerTask extends DecoratorTask {
+        private float remainingTime; // store state for this task
+
+        public TimerTask(Node node) {
+            super(node);
+        }
+
+        @Override
+        public void onInitialize() {
+            // is called once, directly before the first update() call
+
+            remainingTime = getNode().time; // init state
+            start(getNode().child); // start the associated child, if any
+        }
+
+        @Override
+        public Status update(float dt) {
+            // is called in each tick of the behavior tree, if this task remains active
+
+            remainingTime -= dt;
+            if (remainingTime <= 0) {
+                // once the time is up, this node stops with FAILURE
+                return Status.FAILURE;
+            }
+            return Status.RUNNING; // remain active otherwise
+        }
+
+        @Override
+        public void handle(Status result) {
+            // is called when the state of the started child node changes to SUCCESS or FAILURE
+
+            stop(result); // stop this task and all task, that were started within the task
+        }
+
+        @Override
+        public TimerNode getNode() {
+            return (TimerNode) super.getNode();
+        }
+    }
+}
+</pre>
+
+## Example node prefab
+
+<pre>
+{
+    "BehaviorNode" : {
+        "type"      : "TimerNode",
+        "name"      : "Timer",
+        "category"  : "logic",
+        "shape"     : "rect",
+        "description": "Decorator\nStarts the decorated node.\nSUCCESS: as soon as decorated node finishes with SUCCESS.\nFAILURE: after x seconds.",
+        "color"     : [0.7, 0.7, 0.7],
+        "textColor" : [  0,   0,   0]
+    }
+}
+</pre>
+
+## Behavior nodes
+
+### `Counter` *Decorator*
+Starts child a limit number of times.
+
+`SUCCESS`: when child finished with `SUCCESS`n times.
+`FAILURE`: as soon as child finishes with `FAILURE`.
+
+### `Inverter` *Decorator*
+Inverts the child.
+
+`SUCCESS`: when child finishes `FAILURE`.
+`FAILURE`: when child finishes `SUCCESS`.
+
+### `Lookup` *Decorator*
+Node that runs a behavior tree.
+
+`SUCCESS`: when tree finishes with `SUCCESS`.
+`FAILURE`: when tree finishes with `FAILURE`.
+
+### `Monitor` *Parallel*
+
+`SUCCESS`: as soon as one child node finishes SUCCESS
+`FAILURE`: as soon as one child node finishes `FAILURE`.
+
+### `Parallel` *Composite*
+All children are evaluated in parallel. Policies for success and failure will define when this node finishes and in which state.
+
+`SUCCESS`: when success policy is fulfilled (one or all children `SUCCESS`).
+`FAILURE`, when failure policy is fulfilled (one or all children `FAILURE`).
+
+### `Repeat` *Decorator*
+Repeats the child node forever.
+
+`SUCCESS`: Never.
+`FAILURE`: as soon as decorated node finishes with `FAILURE`.
+
+### `Selector` *Composite*
+Evaluates the children one by one.
+Starts next child, if previous child finishes with `FAILURE`.
+
+`SUCCESS`: as soon as a child finishes `SUCCESS`.
+`FAILURE`: when all children finished with `FAILURE`.
+
+### `Sequence` *Composite*
+Evaluates the children one by one.
+Starts next child, if previous child finishes with `SUCCESS`.
+
+`SUCCESS`: when all children finishes `SUCCESS`.
+`FAILURE`: as soon as a child finished with `FAILURE`.
+
+### `Timer` *Decorator*
+Starts the decorated node.
+
+`SUCCESS`: as soon as decorated node finishes with `SUCCESS`.
+`FAILURE`: after x seconds.
+
+### `Wrapper` *Decorator*
+Always finishes with `SUCCESS`.
+
+### `PlaySound`
+*Properties*: `sound`, `volume`
+
+`SUCCESS`: when sound has started playing.
+`FAILURE`: otherwise
