@@ -18,9 +18,13 @@ package org.terasology.navgraph;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.terasology.TextWorldBuilder;
+import org.terasology.WorldProvidingHeadlessEnvironment;
+import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
+import org.terasology.engine.SimpleUri;
 import org.terasology.math.Vector3i;
 import org.terasology.pathfinding.PathfinderTestGenerator;
-import org.terasology.pathfinding.TestHelper;
+import org.terasology.registry.CoreRegistry;
 import org.terasology.world.WorldProvider;
 
 import java.util.HashSet;
@@ -50,7 +54,7 @@ public class ConnectNavGraphChunkTest {
     };
 
     private WorldProvider world;
-    private TestHelper helper;
+    private TextWorldBuilder builder;
 
     @Test
     public void test1() {
@@ -116,9 +120,15 @@ public class ConnectNavGraphChunkTest {
 
     @Before
     public void setup() {
-        helper = new TestHelper();
-        helper.init(new PathfinderTestGenerator());
-        world = helper.world;
+        WorldProvidingHeadlessEnvironment env = new WorldProvidingHeadlessEnvironment();
+        env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
+            @Override
+            public void initialize() {
+                register(new PathfinderTestGenerator());
+            }
+        });
+        builder = new TextWorldBuilder(env);
+        world = CoreRegistry.get(WorldProvider.class);
     }
 
     private void assertCenter(final NavGraphChunk center, NavGraphChunk left, NavGraphChunk up, NavGraphChunk right, NavGraphChunk down, String[] contours) {
@@ -130,7 +140,7 @@ public class ConnectNavGraphChunkTest {
         assertSet(centerFloor.getNeighborRegions(), upFloor, leftFloor, rightFloor, downFloor);
 
         if (contours != null) {
-            String[] actual = helper.evaluate(new TestHelper.Runner() {
+            String[] actual = builder.evaluate(new TextWorldBuilder.Runner() {
                 @Override
                 public char run(int x, int y, int z, char value) {
                     return isEntrance(center.getCell(x, z).getBlock(y)) ? 'C' : ' ';

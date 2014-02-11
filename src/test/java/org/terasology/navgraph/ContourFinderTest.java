@@ -17,7 +17,13 @@ package org.terasology.navgraph;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.terasology.pathfinding.TestHelper;
+import org.terasology.TextWorldBuilder;
+import org.terasology.WorldProvidingHeadlessEnvironment;
+import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
+import org.terasology.engine.SimpleUri;
+import org.terasology.math.Vector3i;
+import org.terasology.registry.CoreRegistry;
+import org.terasology.world.WorldProvider;
 
 /**
  * @author synopia
@@ -411,24 +417,31 @@ public class ContourFinderTest {
     }
 
     private void assertContour(String[] ground, String[] contour) {
-        final TestHelper helper = new TestHelper();
-        helper.init();
-        helper.setGround(ground);
-        helper.run();
+        WorldProvidingHeadlessEnvironment env = new WorldProvidingHeadlessEnvironment();
+        env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
+            @Override
+            public void initialize() {
 
-        helper.parse(new TestHelper.Runner() {
+            }
+        });
+        TextWorldBuilder builder = new TextWorldBuilder(env);
+        builder.setGround(ground);
+        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+        chunk.update();
+
+        builder.parse(new TextWorldBuilder.Runner() {
             @Override
             public char run(int x, int y, int z, char value) {
                 if (value == 'C') {
-                    helper.map.getBlock(x, y, z).floor.setEntrance(x, z);
+                    chunk.getBlock(x, y, z).floor.setEntrance(x, z);
                 }
                 return 0;
             }
         }, contour);
-        String[] actual = helper.evaluate(new TestHelper.Runner() {
+        String[] actual = builder.evaluate(new TextWorldBuilder.Runner() {
             @Override
             public char run(int x, int y, int z, char value) {
-                WalkableBlock block = helper.map.getBlock(x, y, z);
+                WalkableBlock block = chunk.getBlock(x, y, z);
                 if (block == null) {
                     return ' ';
                 }

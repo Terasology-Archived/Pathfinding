@@ -245,8 +245,10 @@ public class WorkBoard implements ComponentSystem, UpdateSubscriberSystem {
         @Override
         public void enact() {
             WorkTargetComponent component = target.getComponent(WorkTargetComponent.class);
-            WorkType workType = getWorkType(component.getWork());
-            workType.update(target);
+            if (component != null) {
+                WorkType workType = getWorkType(component.getWork());
+                workType.update(target);
+            }
         }
 
         @Override

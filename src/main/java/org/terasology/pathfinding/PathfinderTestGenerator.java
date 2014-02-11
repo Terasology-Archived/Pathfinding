@@ -31,8 +31,8 @@ import java.util.Map;
  * @author synopia
  */
 public class PathfinderTestGenerator implements FirstPassGenerator {
-    public Block air = BlockManager.getAir();
-    public Block ground = CoreRegistry.get(BlockManager.class).getBlock("core:Dirt");
+    public Block air;
+    public Block ground;
     public boolean generateStairs;
     public boolean openStairs;
 
@@ -51,6 +51,9 @@ public class PathfinderTestGenerator implements FirstPassGenerator {
 
     @Override
     public void generateChunk(Chunk chunk) {
+        air = BlockManager.getAir();
+        ground = CoreRegistry.get(BlockManager.class).getBlock("core:Dirt");
+
         generateLevel(chunk, 50);
 
         generateLevel(chunk, 45);

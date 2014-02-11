@@ -16,27 +16,36 @@
 package org.terasology.navgraph;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
-import org.terasology.pathfinding.TestHelper;
+import org.terasology.TextWorldBuilder;
+import org.terasology.WorldProvidingHeadlessEnvironment;
+import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
+import org.terasology.engine.SimpleUri;
+import org.terasology.math.Vector3i;
+import org.terasology.registry.CoreRegistry;
+import org.terasology.world.WorldProvider;
 
 /**
  * @author synopia
  */
 public class WalkableBlockFinderTest {
+
+    private TextWorldBuilder builder;
+
     @Test
     public void testNeighbors4() {
-        TestHelper helper = new TestHelper();
-        helper.init();
-
-        helper.setGround(
+        builder.setGround(
                 "XXX|   |   |",
                 "XXX|X  |X  |",
                 "XXX|   |   |"
         );
-        helper.map.update();
-        WalkableBlock sut = helper.map.getBlock(1, 0, 1);
-        WalkableBlock lu = helper.map.getBlock(0, 0, 0);
-        WalkableBlock ld = helper.map.getBlock(0, 0, 2);
+        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+        chunk.update();
+
+        WalkableBlock sut = chunk.getBlock(1, 0, 1);
+        WalkableBlock lu = chunk.getBlock(0, 0, 0);
+        WalkableBlock ld = chunk.getBlock(0, 0, 2);
 
         Assert.assertFalse(sut.hasNeighbor(lu));
         Assert.assertFalse(sut.hasNeighbor(ld));
@@ -44,18 +53,17 @@ public class WalkableBlockFinderTest {
 
     @Test
     public void testNeighbors3() {
-        TestHelper helper = new TestHelper();
-        helper.init();
-
-        helper.setGround(
+        builder.setGround(
                 "XXXXXX|      |      |      |XXXXXX|",
                 "XX    |  X   |   X  |    X |  X  X|",
                 "XX    |  X   |   X  |    X |  X  X|",
                 "XXXXXX|      |      |      |XXXXXX|"
         );
-        helper.map.update();
-        WalkableBlock left = helper.map.getBlock(2, 1, 1);
-        WalkableBlock right = helper.map.getBlock(3, 2, 1);
+        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+        chunk.update();
+
+        WalkableBlock left = chunk.getBlock(2, 1, 1);
+        WalkableBlock right = chunk.getBlock(3, 2, 1);
 
         Assert.assertFalse(left.hasNeighbor(right));
         Assert.assertFalse(right.hasNeighbor(left));
@@ -63,23 +71,18 @@ public class WalkableBlockFinderTest {
 
     @Test
     public void testNeighbors2() {
-        TestHelper helper = new TestHelper();
-        helper.init();
-
-        helper.setGround(
+        builder.setGround(
                 " X ",
                 "X X",
                 " X "
-//                "XXXXXX|      |      |XXXXXX|",
-//                "XX    |  X   |   X  |    XX|",
-//                "XX    |  X   |   X  |    XX|",
-//                "XXXXXX|      |      |XXXXXX|"
         );
-        helper.map.update();
-        WalkableBlock left = helper.map.getBlock(0, 0, 1);
-        WalkableBlock up = helper.map.getBlock(1, 0, 0);
-        WalkableBlock right = helper.map.getBlock(2, 0, 1);
-        WalkableBlock down = helper.map.getBlock(1, 0, 2);
+        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+        chunk.update();
+
+        WalkableBlock left = chunk.getBlock(0, 0, 1);
+        WalkableBlock up = chunk.getBlock(1, 0, 0);
+        WalkableBlock right = chunk.getBlock(2, 0, 1);
+        WalkableBlock down = chunk.getBlock(1, 0, 2);
 
         Assert.assertTrue(left.hasNeighbor(up));
         Assert.assertTrue(left.hasNeighbor(down));
@@ -99,7 +102,7 @@ public class WalkableBlockFinderTest {
     }
 
     @Test
-    public void testFind() {
+    public void testFind1() {
         assertWalkableBlocks(new String[]{
                 "XXX",
                 "XXX",
@@ -109,6 +112,10 @@ public class WalkableBlockFinderTest {
                 "XXX",
                 "XXX"
         });
+    }
+
+    @Test
+    public void testFind2() {
         assertWalkableBlocks(new String[]{
                 "XXX|   |   |XXX",
                 "XXX|   |   |XXX",
@@ -118,6 +125,10 @@ public class WalkableBlockFinderTest {
                 "XXX|   |   |XXX",
                 "XXX|   |   |XXX"
         });
+    }
+
+    @Test
+    public void testFind3() {
         assertWalkableBlocks(new String[]{
                 "XXX|   |XXX",
                 "XXX|   |XXX",
@@ -127,6 +138,10 @@ public class WalkableBlockFinderTest {
                 "   |   |XXX",
                 "   |   |XXX"
         });
+    }
+
+    @Test
+    public void testFind4() {
         assertWalkableBlocks(new String[]{
                 "XXX|   |XXX",
                 "XXX|   |X X",
@@ -163,22 +178,20 @@ public class WalkableBlockFinderTest {
     }
 
     private void assertNeighbors3x3(String... data) {
-        final TestHelper helper = new TestHelper();
-        helper.init();
+        builder.setGround(data);
+        WalkableBlockFinder finder = new WalkableBlockFinder(CoreRegistry.get(WorldProvider.class));
+        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+        finder.findWalkableBlocks(chunk);
 
-        helper.setGround(data);
-        WalkableBlockFinder finder = new WalkableBlockFinder(helper.world);
-        finder.findWalkableBlocks(helper.map);
-
-        WalkableBlock lu = helper.map.getCell(0, 0).blocks.get(0);
-        WalkableBlock up = helper.map.getCell(1, 0).blocks.get(0);
-        WalkableBlock ru = helper.map.getCell(2, 0).blocks.get(0);
-        WalkableBlock left = helper.map.getCell(0, 1).blocks.get(0);
-        WalkableBlock center = helper.map.getCell(1, 1).blocks.get(0);
-        WalkableBlock right = helper.map.getCell(2, 1).blocks.get(0);
-        WalkableBlock ld = helper.map.getCell(0, 2).blocks.get(0);
-        WalkableBlock down = helper.map.getCell(1, 2).blocks.get(0);
-        WalkableBlock rd = helper.map.getCell(2, 2).blocks.get(0);
+        WalkableBlock lu = chunk.getCell(0, 0).blocks.get(0);
+        WalkableBlock up = chunk.getCell(1, 0).blocks.get(0);
+        WalkableBlock ru = chunk.getCell(2, 0).blocks.get(0);
+        WalkableBlock left = chunk.getCell(0, 1).blocks.get(0);
+        WalkableBlock center = chunk.getCell(1, 1).blocks.get(0);
+        WalkableBlock right = chunk.getCell(2, 1).blocks.get(0);
+        WalkableBlock ld = chunk.getCell(0, 2).blocks.get(0);
+        WalkableBlock down = chunk.getCell(1, 2).blocks.get(0);
+        WalkableBlock rd = chunk.getCell(2, 2).blocks.get(0);
 
         assertNeighbors(lu, null, null, up, left);
         assertNeighbors(up, lu, null, ru, center);
@@ -199,21 +212,31 @@ public class WalkableBlockFinderTest {
     }
 
     private void assertWalkableBlocks(String[] data, String[] walkable) {
-        final TestHelper helper = new TestHelper();
-        helper.init();
+        builder.setGround(data);
+        WalkableBlockFinder finder = new WalkableBlockFinder(CoreRegistry.get(WorldProvider.class));
+        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+        finder.findWalkableBlocks(chunk);
 
-        helper.setGround(data);
-        WalkableBlockFinder finder = new WalkableBlockFinder(helper.world);
-        finder.findWalkableBlocks(helper.map);
-
-        String[] evaluate = helper.evaluate(new TestHelper.Runner() {
+        String[] evaluate = builder.evaluate(new TextWorldBuilder.Runner() {
             @Override
             public char run(int x, int y, int z, char value) {
-                return helper.map.getBlock(x, y, z) == null ? ' ' : 'X';
+                return chunk.getBlock(x, y, z) == null ? ' ' : 'X';
             }
         });
 
         Assert.assertArrayEquals(walkable, evaluate);
 
+    }
+
+    @Before
+    public void setup() {
+        WorldProvidingHeadlessEnvironment env = new WorldProvidingHeadlessEnvironment();
+        env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
+            @Override
+            public void initialize() {
+
+            }
+        });
+        builder = new TextWorldBuilder(env);
     }
 }

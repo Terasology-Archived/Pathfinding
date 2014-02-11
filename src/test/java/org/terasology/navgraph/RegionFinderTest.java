@@ -17,7 +17,13 @@ package org.terasology.navgraph;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.terasology.pathfinding.TestHelper;
+import org.terasology.TextWorldBuilder;
+import org.terasology.WorldProvidingHeadlessEnvironment;
+import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
+import org.terasology.engine.SimpleUri;
+import org.terasology.math.Vector3i;
+import org.terasology.registry.CoreRegistry;
+import org.terasology.world.WorldProvider;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -149,19 +155,23 @@ public class RegionFinderTest {
     }
 
     private void assertRegions(String[] data, String[] regions, int[][] connections) {
-        final TestHelper helper = new TestHelper();
-        helper.init();
+        WorldProvidingHeadlessEnvironment env = new WorldProvidingHeadlessEnvironment();
+        env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
+            @Override
+            public void initialize() {
 
-        helper.setGround(
-                data
-        );
-        new WalkableBlockFinder(helper.world).findWalkableBlocks(helper.map);
+            }
+        });
+        TextWorldBuilder builder = new TextWorldBuilder(env);
+        builder.setGround(data);
+        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+        new WalkableBlockFinder(CoreRegistry.get(WorldProvider.class)).findWalkableBlocks(chunk);
         final FloorFinder finder = new FloorFinder();
-        finder.findRegions(helper.map);
-        String[] actual = helper.evaluate(new TestHelper.Runner() {
+        finder.findRegions(chunk);
+        String[] actual = builder.evaluate(new TextWorldBuilder.Runner() {
             @Override
             public char run(int x, int y, int z, char value) {
-                WalkableBlock block = helper.map.getBlock(x, y, z);
+                WalkableBlock block = chunk.getBlock(x, y, z);
                 if (block != null) {
                     Region region = finder.region(block);
                     return (char) ('0' + region.id);

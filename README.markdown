@@ -9,7 +9,7 @@ https://cacoo.com/diagrams/huo1Fw2Xvwfy6q1N
 To start operating, several preconditions must be fulfilled (most commonly this is the exact positions to operate). The
  definition of those preconditions and the process itself is done in a `WorkType`.
 
-A `WorkType` is a component system which registers itself to the `WorkFactory`. So, modules can bring their own job
+A `WorkType` is a component system which registers itself to the `WorkFactory`. So, modules can bring their own work
  type implementations into the system.
 
 The central system of the work module is the `WorkBoard`. This systems manages all the work.

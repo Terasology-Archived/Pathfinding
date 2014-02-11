@@ -18,6 +18,10 @@ package org.terasology.pathfinding;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.terasology.TextWorldBuilder;
+import org.terasology.WorldProvidingHeadlessEnvironment;
+import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
+import org.terasology.engine.SimpleUri;
 import org.terasology.math.Vector3i;
 import org.terasology.navgraph.NavGraphChunk;
 import org.terasology.navgraph.NavGraphSystem;
@@ -31,8 +35,8 @@ import org.terasology.registry.InjectionHelper;
  */
 public class PathfinderTest {
     private Pathfinder pathfinder;
-    private TestHelper helper;
     private NavGraphSystem world;
+    private TextWorldBuilder builder;
 
     @Test
     public void test() {
@@ -49,12 +53,12 @@ public class PathfinderTest {
         Path path = pathfinder.findPath(world.getBlock(new Vector3i(14 + 16, 45, 12)), world.getBlock(new Vector3i(0, 51, 1)));
         Assert.assertEquals(0, path.size());
 
-        helper.setAir(7, 50, 7);
-        helper.setAir(7, 50, 8);
-        helper.setAir(NavGraphChunk.SIZE_X - 1, 47, 7);
-        helper.setAir(NavGraphChunk.SIZE_X - 1, 47, 8);
-        helper.setAir(NavGraphChunk.SIZE_X, 47, 7);
-        helper.setAir(NavGraphChunk.SIZE_X, 47, 8);
+        builder.setAir(7, 50, 7);
+        builder.setAir(7, 50, 8);
+        builder.setAir(NavGraphChunk.SIZE_X - 1, 47, 7);
+        builder.setAir(NavGraphChunk.SIZE_X - 1, 47, 8);
+        builder.setAir(NavGraphChunk.SIZE_X, 47, 7);
+        builder.setAir(NavGraphChunk.SIZE_X, 47, 8);
 
 
         world.updateChunk(new Vector3i(0, 0, 0));
@@ -87,8 +91,8 @@ public class PathfinderTest {
         Path path = pathfinder.findPath(targetBlock, startBlock);
         Assert.assertEquals(0, path.size());
 
-        helper.setAir(x + 7, 50, z + 7);
-        helper.setAir(x + 7, 50, z + 8);
+        builder.setAir(x + 7, 50, z + 7);
+        builder.setAir(x + 7, 50, z + 8);
 
         world.updateChunk(new Vector3i(chunkX, 0, chunkZ));
         pathfinder.clearCache();
@@ -98,8 +102,15 @@ public class PathfinderTest {
 
     @Before
     public void setup() {
-        helper = new TestHelper();
-        helper.init(new PathfinderTestGenerator(true));
+        WorldProvidingHeadlessEnvironment env = new WorldProvidingHeadlessEnvironment();
+        env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
+            @Override
+            public void initialize() {
+                register(new PathfinderTestGenerator(true));
+            }
+        });
+        builder = new TextWorldBuilder(env);
+
         world = new NavGraphSystem();
         InjectionHelper.inject(world);
 

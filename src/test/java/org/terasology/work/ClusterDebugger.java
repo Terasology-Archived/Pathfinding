@@ -17,36 +17,26 @@ package org.terasology.work;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Sets;
+import org.terasology.WorldProvidingHeadlessEnvironment;
+import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
 import org.terasology.engine.ComponentSystemManager;
+import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.entity.internal.EngineEntityManager;
-import org.terasology.entitySystem.entity.internal.PojoEntityManager;
-import org.terasology.entitySystem.event.internal.EventSystem;
-import org.terasology.entitySystem.event.internal.EventSystemImpl;
-import org.terasology.entitySystem.metadata.ComponentLibrary;
-import org.terasology.entitySystem.metadata.EntitySystemLibrary;
-import org.terasology.entitySystem.prefab.internal.PojoPrefabManager;
-import org.terasology.entitySystem.systems.ComponentSystem;
+import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.math.Vector3i;
+import org.terasology.monitoring.PerformanceMonitor;
 import org.terasology.navgraph.Entrance;
 import org.terasology.navgraph.Floor;
 import org.terasology.navgraph.NavGraphSystem;
 import org.terasology.navgraph.WalkableBlock;
-import org.terasology.network.NetworkMode;
-import org.terasology.network.NetworkSystem;
 import org.terasology.pathfinding.PathfinderTestGenerator;
-import org.terasology.pathfinding.TestHelper;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
-import org.terasology.persistence.typeSerialization.TypeSerializationLibrary;
-import org.terasology.reflection.copy.CopyStrategyLibrary;
-import org.terasology.reflection.reflect.ReflectFactory;
-import org.terasology.reflection.reflect.ReflectionReflectFactory;
 import org.terasology.registry.CoreRegistry;
-import org.terasology.registry.InjectionHelper;
 import org.terasology.rendering.nui.properties.OneOfProviderFactory;
 import org.terasology.work.kmeans.Cluster;
 import org.terasology.work.systems.WalkToBlock;
+import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockComponent;
 
 import javax.swing.JFrame;
@@ -64,42 +54,45 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 /**
  * @author synopia
  */
 public class ClusterDebugger extends JFrame {
-    private TestHelper helper;
+    private WorldProvidingHeadlessEnvironment env;
     private final int mapWidth;
     private final int mapHeight;
     private int level;
     private WalkableBlock hovered;
     private NavGraphSystem world;
     private Cluster rootCluster;
-    private PojoEntityManager entityManager;
+    private EntityManager entityManager;
     private WalkToBlock walkToBlock;
     private int distanceChecks;
     private Vector3i nearest;
     private Vector3i target;
     private final WorkBoard workBoard;
-    private ComponentSystemManager componentSystemManager;
 
     public ClusterDebugger() throws HeadlessException {
-        setup();
+        env = new WorldProvidingHeadlessEnvironment();
+        env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
+            @Override
+            public void initialize() {
+                register(new PathfinderTestGenerator(true, true));
+            }
+        });
+        env.registerBlock("Core:Dirt", new Block(), false);
+
+        entityManager = CoreRegistry.get(EntityManager.class);
         mapWidth = 160;
         mapHeight = 100;
-        helper = new TestHelper();
 
-//        helper.init(new MazeChunkGenerator(mapWidth, mapHeight, 4, 0, 20));
-        helper.init(new PathfinderTestGenerator(true, true));
+        world = new NavGraphSystem();
+        CoreRegistry.get(ComponentSystemManager.class).register(world);
+        CoreRegistry.get(ComponentSystemManager.class).register(new PathfinderSystem());
+        CoreRegistry.put(OneOfProviderFactory.class, new OneOfProviderFactory());
 
-        world = start(NavGraphSystem.class, new NavGraphSystem());
-        start(OneOfProviderFactory.class, new OneOfProviderFactory());
-        PathfinderSystem pathfinderSystem = start(PathfinderSystem.class, new PathfinderSystem());
-
-        workBoard = start(WorkBoard.class, new WorkBoard());
+        workBoard = new WorkBoard();
+        CoreRegistry.get(ComponentSystemManager.class).register(workBoard);
 
         for (int x = 0; x < mapWidth / 16 + 1; x++) {
             for (int z = 0; z < mapHeight / 16 + 1; z++) {
@@ -121,35 +114,13 @@ public class ClusterDebugger extends JFrame {
                 return 0;
             }
         });
-        start(WorkFactory.class, new WorkFactory());
-        walkToBlock = start(WalkToBlock.class, new WalkToBlock());
+
+        CoreRegistry.get(ComponentSystemManager.class).register(new WorkFactory());
+
+        walkToBlock = new WalkToBlock();
+        CoreRegistry.get(ComponentSystemManager.class).register(walkToBlock);
 
         add(new DebugPanel());
-    }
-
-    private void setup() {
-        ReflectFactory reflectFactory = new ReflectionReflectFactory();
-        CopyStrategyLibrary copyStrategies = new CopyStrategyLibrary(reflectFactory);
-        TypeSerializationLibrary serializationLibrary = new TypeSerializationLibrary(reflectFactory, copyStrategies);
-
-        EntitySystemLibrary entitySystemLibrary = new EntitySystemLibrary(reflectFactory, copyStrategies, serializationLibrary);
-        ComponentLibrary compLibrary = entitySystemLibrary.getComponentLibrary();
-        entityManager = new PojoEntityManager();
-        entityManager.setEntitySystemLibrary(entitySystemLibrary);
-        entityManager.setPrefabManager(new PojoPrefabManager());
-        NetworkSystem networkSystem = mock(NetworkSystem.class);
-        when(networkSystem.getMode()).thenReturn(NetworkMode.NONE);
-        EventSystem eventSystem = new EventSystemImpl(entitySystemLibrary.getEventLibrary(), networkSystem);
-        entityManager.setEventSystem(eventSystem);
-
-        componentSystemManager = new ComponentSystemManager();
-        componentSystemManager.initialise();
-
-        CoreRegistry.put(ComponentSystemManager.class, componentSystemManager);
-        CoreRegistry.put(EngineEntityManager.class, entityManager);
-        CoreRegistry.put(EntityManager.class, entityManager);
-        CoreRegistry.put(NetworkSystem.class, networkSystem);
-        CoreRegistry.put(EventSystem.class, eventSystem);
     }
 
     private boolean isEntrance(WalkableBlock block) {
@@ -164,7 +135,7 @@ public class ClusterDebugger extends JFrame {
     }
 
     public static void main(String[] args) {
-        ClusterDebugger debugger = new ClusterDebugger();
+        final ClusterDebugger debugger = new ClusterDebugger();
         debugger.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         debugger.pack();
         debugger.setVisible(true);
@@ -181,24 +152,11 @@ public class ClusterDebugger extends JFrame {
 
     public void update(float dt) {
         entityManager.getEventSystem().process();
-        distanceChecks = 0;
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        Cluster cluster = workBoard.getWorkType(walkToBlock).getCluster();
-        if (cluster.hkMean()) {
-            System.out.println("kMean = " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms  n=" + cluster.getDistances().size() + " distance checks=" + distanceChecks);
-            repaint();
+        for (UpdateSubscriberSystem updater : CoreRegistry.get(ComponentSystemManager.class).iterateUpdateSubscribers()) {
+            PerformanceMonitor.startActivity(updater.getClass().getSimpleName());
+            updater.update(dt);
+            PerformanceMonitor.endActivity();
         }
-    }
-
-    private <T> T start(Class<T> type, T system) {
-        CoreRegistry.put(type, system);
-        InjectionHelper.inject(system);
-        if (system instanceof ComponentSystem) {
-            ComponentSystem componentSystem = (ComponentSystem) system;
-            entityManager.getEventSystem().registerEventHandler(componentSystem);
-            componentSystemManager.register(componentSystem);
-        }
-        return system;
     }
 
     private final class DebugPanel extends JPanel {
@@ -275,7 +233,6 @@ public class ClusterDebugger extends JFrame {
                         Stopwatch stopwatch = Stopwatch.createStarted();
                         System.out.println("find nearest = " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms distance checks=" + distanceChecks);
                     }
-                    repaint();
                 }
             });
         }
@@ -358,7 +315,7 @@ public class ClusterDebugger extends JFrame {
 
             int id = 1;
             for (Cluster cluster : leafCluster) {
-                drawCluster(g, cluster, id, (float) id / leafCluster.size());
+                drawCluster(g, cluster, (float) id / leafCluster.size());
                 id++;
             }
             if (nearest != null) {
@@ -369,7 +326,7 @@ public class ClusterDebugger extends JFrame {
             }
         }
 
-        private void drawCluster(Graphics g, Cluster parent, int id, float color) {
+        private void drawCluster(Graphics g, Cluster parent, float color) {
             Map<Vector3i, Cluster.Distance> distances = parent.getDistances();
             Color col = new Color(color, color, color);
             for (Map.Entry<Vector3i, Cluster.Distance> entry : distances.entrySet()) {

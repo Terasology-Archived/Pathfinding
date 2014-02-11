@@ -16,8 +16,10 @@
 package org.terasology.pathfinding;
 
 import com.google.common.collect.Sets;
-import org.terasology.entitySystem.entity.EntityManager;
-import org.terasology.entitySystem.entity.internal.PojoEntityManager;
+import org.terasology.WorldProvidingHeadlessEnvironment;
+import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
+import org.terasology.engine.ComponentSystemManager;
+import org.terasology.engine.SimpleUri;
 import org.terasology.math.Vector3i;
 import org.terasology.navgraph.Entrance;
 import org.terasology.navgraph.Floor;
@@ -28,10 +30,13 @@ import org.terasology.pathfinding.model.LineOfSight;
 import org.terasology.pathfinding.model.LineOfSight2d;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.registry.CoreRegistry;
-import org.terasology.registry.InjectionHelper;
+import org.terasology.world.block.Block;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.HeadlessException;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -42,7 +47,7 @@ import java.util.Set;
  * @author synopia
  */
 public class PathDebugger extends JFrame {
-    private TestHelper helper;
+    private WorldProvidingHeadlessEnvironment env;
     private final int mapWidth;
     private final int mapHeight;
     private int level;
@@ -52,37 +57,34 @@ public class PathDebugger extends JFrame {
     private Path path;
     private final NavGraphSystem world;
     private boolean isSight;
-    private final EntityManager entityManager;
     private final PathfinderSystem pathfinderSystem;
     private LineOfSight lineOfSight;
 
     public PathDebugger() throws HeadlessException {
-        entityManager = new PojoEntityManager();
+        env = new WorldProvidingHeadlessEnvironment();
+        env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
+            @Override
+            public void initialize() {
+                register(new PathfinderTestGenerator(true, true));
+            }
+        });
+        env.registerBlock("Core:Dirt", new Block(), false);
 
         mapWidth = 160;
         mapHeight = 100;
-        helper = new TestHelper();
-//        helper.init(new MazeChunkGenerator(mapWidth, mapHeight, 4, 0, 20));
-        helper.init(new PathfinderTestGenerator(true, true));
 
-        CoreRegistry.put(EntityManager.class, entityManager);
         world = new NavGraphSystem();
-        InjectionHelper.inject(world);
-        world.initialise();
+        CoreRegistry.get(ComponentSystemManager.class).register(world);
 
         lineOfSight = new LineOfSight2d();
-        InjectionHelper.inject(lineOfSight);
-        lineOfSight.initialise();
-        CoreRegistry.put(LineOfSight.class, lineOfSight);
+        CoreRegistry.get(ComponentSystemManager.class).register(lineOfSight);
 
         pathfinderSystem = new PathfinderSystem();
-        InjectionHelper.inject(pathfinderSystem);
-        pathfinderSystem.initialise();
-
+        CoreRegistry.get(ComponentSystemManager.class).register(pathfinderSystem);
 
         for (int x = 0; x < mapWidth / 16 + 1; x++) {
             for (int z = 0; z < mapHeight / 16 + 1; z++) {
-                world.updateChunk(new Vector3i(x, 0, z));
+                this.world.updateChunk(new Vector3i(x, 0, z));
             }
         }
         level = 45;

@@ -17,7 +17,13 @@ package org.terasology.navgraph;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.terasology.pathfinding.TestHelper;
+import org.terasology.TextWorldBuilder;
+import org.terasology.WorldProvidingHeadlessEnvironment;
+import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
+import org.terasology.engine.SimpleUri;
+import org.terasology.math.Vector3i;
+import org.terasology.registry.CoreRegistry;
+import org.terasology.world.WorldProvider;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -307,19 +313,25 @@ public class FloorFinderTest {
     }
 
     private void assertFloors(String[] data, String[] floors, String[] contour, int[][] connections) {
-        final TestHelper helper = new TestHelper();
-        helper.init();
-        helper.setGround(
-                data
-        );
-        new WalkableBlockFinder(helper.world).findWalkableBlocks(helper.map);
+        WorldProvidingHeadlessEnvironment env = new WorldProvidingHeadlessEnvironment();
+        env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
+            @Override
+            public void initialize() {
+
+            }
+        });
+        TextWorldBuilder builder = new TextWorldBuilder(env);
+        builder.setGround(data);
+        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+
+        new WalkableBlockFinder(CoreRegistry.get(WorldProvider.class)).findWalkableBlocks(chunk);
         final FloorFinder finder = new FloorFinder();
-        finder.findFloors(helper.map);
-        helper.map.findContour();
-        String[] actual = helper.evaluate(new TestHelper.Runner() {
+        finder.findFloors(chunk);
+        chunk.findContour();
+        String[] actual = builder.evaluate(new TextWorldBuilder.Runner() {
             @Override
             public char run(int x, int y, int z, char value) {
-                WalkableBlock block = helper.map.getBlock(x, y, z);
+                WalkableBlock block = chunk.getBlock(x, y, z);
                 if (block != null) {
                     return (char) ('0' + block.floor.id);
                 }
@@ -328,10 +340,10 @@ public class FloorFinderTest {
         });
         Assert.assertArrayEquals(floors, actual);
         if (contour != null) {
-            actual = helper.evaluate(new TestHelper.Runner() {
+            actual = builder.evaluate(new TextWorldBuilder.Runner() {
                 @Override
                 public char run(int x, int y, int z, char value) {
-                    WalkableBlock block = helper.map.getBlock(x, y, z);
+                    WalkableBlock block = chunk.getBlock(x, y, z);
                     if (block != null) {
                         if (block.floor.isEntrance(block)) {
                             return 'C';
@@ -344,7 +356,7 @@ public class FloorFinderTest {
             Assert.assertArrayEquals(contour, actual);
         }
         if (connections != null) {
-            for (Floor floor : helper.map.floors) {
+            for (Floor floor : chunk.floors) {
                 Set<Integer> all = new HashSet<Integer>();
                 for (Floor neighbor : floor.getNeighborRegions()) {
                     all.add(neighbor.id);

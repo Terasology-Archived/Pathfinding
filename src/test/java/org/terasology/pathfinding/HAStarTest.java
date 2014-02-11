@@ -17,10 +17,17 @@ package org.terasology.pathfinding;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.terasology.TextWorldBuilder;
+import org.terasology.WorldProvidingHeadlessEnvironment;
+import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
+import org.terasology.engine.SimpleUri;
 import org.terasology.math.Vector3i;
+import org.terasology.navgraph.NavGraphChunk;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.model.HAStar;
 import org.terasology.pathfinding.model.LineOfSight;
+import org.terasology.registry.CoreRegistry;
+import org.terasology.world.WorldProvider;
 
 import java.util.HashMap;
 import java.util.List;
@@ -109,32 +116,39 @@ public class HAStarTest {
     }
 
     private void executeExample(String[] ground, String[] pathData) {
-        final TestHelper helper = new TestHelper();
-        helper.init();
+        WorldProvidingHeadlessEnvironment env = new WorldProvidingHeadlessEnvironment();
+        env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
+            @Override
+            public void initialize() {
 
-        helper.setGround(ground);
-        helper.map.update();
+            }
+        });
+        TextWorldBuilder builder = new TextWorldBuilder(env);
+        builder.setGround(ground);
+        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+        chunk.update();
+
         final Map<Integer, Vector3i> expected = new HashMap<Integer, Vector3i>();
-        helper.parse(new TestHelper.Runner() {
+        builder.parse(new TextWorldBuilder.Runner() {
             @Override
             public char run(int x, int y, int z, char value) {
 
                 switch (value) {
                     case '?':
-                        start = helper.map.getBlock(x, y, z);
+                        start = chunk.getBlock(x, y, z);
                         break;
                     case '!':
-                        end = helper.map.getBlock(x, y, z);
+                        end = chunk.getBlock(x, y, z);
                         break;
                     default:
                         if (value == '0') {
-                            expected.put(10, helper.map.getBlock(x, y, z).getBlockPosition());
+                            expected.put(10, chunk.getBlock(x, y, z).getBlockPosition());
                         } else if (value > '0' && value <= '9') {
-                            expected.put(value - '0', helper.map.getBlock(x, y, z).getBlockPosition());
+                            expected.put(value - '0', chunk.getBlock(x, y, z).getBlockPosition());
                         } else if (value >= 'a' && value <= 'z') {
-                            expected.put(value - 'a' + 11, helper.map.getBlock(x, y, z).getBlockPosition());
+                            expected.put(value - 'a' + 11, chunk.getBlock(x, y, z).getBlockPosition());
                         } else if (value >= 'A' && value <= 'Z') {
-                            expected.put(value - 'A' + 11 + 27, helper.map.getBlock(x, y, z).getBlockPosition());
+                            expected.put(value - 'A' + 11 + 27, chunk.getBlock(x, y, z).getBlockPosition());
                         }
                         break;
                 }
