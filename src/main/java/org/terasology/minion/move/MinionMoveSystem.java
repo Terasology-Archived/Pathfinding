@@ -24,7 +24,6 @@ import org.terasology.entitySystem.entity.lifecycleEvents.OnAddedComponent;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.logic.characters.CharacterMoveInputEvent;
 import org.terasology.logic.characters.CharacterMovementComponent;
 import org.terasology.logic.characters.events.HorizontalCollisionEvent;
 import org.terasology.logic.characters.events.OnEnterBlockEvent;
@@ -34,7 +33,6 @@ import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.registry.In;
 
-import javax.vecmath.Vector3f;
 import java.util.Set;
 
 /**
@@ -58,7 +56,7 @@ public class MinionMoveSystem implements ComponentSystem {
     @ReceiveEvent
     public void onCollision(HorizontalCollisionEvent event, EntityRef minion, CharacterMovementComponent movementComponent) {
         if (!movementComponent.jump) {
-            minion.send(new CharacterMoveInputEvent(0, 0, 0, new Vector3f(), false, true));
+//            minion.send(new CharacterMoveInputEvent(0, 0, 0, new Vector3f(), false, true));
         }
     }
 
