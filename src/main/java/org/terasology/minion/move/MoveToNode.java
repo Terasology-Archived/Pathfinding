@@ -15,8 +15,6 @@
  */
 package org.terasology.minion.move;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
@@ -48,8 +46,6 @@ public class MoveToNode extends Node {
     }
 
     public static class MoveToTask extends Task {
-        private static final Logger logger = LoggerFactory.getLogger(MoveToTask.class);
-
         public MoveToTask(MoveToNode node) {
             super(node);
         }

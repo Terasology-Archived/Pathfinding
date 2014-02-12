@@ -58,7 +58,7 @@ public class PathDebugger extends JFrame {
     private final NavGraphSystem world;
     private boolean isSight;
     private final PathfinderSystem pathfinderSystem;
-    private LineOfSight lineOfSight;
+    private transient LineOfSight lineOfSight;
 
     public PathDebugger() throws HeadlessException {
         env = new WorldProvidingHeadlessEnvironment();

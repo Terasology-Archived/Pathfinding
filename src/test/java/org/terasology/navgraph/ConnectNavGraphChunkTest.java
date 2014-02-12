@@ -34,7 +34,7 @@ import java.util.Set;
  * @author synopia
  */
 public class ConnectNavGraphChunkTest {
-    public static final String[] CONTOUR_EXPECTED = new String[]{
+    private static final String[] CONTOUR_EXPECTED = new String[]{
             "       C        ",
             "                ",
             "                ",

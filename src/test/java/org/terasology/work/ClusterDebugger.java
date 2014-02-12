@@ -15,7 +15,6 @@
  */
 package org.terasology.work;
 
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.Sets;
 import org.terasology.WorldProvidingHeadlessEnvironment;
 import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
@@ -41,7 +40,6 @@ import org.terasology.world.block.BlockComponent;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.vecmath.Vector3f;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.HeadlessException;
@@ -52,7 +50,6 @@ import java.awt.event.MouseWheelEvent;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author synopia
@@ -64,10 +61,8 @@ public class ClusterDebugger extends JFrame {
     private int level;
     private WalkableBlock hovered;
     private NavGraphSystem world;
-    private Cluster rootCluster;
     private EntityManager entityManager;
     private WalkToBlock walkToBlock;
-    private int distanceChecks;
     private Vector3i nearest;
     private Vector3i target;
     private final WorkBoard workBoard;
@@ -100,20 +95,6 @@ public class ClusterDebugger extends JFrame {
             }
         }
         level = 45;
-        rootCluster = new Cluster(8, 4, 1, new Cluster.DistanceFunction() {
-            @Override
-            public float distance(Vector3i element, Vector3f target) {
-                distanceChecks++;
-                Vector3f diff = element.toVector3f();
-                diff.sub(target);
-                return diff.length();
-            }
-
-            @Override
-            public float distance(Vector3i element, Vector3i target) {
-                return 0;
-            }
-        });
 
         CoreRegistry.get(ComponentSystemManager.class).register(new WorkFactory());
 
@@ -134,19 +115,15 @@ public class ClusterDebugger extends JFrame {
         return isEntrance;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         final ClusterDebugger debugger = new ClusterDebugger();
         debugger.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         debugger.pack();
         debugger.setVisible(true);
 
         while (true) {
-            try {
-                Thread.sleep(100);
-                debugger.update(0.1f);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            Thread.sleep(100);
+            debugger.update(0.1f);
         }
     }
 
@@ -227,11 +204,8 @@ public class ClusterDebugger extends JFrame {
                         }
                     } else {
                         target = new Vector3i(lastBlock.x(), lastBlock.height(), lastBlock.z());
-                        distanceChecks = 0;
                         Cluster cluster = workBoard.getWorkType(walkToBlock).getCluster();
                         nearest = cluster.findNearest(target);
-                        Stopwatch stopwatch = Stopwatch.createStarted();
-                        System.out.println("find nearest = " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms distance checks=" + distanceChecks);
                     }
                 }
             });
@@ -251,11 +225,11 @@ public class ClusterDebugger extends JFrame {
                     int screenY = z * getHeight() / mapHeight;
                     int tileWidth = (x + 1) * getWidth() / mapWidth - screenX;
                     int tileHeight = (z + 1) * getHeight() / mapHeight - screenY;
-                    WalkableBlock block = world.getBlock(new Vector3i(x, level, z));
-                    if (block != null) {
-                        boolean isEntrance = isEntrance(block);
+                    WalkableBlock current = world.getBlock(new Vector3i(x, level, z));
+                    if (current != null) {
+                        boolean isEntrance = isEntrance(current);
 
-                        if (block.floor == hoveredFloor) {
+                        if (current.floor == hoveredFloor) {
                             if (isEntrance) {
                                 g.setColor(Color.red);
 
@@ -295,14 +269,14 @@ public class ClusterDebugger extends JFrame {
                 }
 
                 for (Entrance entrance : entrances) {
-                    WalkableBlock block = entrance.getAbstractBlock();
-                    screenX = block.x() * getWidth() / mapWidth;
-                    screenY = block.z() * getHeight() / mapHeight;
-                    tileWidth = (block.x() + 1) * getWidth() / mapWidth - screenX;
-                    tileHeight = (block.z() + 1) * getHeight() / mapHeight - screenY;
+                    WalkableBlock current = entrance.getAbstractBlock();
+                    screenX = current.x() * getWidth() / mapWidth;
+                    screenY = current.z() * getHeight() / mapHeight;
+                    tileWidth = (current.x() + 1) * getWidth() / mapWidth - screenX;
+                    tileHeight = (current.z() + 1) * getHeight() / mapHeight - screenY;
                     int ex = screenX + tileWidth / 2;
                     int ey = screenY + tileHeight / 2;
-                    if (block.height() == level) {
+                    if (current.height() == level) {
                         g.setColor(Color.BLACK);
                     } else {
                         g.setColor(Color.LIGHT_GRAY);

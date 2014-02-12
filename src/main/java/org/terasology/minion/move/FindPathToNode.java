@@ -57,9 +57,12 @@ public class FindPathToNode extends Node {
             MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
             WalkableBlock workTarget = navGraphSystem.getBlock(moveComponent.target);
             if (moveComponent.currentBlock != null && workTarget != null) {
-                pathfinderSystem.requestPath(actor().minion(), moveComponent.currentBlock.getBlockPosition(), Arrays.asList(workTarget.getBlockPosition()), new PathfinderSystem.PathReadyCallback() {
+                pathfinderSystem.requestPath(
+                        actor().minion(), moveComponent.currentBlock.getBlockPosition(),
+                        Arrays.asList(workTarget.getBlockPosition()), new PathfinderSystem.PathReadyCallback() {
                     @Override
                     public void pathReady(int pathId, List<Path> path, WalkableBlock target, List<WalkableBlock> start) {
+
                         if (path == null) {
                             foundPath = Path.INVALID;
                         } else if (path.size() > 0) {

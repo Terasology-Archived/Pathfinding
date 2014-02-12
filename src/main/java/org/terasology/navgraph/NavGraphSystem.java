@@ -15,8 +15,6 @@
  */
 package org.terasology.navgraph;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
@@ -47,7 +45,6 @@ import java.util.Map;
 @Share(value = NavGraphSystem.class)
 public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscriberSystem, WorldChangeListener {
     private static final float EVENT_COOLDOWN = 0.4f;
-    private static final Logger logger = LoggerFactory.getLogger(NavGraphSystem.class);
 
     @In
     private WorldProvider world;

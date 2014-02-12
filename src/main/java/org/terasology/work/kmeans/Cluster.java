@@ -164,7 +164,7 @@ public class Cluster {
     public List<Cluster> getLeafCluster(List<Cluster> list) {
         if (getChildren().size() > 0) {
             for (Cluster cluster : getChildren()) {
-                list = cluster.getLeafCluster(list);
+                cluster.getLeafCluster(list);
             }
             return list;
         } else if (getDistances().size() > 0) {

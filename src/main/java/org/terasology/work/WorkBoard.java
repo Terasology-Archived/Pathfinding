@@ -35,7 +35,6 @@ import org.terasology.math.Region3i;
 import org.terasology.math.Vector3i;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.navgraph.NavGraphChanged;
-import org.terasology.navgraph.NavGraphSystem;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.registry.In;
 import org.terasology.registry.Share;
@@ -60,10 +59,6 @@ public class WorkBoard extends BaseComponentSystem implements UpdateSubscriberSy
     private BlockEntityRegistry blockEntityRegistry;
     @In
     private EntityManager entityManager;
-    @In
-    private NavGraphSystem navGraphSystem;
-
-
     @In
     private WorkFactory workFactory;
 
@@ -290,7 +285,7 @@ public class WorkBoard extends BaseComponentSystem implements UpdateSubscriberSy
         }
     }
 
-    private final class FindWorkTask implements WorkBoardTask {
+    private static final class FindWorkTask implements WorkBoardTask {
         private EntityRef target;
         private WorkType workType;
         private WorkBoardCallback callback;

@@ -273,7 +273,7 @@ public class HAStar {
         return "closed list size=" + closedList.cardinality() + ", cache hits=" + cacheHits + ", local paths used=" + localPathsUsed;
     }
 
-    private class Node {
+    private static class Node {
         int id;
         float g;
         float f;

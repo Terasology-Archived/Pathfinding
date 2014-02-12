@@ -15,7 +15,6 @@
  */
 package org.terasology;
 
-import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
@@ -34,8 +33,6 @@ import org.terasology.world.block.BlockManager;
  */
 @RegisterSystem
 public class SampleSystem extends BaseComponentSystem {
-    @In
-    private EntityManager entityManager;
     @In
     private WorldProvider worldProvider;
     @In

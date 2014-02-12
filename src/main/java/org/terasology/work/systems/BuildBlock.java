@@ -16,8 +16,6 @@
 package org.terasology.work.systems;
 
 import com.google.common.collect.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
@@ -45,7 +43,6 @@ public class BuildBlock extends BaseComponentSystem implements Work, ComponentSy
     private static final int[][] DIRECT_NEIGHBORS = new int[][]{
             {-1, 0, 0}, {1, 0, 0}, {0, -1, 0}, {0, 1, 0}, {0, 0, -1}, {0, 0, 1}
     };
-    private static final Logger logger = LoggerFactory.getLogger(WalkToBlock.class);
     private final SimpleUri uri;
     @In
     private PathfinderSystem pathfinderSystem;

@@ -16,16 +16,12 @@
 package org.terasology.minion.move;
 
 import com.google.common.collect.Sets;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnAddedComponent;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.logic.characters.CharacterMovementComponent;
-import org.terasology.logic.characters.events.HorizontalCollisionEvent;
 import org.terasology.logic.characters.events.OnEnterBlockEvent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.navgraph.NavGraphChanged;
@@ -40,7 +36,6 @@ import java.util.Set;
  */
 @RegisterSystem
 public class MinionMoveSystem extends BaseComponentSystem {
-    private static final Logger logger = LoggerFactory.getLogger(MinionMoveSystem.class);
     @In
     private PathfinderSystem pathfinderSystem;
 
@@ -50,13 +45,6 @@ public class MinionMoveSystem extends BaseComponentSystem {
     public void worldChanged(NavGraphChanged event, EntityRef entityRef) {
         for (EntityRef entity : entities) {
             setupEntity(entity);
-        }
-    }
-
-    @ReceiveEvent
-    public void onCollision(HorizontalCollisionEvent event, EntityRef minion, CharacterMovementComponent movementComponent) {
-        if (!movementComponent.jump) {
-//            minion.send(new CharacterMoveInputEvent(0, 0, 0, new Vector3f(), false, true));
         }
     }
 
