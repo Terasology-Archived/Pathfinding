@@ -15,6 +15,7 @@
  */
 package org.terasology.pathfinding.model;
 
+import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.math.Vector3i;
 import org.terasology.navgraph.WalkableBlock;
@@ -26,7 +27,7 @@ import org.terasology.world.block.Block;
  * Created by synopia on 01.02.14.
  */
 @RegisterSystem
-public class LineOfSight3d implements LineOfSight {
+public class LineOfSight3d extends BaseComponentSystem implements LineOfSight {
     @In
     private WorldProvider world;
 

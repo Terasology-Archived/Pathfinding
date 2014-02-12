@@ -55,6 +55,7 @@ public class FindWorkNode extends Node {
         private EntityRef foundWork;
         private Vector3i foundPosition;
         private Work filter;
+        private boolean workSearchDone;
 
         public FindWorkTask(FindWorkNode node) {
             super(node);
@@ -72,34 +73,40 @@ public class FindWorkNode extends Node {
                 }
             }
             filter = getNode().filter != null ? workFactory.getWork(getNode().filter) : null;
-            workBoard.getWork(actor().minion(), filter, new WorkBoard.WorkBoardCallback() {
-                @Override
-                public boolean workReady(Cluster cluster, Vector3i position, EntityRef work) {
-                    foundWork = work;
-                    foundPosition = position;
-                    return true;
-                }
-            });
+            if (filter != null) {
+                workBoard.getWork(actor().minion(), filter, new WorkBoard.WorkBoardCallback() {
+                    @Override
+                    public boolean workReady(Cluster cluster, Vector3i position, EntityRef work) {
+                        workSearchDone = true;
+                        foundWork = work;
+                        foundPosition = position;
+                        return true;
+                    }
+                });
+            } else {
+                workSearchDone = true;
+            }
         }
 
         @Override
         public Status update(float dt) {
-            if (foundWork == null) {
+            if (!workSearchDone) {
                 return Status.RUNNING;
             }
-            WorkTargetComponent workTargetComponent = foundWork.getComponent(WorkTargetComponent.class);
-            if (workTargetComponent != null && workTargetComponent.getWork() != null) {
-                logger.info("Found new work for " + interpreter().toString() + " " + workTargetComponent.getUri() + " at " + foundWork);
-                workTargetComponent.assignedMinion = actor().minion();
-                foundWork.saveComponent(workTargetComponent);
-                MinionWorkComponent actorWork = actor().component(MinionWorkComponent.class);
-                actorWork.currentWork = foundWork;
-                actorWork.target = foundPosition;
-                actor().save(actorWork);
-                return Status.SUCCESS;
-            } else {
-                return Status.FAILURE;
+            if (foundWork != null) {
+                WorkTargetComponent workTargetComponent = foundWork.getComponent(WorkTargetComponent.class);
+                if (workTargetComponent != null && workTargetComponent.getWork() != null) {
+                    logger.info("Found new work for " + interpreter().toString() + " " + workTargetComponent.getUri() + " at " + foundWork);
+                    workTargetComponent.assignedMinion = actor().minion();
+                    foundWork.saveComponent(workTargetComponent);
+                    MinionWorkComponent actorWork = actor().component(MinionWorkComponent.class);
+                    actorWork.currentWork = foundWork;
+                    actorWork.target = foundPosition;
+                    actor().save(actorWork);
+                    return Status.SUCCESS;
+                }
             }
+            return Status.FAILURE;
         }
 
         @Override

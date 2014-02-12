@@ -25,7 +25,7 @@ import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnAddedComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnChangedComponent;
 import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.ComponentSystem;
+import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.logic.characters.CharacterComponent;
@@ -37,8 +37,8 @@ import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.navgraph.NavGraphChanged;
 import org.terasology.navgraph.NavGraphSystem;
 import org.terasology.navgraph.WalkableBlock;
-import org.terasology.registry.CoreRegistry;
 import org.terasology.registry.In;
+import org.terasology.registry.Share;
 import org.terasology.utilities.concurrency.Task;
 import org.terasology.utilities.concurrency.TaskMaster;
 import org.terasology.work.kmeans.Cluster;
@@ -50,7 +50,8 @@ import java.util.Map;
  * @author synopia
  */
 @RegisterSystem
-public class WorkBoard implements ComponentSystem, UpdateSubscriberSystem {
+@Share(value = WorkBoard.class)
+public class WorkBoard extends BaseComponentSystem implements UpdateSubscriberSystem {
     private static final Logger logger = LoggerFactory.getLogger(WorkBoard.class);
     private final Map<Work, WorkType> workTypes = Maps.newHashMap();
     private TaskMaster<WorkBoardTask> taskMaster = TaskMaster.createPriorityTaskMaster("Workboard", 1, 1024);
@@ -67,11 +68,6 @@ public class WorkBoard implements ComponentSystem, UpdateSubscriberSystem {
     private WorkFactory workFactory;
 
     private float cooldown = 5;
-
-    public WorkBoard() {
-        logger.info("Creating WorkBoard");
-        CoreRegistry.put(WorkBoard.class, this);
-    }
 
     @Override
     public void update(float delta) {
@@ -336,8 +332,10 @@ public class WorkBoard implements ComponentSystem, UpdateSubscriberSystem {
                     if (callback.workReady(nearestCluster, nearestTarget, work)) {
                         workType.removeRequestable(work);
                     }
+                    return;
                 }
             }
+            callback.workReady(null, null, null);
         }
 
         @Override

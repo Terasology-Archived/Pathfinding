@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.math.Vector3i;
@@ -37,7 +38,7 @@ import java.util.List;
  * @author synopia
  */
 @RegisterSystem
-public class WalkToBlock implements Work, ComponentSystem {
+public class WalkToBlock extends BaseComponentSystem implements Work, ComponentSystem {
     private static final Logger logger = LoggerFactory.getLogger(WalkToBlock.class);
     private final SimpleUri uri;
     @In

@@ -18,7 +18,7 @@ package org.terasology;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.ComponentSystem;
+import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.logic.players.event.OnPlayerSpawnedEvent;
@@ -33,7 +33,7 @@ import org.terasology.world.block.BlockManager;
  * @author synopia
  */
 @RegisterSystem
-public class SampleSystem implements ComponentSystem {
+public class SampleSystem extends BaseComponentSystem {
     @In
     private EntityManager entityManager;
     @In

@@ -172,6 +172,26 @@ public class HAStarTest {
             public boolean inSight(WalkableBlock one, WalkableBlock two) {
                 return false;
             }
+
+            @Override
+            public void preBegin() {
+
+            }
+
+            @Override
+            public void postBegin() {
+
+            }
+
+            @Override
+            public void preSave() {
+
+            }
+
+            @Override
+            public void postSave() {
+
+            }
         });
 
         haStar.run(end, start);

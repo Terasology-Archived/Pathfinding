@@ -18,6 +18,7 @@ package org.terasology.work;
 import org.terasology.asset.Assets;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.RenderSystem;
@@ -33,7 +34,7 @@ import javax.vecmath.Vector3f;
  * @author synopia
  */
 @RegisterSystem(RegisterMode.CLIENT)
-public class WorkRenderSystem implements RenderSystem {
+public class WorkRenderSystem extends BaseComponentSystem implements RenderSystem {
     @In
     private EntityManager entityManager;
     private BlockSelectionRenderer selectionRenderer;

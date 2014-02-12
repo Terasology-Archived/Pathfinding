@@ -19,7 +19,7 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.systems.ComponentSystem;
+import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.math.Vector3i;
 import org.terasology.navgraph.NavGraphSystem;
@@ -30,6 +30,7 @@ import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.Pathfinder;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.registry.In;
+import org.terasology.registry.Share;
 
 import javax.vecmath.Vector3f;
 import java.util.List;
@@ -49,7 +50,8 @@ import java.util.List;
  * @author synopia
  */
 @RegisterSystem
-public class PathfinderSystem implements ComponentSystem {
+@Share(value = PathfinderSystem.class)
+public class PathfinderSystem extends BaseComponentSystem {
 
     private static final Logger logger = LoggerFactory.getLogger(PathfinderSystem.class);
 
@@ -62,7 +64,6 @@ public class PathfinderSystem implements ComponentSystem {
     private int pathsSearched;
 
     public PathfinderSystem() {
-        CoreRegistry.put(PathfinderSystem.class, this);
         CoreRegistry.put(LineOfSight.class, new LineOfSight2d());
     }
 

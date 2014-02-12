@@ -15,6 +15,7 @@
  */
 package org.terasology.pathfinding.model;
 
+import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.navgraph.WalkableBlock;
 
@@ -22,7 +23,7 @@ import org.terasology.navgraph.WalkableBlock;
  * Created by synopia on 01.02.14.
  */
 @RegisterSystem
-public class LineOfSight2d implements LineOfSight {
+public class LineOfSight2d extends BaseComponentSystem implements LineOfSight {
     private WalkableBlock current;
 
     @Override

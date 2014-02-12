@@ -18,6 +18,7 @@ package org.terasology.work.systems;
 import com.google.common.collect.Lists;
 import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.location.LocationComponent;
@@ -40,7 +41,7 @@ import java.util.List;
  * @author synopia
  */
 @RegisterSystem
-public class RemoveBlock implements Work, ComponentSystem {
+public class RemoveBlock extends BaseComponentSystem implements Work, ComponentSystem {
     private static final int[][] NEIGHBORS = new int[][]{
             {-1, 0, 0}, {1, 0, 0}, {0, 0, -1}, {0, 0, 1},
 //            {-1, 1, 0}, {1, 1, 0}, {0, 1, -1}, {0, 1, 1},

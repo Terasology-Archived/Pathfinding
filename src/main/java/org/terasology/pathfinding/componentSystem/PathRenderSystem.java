@@ -17,11 +17,12 @@ package org.terasology.pathfinding.componentSystem;
 
 import com.google.common.collect.Lists;
 import org.terasology.asset.Assets;
+import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.RenderSystem;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.model.Path;
-import org.terasology.registry.CoreRegistry;
+import org.terasology.registry.Share;
 import org.terasology.rendering.world.selection.BlockSelectionRenderer;
 
 import java.util.List;
@@ -30,13 +31,10 @@ import java.util.List;
  * Created by synopia on 01.02.14.
  */
 @RegisterSystem
-public class PathRenderSystem implements RenderSystem {
+@Share(value = PathRenderSystem.class)
+public class PathRenderSystem extends BaseComponentSystem implements RenderSystem {
     private BlockSelectionRenderer selectionRenderer;
     private List<Path> paths = Lists.newArrayList();
-
-    public PathRenderSystem() {
-        CoreRegistry.put(PathRenderSystem.class, this);
-    }
 
     @Override
     public void initialise() {

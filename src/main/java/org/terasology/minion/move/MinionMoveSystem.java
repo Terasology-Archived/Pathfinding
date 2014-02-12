@@ -22,7 +22,7 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnAddedComponent;
 import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.ComponentSystem;
+import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.characters.CharacterMovementComponent;
 import org.terasology.logic.characters.events.HorizontalCollisionEvent;
@@ -39,7 +39,7 @@ import java.util.Set;
  * Created by synopia on 02.02.14.
  */
 @RegisterSystem
-public class MinionMoveSystem implements ComponentSystem {
+public class MinionMoveSystem extends BaseComponentSystem {
     private static final Logger logger = LoggerFactory.getLogger(MinionMoveSystem.class);
     @In
     private PathfinderSystem pathfinderSystem;

@@ -21,10 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.systems.ComponentSystem;
+import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.registry.CoreRegistry;
 import org.terasology.registry.In;
+import org.terasology.registry.Share;
 import org.terasology.rendering.nui.databinding.ReadOnlyBinding;
 import org.terasology.rendering.nui.itemRendering.StringTextRenderer;
 import org.terasology.rendering.nui.properties.OneOfProviderFactory;
@@ -36,7 +36,8 @@ import java.util.Map;
  * @author synopia
  */
 @RegisterSystem
-public class WorkFactory implements ComponentSystem {
+@Share(value = WorkFactory.class)
+public class WorkFactory extends BaseComponentSystem {
     private static final Logger logger = LoggerFactory.getLogger(WorkFactory.class);
 
     @In
@@ -45,11 +46,6 @@ public class WorkFactory implements ComponentSystem {
     private Map<SimpleUri, Work> workRegistry = Maps.newHashMap();
     private List<Work> works = Lists.newArrayList();
     private SimpleUri idle = new SimpleUri("Pathfinding:idle");
-
-    public WorkFactory() {
-        logger.info("Create WorkFactory");
-        CoreRegistry.put(WorkFactory.class, this);
-    }
 
     public void register(Work work) {
         workRegistry.put(work.getUri(), work);

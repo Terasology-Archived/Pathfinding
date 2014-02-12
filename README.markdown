@@ -395,5 +395,15 @@ Always finishes with `SUCCESS`.
 ### `PlaySound`
 *Properties*: `sound`, `volume`
 
-`SUCCESS`: when sound has started playing.
+`RUNNING`: while sound is playing
+`SUCCESS`: once sound ends playing
 `FAILURE`: otherwise
+
+### `PlayMusic`
+*Properties*: `music`
+
+`RUNNING`: while music is playing
+`SUCCESS`: once music ends playing
+`FAILURE`: otherwise
+
+##

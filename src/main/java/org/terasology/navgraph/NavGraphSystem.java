@@ -20,14 +20,14 @@ import org.slf4j.LoggerFactory;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.ComponentSystem;
+import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
-import org.terasology.registry.CoreRegistry;
 import org.terasology.registry.In;
+import org.terasology.registry.Share;
 import org.terasology.utilities.concurrency.Task;
 import org.terasology.utilities.concurrency.TaskMaster;
 import org.terasology.world.WorldChangeListener;
@@ -44,7 +44,8 @@ import java.util.Map;
  * @author synopia
  */
 @RegisterSystem
-public class NavGraphSystem implements ComponentSystem, UpdateSubscriberSystem, WorldChangeListener {
+@Share(value = NavGraphSystem.class)
+public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscriberSystem, WorldChangeListener {
     private static final float EVENT_COOLDOWN = 0.4f;
     private static final Logger logger = LoggerFactory.getLogger(NavGraphSystem.class);
 
@@ -61,10 +62,6 @@ public class NavGraphSystem implements ComponentSystem, UpdateSubscriberSystem, 
     private int chunkUpdates;
 
     private Map<Vector3i, NavGraphChunk> maps = new HashMap<>();
-
-    public NavGraphSystem() {
-        CoreRegistry.put(NavGraphSystem.class, this);
-    }
 
     @Override
     public void initialise() {
