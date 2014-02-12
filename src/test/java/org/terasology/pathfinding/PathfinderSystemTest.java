@@ -17,6 +17,7 @@ package org.terasology.pathfinding;
 
 import com.google.common.collect.Lists;
 import junit.framework.Assert;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.terasology.WorldProvidingHeadlessEnvironment;
@@ -51,6 +52,7 @@ public class PathfinderSystemTest {
     private EventSystem eventSystem;
     private NavGraphSystem navGraphSystem;
     private PathfinderSystem pathfinderSystem;
+    private WorldProvidingHeadlessEnvironment environment;
 
     @Test
     public void updateChunkBeforePathRequests() throws InterruptedException {
@@ -98,9 +100,14 @@ public class PathfinderSystemTest {
         Assert.assertEquals(Arrays.asList(id1, id2, id3), list);
     }
 
+    @After
+    public void teardown() throws Exception {
+        environment.close();
+    }
+
     @Before
     public void setup() {
-        WorldProvidingHeadlessEnvironment environment = new WorldProvidingHeadlessEnvironment();
+        environment = new WorldProvidingHeadlessEnvironment();
         environment.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
             @Override
             public void initialize() {
@@ -121,20 +128,5 @@ public class PathfinderSystemTest {
         };
         CoreRegistry.get(ComponentSystemManager.class).register(pathfinderSystem);
         CoreRegistry.put(PathfinderSystem.class, pathfinderSystem);
-/*
-        ReflectFactory reflectFactory = new ReflectionReflectFactory();
-        CopyStrategyLibrary copyStrategies = new CopyStrategyLibrary(reflectFactory);
-        TypeSerializationLibrary serializationLibrary = new TypeSerializationLibrary(reflectFactory, copyStrategies);
-
-        EntitySystemLibrary entitySystemLibrary = new EntitySystemLibrary(reflectFactory, copyStrategies, serializationLibrary);
-        entityManager = new PojoEntityManager();
-        entityManager.setEntitySystemLibrary(entitySystemLibrary);
-        entityManager.setPrefabManager(new PojoPrefabManager());
-        NetworkSystem networkSystem = mock(NetworkSystem.class);
-        when(networkSystem.getMode()).thenReturn(NetworkMode.NONE);
-        eventSystem = new EventSystemImpl(entitySystemLibrary.getEventLibrary(), networkSystem);
-        entityManager.setEventSystem(eventSystem);
-        CoreRegistry.put(EntityManager.class, entityManager);
-*/
     }
 }
