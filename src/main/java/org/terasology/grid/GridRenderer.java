@@ -17,20 +17,30 @@ package org.terasology.grid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.grid.renderers.DefaultBlockRenderer;
 import org.terasology.grid.renderers.WalkableBlockRenderer;
+import org.terasology.grid.renderers.WorkRenderer;
 import org.terasology.input.Keyboard;
+import org.terasology.input.MouseInput;
+import org.terasology.logic.characters.CharacterComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.logic.players.LocalPlayer;
+import org.terasology.logic.selection.ApplyBlockSelectionEvent;
 import org.terasology.math.Rect2i;
+import org.terasology.math.Region3i;
 import org.terasology.math.Vector2i;
 import org.terasology.math.Vector3i;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.rendering.nui.BaseInteractionListener;
 import org.terasology.rendering.nui.Canvas;
+import org.terasology.rendering.nui.Color;
 import org.terasology.rendering.nui.InteractionListener;
 import org.terasology.rendering.nui.layouts.ZoomableLayout;
+import org.terasology.work.Work;
+import org.terasology.work.WorkComponent;
+import org.terasology.work.WorkFactory;
 
 import javax.vecmath.Vector2f;
 import javax.vecmath.Vector3f;
@@ -43,9 +53,38 @@ public class GridRenderer extends ZoomableLayout {
 
     private DefaultBlockRenderer blockRenderer;
     private WalkableBlockRenderer walkableBlockRenderer;
+    private WorkRenderer workRenderer;
     private EntityRenderer entityRenderer;
+    private int y;
     private int yDiff = -1;
+    private Vector2i startDrag;
+    private Vector2i endDrag;
     private InteractionListener listener = new BaseInteractionListener() {
+        @Override
+        public boolean onMouseClick(MouseInput button, Vector2i pos) {
+            startDrag = endDrag = pos;
+            return true;
+        }
+
+        @Override
+        public void onMouseDrag(Vector2i pos) {
+            endDrag = pos;
+        }
+
+        @Override
+        public void onMouseRelease(MouseInput button, Vector2i pos) {
+            Work work = CoreRegistry.get(WorkFactory.class).getWork("pathfinding:walkToBlock");
+            WorkComponent workComponent = new WorkComponent();
+            workComponent.uri = work.getUri();
+            EntityRef entityRef = CoreRegistry.get(EntityManager.class).create(workComponent, new LocationComponent(), new CharacterComponent());
+
+            Vector2f start = screenToWorld(startDrag);
+            Vector2f end = screenToWorld(endDrag);
+            ApplyBlockSelectionEvent event = new ApplyBlockSelectionEvent(entityRef, Region3i.createFromMinMax(new Vector3i((int) start.x, y, (int) start.y), new Vector3i((int) end.x, y, (int) end.y)));
+            entityRef.send(event);
+            startDrag = endDrag = null;
+        }
+
         @Override
         public boolean onMouseWheel(int wheelTurns, Vector2i pos) {
             if (!Keyboard.isKeyDown(Keyboard.Key.LEFT_SHIFT.getId())) {
@@ -68,7 +107,7 @@ public class GridRenderer extends ZoomableLayout {
         blockRenderer = CoreRegistry.get(DefaultBlockRenderer.class);
         walkableBlockRenderer = CoreRegistry.get(WalkableBlockRenderer.class);
         entityRenderer = CoreRegistry.get(EntityRenderer.class);
-
+        workRenderer = CoreRegistry.get(WorkRenderer.class);
     }
 
     @Override
@@ -86,7 +125,7 @@ public class GridRenderer extends ZoomableLayout {
         Vector2f worldStart = screenToWorld(region.min());
         Vector2f worldEnd = screenToWorld(new Vector2i(region.maxX(), region.maxY()));
 
-        int y = (int) playerPosition.y + yDiff;
+        y = (int) playerPosition.y + yDiff;
 
         for (int z = (int) worldStart.y; z < (int) worldEnd.y; z++) {
             for (int x = (int) worldStart.x; x < (int) worldEnd.x; x++) {
@@ -96,13 +135,22 @@ public class GridRenderer extends ZoomableLayout {
 
                 blockRenderer.renderBlock(canvas, new Vector3i(x, y, z), screenRegion);
                 walkableBlockRenderer.renderBlock(canvas, new Vector3i(x, y, z), screenRegion);
+                workRenderer.renderBlock(canvas, new Vector3i(x, y, z), screenRegion);
             }
         }
 
-        EntityRef entity = CoreRegistry.get(LocalPlayer.class).getCharacterEntity();
-        Vector3f worldPos = entity.getComponent(LocationComponent.class).getWorldPosition();
-        Vector2i min = worldToScreen(new Vector2f(worldPos.x - 0.4f, worldPos.z - 0.4f));
-        Vector2i max = worldToScreen(new Vector2f(worldPos.x + 0.4f, worldPos.z + 0.4f));
-        entityRenderer.renderBlock(canvas, entity, Rect2i.createFromMinAndMax(min, max));
+        for (EntityRef entity : CoreRegistry.get(EntityManager.class).getEntitiesWith(LocationComponent.class, CharacterComponent.class)) {
+            Vector3f worldPos = entity.getComponent(LocationComponent.class).getWorldPosition();
+            Vector2i min = worldToScreen(new Vector2f(worldPos.x - 0.4f, worldPos.z - 0.4f));
+            Vector2i max = worldToScreen(new Vector2f(worldPos.x + 0.4f, worldPos.z + 0.4f));
+            entityRenderer.renderBlock(canvas, entity, Rect2i.createFromMinAndMax(min, max));
+        }
+
+        if (startDrag != null && endDrag != null) {
+            canvas.drawLine(startDrag.x, startDrag.y, endDrag.x, startDrag.y, Color.WHITE);
+            canvas.drawLine(endDrag.x, startDrag.y, endDrag.x, endDrag.y, Color.WHITE);
+            canvas.drawLine(endDrag.x, endDrag.y, startDrag.x, endDrag.y, Color.WHITE);
+            canvas.drawLine(startDrag.x, endDrag.y, startDrag.x, startDrag.y, Color.WHITE);
+        }
     }
 }

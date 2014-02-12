@@ -22,6 +22,7 @@ import org.terasology.entitySystem.entity.lifecycleEvents.OnAddedComponent;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.logic.characters.events.HorizontalCollisionEvent;
 import org.terasology.logic.characters.events.OnEnterBlockEvent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.navgraph.NavGraphChanged;
@@ -46,6 +47,12 @@ public class MinionMoveSystem extends BaseComponentSystem {
         for (EntityRef entity : entities) {
             setupEntity(entity);
         }
+    }
+
+    @ReceiveEvent
+    public void onCollision(HorizontalCollisionEvent event, EntityRef minion, MinionMoveComponent movementComponent) {
+        movementComponent.horizontalCollision = true;
+        minion.saveComponent(movementComponent);
     }
 
     @ReceiveEvent

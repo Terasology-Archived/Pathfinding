@@ -51,7 +51,7 @@ public class DefaultBlockRenderer extends BaseComponentSystem implements BlockRe
     @Override
     public void initialise() {
         terrainTex = Assets.getTexture("engine:terrain");
-        relativeTileSize = worldAtlas.getRelativeTileSize();
+        relativeTileSize = 0.0625f;
     }
 
     @Override
@@ -59,7 +59,7 @@ public class DefaultBlockRenderer extends BaseComponentSystem implements BlockRe
         Color color = new Color(1f, 1f, 1f, 1f);
         int depth = 0;
         blockPos.y++;
-        float max = blockPos.y;
+        float max = 10;
         while (blockPos.y >= 0) {
             Block block = worldProvider.getBlock(blockPos);
 
@@ -73,6 +73,9 @@ public class DefaultBlockRenderer extends BaseComponentSystem implements BlockRe
             }
             blockPos.y--;
             depth++;
+            if (depth >= max) {
+                break;
+            }
             color = new Color(1 - depth / max, 1 - depth / max, 1 - depth / max, 1);
         }
 

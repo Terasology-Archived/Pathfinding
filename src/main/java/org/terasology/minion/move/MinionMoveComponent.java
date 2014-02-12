@@ -28,4 +28,5 @@ public class MinionMoveComponent implements Component {
     public transient Vector3f target;
     public transient WalkableBlock currentBlock;
     public transient Path path;
+    public transient boolean horizontalCollision;
 }

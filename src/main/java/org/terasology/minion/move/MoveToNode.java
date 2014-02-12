@@ -46,6 +46,9 @@ public class MoveToNode extends Node {
     }
 
     public static class MoveToTask extends Task {
+        private boolean jumpMode;
+        private float jumpCooldown;
+
         public MoveToTask(MoveToNode node) {
             super(node);
         }
@@ -55,7 +58,14 @@ public class MoveToNode extends Node {
             Status status = Status.FAILURE;
             MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
             if (moveComponent != null && moveComponent.target != null) {
-                status = setMovement(moveComponent.target, dt);
+                if (moveComponent.horizontalCollision) {
+                    moveComponent.horizontalCollision = false;
+                    actor().save(moveComponent);
+                    jumpCooldown = 0.3f;
+                }
+                jumpCooldown -= dt;
+                jumpMode = jumpCooldown > 0;
+                status = setMovement(moveComponent.target, jumpMode, dt);
             }
             return status;
         }
@@ -65,21 +75,20 @@ public class MoveToNode extends Node {
 
         }
 
-        private Status setMovement(Vector3f currentTarget, float dt) {
+        private Status setMovement(Vector3f currentTarget, boolean horizontalCollision, float dt) {
             Status result;
             LocationComponent location = actor().location();
             Vector3f worldPos = new Vector3f(location.getWorldPosition());
             Vector3f targetDirection = new Vector3f();
             targetDirection.sub(currentTarget, worldPos);
             Vector3f drive = new Vector3f();
-            boolean jump = currentTarget.y - worldPos.y > 0.5f;
             float yaw = (float) Math.atan2(targetDirection.x, targetDirection.z);
 
+            result = Status.RUNNING;
             float dist = getNode().distance;
             if (targetDirection.x * targetDirection.x + targetDirection.z * targetDirection.z > dist * dist) {
                 targetDirection.scale(0.5f);
                 drive.set(targetDirection);
-                result = Status.RUNNING;
             } else {
                 drive.set(0, 0, 0);
                 result = Status.SUCCESS;
@@ -87,7 +96,7 @@ public class MoveToNode extends Node {
 
             float requestedYaw = 180f + yaw * TeraMath.RAD_TO_DEG;
 
-            CharacterMoveInputEvent wantedInput = new CharacterMoveInputEvent(0, 0, requestedYaw, drive, false, jump, (long) (dt * 1000));
+            CharacterMoveInputEvent wantedInput = new CharacterMoveInputEvent(0, 0, requestedYaw, drive, false, horizontalCollision, (long) (dt * 1000));
 
             CharacterMovementComponent characterMovement = actor().minion().getComponent(CharacterMovementComponent.class);
 

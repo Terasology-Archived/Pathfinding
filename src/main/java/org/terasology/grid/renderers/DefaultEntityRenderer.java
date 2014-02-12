@@ -24,6 +24,7 @@ import org.terasology.grid.EntityRenderer;
 import org.terasology.logic.characters.CharacterComponent;
 import org.terasology.math.Rect2i;
 import org.terasology.math.TeraMath;
+import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.registry.Share;
 import org.terasology.rendering.nui.Canvas;
 import org.terasology.rendering.nui.Color;
@@ -38,22 +39,24 @@ public class DefaultEntityRenderer extends BaseComponentSystem implements Entity
 
     @Override
     public void renderBlock(Canvas canvas, EntityRef entity, Rect2i screenRegion) {
-        if (entity.hasComponent(CharacterComponent.class)) {
-            CharacterComponent characterComponent = entity.getComponent(CharacterComponent.class);
-            float yaw = TeraMath.PI / 2 - characterComponent.yaw / 180.f * TeraMath.PI;
+        CharacterComponent characterComponent = entity.getComponent(CharacterComponent.class);
+        float yaw = TeraMath.PI / 2 - characterComponent.yaw / 180.f * TeraMath.PI;
 
-            int w = screenRegion.maxX() - screenRegion.minX();
-            int h = screenRegion.maxY() - screenRegion.minY();
-            int x0 = screenRegion.minX() + w / 2 + (int) (Math.cos(yaw) * w);
-            int y0 = screenRegion.minY() + h / 2 + (int) (Math.sin(yaw) * h);
-            int x1 = screenRegion.minX() + w / 2 + (int) (Math.cos(yaw + Math.PI / 2) * w);
-            int y1 = screenRegion.minY() + h / 2 + (int) (Math.sin(yaw + Math.PI / 2) * h);
-            int x2 = screenRegion.minX() + w / 2 + (int) (Math.cos(yaw - Math.PI / 2) * w);
-            int y2 = screenRegion.minY() + h / 2 + (int) (Math.sin(yaw - Math.PI / 2) * h);
+        int w = screenRegion.maxX() - screenRegion.minX();
+        int h = screenRegion.maxY() - screenRegion.minY();
+        int x0 = screenRegion.minX() + w / 2 + (int) (Math.cos(yaw) * w);
+        int y0 = screenRegion.minY() + h / 2 + (int) (Math.sin(yaw) * h);
+        int x1 = screenRegion.minX() + w / 2 + (int) (Math.cos(yaw + Math.PI / 2) * w);
+        int y1 = screenRegion.minY() + h / 2 + (int) (Math.sin(yaw + Math.PI / 2) * h);
+        int x2 = screenRegion.minX() + w / 2 + (int) (Math.cos(yaw - Math.PI / 2) * w);
+        int y2 = screenRegion.minY() + h / 2 + (int) (Math.sin(yaw - Math.PI / 2) * h);
 
-            canvas.drawLine(x0, y0, x1, y1, Color.WHITE);
-            canvas.drawLine(x0, y0, x2, y2, Color.WHITE);
-            canvas.drawLine(x1, y1, x2, y2, Color.WHITE);
+        Color color = Color.YELLOW;
+        if (entity.hasComponent(MinionMoveComponent.class)) {
+            color = Color.BLUE;
         }
+        canvas.drawLine(x0, y0, x1, y1, color);
+        canvas.drawLine(x0, y0, x2, y2, color);
+        canvas.drawLine(x1, y1, x2, y2, color);
     }
 }
