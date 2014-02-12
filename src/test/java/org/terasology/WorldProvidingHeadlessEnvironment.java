@@ -16,6 +16,7 @@
 package org.terasology;
 
 import org.terasology.registry.CoreRegistry;
+import org.terasology.world.BlockEntityRegistry;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockManager;
@@ -27,6 +28,7 @@ import org.terasology.world.block.family.SymmetricFamily;
 import org.terasology.world.block.internal.BlockManagerImpl;
 import org.terasology.world.block.loader.NullWorldAtlas;
 import org.terasology.world.generator.WorldGenerator;
+import org.terasology.world.internal.EntityAwareWorldProvider;
 import org.terasology.world.internal.WorldProviderCore;
 import org.terasology.world.internal.WorldProviderWrapper;
 
@@ -42,6 +44,7 @@ public class WorldProvidingHeadlessEnvironment extends HeadlessEnvironment {
         WorldProviderCore stub = new MapWorldProvider(generator);
         WorldProvider world = new WorldProviderWrapper(stub);
         CoreRegistry.put(WorldProvider.class, world);
+        CoreRegistry.put(BlockEntityRegistry.class, new EntityAwareWorldProvider(stub));
     }
 
     @Override

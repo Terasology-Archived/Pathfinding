@@ -173,7 +173,7 @@ public class WorkBoard extends BaseComponentSystem implements UpdateSubscriberSy
         boolean workReady(Cluster cluster, Vector3i position, EntityRef work);
     }
 
-    private interface WorkBoardTask extends Task, Comparable<WorkBoardTask> {
+    public interface WorkBoardTask extends Task, Comparable<WorkBoardTask> {
         int getPriority();
     }
 

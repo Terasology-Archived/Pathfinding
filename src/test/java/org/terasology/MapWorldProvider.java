@@ -29,6 +29,7 @@ import org.terasology.world.internal.WorldInfo;
 import org.terasology.world.internal.WorldProviderCore;
 import org.terasology.world.liquid.LiquidData;
 import org.terasology.world.time.WorldTime;
+import org.terasology.world.time.WorldTimeImpl;
 
 import java.util.Map;
 
@@ -150,7 +151,7 @@ public class MapWorldProvider implements WorldProviderCore {
 
     @Override
     public WorldTime getTime() {
-        return null;
+        return new WorldTimeImpl();
     }
 
     @Override

@@ -22,8 +22,14 @@ import org.terasology.engine.ComponentSystemManager;
 import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.entitySystem.entity.internal.EngineEntityManager;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
+import org.terasology.logic.characters.CharacterComponent;
+import org.terasology.logic.location.LocationComponent;
+import org.terasology.logic.selection.ApplyBlockSelectionEvent;
+import org.terasology.math.Region3i;
 import org.terasology.math.Vector3i;
+import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.monitoring.PerformanceMonitor;
 import org.terasology.navgraph.Entrance;
 import org.terasology.navgraph.Floor;
@@ -36,7 +42,6 @@ import org.terasology.rendering.nui.properties.OneOfProviderFactory;
 import org.terasology.work.kmeans.Cluster;
 import org.terasology.work.systems.WalkToBlock;
 import org.terasology.world.block.Block;
-import org.terasology.world.block.BlockComponent;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -62,10 +67,13 @@ public class ClusterDebugger extends JFrame {
     private WalkableBlock hovered;
     private NavGraphSystem world;
     private EntityManager entityManager;
+    private EngineEntityManager engineEntityManager;
     private WalkToBlock walkToBlock;
     private Vector3i nearest;
     private Vector3i target;
     private final WorkBoard workBoard;
+    private List<Cluster> leafCluster;
+    private final Object mutex = new Object();
 
     public ClusterDebugger() throws HeadlessException {
         env = new WorldProvidingHeadlessEnvironment();
@@ -81,9 +89,16 @@ public class ClusterDebugger extends JFrame {
         mapWidth = 160;
         mapHeight = 100;
 
+        WorkFactory workFactory = new WorkFactory();
+        CoreRegistry.get(ComponentSystemManager.class).register(workFactory);
+        CoreRegistry.put(WorkFactory.class, workFactory);
+
         world = new NavGraphSystem();
         CoreRegistry.get(ComponentSystemManager.class).register(world);
-        CoreRegistry.get(ComponentSystemManager.class).register(new PathfinderSystem());
+        CoreRegistry.put(NavGraphSystem.class, world);
+        PathfinderSystem pathfinderSystem = new PathfinderSystem();
+        CoreRegistry.get(ComponentSystemManager.class).register(pathfinderSystem);
+        CoreRegistry.put(PathfinderSystem.class, pathfinderSystem);
         CoreRegistry.put(OneOfProviderFactory.class, new OneOfProviderFactory());
 
         workBoard = new WorkBoard();
@@ -96,7 +111,6 @@ public class ClusterDebugger extends JFrame {
         }
         level = 45;
 
-        CoreRegistry.get(ComponentSystemManager.class).register(new WorkFactory());
 
         walkToBlock = new WalkToBlock();
         CoreRegistry.get(ComponentSystemManager.class).register(walkToBlock);
@@ -133,6 +147,11 @@ public class ClusterDebugger extends JFrame {
             PerformanceMonitor.startActivity(updater.getClass().getSimpleName());
             updater.update(dt);
             PerformanceMonitor.endActivity();
+        }
+        WorkType workType = workBoard.getWorkType(walkToBlock);
+        List<Cluster> leafs = workType.getCluster().getLeafCluster();
+        synchronized (mutex) {
+            leafCluster = leafs;
         }
     }
 
@@ -180,32 +199,36 @@ public class ClusterDebugger extends JFrame {
                     WalkableBlock lastBlock = world.getBlock(new Vector3i(clickedX, level, clickedZ));
 
                     if (e.getButton() == MouseEvent.BUTTON1) {
-                        Vector3i pos = new Vector3i();
-                        for (int x = Math.min(block.x(), lastBlock.x()); x <= Math.max(block.x(), lastBlock.x()); x++) {
-                            for (int y = Math.min(block.height(), lastBlock.height()); y <= Math.max(block.height(), lastBlock.height()); y++) {
-                                for (int z = Math.min(block.z(), lastBlock.z()); z <= Math.max(block.z(), lastBlock.z()); z++) {
-                                    pos.set(x, y, z);
-                                    WalkableBlock currentBlock = world.getBlock(pos);
-                                    if (currentBlock != null) {
+                        int minX = Math.min(block.x(), lastBlock.x());
+                        int maxX = Math.max(block.x(), lastBlock.x());
+                        int minY = Math.min(block.height(), lastBlock.height());
+                        int maxY = Math.max(block.height(), lastBlock.height());
+                        int minZ = Math.min(block.z(), lastBlock.z());
+                        int maxZ = Math.max(block.z(), lastBlock.z());
+                        final EntityRef item = entityManager.create();
+                        WorkComponent workComponent = new WorkComponent();
+                        workComponent.uri = walkToBlock.getUri();
+                        item.addComponent(workComponent);
+                        item.addComponent(new LocationComponent());
+                        item.addComponent(new CharacterComponent());
 
-                                        EntityRef job = entityManager.create();
-                                        WorkTargetComponent jobTargetComponent = new WorkTargetComponent();
-                                        jobTargetComponent.setWork(walkToBlock);
-                                        BlockComponent blockComponent = new BlockComponent();
-                                        blockComponent.setPosition(currentBlock.getBlockPosition());
-
-                                        job.addComponent(blockComponent);
-                                        job.addComponent(jobTargetComponent);
-                                    }
-                                }
-
-                            }
-
-                        }
+                        final Region3i selection = Region3i.createFromMinAndSize(new Vector3i(minX, minY, minZ), new Vector3i(maxX, maxY, maxZ));
+                        ApplyBlockSelectionEvent event = new ApplyBlockSelectionEvent(item, selection);
+                        item.send(event);
                     } else {
                         target = new Vector3i(lastBlock.x(), lastBlock.height(), lastBlock.z());
-                        Cluster cluster = workBoard.getWorkType(walkToBlock).getCluster();
-                        nearest = cluster.findNearest(target);
+                        EntityRef entity = entityManager.create();
+                        MinionMoveComponent moveComponent = new MinionMoveComponent();
+                        moveComponent.currentBlock = lastBlock;
+                        entity.addComponent(moveComponent);
+                        workBoard.getWork(entity, walkToBlock, new WorkBoard.WorkBoardCallback() {
+                            @Override
+                            public boolean workReady(Cluster cluster, Vector3i position, EntityRef work) {
+                                nearest = position;
+                                return true;
+                            }
+                        });
+
                     }
                 }
             });
@@ -284,13 +307,15 @@ public class ClusterDebugger extends JFrame {
                     g.drawLine(x, y, ex, ey);
                 }
             }
-            WorkType workType = workBoard.getWorkType(walkToBlock);
-            List<Cluster> leafCluster = workType.getCluster().getLeafCluster();
 
-            int id = 1;
-            for (Cluster cluster : leafCluster) {
-                drawCluster(g, cluster, (float) id / leafCluster.size());
-                id++;
+            synchronized (mutex) {
+                if (leafCluster != null) {
+                    int id = 1;
+                    for (Cluster cluster : leafCluster) {
+                        drawCluster(g, cluster, (float) id / leafCluster.size());
+                        id++;
+                    }
+                }
             }
             if (nearest != null) {
                 drawBlock(g, nearest.x, nearest.z, "O", Color.white);
