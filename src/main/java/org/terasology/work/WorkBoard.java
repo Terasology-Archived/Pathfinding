@@ -194,7 +194,7 @@ public class WorkBoard extends BaseComponentSystem implements UpdateSubscriberSy
         }
 
         @Override
-        public void enact() {
+        public void run() {
             logger.info("rebuild after nav graph change");
             for (EntityRef work : entityManager.getEntitiesWith(WorkTargetComponent.class)) {
                 WorkTargetComponent workTargetComponent = work.getComponent(WorkTargetComponent.class);
@@ -234,7 +234,7 @@ public class WorkBoard extends BaseComponentSystem implements UpdateSubscriberSy
         }
 
         @Override
-        public void enact() {
+        public void run() {
             WorkTargetComponent component = target.getComponent(WorkTargetComponent.class);
             if (component != null) {
                 WorkType workType = getWorkType(component.getWork());
@@ -271,7 +271,7 @@ public class WorkBoard extends BaseComponentSystem implements UpdateSubscriberSy
         }
 
         @Override
-        public void enact() {
+        public void run() {
             WorkTargetComponent component = target.getComponent(WorkTargetComponent.class);
             if (component != null) {
                 WorkType workType = getWorkType(component.getWork());
@@ -312,7 +312,7 @@ public class WorkBoard extends BaseComponentSystem implements UpdateSubscriberSy
         }
 
         @Override
-        public void enact() {
+        public void run() {
             WalkableBlock block;
             block = target.getComponent(MinionMoveComponent.class).currentBlock;
             if (block == null) {

@@ -147,7 +147,7 @@ public class PathfinderSystem extends BaseComponentSystem {
         }
 
         @Override
-        public void enact() {
+        public void run() {
             pathsSearched++;
             List<WalkableBlock> startBlocks = Lists.newArrayList();
             for (Vector3i pos : start) {

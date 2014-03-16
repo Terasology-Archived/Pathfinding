@@ -172,7 +172,7 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
         }
 
         @Override
-        public void enact() {
+        public void run() {
             chunkUpdates++;
             maps.remove(chunkPos);
             NavGraphChunk map = updateChunk(chunkPos);
