@@ -16,12 +16,11 @@
 package org.terasology.pathfinding;
 
 import org.terasology.registry.CoreRegistry;
-import org.terasology.world.WorldBiomeProvider;
 import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockManager;
-import org.terasology.world.chunks.Chunk;
 import org.terasology.world.chunks.ChunkConstants;
-import org.terasology.world.generator.FirstPassGenerator;
+import org.terasology.world.chunks.CoreChunk;
+import org.terasology.world.generator.ChunkGenerationPass;
 
 import java.util.Map;
 
@@ -30,7 +29,7 @@ import java.util.Map;
  *
  * @author synopia
  */
-public class PathfinderTestGenerator implements FirstPassGenerator {
+public class PathfinderTestGenerator implements ChunkGenerationPass {
     public Block air;
     public Block ground;
     public boolean generateStairs;
@@ -50,7 +49,7 @@ public class PathfinderTestGenerator implements FirstPassGenerator {
     }
 
     @Override
-    public void generateChunk(Chunk chunk) {
+    public void generateChunk(CoreChunk chunk) {
         air = BlockManager.getAir();
         ground = CoreRegistry.get(BlockManager.class).getBlock("core:Dirt");
 
@@ -62,7 +61,7 @@ public class PathfinderTestGenerator implements FirstPassGenerator {
         }
     }
 
-    private void generateLevel(Chunk chunk, int groundHeight) {
+    private void generateLevel(CoreChunk chunk, int groundHeight) {
         for (int x = 0; x < ChunkConstants.SIZE_X; x++) {
             for (int z = 0; z < ChunkConstants.SIZE_Z; z++) {
                 chunk.setBlock(x, groundHeight, z, ground);
@@ -82,7 +81,7 @@ public class PathfinderTestGenerator implements FirstPassGenerator {
         }
     }
 
-    private void generateStairs(Chunk chunk, int groundHeight) {
+    private void generateStairs(CoreChunk chunk, int groundHeight) {
         for (int height = groundHeight + 1; height < groundHeight + 4; height++) {
             for (int x = 0; x < ChunkConstants.SIZE_X; x++) {
                 chunk.setBlock(x, height, 0, ground);
@@ -113,7 +112,7 @@ public class PathfinderTestGenerator implements FirstPassGenerator {
         buildWalkable(chunk, 9, height + 3, 8);
     }
 
-    private void buildWalkable(Chunk chunk, int x, int y, int z) {
+    private void buildWalkable(CoreChunk chunk, int x, int y, int z) {
         chunk.setBlock(x, y, z, ground);
         chunk.setBlock(x, y + 1, z, air);
         chunk.setBlock(x, y + 2, z, air);
@@ -124,11 +123,6 @@ public class PathfinderTestGenerator implements FirstPassGenerator {
 
     @Override
     public void setWorldSeed(String seed) {
-
-    }
-
-    @Override
-    public void setWorldBiomeProvider(WorldBiomeProvider biomeProvider) {
 
     }
 

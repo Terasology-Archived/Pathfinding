@@ -17,12 +17,14 @@ package org.terasology;
 
 import com.google.common.collect.Maps;
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.math.Region3i;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
 import org.terasology.world.WorldChangeListener;
 import org.terasology.world.block.Block;
 import org.terasology.world.chunks.Chunk;
 import org.terasology.world.chunks.internal.ChunkImpl;
+import org.terasology.world.generation.Region;
 import org.terasology.world.generator.WorldGenerator;
 import org.terasology.world.internal.ChunkViewCore;
 import org.terasology.world.internal.WorldInfo;
@@ -71,12 +73,6 @@ public class MapWorldProvider implements WorldProviderCore {
     public Block setBlock(Vector3i pos, Block type) {
         return blocks.put(pos, type);
     }
-
-    @Override
-    public float getFog(float x, float y, float z) {
-        return 0;
-    }
-
 
     @Override
     public Block getBlock(int x, int y, int z) {
@@ -155,17 +151,11 @@ public class MapWorldProvider implements WorldProviderCore {
     }
 
     @Override
+    public Region getWorldData(Region3i region) {
+        return null;
+    }
+
+    @Override
     public void dispose() {
     }
-
-    @Override
-    public float getTemperature(float x, float y, float z) {
-        return 0;
-    }
-
-    @Override
-    public float getHumidity(float x, float y, float z) {
-        return 0;
-    }
-
 }

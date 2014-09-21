@@ -121,13 +121,13 @@ public class MoveToNode extends Node {
             term2.sub(movementComp.getVelocity());
 
             Vector3f term3 = new Vector3f(term2);
-            term3.scale(1f / Math.min(movementComp.groundFriction * delta, 1f));
+            term3.scale(1f / Math.min(movementComp.mode.scaleInertia * delta, 1f));
 
             Vector3f term4 = new Vector3f(term3);
             term4.add(movementComp.getVelocity());
 
             Vector3f term5 = new Vector3f(term4);
-            term5.scale(1f / movementComp.maxGroundSpeed);
+            term5.scale(1f / movementComp.mode.maxSpeed);
 
             Vector3f desiredVelocity = term5;
 
