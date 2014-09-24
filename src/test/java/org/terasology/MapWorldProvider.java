@@ -70,6 +70,11 @@ public class MapWorldProvider implements WorldProviderCore {
     }
 
     @Override
+    public boolean isRegionRelevant(Region3i region) {
+        return false;
+    }
+
+    @Override
     public Block setBlock(Vector3i pos, Block type) {
         return blocks.put(pos, type);
     }
