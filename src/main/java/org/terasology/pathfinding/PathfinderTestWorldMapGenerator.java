@@ -16,7 +16,11 @@
 package org.terasology.pathfinding;
 
 import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
+import org.terasology.core.world.generator.facetProviders.FlatSurfaceHeightProvider;
+import org.terasology.core.world.generator.facetProviders.SeaLevelProvider;
 import org.terasology.engine.SimpleUri;
+import org.terasology.world.generation.World;
+import org.terasology.world.generation.WorldBuilder;
 import org.terasology.world.generator.RegisterWorldGenerator;
 
 /**
@@ -24,6 +28,8 @@ import org.terasology.world.generator.RegisterWorldGenerator;
  */
 @RegisterWorldGenerator(id = "pathfinder", displayName = "Pathfinder TestWorld")
 public class PathfinderTestWorldMapGenerator extends AbstractBaseWorldGenerator {
+    World world;
+
     public PathfinderTestWorldMapGenerator(SimpleUri uri) {
         super(uri);
     }
@@ -31,6 +37,23 @@ public class PathfinderTestWorldMapGenerator extends AbstractBaseWorldGenerator 
     @Override
     public void initialize() {
         register(new PathfinderTestGenerator());
+        world.initialize();
     }
+
+    @Override
+    public void setWorldSeed(String seed) {
+        world = new WorldBuilder(0)
+                .addProvider(new FlatSurfaceHeightProvider(50))
+                .addProvider(new SeaLevelProvider(2))
+                .build();
+
+        super.setWorldSeed(seed);
+    }
+
+    @Override
+    public World getWorld() {
+        return world;
+    }
+
 }
 
