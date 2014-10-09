@@ -31,6 +31,7 @@ import org.terasology.utilities.concurrency.TaskMaster;
 import org.terasology.world.WorldChangeListener;
 import org.terasology.world.WorldComponent;
 import org.terasology.world.WorldProvider;
+import org.terasology.world.biomes.Biome;
 import org.terasology.world.block.Block;
 import org.terasology.world.chunks.event.OnChunkLoaded;
 
@@ -89,6 +90,11 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
         taskMaster.offer(new UpdateChunkTask(chunkPos));
     }
 
+    @Override
+    public void onBiomeChanged(Vector3i pos, Biome newBiome, Biome originalBiome) {
+
+    }
+
     @ReceiveEvent(components = WorldComponent.class)
     public void chunkReady(OnChunkLoaded event, EntityRef worldEntity) {
         taskMaster.offer(new UpdateChunkTask(event.getChunkPos()));
@@ -113,8 +119,9 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
         Vector3i blockPos = new Vector3i(pos.x + 0.25f, pos.y, pos.z + 0.25f);
         WalkableBlock block = getBlock(blockPos);
         if (block == null) {
-            while (blockPos.y >= (int) pos.y - 4 && (block = getBlock(blockPos)) == null) {
+            while (blockPos.y >= (int) pos.y - 4 && block == null) {
                 blockPos.y--;
+                block = getBlock(blockPos);
             }
         }
         return block;

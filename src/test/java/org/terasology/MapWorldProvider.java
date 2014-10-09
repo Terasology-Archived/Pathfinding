@@ -21,10 +21,10 @@ import org.terasology.math.Region3i;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
 import org.terasology.world.WorldChangeListener;
+import org.terasology.world.biomes.Biome;
 import org.terasology.world.block.Block;
 import org.terasology.world.chunks.Chunk;
 import org.terasology.world.chunks.internal.ChunkImpl;
-import org.terasology.world.generation.Region;
 import org.terasology.world.generator.WorldGenerator;
 import org.terasology.world.internal.ChunkViewCore;
 import org.terasology.world.internal.WorldInfo;
@@ -77,6 +77,16 @@ public class MapWorldProvider implements WorldProviderCore {
     @Override
     public Block setBlock(Vector3i pos, Block type) {
         return blocks.put(pos, type);
+    }
+
+    @Override
+    public Biome setBiome(Vector3i pos, Biome biome) {
+        return null;
+    }
+
+    @Override
+    public Biome getBiome(Vector3i pos) {
+        return null;
     }
 
     @Override
@@ -153,11 +163,6 @@ public class MapWorldProvider implements WorldProviderCore {
     @Override
     public WorldTime getTime() {
         return new WorldTimeImpl();
-    }
-
-    @Override
-    public Region getWorldData(Region3i region) {
-        return null;
     }
 
     @Override
