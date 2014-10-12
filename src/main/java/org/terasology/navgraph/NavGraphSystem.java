@@ -92,7 +92,8 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
 
     @Override
     public void onBiomeChanged(Vector3i pos, Biome newBiome, Biome originalBiome) {
-
+        Vector3i chunkPos = TeraMath.calcChunkPos(pos);
+        taskMaster.offer(new UpdateChunkTask(chunkPos));
     }
 
     @ReceiveEvent(components = WorldComponent.class)
