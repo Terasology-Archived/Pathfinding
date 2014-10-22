@@ -43,6 +43,8 @@ import org.terasology.utilities.concurrency.TaskMaster;
 import org.terasology.work.kmeans.Cluster;
 import org.terasology.world.BlockEntityRegistry;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Map;
 
 /**
@@ -151,6 +153,13 @@ public class WorkBoard extends BaseComponentSystem implements UpdateSubscriberSy
 
     @Override
     public void shutdown() {
+        AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            @Override
+            public Object run() {
+                taskMaster.shutdown(new ShutdownTask(), false);
+                return null;
+            }
+        });
     }
 
     public void offer(WorkBoardTask task) {
@@ -195,7 +204,6 @@ public class WorkBoard extends BaseComponentSystem implements UpdateSubscriberSy
 
         @Override
         public void run() {
-            logger.info("rebuild after nav graph change");
             for (EntityRef work : entityManager.getEntitiesWith(WorkTargetComponent.class)) {
                 WorkTargetComponent workTargetComponent = work.getComponent(WorkTargetComponent.class);
                 WorkType workType = getWorkType(workTargetComponent.getWork());
@@ -336,6 +344,33 @@ public class WorkBoard extends BaseComponentSystem implements UpdateSubscriberSy
         @Override
         public boolean isTerminateSignal() {
             return false;
+        }
+    }
+
+    public static class ShutdownTask implements WorkBoardTask {
+        @Override
+        public int getPriority() {
+            return -1;
+        }
+
+        @Override
+        public int compareTo(WorkBoardTask o) {
+            return Integer.compare(this.getPriority(), o.getPriority());
+        }
+
+        @Override
+        public String getName() {
+            return "WorkBoard:ShutdownTask";
+        }
+
+        @Override
+        public void run() {
+
+        }
+
+        @Override
+        public boolean isTerminateSignal() {
+            return true;
         }
     }
 }
