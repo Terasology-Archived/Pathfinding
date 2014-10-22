@@ -36,8 +36,6 @@ import org.terasology.world.block.Block;
 import org.terasology.world.chunks.event.OnChunkLoaded;
 
 import javax.vecmath.Vector3f;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,13 +69,7 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
 
     @Override
     public void shutdown() {
-        AccessController.doPrivileged(new PrivilegedAction<Object>() {
-            @Override
-            public Object run() {
-                taskMaster.shutdown(new ShutdownTask(), false);
-                return null;
-            }
-        });
+        taskMaster.shutdown(new ShutdownTask(), false);
     }
 
     @Override

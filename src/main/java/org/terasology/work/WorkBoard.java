@@ -43,8 +43,6 @@ import org.terasology.utilities.concurrency.TaskMaster;
 import org.terasology.work.kmeans.Cluster;
 import org.terasology.world.BlockEntityRegistry;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Map;
 
 /**
@@ -153,13 +151,7 @@ public class WorkBoard extends BaseComponentSystem implements UpdateSubscriberSy
 
     @Override
     public void shutdown() {
-        AccessController.doPrivileged(new PrivilegedAction<Object>() {
-            @Override
-            public Object run() {
-                taskMaster.shutdown(new ShutdownTask(), false);
-                return null;
-            }
-        });
+        taskMaster.shutdown(new ShutdownTask(), false);
     }
 
     public void offer(WorkBoardTask task) {
