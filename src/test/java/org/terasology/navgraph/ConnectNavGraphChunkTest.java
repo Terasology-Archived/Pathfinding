@@ -35,22 +35,38 @@ import java.util.Set;
  */
 public class ConnectNavGraphChunkTest {
     private static final String[] CONTOUR_EXPECTED = new String[]{
-            "       C        ",
-            "                ",
-            "                ",
-            "                ",
-            "                ",
-            "                ",
-            "                ",
-            "               C",
-            "C               ",
-            "                ",
-            "                ",
-            "                ",
-            "                ",
-            "                ",
-            "                ",
-            "        C       ",
+            "               C                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                               C",
+            "C                               ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                                ",
+            "                C               ",
     };
 
     private WorldProvider world;
@@ -145,7 +161,7 @@ public class ConnectNavGraphChunkTest {
                 public char run(int x, int y, int z, char value) {
                     return isEntrance(center.getCell(x, z).getBlock(y)) ? 'C' : ' ';
                 }
-            }, 0, 51, 0, 16, 1, 16);
+            }, 0, 51, 0, 32, 1, 32);
             Assert.assertArrayEquals(contours, actual);
         }
     }
