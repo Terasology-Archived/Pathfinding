@@ -62,7 +62,8 @@ public class GridRenderer extends ZoomableLayout {
     private InteractionListener listener = new BaseInteractionListener() {
         @Override
         public boolean onMouseClick(MouseInput button, Vector2i pos) {
-            startDrag = endDrag = pos;
+            startDrag = pos; 
+            endDrag = pos;
             return true;
         }
 
@@ -80,9 +81,13 @@ public class GridRenderer extends ZoomableLayout {
 
             Vector2f start = screenToWorld(startDrag);
             Vector2f end = screenToWorld(endDrag);
-            ApplyBlockSelectionEvent event = new ApplyBlockSelectionEvent(entityRef, Region3i.createFromMinMax(new Vector3i((int) start.x, y, (int) start.y), new Vector3i((int) end.x, y, (int) end.y)));
+            Vector3i startInt = new Vector3i((int) start.x, y, (int) start.y);
+            Vector3i endInt = new Vector3i((int) end.x, y, (int) end.y);
+            Region3i rect = Region3i.createFromMinMax(startInt, endInt);
+            ApplyBlockSelectionEvent event = new ApplyBlockSelectionEvent(entityRef, rect);
             entityRef.send(event);
-            startDrag = endDrag = null;
+            startDrag = null; 
+            endDrag = null;
         }
 
         @Override
