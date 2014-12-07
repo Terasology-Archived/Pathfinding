@@ -17,8 +17,8 @@ package org.terasology.minion.move;
 
 import com.google.common.collect.Sets;
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.entitySystem.entity.lifecycleEvents.BeforeDeactivateComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
-import org.terasology.entitySystem.entity.lifecycleEvents.OnAddedComponent;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
@@ -61,17 +61,13 @@ public class MinionMoveSystem extends BaseComponentSystem {
     }
 
     @ReceiveEvent
-    public void onMinionActivated(OnActivatedComponent event, EntityRef minion, LocationComponent locationComponent, MinionMoveComponent moveComponent) {
+    public void onMinionActivation(OnActivatedComponent event, EntityRef minion, LocationComponent locationComponent, MinionMoveComponent moveComponent) {
+        setupEntity(minion);
         entities.add(minion);
     }
 
     @ReceiveEvent
-    public void onMinionAdded(OnAddedComponent event, EntityRef minion, LocationComponent locationComponent, MinionMoveComponent moveComponent) {
-        setupEntity(minion);
-    }
-
-    @ReceiveEvent
-    public void onMinionRemoved(OnAddedComponent event, EntityRef minion, LocationComponent locationComponent, MinionMoveComponent moveComponent) {
+    public void onMinionDeactivation(BeforeDeactivateComponent event, EntityRef minion, LocationComponent locationComponent, MinionMoveComponent moveComponent) {
         entities.remove(minion);
     }
 
