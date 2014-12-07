@@ -51,6 +51,8 @@ public class SetTargetToNearbyBlockNode extends Node {
                 WalkableBlock target = findRandomNearbyBlock(moveComponent.currentBlock);
                 moveComponent.target = target.getBlockPosition().toVector3f();
                 actor().save(moveComponent);
+            } else {
+                return Status.FAILURE;
             }
             return Status.SUCCESS;
         }
