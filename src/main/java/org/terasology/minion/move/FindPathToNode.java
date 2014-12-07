@@ -24,6 +24,7 @@ import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.registry.In;
 
+import javax.vecmath.Vector3f;
 import java.util.Arrays;
 import java.util.List;
 
@@ -55,22 +56,30 @@ public class FindPathToNode extends Node {
         @Override
         public void onInitialize() {
             MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
-            WalkableBlock workTarget = navGraphSystem.getBlock(moveComponent.target);
-            if (moveComponent.currentBlock != null && workTarget != null) {
-                pathfinderSystem.requestPath(
-                        actor().minion(), moveComponent.currentBlock.getBlockPosition(),
-                        Arrays.asList(workTarget.getBlockPosition()), new PathfinderSystem.PathReadyCallback() {
-                    @Override
-                    public void pathReady(int pathId, List<Path> path, WalkableBlock target, List<WalkableBlock> start) {
-
-                        if (path == null) {
-                            foundPath = Path.INVALID;
-                        } else if (path.size() > 0) {
-                            foundPath = path.get(0);
-                        }
-                    }
-                });
+            Vector3f targetLocation = moveComponent.target;
+            WalkableBlock currentBlock = moveComponent.currentBlock;
+            if (currentBlock == null || targetLocation == null) {
+                foundPath = Path.INVALID;
+                return;
             }
+            WalkableBlock workTarget = navGraphSystem.getBlock(targetLocation);
+            if (workTarget == null) {
+                foundPath = Path.INVALID;
+                return;
+            }
+            pathfinderSystem.requestPath(
+                    actor().minion(), currentBlock.getBlockPosition(),
+                    Arrays.asList(workTarget.getBlockPosition()), new PathfinderSystem.PathReadyCallback() {
+                @Override
+                public void pathReady(int pathId, List<Path> path, WalkableBlock target, List<WalkableBlock> start) {
+
+                    if (path == null) {
+                        foundPath = Path.INVALID;
+                    } else if (path.size() > 0) {
+                        foundPath = path.get(0);
+                    }
+                }
+            });
         }
 
         @Override
