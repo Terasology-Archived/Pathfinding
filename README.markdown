@@ -132,6 +132,11 @@ Requests a path to a target defined using the `MinionMoveComponent.target`.
 `SUCCESS` / `FAILURE`: when paths is found or not found (invalid).
 `RUNNING`: as long as path is searched.
 
+### `SetTargetToNearbyBlockNode`
+Sets the target to a random nearby block.
+
+Always returns `SUCCESS`.
+
 ### `MoveAlongPath` *Decorator*
 Call child node, as long as the actor has not reached the end of the path. Sets `MinionMoveComponent.target` to next step in path.
 
