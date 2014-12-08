@@ -56,14 +56,12 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
     private TaskMaster<NavGraphTask> taskMaster = TaskMaster.createPriorityTaskMaster("Pathfinder", 1, 1024);
     private boolean dirty;
     private float coolDown = EVENT_COOLDOWN;
-    private EntityRef eventHandler;
     private int chunkUpdates;
 
     private Map<Vector3i, NavGraphChunk> maps = new HashMap<>();
 
     @Override
     public void initialise() {
-        eventHandler = entityManager.create();
         world.registerListener(this);
     }
 
@@ -79,7 +77,7 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
             if (coolDown < 0) {
                 coolDown = EVENT_COOLDOWN;
                 dirty = false;
-                eventHandler.send(new NavGraphChanged());
+                world.getWorldEntity().send(new NavGraphChanged());
             }
         }
     }
