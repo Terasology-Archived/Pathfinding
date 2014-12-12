@@ -6,10 +6,6 @@
     "description" : "A pathfinding module mainly meant as a library/framework for other modules",
     "dependencies" : [
             {
-                "id" : "LightAndShadowResources",
-                "minVersion" : "0.1.0"
-            },
-            {
                 "id" : "Core",
                 "minVersion" : "0.1.0"
             }
