@@ -21,6 +21,7 @@ import org.terasology.entitySystem.entity.lifecycleEvents.BeforeDeactivateCompon
 import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
+import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.characters.events.HorizontalCollisionEvent;
 import org.terasology.logic.characters.events.OnEnterBlockEvent;
@@ -35,7 +36,7 @@ import java.util.Set;
 /**
  * Created by synopia on 02.02.14.
  */
-@RegisterSystem
+@RegisterSystem(RegisterMode.AUTHORITY)
 public class MinionMoveSystem extends BaseComponentSystem {
     @In
     private PathfinderSystem pathfinderSystem;

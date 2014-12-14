@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
+import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.math.Vector3i;
 import org.terasology.navgraph.NavGraphSystem;
@@ -49,7 +50,7 @@ import java.util.List;
  *
  * @author synopia
  */
-@RegisterSystem
+@RegisterSystem(RegisterMode.AUTHORITY)
 @Share(value = PathfinderSystem.class)
 public class PathfinderSystem extends BaseComponentSystem {
 
