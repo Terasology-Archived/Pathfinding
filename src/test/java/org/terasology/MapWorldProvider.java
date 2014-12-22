@@ -33,6 +33,8 @@ import org.terasology.world.liquid.LiquidData;
 import org.terasology.world.time.WorldTime;
 import org.terasology.world.time.WorldTimeImpl;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -167,5 +169,10 @@ public class MapWorldProvider implements WorldProviderCore {
 
     @Override
     public void dispose() {
+    }
+
+    @Override
+    public Collection<Region3i> getRelevantRegions() {
+        return Collections.emptySet();
     }
 }
