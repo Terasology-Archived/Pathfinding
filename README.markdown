@@ -162,13 +162,6 @@ Trigger a single jump into the air.
 
 `SUCCESS`: when the actor is grounded after the jump again.
 
-### `PlayAnimation`
-*Properties:* `animation`, `loop`
-
-Play a specific animation. Notice, if `loop` is false, this node will return `RUNNING` forever.
-
-`SUCCESS`: when the animation ended (only if `loop`==false)
-
 # Terasology Pathfinding module
 
 ## Systems

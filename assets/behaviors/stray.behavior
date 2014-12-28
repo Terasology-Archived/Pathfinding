@@ -13,53 +13,39 @@
             "node": {
               "children": [
                 {
-                  "nodeType": "engine:ParallelNode",
+                  "nodeType": "engine:SetAnimationNode",
                   "nodeId": 3,
                   "node": {
-                    "successPolicy": "RequireOne",
-                    "failurePolicy": "RequireOne",
-                    "children": [
-                      {
-                        "nodeType": "engine:LookupNode",
-                        "nodeId": 4,
-                        "node": {
-                          "tree": "Pathfinding:doRandomMove"
-                        }
-                      },
-                      {
-                        "nodeType": "Pathfinding:PlayAnimationNode",
-                        "nodeId": 5,
-                        "node": {
-                          "animation": "walk",
-                          "loop": true
-                        }
-                      }
-                    ]
+                    "play": "engine:Walk.animationPool",
+                    "loop": "engine:Walk.animationPool"
                   }
                 },
                 {
-                  "nodeType": "engine:ParallelNode",
+                  "nodeType": "engine:LookupNode",
+                  "nodeId": 4,
+                  "node": {
+                    "tree": "Pathfinding:doRandomMove"
+                  }
+                },
+                {
+                  "nodeType": "engine:SetAnimationNode",
+                  "nodeId": 5,
+                  "node": {
+                    "play": "engine:Stand.animationPool",
+                    "loop": "engine:Stand.animationPool"
+                  }
+                },
+                {
+                  "nodeType": "engine:WrapperNode",
                   "nodeId": 6,
                   "node": {
-                    "successPolicy": "RequireOne",
-                    "failurePolicy": "RequireOne",
-                    "children": [
-                      {
-                        "nodeType": "engine:TimerNode",
-                        "nodeId": 7,
-                        "node": {
-                          "time": 3.0
-                        }
-                      },
-                      {
-                        "nodeType": "Pathfinding:PlayAnimationNode",
-                        "nodeId": 8,
-                        "node": {
-                          "animation": "idle",
-                          "loop": true
-                        }
+                    "child": {
+                      "nodeType": "engine:TimerNode",
+                      "nodeId": 7,
+                      "node": {
+                        "time": 3.0
                       }
-                    ]
+                    }
                   }
                 }
               ]
