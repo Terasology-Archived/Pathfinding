@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,7 @@ import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
 import org.terasology.logic.characters.CharacterMoveInputEvent;
 import org.terasology.logic.characters.CharacterMovementComponent;
-
-import javax.vecmath.Vector3f;
+import org.terasology.math.geom.Vector3f;
 
 /**
  * Trigger a single jump into the air.<br/>

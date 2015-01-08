@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,11 @@ import org.slf4j.LoggerFactory;
 import org.terasology.logic.behavior.tree.DecoratorNode;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.location.LocationComponent;
+import org.terasology.math.geom.Vector3f;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.componentSystem.PathRenderSystem;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.registry.In;
-
-import javax.vecmath.Vector3f;
 
 /**
  * Call child node, as long as the actor has not reached the end of the path. Sets <b>MinionMoveComponent.target</b> to next step in path.<br/>

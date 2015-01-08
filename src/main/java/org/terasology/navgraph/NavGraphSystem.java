@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3f;
 import org.terasology.registry.In;
 import org.terasology.registry.Share;
 import org.terasology.utilities.concurrency.Task;
@@ -35,7 +36,6 @@ import org.terasology.world.biomes.Biome;
 import org.terasology.world.block.Block;
 import org.terasology.world.chunks.event.OnChunkLoaded;
 
-import javax.vecmath.Vector3f;
 import java.util.HashMap;
 import java.util.Map;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,10 @@ import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
 import org.terasology.logic.players.LocalPlayer;
+import org.terasology.math.geom.Vector3f;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.registry.In;
-
-import javax.vecmath.Vector3f;
 
 /**
  * Set <b>MinionMoveComponent.target</b> to the block below local player.<br/>

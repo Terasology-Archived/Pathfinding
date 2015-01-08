@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.grid.BlockRenderer;
 import org.terasology.math.Rect2i;
 import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector2f;
 import org.terasology.registry.In;
 import org.terasology.registry.Share;
 import org.terasology.rendering.assets.texture.Texture;
@@ -31,8 +32,6 @@ import org.terasology.world.WorldProvider;
 import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockPart;
 import org.terasology.world.block.loader.WorldAtlas;
-
-import javax.vecmath.Vector2f;
 
 /**
  * Created by synopia on 12.02.14.

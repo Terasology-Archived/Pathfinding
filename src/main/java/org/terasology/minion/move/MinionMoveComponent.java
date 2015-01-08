@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,9 @@
 package org.terasology.minion.move;
 
 import org.terasology.entitySystem.Component;
+import org.terasology.math.geom.Vector3f;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.model.Path;
-
-import javax.vecmath.Vector3f;
 
 /**
  * @author synopia

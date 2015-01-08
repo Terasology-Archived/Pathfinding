@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package org.terasology.work.kmeans;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3f;
 import org.terasology.utilities.random.MersenneRandom;
 import org.terasology.utilities.random.Random;
 
-import javax.vecmath.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
