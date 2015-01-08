@@ -224,7 +224,6 @@ public class HAStar {
         if (inSight) {
             Vector3i dist = new Vector3i(fromNode.block.getBlockPosition());
             dist.sub(toNode.block.getBlockPosition());
-            //TODO Used to get a float from vecmath, but we switched to TeraMath which uses double. Does it matter?
             return (float) dist.length();
         } else {
             Vector3i fromPos = fromNode.block.getBlockPosition();
