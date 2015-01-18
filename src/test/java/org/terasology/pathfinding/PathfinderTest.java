@@ -87,7 +87,7 @@ public class PathfinderTest {
         Assert.assertEquals(map, startBlock.floor.navGraphChunk);
         Assert.assertEquals(map, targetBlock.floor.navGraphChunk);
         Assert.assertEquals(map.getBlock(x + 0, 51, z + 1), startBlock);
-        Assert.assertEquals(map.getBlock(x + 14, 45, z + 12), targetBlock);
+        Assert.assertEquals(map.getBlock(x + 30, 45, z + 28), targetBlock);
         Path path = pathfinder.findPath(targetBlock, startBlock);
         Assert.assertEquals(0, path.size());
 
