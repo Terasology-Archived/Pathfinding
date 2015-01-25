@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 package org.terasology.pathfinding;
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ListenableFuture;
 import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.terasology.WorldProvidingHeadlessEnvironment;
 import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
@@ -28,19 +28,14 @@ import org.terasology.engine.SimpleUri;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.internal.PojoEntityManager;
-import org.terasology.entitySystem.event.internal.EventReceiver;
 import org.terasology.entitySystem.event.internal.EventSystem;
 import org.terasology.logic.characters.CharacterComponent;
 import org.terasology.math.Vector3i;
 import org.terasology.navgraph.NavGraphSystem;
-import org.terasology.pathfinding.componentSystem.PathReadyEvent;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.Pathfinder;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.chunks.event.OnChunkLoaded;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static org.mockito.Mockito.mock;
 
@@ -57,49 +52,37 @@ public class PathfinderSystemTest {
 
     @Test
     public void updateChunkBeforePathRequests() throws InterruptedException {
-        final List<Integer> list = Lists.newArrayList();
         EntityRef entityRef = entityManager.create();
         entityRef.addComponent(new CharacterComponent());
-        eventSystem.registerEventReceiver(new EventReceiver<PathReadyEvent>() {
-            @Override
-            public void onEvent(PathReadyEvent event, EntityRef entity) {
-                Assert.assertEquals(1, navGraphSystem.getChunkUpdates());
-                list.add(event.getPathId());
-            }
-        }, PathReadyEvent.class, CharacterComponent.class);
+
         navGraphSystem.chunkReady(mock(OnChunkLoaded.class), entityRef);
-        int id1 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
-        int id2 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
-        int id3 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
+        ListenableFuture f1 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
+        ListenableFuture f2 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
+        ListenableFuture f3 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
         while (pathfinderSystem.getPathsSearched() != 3) {
             Thread.sleep(10);
             eventSystem.process();
         }
-        Assert.assertEquals(Arrays.asList(id1, id2, id3), list);
+        Assert.assertTrue(f1.isDone());
+        Assert.assertTrue(f2.isDone());
+        Assert.assertTrue(f3.isDone());
     }
 
     @Test
-    @Ignore
     public void updateChunkAfterPathRequests() throws InterruptedException {
-        final List<Integer> list = Lists.newArrayList();
         EntityRef entityRef = entityManager.create();
         entityRef.addComponent(new CharacterComponent());
-        eventSystem.registerEventReceiver(new EventReceiver<PathReadyEvent>() {
-            @Override
-            public void onEvent(PathReadyEvent event, EntityRef entity) {
-                Assert.assertEquals(1, navGraphSystem.getChunkUpdates());
-                list.add(event.getPathId());
-            }
-        }, PathReadyEvent.class, CharacterComponent.class);
-        int id1 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
-        int id2 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
-        int id3 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
+        ListenableFuture f1 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
+        ListenableFuture f2 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
+        ListenableFuture f3 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
         navGraphSystem.chunkReady(mock(OnChunkLoaded.class), entityRef);
         while (pathfinderSystem.getPathsSearched() != 3) {
             Thread.sleep(50);
             eventSystem.process();
         }
-        Assert.assertEquals(Arrays.asList(id1, id2, id3), list);
+        Assert.assertTrue(f1.isDone());
+        Assert.assertTrue(f2.isDone());
+        Assert.assertTrue(f3.isDone());
     }
 
     @After

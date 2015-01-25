@@ -16,6 +16,7 @@
 package org.terasology.pathfinding.componentSystem;
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.SettableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.entitySystem.entity.EntityRef;
@@ -78,14 +79,11 @@ public class PathfinderSystem extends BaseComponentSystem {
     public void shutdown() {
     }
 
-    public int requestPath(EntityRef requestor, Vector3i target, List<Vector3i> start) {
-        return requestPath(requestor, target, start, null);
-    }
-
-    public int requestPath(EntityRef requestor, Vector3i target, List<Vector3i> start, PathReadyCallback callback) {
-        FindPathTask task = new FindPathTask(start, target, requestor, callback);
+    public SettableFuture<List<Path>> requestPath(EntityRef requestor, Vector3i target, List<Vector3i> start) {
+        SettableFuture<List<Path>> future = SettableFuture.create();
+        FindPathTask task = new FindPathTask(start, target, requestor, future);
         navGraphSystem.offer(task);
-        return task.pathId;
+        return future;
     }
 
     public Path findPath(final WalkableBlock target, final WalkableBlock start) {
@@ -116,10 +114,6 @@ public class PathfinderSystem extends BaseComponentSystem {
         return new Pathfinder(navGraphSystem, lineOfSight);
     }
 
-    public interface PathReadyCallback {
-        void pathReady(int pathId, List<Path> path, WalkableBlock target, List<WalkableBlock> start);
-    }
-
     /**
      * Task to find a path.
      * <p/>
@@ -131,14 +125,14 @@ public class PathfinderSystem extends BaseComponentSystem {
         public List<Vector3i> start;
         public Vector3i target;
         public int pathId;
-        public PathReadyCallback callback;
+        public SettableFuture<List<Path>> future;
 
-        private FindPathTask(List<Vector3i> start, Vector3i target, EntityRef entity, PathReadyCallback callback) {
+        private FindPathTask(List<Vector3i> start, Vector3i target, EntityRef entity, SettableFuture<List<Path>> future) {
             this.start = start;
             this.target = target;
             this.entity = entity;
             this.pathId = nextId;
-            this.callback = callback;
+            this.future = future;
             nextId++;
         }
 
@@ -161,10 +155,9 @@ public class PathfinderSystem extends BaseComponentSystem {
             if (targetBlock != null && startBlocks.size() > 0) {
                 paths = pathfinder.findPath(targetBlock, startBlocks);
             }
-            if (callback != null) {
-                callback.pathReady(pathId, paths, targetBlock, startBlocks);
+            if (future != null) {
+                future.set(paths);
             }
-            entity.send(new PathReadyEvent(pathId, paths, targetBlock, startBlocks));
         }
 
         @Override
