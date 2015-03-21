@@ -20,7 +20,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3i;
 import org.terasology.navgraph.BitMap;
 import org.terasology.navgraph.Entrance;
 import org.terasology.navgraph.Floor;
@@ -242,16 +242,16 @@ public class HAStar {
             }
             localPath = fromNode.block.floor.navGraphChunk.pathCache.findPath(
                     fromNode.block, toNode.block, new PathCache.Callback() {
-                @Override
-                public Path run(WalkableBlock from, WalkableBlock to) {
+                        @Override
+                        public Path run(WalkableBlock from, WalkableBlock to) {
 
-                    localAStar.reset();
-                    if (localAStar.run(from, to)) {
-                        return localAStar.getPath();
-                    }
-                    return Path.INVALID;
-                }
-            });
+                            localAStar.reset();
+                            if (localAStar.run(from, to)) {
+                                return localAStar.getPath();
+                            }
+                            return Path.INVALID;
+                        }
+                    });
             if (localPath == null || localPath == Path.INVALID) {
                 throw new IllegalStateException(fromNode + ", " + toNode + " no costs found!");
             }

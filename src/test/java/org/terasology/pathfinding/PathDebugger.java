@@ -20,7 +20,7 @@ import org.terasology.WorldProvidingHeadlessEnvironment;
 import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
 import org.terasology.engine.ComponentSystemManager;
 import org.terasology.engine.SimpleUri;
-import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3i;
 import org.terasology.navgraph.Entrance;
 import org.terasology.navgraph.Floor;
 import org.terasology.navgraph.NavGraphSystem;

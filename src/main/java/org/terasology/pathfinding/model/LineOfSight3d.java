@@ -17,7 +17,7 @@ package org.terasology.pathfinding.model;
 
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3i;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.registry.In;
 import org.terasology.world.WorldProvider;

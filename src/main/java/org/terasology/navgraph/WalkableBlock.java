@@ -15,7 +15,7 @@
  */
 package org.terasology.navgraph;
 
-import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3i;
 
 /**
  * @author synopia

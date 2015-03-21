@@ -21,7 +21,7 @@ import org.terasology.TextWorldBuilder;
 import org.terasology.WorldProvidingHeadlessEnvironment;
 import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
 import org.terasology.engine.SimpleUri;
-import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3i;
 import org.terasology.navgraph.NavGraphChunk;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.model.HAStar;

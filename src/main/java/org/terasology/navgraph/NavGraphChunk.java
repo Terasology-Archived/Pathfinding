@@ -18,7 +18,7 @@ package org.terasology.navgraph;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.terasology.math.TeraMath;
-import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3i;
 import org.terasology.pathfinding.model.PathCache;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.chunks.ChunkConstants;
@@ -58,7 +58,7 @@ public class NavGraphChunk {
     public NavGraphChunk(WorldProvider world, Vector3i chunkPos) {
         this.world = world;
         this.worldPos = new Vector3i(chunkPos);
-        worldPos.mult(SIZE_X, SIZE_Y, SIZE_Z);
+        worldPos.mul(SIZE_X, SIZE_Y, SIZE_Z);
         for (int i = 0; i < cells.length; i++) {
             cells[i] = new NavGraphCell();
         }

@@ -21,7 +21,7 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
-import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3i;
 import org.terasology.registry.In;
 import org.terasology.rendering.nui.properties.OneOf;
 import org.terasology.work.kmeans.Cluster;

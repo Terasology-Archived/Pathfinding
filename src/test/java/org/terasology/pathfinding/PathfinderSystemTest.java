@@ -29,7 +29,7 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.internal.PojoEntityManager;
 import org.terasology.entitySystem.event.internal.EventReceiver;
 import org.terasology.entitySystem.event.internal.EventSystem;
-import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3i;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.navgraph.NavGraphSystem;
 import org.terasology.pathfinding.componentSystem.PathReadyEvent;

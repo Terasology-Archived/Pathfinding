@@ -31,9 +31,9 @@ import org.terasology.logic.selection.ApplyBlockSelectionEvent;
 import org.terasology.math.Rect2i;
 import org.terasology.math.Region3i;
 import org.terasology.math.Vector2i;
-import org.terasology.math.Vector3i;
 import org.terasology.math.geom.Vector2f;
 import org.terasology.math.geom.Vector3f;
+import org.terasology.math.geom.Vector3i;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.rendering.nui.BaseInteractionListener;
 import org.terasology.rendering.nui.Canvas;
@@ -61,7 +61,7 @@ public class GridRenderer extends ZoomableLayout {
     private InteractionListener listener = new BaseInteractionListener() {
         @Override
         public boolean onMouseClick(MouseInput button, Vector2i pos) {
-            startDrag = pos; 
+            startDrag = pos;
             endDrag = pos;
             return true;
         }
@@ -85,7 +85,7 @@ public class GridRenderer extends ZoomableLayout {
             Region3i rect = Region3i.createFromMinMax(startInt, endInt);
             ApplyBlockSelectionEvent event = new ApplyBlockSelectionEvent(entityRef, rect);
             entityRef.send(event);
-            startDrag = null; 
+            startDrag = null;
             endDrag = null;
         }
 

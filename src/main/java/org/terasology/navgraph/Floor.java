@@ -17,7 +17,7 @@ package org.terasology.navgraph;
 
 import com.google.common.collect.Lists;
 import org.terasology.math.TeraMath;
-import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3i;
 
 import java.util.Arrays;
 import java.util.List;

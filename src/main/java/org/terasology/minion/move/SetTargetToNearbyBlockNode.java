@@ -59,10 +59,10 @@ public class SetTargetToNearbyBlockNode extends Node {
 
         private WalkableBlock findRandomNearbyBlock(WalkableBlock startBlock) {
             WalkableBlock currentBlock = startBlock;
-            for (int i = 0; i< RANDOM_BLOCK_ITERATIONS; i++) {
+            for (int i = 0; i < RANDOM_BLOCK_ITERATIONS; i++) {
                 WalkableBlock[] neighbors = currentBlock.neighbors;
                 List<WalkableBlock> existingNeighbors = Lists.newArrayList();
-                for (WalkableBlock neighbor: neighbors) {
+                for (WalkableBlock neighbor : neighbors) {
                     if (neighbor != null) {
                         existingNeighbors.add(neighbor);
                     }

@@ -18,8 +18,8 @@ package org.terasology.work;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.math.Vector3i;
 import org.terasology.math.geom.Vector3f;
+import org.terasology.math.geom.Vector3i;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.work.kmeans.Cluster;
 
@@ -43,7 +43,7 @@ public class WorkType {
             public float distance(Vector3i element, Vector3i target) {
                 EntityRef workEntity = mapping.get(element);
                 if (workEntity != null && requestableWork.contains(workEntity)) {
-                    return element.distance(target);
+                    return (float) element.distance(target);
                 }
                 return Float.MAX_VALUE;
             }
