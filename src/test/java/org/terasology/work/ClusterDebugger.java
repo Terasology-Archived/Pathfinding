@@ -31,6 +31,7 @@ import org.terasology.math.Region3i;
 import org.terasology.math.geom.Vector3i;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.monitoring.PerformanceMonitor;
+import org.terasology.naming.Name;
 import org.terasology.navgraph.Entrance;
 import org.terasology.navgraph.Floor;
 import org.terasology.navgraph.NavGraphSystem;
@@ -41,7 +42,6 @@ import org.terasology.registry.CoreRegistry;
 import org.terasology.rendering.nui.properties.OneOfProviderFactory;
 import org.terasology.work.kmeans.Cluster;
 import org.terasology.work.systems.WalkToBlock;
-import org.terasology.world.block.Block;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -76,14 +76,13 @@ public class ClusterDebugger extends JFrame {
     private final Object mutex = new Object();
 
     public ClusterDebugger() throws HeadlessException {
-        env = new WorldProvidingHeadlessEnvironment();
+        env = new WorldProvidingHeadlessEnvironment(new Name("Pathfinding"));
         env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
             @Override
             public void initialize() {
                 register(new PathfinderTestGenerator(true, true));
             }
         });
-        env.registerBlock("Core:Dirt", new Block(), false);
 
         entityManager = CoreRegistry.get(EntityManager.class);
         mapWidth = 160;

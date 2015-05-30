@@ -55,6 +55,8 @@ public class RemoveBlock extends BaseComponentSystem implements Work, ComponentS
     private WorldProvider worldProvider;
     @In
     private WorkFactory workFactory;
+    @In
+    private BlockManager blockManager;
 
     private final SimpleUri uri;
 
@@ -105,7 +107,8 @@ public class RemoveBlock extends BaseComponentSystem implements Work, ComponentS
     @Override
     public void letMinionWork(EntityRef block, EntityRef minion) {
         block.removeComponent(WorkTargetComponent.class);
-        worldProvider.setBlock(block.getComponent(BlockComponent.class).getPosition(), BlockManager.getAir());
+        Block air = blockManager.getBlock(BlockManager.AIR_ID);
+        worldProvider.setBlock(block.getComponent(BlockComponent.class).getPosition(), air);
     }
 
     @Override

@@ -30,7 +30,6 @@ import org.terasology.pathfinding.model.LineOfSight;
 import org.terasology.pathfinding.model.LineOfSight2d;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.registry.CoreRegistry;
-import org.terasology.world.block.Block;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -68,7 +67,6 @@ public class PathDebugger extends JFrame {
                 register(new PathfinderTestGenerator(true, true));
             }
         });
-        env.registerBlock("Core:Dirt", new Block(), false);
 
         mapWidth = 160;
         mapHeight = 100;

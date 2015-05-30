@@ -23,6 +23,7 @@ import org.terasology.WorldProvidingHeadlessEnvironment;
 import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
 import org.terasology.engine.SimpleUri;
 import org.terasology.math.geom.Vector3i;
+import org.terasology.naming.Name;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.WorldProvider;
 
@@ -230,7 +231,7 @@ public class WalkableBlockFinderTest {
 
     @Before
     public void setup() {
-        WorldProvidingHeadlessEnvironment env = new WorldProvidingHeadlessEnvironment();
+        WorldProvidingHeadlessEnvironment env = new WorldProvidingHeadlessEnvironment(new Name("Pathfinding"));
         env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
             @Override
             public void initialize() {

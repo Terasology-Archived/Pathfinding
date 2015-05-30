@@ -31,7 +31,7 @@ import org.terasology.rendering.nui.ScaleMode;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockPart;
-import org.terasology.world.block.loader.WorldAtlas;
+import org.terasology.world.block.tiles.WorldAtlas;
 
 /**
  * Created by synopia on 12.02.14.
@@ -49,7 +49,7 @@ public class DefaultBlockRenderer extends BaseComponentSystem implements BlockRe
 
     @Override
     public void initialise() {
-        terrainTex = Assets.getTexture("engine:terrain");
+        terrainTex = Assets.getTexture("engine:terrain").get();
         relativeTileSize = 0.0625f;
     }
 

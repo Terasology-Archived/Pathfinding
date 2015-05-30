@@ -31,6 +31,7 @@ import org.terasology.entitySystem.event.internal.EventReceiver;
 import org.terasology.entitySystem.event.internal.EventSystem;
 import org.terasology.math.geom.Vector3i;
 import org.terasology.minion.move.MinionMoveComponent;
+import org.terasology.naming.Name;
 import org.terasology.navgraph.NavGraphSystem;
 import org.terasology.pathfinding.componentSystem.PathReadyEvent;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
@@ -107,7 +108,7 @@ public class PathfinderSystemTest {
 
     @Before
     public void setup() {
-        environment = new WorldProvidingHeadlessEnvironment();
+        environment = new WorldProvidingHeadlessEnvironment(new Name("Pathfinding"));
         environment.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
             @Override
             public void initialize() {

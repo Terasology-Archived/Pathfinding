@@ -50,8 +50,9 @@ public class PathfinderTestGenerator implements ChunkGenerationPass {
 
     @Override
     public void generateChunk(CoreChunk chunk) {
-        air = BlockManager.getAir();
-        ground = CoreRegistry.get(BlockManager.class).getBlock("core:Dirt");
+        BlockManager blockManager = CoreRegistry.get(BlockManager.class);
+        air = blockManager.getBlock(BlockManager.AIR_ID);
+        ground = blockManager.getBlock("core:Dirt");
 
         generateLevel(chunk, 50);
 

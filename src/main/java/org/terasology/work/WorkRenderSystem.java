@@ -40,7 +40,7 @@ public class WorkRenderSystem extends BaseComponentSystem implements RenderSyste
 
     @Override
     public void initialise() {
-        selectionRenderer = new BlockSelectionRenderer(Assets.getTexture("engine:selection"));
+        selectionRenderer = new BlockSelectionRenderer(Assets.getTexture("engine:selection").get());
     }
 
     @Override

@@ -33,10 +33,13 @@ public class TextWorldBuilder {
     private int sizeZ;
     private WorldProvider world;
     private Block ground;
+    private Block air;
 
     public TextWorldBuilder(WorldProvidingHeadlessEnvironment environment) {
         world = CoreRegistry.get(WorldProvider.class);
-        this.ground = environment.registerBlock("Core:Dirt", new Block(), false);
+        BlockManager blockManager = CoreRegistry.get(BlockManager.class);
+        this.ground = blockManager.getBlock("Core:Dirt");
+        this.air = blockManager.getBlock(BlockManager.AIR_ID);
     }
 
     public void setGround(int x, int y, int z) {
@@ -44,7 +47,7 @@ public class TextWorldBuilder {
     }
 
     public void setAir(int x, int y, int z) {
-        world.setBlock(new Vector3i(x, y, z), BlockManager.getAir());
+        world.setBlock(new Vector3i(x, y, z), air);
     }
 
     public void setGround(String... lines) {
