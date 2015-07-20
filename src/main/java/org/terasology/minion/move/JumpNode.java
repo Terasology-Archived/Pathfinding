@@ -15,12 +15,14 @@
  */
 package org.terasology.minion.move;
 
+import org.terasology.engine.Time;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
 import org.terasology.logic.characters.CharacterMoveInputEvent;
 import org.terasology.logic.characters.CharacterMovementComponent;
 import org.terasology.math.geom.Vector3f;
+import org.terasology.registry.CoreRegistry;
 
 /**
  * Trigger a single jump into the air.<br/>
@@ -42,7 +44,7 @@ public class JumpNode extends Node {
 
         @Override
         public void onInitialize() {
-            actor().minion().send(new CharacterMoveInputEvent(0, 0, 0, new Vector3f(), false, true));
+            actor().minion().send(new CharacterMoveInputEvent(0, 0, 0, new Vector3f(), false, true, CoreRegistry.get(Time.class).getDeltaInMs()));
         }
 
         @Override

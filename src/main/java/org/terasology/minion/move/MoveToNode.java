@@ -15,6 +15,7 @@
  */
 package org.terasology.minion.move;
 
+import org.terasology.engine.Time;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
@@ -23,6 +24,7 @@ import org.terasology.logic.characters.CharacterMovementComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.TeraMath;
 import org.terasology.math.geom.Vector3f;
+import org.terasology.registry.CoreRegistry;
 import org.terasology.rendering.nui.properties.Range;
 
 /**
@@ -135,8 +137,7 @@ public class MoveToNode extends Node {
             // Does not account for gravity's effect on the Y axis. -- this shouldn't affect horizontal travel.
             // Does not account for anything the physics engine might be doing
 
-            CharacterMoveInputEvent newInput = new CharacterMoveInputEvent(input.getSequenceNumber(),
-                    input.getPitch(), input.getYaw(), desiredVelocity, input.isRunning(), input.isJumpRequested());
+            CharacterMoveInputEvent newInput = new CharacterMoveInputEvent(input.getSequenceNumber(), input.getPitch(), input.getYaw(), desiredVelocity, input.isRunning(), input.isJumpRequested(), CoreRegistry.get(Time.class).getDeltaInMs());
 
             return newInput;
         }
