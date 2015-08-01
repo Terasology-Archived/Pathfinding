@@ -24,7 +24,7 @@ import org.terasology.logic.characters.CharacterMovementComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.TeraMath;
 import org.terasology.math.geom.Vector3f;
-import org.terasology.registry.CoreRegistry;
+import org.terasology.registry.In;
 import org.terasology.rendering.nui.properties.Range;
 
 /**
@@ -47,6 +47,9 @@ public class MoveToNode extends Node {
     }
 
     public static class MoveToTask extends Task {
+        @In
+        private Time time;
+
         private boolean jumpMode;
         private float jumpCooldown;
 
@@ -137,7 +140,9 @@ public class MoveToNode extends Node {
             // Does not account for gravity's effect on the Y axis. -- this shouldn't affect horizontal travel.
             // Does not account for anything the physics engine might be doing
 
-            CharacterMoveInputEvent newInput = new CharacterMoveInputEvent(input.getSequenceNumber(), input.getPitch(), input.getYaw(), desiredVelocity, input.isRunning(), input.isJumpRequested(), CoreRegistry.get(Time.class).getGameDeltaInMs());
+            CharacterMoveInputEvent newInput = new CharacterMoveInputEvent(input.getSequenceNumber(),
+                    input.getPitch(), input.getYaw(), desiredVelocity, input.isRunning(), input.isJumpRequested(),
+                    time.getDeltaInMs());
 
             return newInput;
         }

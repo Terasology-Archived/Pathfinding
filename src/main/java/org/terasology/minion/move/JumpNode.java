@@ -15,14 +15,13 @@
  */
 package org.terasology.minion.move;
 
-import org.terasology.engine.Time;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
 import org.terasology.logic.characters.CharacterMoveInputEvent;
 import org.terasology.logic.characters.CharacterMovementComponent;
 import org.terasology.math.geom.Vector3f;
-import org.terasology.registry.CoreRegistry;
+import org.terasology.registry.In;
 
 /**
  * Trigger a single jump into the air.<br/>
@@ -32,19 +31,27 @@ import org.terasology.registry.CoreRegistry;
  * Auto generated javadoc - modify README.markdown instead!
  */
 public class JumpNode extends Node {
+
+    public JumpNode() {
+
+    }
+
     @Override
     public Task createTask() {
         return new JumpTask(this);
     }
 
     public static class JumpTask extends Task {
+        @In
+        private Time time;
+
         public JumpTask(Node node) {
             super(node);
         }
 
         @Override
         public void onInitialize() {
-            actor().minion().send(new CharacterMoveInputEvent(0, 0, 0, new Vector3f(), false, true, CoreRegistry.get(Time.class).getGameDeltaInMs()));
+            actor().minion().send(new CharacterMoveInputEvent(0, 0, 0, new Vector3f(), false, true, time.getDeltaInMs()));
         }
 
         @Override
