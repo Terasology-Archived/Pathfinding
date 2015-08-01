@@ -142,7 +142,7 @@ public class MoveToNode extends Node {
 
             CharacterMoveInputEvent newInput = new CharacterMoveInputEvent(input.getSequenceNumber(),
                     input.getPitch(), input.getYaw(), desiredVelocity, input.isRunning(), input.isJumpRequested(),
-                    time.getDeltaInMs());
+                    time.getGameDeltaInMs());
 
             return newInput;
         }

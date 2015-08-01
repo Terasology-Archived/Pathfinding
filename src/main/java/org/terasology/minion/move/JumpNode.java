@@ -15,6 +15,7 @@
  */
 package org.terasology.minion.move;
 
+import org.terasology.engine.Time;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
@@ -51,7 +52,7 @@ public class JumpNode extends Node {
 
         @Override
         public void onInitialize() {
-            actor().minion().send(new CharacterMoveInputEvent(0, 0, 0, new Vector3f(), false, true, time.getDeltaInMs()));
+            actor().minion().send(new CharacterMoveInputEvent(0, 0, 0, new Vector3f(), false, true, time.getGameDeltaInMs()));
         }
 
         @Override
