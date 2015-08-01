@@ -44,7 +44,7 @@ public class JumpNode extends Node {
 
         @Override
         public void onInitialize() {
-            actor().minion().send(new CharacterMoveInputEvent(0, 0, 0, new Vector3f(), false, true, CoreRegistry.get(Time.class).getDeltaInMs()));
+            actor().minion().send(new CharacterMoveInputEvent(0, 0, 0, new Vector3f(), false, true, CoreRegistry.get(Time.class).getGameDeltaInMs()));
         }
 
         @Override

@@ -137,7 +137,7 @@ public class MoveToNode extends Node {
             // Does not account for gravity's effect on the Y axis. -- this shouldn't affect horizontal travel.
             // Does not account for anything the physics engine might be doing
 
-            CharacterMoveInputEvent newInput = new CharacterMoveInputEvent(input.getSequenceNumber(), input.getPitch(), input.getYaw(), desiredVelocity, input.isRunning(), input.isJumpRequested(), CoreRegistry.get(Time.class).getDeltaInMs());
+            CharacterMoveInputEvent newInput = new CharacterMoveInputEvent(input.getSequenceNumber(), input.getPitch(), input.getYaw(), desiredVelocity, input.isRunning(), input.isJumpRequested(), CoreRegistry.get(Time.class).getGameDeltaInMs());
 
             return newInput;
         }
