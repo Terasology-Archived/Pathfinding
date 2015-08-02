@@ -22,7 +22,9 @@ import org.terasology.math.TeraMath;
 import org.terasology.math.geom.Vector3i;
 import org.terasology.world.WorldChangeListener;
 import org.terasology.world.biomes.Biome;
+import org.terasology.world.biomes.BiomeManager;
 import org.terasology.world.block.Block;
+import org.terasology.world.block.BlockManager;
 import org.terasology.world.chunks.Chunk;
 import org.terasology.world.chunks.internal.ChunkImpl;
 import org.terasology.world.generator.WorldGenerator;
@@ -44,9 +46,13 @@ public class MapWorldProvider implements WorldProviderCore {
     private Map<Vector3i, Block> blocks = Maps.newHashMap();
     private Map<Vector3i, Chunk> chunks = Maps.newHashMap();
     private WorldGenerator worldGenerator;
+    private final BlockManager blockManager;
+    private final BiomeManager biomeManager;
 
-    public MapWorldProvider(WorldGenerator worldGenerator) {
+    public MapWorldProvider(WorldGenerator worldGenerator, BlockManager blockManager, BiomeManager biomeManager) {
         this.worldGenerator = worldGenerator;
+        this.blockManager = blockManager;
+        this.biomeManager = biomeManager;
     }
 
     @Override
@@ -101,7 +107,7 @@ public class MapWorldProvider implements WorldProviderCore {
         Vector3i chunkPos = TeraMath.calcChunkPos(pos);
         Chunk chunk = chunks.get(chunkPos);
         if (chunk == null && worldGenerator != null) {
-            chunk = new ChunkImpl(chunkPos);
+            chunk = new ChunkImpl(chunkPos, blockManager, biomeManager);
             worldGenerator.createChunk(chunk);
             chunks.put(chunkPos, chunk);
         }

@@ -16,9 +16,10 @@
 package org.terasology;
 
 import org.terasology.naming.Name;
-import org.terasology.registry.CoreRegistry;
 import org.terasology.world.BlockEntityRegistry;
 import org.terasology.world.WorldProvider;
+import org.terasology.world.biomes.BiomeManager;
+import org.terasology.world.block.BlockManager;
 import org.terasology.world.generator.WorldGenerator;
 import org.terasology.world.internal.EntityAwareWorldProvider;
 import org.terasology.world.internal.WorldProviderCore;
@@ -35,10 +36,12 @@ public class WorldProvidingHeadlessEnvironment extends HeadlessEnvironment {
 
     public void setupWorldProvider(WorldGenerator generator) {
         generator.initialize();
-        WorldProviderCore stub = new MapWorldProvider(generator);
+        BlockManager blockManager = context.get(BlockManager.class);
+        BiomeManager biomeManager = context.get(BiomeManager.class);
+        WorldProviderCore stub = new MapWorldProvider(generator, blockManager, biomeManager);
         WorldProvider world = new WorldProviderWrapper(stub);
-        CoreRegistry.put(WorldProvider.class, world);
-        CoreRegistry.put(BlockEntityRegistry.class, new EntityAwareWorldProvider(stub));
+        context.put(WorldProvider.class, world);
+        context.put(BlockEntityRegistry.class, new EntityAwareWorldProvider(stub));
     }
 
 
