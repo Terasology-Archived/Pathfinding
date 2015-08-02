@@ -41,7 +41,7 @@ public class WorldProvidingHeadlessEnvironment extends HeadlessEnvironment {
         WorldProviderCore stub = new MapWorldProvider(generator, blockManager, biomeManager);
         WorldProvider world = new WorldProviderWrapper(stub);
         context.put(WorldProvider.class, world);
-        context.put(BlockEntityRegistry.class, new EntityAwareWorldProvider(stub));
+        context.put(BlockEntityRegistry.class, new EntityAwareWorldProvider(stub, context));
     }
 
 
