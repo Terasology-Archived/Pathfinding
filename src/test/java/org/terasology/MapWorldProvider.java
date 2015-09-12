@@ -28,6 +28,8 @@ import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockManager;
 import org.terasology.world.chunks.Chunk;
 import org.terasology.world.chunks.internal.ChunkImpl;
+import org.terasology.world.generation.EntityBuffer;
+import org.terasology.world.generation.impl.EntityBufferImpl;
 import org.terasology.world.generator.WorldGenerator;
 import org.terasology.world.internal.ChunkViewCore;
 import org.terasology.world.internal.WorldInfo;
@@ -109,7 +111,8 @@ public class MapWorldProvider implements WorldProviderCore {
         Chunk chunk = chunks.get(chunkPos);
         if (chunk == null && worldGenerator != null) {
             chunk = new ChunkImpl(chunkPos, blockManager, biomeManager);
-            worldGenerator.createChunk(chunk);
+            EntityBuffer buffer = new EntityBufferImpl();
+            worldGenerator.createChunk(chunk, buffer);
             chunks.put(chunkPos, chunk);
         }
         if (chunk != null) {
