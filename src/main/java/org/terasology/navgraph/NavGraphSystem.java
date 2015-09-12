@@ -22,7 +22,7 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.logic.location.LocationComponent;
-import org.terasology.math.TeraMath;
+import org.terasology.math.ChunkMath;
 import org.terasology.math.geom.Vector3f;
 import org.terasology.math.geom.Vector3i;
 import org.terasology.registry.In;
@@ -84,13 +84,13 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
 
     @Override
     public void onBlockChanged(Vector3i pos, Block newBlock, Block originalBlock) {
-        Vector3i chunkPos = TeraMath.calcChunkPos(pos);
+        Vector3i chunkPos = ChunkMath.calcChunkPos(pos);
         taskMaster.offer(new UpdateChunkTask(chunkPos));
     }
 
     @Override
     public void onBiomeChanged(Vector3i pos, Biome newBiome, Biome originalBiome) {
-        Vector3i chunkPos = TeraMath.calcChunkPos(pos);
+        Vector3i chunkPos = ChunkMath.calcChunkPos(pos);
         taskMaster.offer(new UpdateChunkTask(chunkPos));
     }
 
@@ -100,7 +100,7 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
     }
 
     public WalkableBlock getBlock(Vector3i pos) {
-        Vector3i chunkPos = TeraMath.calcChunkPos(pos);
+        Vector3i chunkPos = ChunkMath.calcChunkPos(pos);
         NavGraphChunk navGraphChunk = heightMaps.get(chunkPos);
         if (navGraphChunk != null) {
             return navGraphChunk.getBlock(pos.x, pos.y, pos.z);

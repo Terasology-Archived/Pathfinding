@@ -16,9 +16,10 @@
 package org.terasology;
 
 import com.google.common.collect.Maps;
+
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.math.ChunkMath;
 import org.terasology.math.Region3i;
-import org.terasology.math.TeraMath;
 import org.terasology.math.geom.Vector3i;
 import org.terasology.world.WorldChangeListener;
 import org.terasology.world.biomes.Biome;
@@ -104,7 +105,7 @@ public class MapWorldProvider implements WorldProviderCore {
         if (block != null) {
             return block;
         }
-        Vector3i chunkPos = TeraMath.calcChunkPos(pos);
+        Vector3i chunkPos = ChunkMath.calcChunkPos(pos);
         Chunk chunk = chunks.get(chunkPos);
         if (chunk == null && worldGenerator != null) {
             chunk = new ChunkImpl(chunkPos, blockManager, biomeManager);
@@ -112,7 +113,7 @@ public class MapWorldProvider implements WorldProviderCore {
             chunks.put(chunkPos, chunk);
         }
         if (chunk != null) {
-            return chunk.getBlock(TeraMath.calcBlockPos(pos.x, pos.y, pos.z));
+            return chunk.getBlock(ChunkMath.calcBlockPos(pos.x, pos.y, pos.z));
         }
         return null;
     }

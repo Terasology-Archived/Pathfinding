@@ -17,7 +17,8 @@ package org.terasology.navgraph;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.terasology.math.TeraMath;
+
+import org.terasology.math.ChunkMath;
 import org.terasology.math.geom.Vector3i;
 import org.terasology.pathfinding.model.PathCache;
 import org.terasology.world.WorldProvider;
@@ -71,7 +72,7 @@ public class NavGraphChunk {
 
     public void connectNeighborMaps(NavGraphChunk left, NavGraphChunk up, NavGraphChunk right, NavGraphChunk down) {
         for (WalkableBlock block : borderBlocks) {
-            Vector3i position = TeraMath.calcBlockPos(block.getBlockPosition());
+            Vector3i position = ChunkMath.calcBlockPos(block.getBlockPosition());
             int x = position.x;
             int z = position.z;
             if (left != null && x == 0) {
@@ -154,7 +155,7 @@ public class NavGraphChunk {
 
     public void disconnectNeighborMaps(NavGraphChunk left, NavGraphChunk up, NavGraphChunk right, NavGraphChunk down) {
         for (WalkableBlock block : borderBlocks) {
-            Vector3i position = TeraMath.calcBlockPos(block.getBlockPosition());
+            Vector3i position = ChunkMath.calcBlockPos(block.getBlockPosition());
             int x = position.x;
             int z = position.z;
             if (left != null && x == 0) {

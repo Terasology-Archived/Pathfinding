@@ -16,7 +16,8 @@
 package org.terasology.navgraph;
 
 import com.google.common.collect.Lists;
-import org.terasology.math.TeraMath;
+
+import org.terasology.math.ChunkMath;
 import org.terasology.math.geom.Vector3i;
 
 import java.util.Arrays;
@@ -66,7 +67,7 @@ public class Floor extends BaseRegion<Floor> {
     }
 
     public boolean isEntrance(WalkableBlock block) {
-        Vector3i position = TeraMath.calcBlockPos(block.getBlockPosition());
+        Vector3i position = ChunkMath.calcBlockPos(block.getBlockPosition());
         return isEntrance(position.x, position.z);
     }
 
@@ -110,7 +111,7 @@ public class Floor extends BaseRegion<Floor> {
     }
 
     public void setEntrance(WalkableBlock block, WalkableBlock neighbor) {
-        Vector3i position = TeraMath.calcBlockPos(block.getBlockPosition());
+        Vector3i position = ChunkMath.calcBlockPos(block.getBlockPosition());
         Entrance entrance = setEntrance(position.x, position.z);
         entrance.neighborFloors.add(neighbor.floor);
     }
