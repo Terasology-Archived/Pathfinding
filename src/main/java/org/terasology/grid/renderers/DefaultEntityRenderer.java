@@ -21,9 +21,10 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.grid.EntityRenderer;
-import org.terasology.logic.characters.CharacterComponent;
-import org.terasology.math.geom.Rect2i;
+import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.TeraMath;
+import org.terasology.math.geom.Quat4f;
+import org.terasology.math.geom.Rect2i;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.registry.Share;
 import org.terasology.rendering.nui.Canvas;
@@ -39,8 +40,9 @@ public class DefaultEntityRenderer extends BaseComponentSystem implements Entity
 
     @Override
     public void renderBlock(Canvas canvas, EntityRef entity, Rect2i screenRegion) {
-        CharacterComponent characterComponent = entity.getComponent(CharacterComponent.class);
-        float yaw = TeraMath.PI / 2 - characterComponent.yaw / 180.f * TeraMath.PI;
+        LocationComponent locationComponent = entity.getComponent(LocationComponent.class);
+        Quat4f q = locationComponent.getWorldRotation();
+        float yaw = TeraMath.PI / 2 - (float) Math.atan2(2.0 * (q.y * q.w + q.x * q.z), 1.0 - 2.0 * (q.y * q.y - q.z * q.z));
 
         int w = screenRegion.maxX() - screenRegion.minX();
         int h = screenRegion.maxY() - screenRegion.minY();
