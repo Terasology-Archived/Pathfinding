@@ -48,7 +48,7 @@ public class FinishWorkNode extends DecoratorNode {
 
         @Override
         public void onInitialize() {
-            MinionWorkComponent actorJob = actor().component(MinionWorkComponent.class);
+            MinionWorkComponent actorJob = actor().getComponent(MinionWorkComponent.class);
             currentJob = actorJob.currentWork;
             if (currentJob == null) {
                 return;
@@ -58,7 +58,7 @@ public class FinishWorkNode extends DecoratorNode {
                 return;
             }
             work = jobTargetComponent.getWork();
-            if (!work.canMinionWork(currentJob, actor().minion())) {
+            if (!work.canMinionWork(currentJob, actor().getEntity())) {
                 logger.info("Not in range, work aborted " + currentJob);
                 jobTargetComponent.assignedMinion = null;
                 currentJob.saveComponent(jobTargetComponent);
@@ -70,14 +70,14 @@ public class FinishWorkNode extends DecoratorNode {
             actorJob.cooldown = work.cooldownTime();
             actor().save(actorJob);
             logger.info("Reached work " + currentJob);
-            work.letMinionWork(currentJob, actor().minion());
+            work.letMinionWork(currentJob, actor().getEntity());
             start(getNode().child);
         }
 
         @Override
         public Status update(float dt) {
             if (work != null) {
-                MinionWorkComponent actorJob = actor().component(MinionWorkComponent.class);
+                MinionWorkComponent actorJob = actor().getComponent(MinionWorkComponent.class);
                 actorJob.cooldown -= dt;
                 actor().save(actorJob);
 

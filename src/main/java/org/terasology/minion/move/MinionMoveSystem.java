@@ -15,7 +15,10 @@
  */
 package org.terasology.minion.move;
 
-import com.google.common.collect.Sets;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.lifecycleEvents.BeforeDeactivateComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
@@ -31,13 +34,15 @@ import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.registry.In;
 
-import java.util.Set;
+import com.google.common.collect.Sets;
 
 /**
  * Created by synopia on 02.02.14.
  */
 @RegisterSystem(RegisterMode.AUTHORITY)
 public class MinionMoveSystem extends BaseComponentSystem {
+    private static final Logger LOG = LoggerFactory.getLogger(MinionMoveSystem.class);
+
     @In
     private PathfinderSystem pathfinderSystem;
 
@@ -50,8 +55,9 @@ public class MinionMoveSystem extends BaseComponentSystem {
         }
     }
 
-    @ReceiveEvent
-    public void onCollision(HorizontalCollisionEvent event, EntityRef minion, MinionMoveComponent movementComponent) {
+    @ReceiveEvent(components = {MinionMoveComponent.class})
+    public void onCollision(HorizontalCollisionEvent event, EntityRef minion) {
+        MinionMoveComponent movementComponent = minion.getComponent(MinionMoveComponent.class);
         movementComponent.horizontalCollision = true;
         minion.saveComponent(movementComponent);
     }
@@ -61,8 +67,8 @@ public class MinionMoveSystem extends BaseComponentSystem {
         setupEntity(minion);
     }
 
-    @ReceiveEvent
-    public void onMinionActivation(OnActivatedComponent event, EntityRef minion, LocationComponent locationComponent, MinionMoveComponent moveComponent) {
+    @ReceiveEvent(components = {MinionMoveComponent.class, LocationComponent.class})
+    public void onMinionActivation(OnActivatedComponent event, EntityRef minion) {
         setupEntity(minion);
         entities.add(minion);
     }

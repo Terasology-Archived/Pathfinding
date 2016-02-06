@@ -63,7 +63,7 @@ public class FindWorkNode extends Node {
 
         @Override
         public void onInitialize() {
-            MinionWorkComponent actorWork = actor().component(MinionWorkComponent.class);
+            MinionWorkComponent actorWork = actor().getComponent(MinionWorkComponent.class);
             if (actorWork.currentWork != null) {
                 WorkTargetComponent currentJob = actorWork.currentWork.getComponent(WorkTargetComponent.class);
                 if (currentJob != null) {
@@ -74,7 +74,7 @@ public class FindWorkNode extends Node {
             }
             filter = getNode().filter != null ? workFactory.getWork(getNode().filter) : null;
             if (filter != null) {
-                workBoard.getWork(actor().minion(), filter, new WorkBoard.WorkBoardCallback() {
+                workBoard.getWork(actor().getEntity(), filter, new WorkBoard.WorkBoardCallback() {
                     @Override
                     public boolean workReady(Cluster cluster, Vector3i position, EntityRef work) {
                         workSearchDone = true;
@@ -97,9 +97,9 @@ public class FindWorkNode extends Node {
                 WorkTargetComponent workTargetComponent = foundWork.getComponent(WorkTargetComponent.class);
                 if (workTargetComponent != null && workTargetComponent.getWork() != null) {
                     logger.info("Found new work for " + interpreter().toString() + " " + workTargetComponent.getUri() + " at " + foundWork);
-                    workTargetComponent.assignedMinion = actor().minion();
+                    workTargetComponent.assignedMinion = actor().getEntity();
                     foundWork.saveComponent(workTargetComponent);
-                    MinionWorkComponent actorWork = actor().component(MinionWorkComponent.class);
+                    MinionWorkComponent actorWork = actor().getComponent(MinionWorkComponent.class);
                     actorWork.currentWork = foundWork;
                     actorWork.target = foundPosition;
                     actor().save(actorWork);

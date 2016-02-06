@@ -60,7 +60,7 @@ public class MoveToNode extends Node {
         @Override
         public Status update(float dt) {
             Status status = Status.FAILURE;
-            MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
+            MinionMoveComponent moveComponent = actor().getComponent(MinionMoveComponent.class);
             if (moveComponent != null && moveComponent.target != null) {
                 if (moveComponent.horizontalCollision) {
                     moveComponent.horizontalCollision = false;
@@ -81,7 +81,7 @@ public class MoveToNode extends Node {
 
         private Status setMovement(Vector3f currentTarget, boolean horizontalCollision, float dt) {
             Status result;
-            LocationComponent location = actor().location();
+            LocationComponent location = actor().getComponent(LocationComponent.class);
             Vector3f worldPos = new Vector3f(location.getWorldPosition());
             Vector3f targetDirection = new Vector3f();
             targetDirection.sub(currentTarget, worldPos);
@@ -102,11 +102,11 @@ public class MoveToNode extends Node {
 
             CharacterMoveInputEvent wantedInput = new CharacterMoveInputEvent(0, 0, requestedYaw, drive, false, horizontalCollision, (long) (dt * 1000));
 
-            CharacterMovementComponent characterMovement = actor().minion().getComponent(CharacterMovementComponent.class);
+            CharacterMovementComponent characterMovement = actor().getEntity().getComponent(CharacterMovementComponent.class);
 
             CharacterMoveInputEvent adjustedInput = calculateMovementInput(location, characterMovement, wantedInput, currentTarget);
 
-            actor().minion().send(wantedInput);
+            actor().getEntity().send(wantedInput);
 
             return result;
         }

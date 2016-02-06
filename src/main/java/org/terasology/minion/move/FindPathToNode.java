@@ -15,6 +15,9 @@
  */
 package org.terasology.minion.move;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
@@ -24,9 +27,6 @@ import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.registry.In;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Requests a path to a target defined using the <b>MinionMoveComponent.target</b>.<br/>
@@ -55,7 +55,7 @@ public class FindPathToNode extends Node {
 
         @Override
         public void onInitialize() {
-            MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
+            MinionMoveComponent moveComponent = actor().getComponent(MinionMoveComponent.class);
             Vector3f targetLocation = moveComponent.target;
             WalkableBlock currentBlock = moveComponent.currentBlock;
             if (currentBlock == null || targetLocation == null) {
@@ -68,18 +68,18 @@ public class FindPathToNode extends Node {
                 return;
             }
             pathfinderSystem.requestPath(
-                    actor().minion(), currentBlock.getBlockPosition(),
+                    actor().getEntity(), currentBlock.getBlockPosition(),
                     Arrays.asList(workTarget.getBlockPosition()), new PathfinderSystem.PathReadyCallback() {
-                @Override
-                public void pathReady(int pathId, List<Path> path, WalkableBlock target, List<WalkableBlock> start) {
+                        @Override
+                        public void pathReady(int pathId, List<Path> path, WalkableBlock target, List<WalkableBlock> start) {
 
-                    if (path == null) {
-                        foundPath = Path.INVALID;
-                    } else if (path.size() > 0) {
-                        foundPath = path.get(0);
-                    }
-                }
-            });
+                            if (path == null) {
+                                foundPath = Path.INVALID;
+                            } else if (path.size() > 0) {
+                                foundPath = path.get(0);
+                            }
+                        }
+                    });
         }
 
         @Override
@@ -87,7 +87,7 @@ public class FindPathToNode extends Node {
             if (foundPath == null) {
                 return Status.RUNNING;
             }
-            MinionMoveComponent component = actor().component(MinionMoveComponent.class);
+            MinionMoveComponent component = actor().getComponent(MinionMoveComponent.class);
             component.path = foundPath;
             actor().save(component);
             return foundPath == Path.INVALID ? Status.FAILURE : Status.SUCCESS;
