@@ -215,7 +215,7 @@ public class NavGraphChunk {
     }
 
     public WalkableBlock getBlock(int x, int y, int z) {
-        return getCell(x - worldPos.x, z - worldPos.z).getBlock(y - worldPos.y);
+        return getCell(x - worldPos.x, z - worldPos.z).getBlock(y);
     }
 
     public Floor getFloor(int id) {
