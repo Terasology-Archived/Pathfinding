@@ -15,7 +15,7 @@
  */
 package org.terasology.grid.renderers;
 
-import org.terasology.asset.Assets;
+import org.terasology.utilities.Assets;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.grid.BlockRenderer;
