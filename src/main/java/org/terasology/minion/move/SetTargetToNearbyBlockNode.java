@@ -46,7 +46,7 @@ public class SetTargetToNearbyBlockNode extends Node {
 
         @Override
         public Status update(float dt) {
-            MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
+            MinionMoveComponent moveComponent = actor().getComponent(MinionMoveComponent.class);
             if (moveComponent.currentBlock != null) {
                 WalkableBlock target = findRandomNearbyBlock(moveComponent.currentBlock);
                 moveComponent.target = target.getBlockPosition().toVector3f();

@@ -56,7 +56,7 @@ public class MoveAlongPathNode extends DecoratorNode {
 
         @Override
         public void onInitialize() {
-            MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
+            MinionMoveComponent moveComponent = actor().getComponent(MinionMoveComponent.class);
             if (moveComponent != null && moveComponent.path != null && moveComponent.path != Path.INVALID) {
                 path = moveComponent.path;
                 pathRenderSystem.addPath(path);
@@ -86,7 +86,7 @@ public class MoveAlongPathNode extends DecoratorNode {
             if (currentIndex < path.size()) {
                 WalkableBlock block = path.get(currentIndex);
                 logger.info(" Continue moving along path to step " + currentIndex + " " + block.getBlockPosition());
-                MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
+                MinionMoveComponent moveComponent = actor().getComponent(MinionMoveComponent.class);
                 Vector3f pos = block.getBlockPosition().toVector3f();
                 pos.add(new Vector3f(0, 1, 0));
                 moveComponent.target = pos;
@@ -94,8 +94,8 @@ public class MoveAlongPathNode extends DecoratorNode {
                 start(getNode().child);
             } else {
                 pathRenderSystem.removePath(path);
-                LocationComponent locationComponent = actor().location();
-                MinionMoveComponent moveComponent = actor().component(MinionMoveComponent.class);
+                LocationComponent locationComponent = actor().getComponent(LocationComponent.class);
+                MinionMoveComponent moveComponent = actor().getComponent(MinionMoveComponent.class);
                 logger.info("Finished moving along path pos = " + locationComponent.getWorldPosition() + " block = " + moveComponent.currentBlock);
                 stop(Status.SUCCESS);
             }
