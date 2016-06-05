@@ -325,8 +325,8 @@ public class TimerNode extends DecoratorNode {
         "category"  : "logic",
         "shape"     : "rect",
         "description": "Decorator\nStarts the decorated node.\nSUCCESS: as soon as decorated node finishes with SUCCESS.\nFAILURE: after x seconds.",
-        "color"     : [0.7, 0.7, 0.7],
-        "textColor" : [  0,   0,   0]
+        "color"     : [180, 180, 180, 255],
+        "textColor" : [0, 0, 0, 255]
     }
 }
 </pre>

@@ -4,8 +4,8 @@
         "name"      : "Set Target To Local Player",
         "category"  : "moving",
         "shape"     : "rect",
-        "color"     : [0.7, 0.7, 0.7],
+        "color"     : [180, 180, 180, 255],
         "description": "Set MinionMoveComponent.target to the block below local player.\nAlways returns SUCCESS.",
-        "textColor" : [  0,   0,   0]
+        "textColor" : [0, 0, 0, 255]
     }
 }
