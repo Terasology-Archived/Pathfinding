@@ -16,6 +16,7 @@
 package org.terasology.pathfinding.componentSystem;
 
 import com.google.common.collect.Lists;
+import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.utilities.Assets;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
@@ -30,7 +31,7 @@ import java.util.List;
 /**
  * Created by synopia on 01.02.14.
  */
-@RegisterSystem
+@RegisterSystem(RegisterMode.CLIENT)
 @Share(value = PathRenderSystem.class)
 public class PathRenderSystem extends BaseComponentSystem implements RenderSystem {
     private BlockSelectionRenderer selectionRenderer;
