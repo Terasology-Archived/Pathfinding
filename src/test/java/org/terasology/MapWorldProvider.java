@@ -40,6 +40,7 @@ import org.terasology.world.time.WorldTimeImpl;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -88,6 +89,15 @@ public class MapWorldProvider implements WorldProviderCore {
     @Override
     public Block setBlock(Vector3i pos, Block type) {
         return blocks.put(pos, type);
+    }
+
+    @Override
+    public Map<Vector3i, Block> setBlocks(Map<Vector3i, Block> blocksToSet) {
+        Map<Vector3i, Block> result = new HashMap<>();
+        for(Map.Entry<Vector3i, Block> entry : blocksToSet.entrySet()) {
+            result.put(entry.getKey(), blocks.put(entry.getKey(), entry.getValue()));
+        }
+        return result;
     }
 
     @Override
