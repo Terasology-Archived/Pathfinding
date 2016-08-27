@@ -30,7 +30,8 @@ import org.terasology.world.generator.plugin.WorldGeneratorPluginLibrary;
  */
 @RegisterWorldGenerator(id = "pathfinder", displayName = "Pathfinder TestWorld")
 public class PathfinderTestWorldMapGenerator extends AbstractBaseWorldGenerator {
-    World world;
+    private World world;
+    private WorldBuilder worldBuilder;
 
     public PathfinderTestWorldMapGenerator(SimpleUri uri) {
         super(uri);
@@ -39,23 +40,26 @@ public class PathfinderTestWorldMapGenerator extends AbstractBaseWorldGenerator 
     @Override
     public void initialize() {
         register(new PathfinderTestGenerator());
-        world.initialize();
+        getWorld().initialize();
     }
 
     @Override
     public void setWorldSeed(String seed) {
-        world = new WorldBuilder(CoreRegistry.get(WorldGeneratorPluginLibrary.class))
+        worldBuilder = new WorldBuilder(CoreRegistry.get(WorldGeneratorPluginLibrary.class))
                 .addProvider(new FlatSurfaceHeightProvider(50))
                 .addProvider(new SeaLevelProvider(2))
-                .build();
-
+                .setSeaLevel(2);
+        worldBuilder.setSeed(seed.hashCode());
+        world = null;
         super.setWorldSeed(seed);
     }
 
     @Override
     public World getWorld() {
+        if (world == null) {
+            world = worldBuilder.build();
+        }
         return world;
     }
 
 }
-
