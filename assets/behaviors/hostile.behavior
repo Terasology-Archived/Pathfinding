@@ -1,0 +1,44 @@
+{
+  "model": {
+    "nodeType": "engine:RepeatNode",
+    "nodeId": 0,
+    "node": {
+      "child": {
+        "nodeType": "engine:WrapperNode",
+        "nodeId": 1,
+        "node": {
+          "child": {
+            "nodeType": "engine:SequenceNode",
+            "nodeId": 2,
+            "node": {
+              "children": [
+                {
+                  "nodeType": "Pathfinding:FollowPlayerWithinRangeNode",
+                  "nodeId": 3,
+                  "node": {
+                    "maxDistance": 15.8
+                  }
+                },
+                {
+                  "nodeType": "engine:SelectorNode",
+                  "nodeId": 4,
+                  "node": {
+                    "children": [
+                      {
+                        "nodeType": "engine:LookupNode",
+                        "nodeId": 5,
+                        "node": {
+                          "tree": "Pathfinding:attackPlayerToFollow"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

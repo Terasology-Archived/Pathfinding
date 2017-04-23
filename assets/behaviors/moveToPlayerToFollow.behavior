@@ -1,0 +1,67 @@
+{
+  "model": {
+    "nodeType": "engine:SequenceNode",
+    "nodeId": 0,
+    "node": {
+      "children": [
+        {
+          "nodeType": "Pathfinding:ContinueFollowingCheckNode",
+          "nodeId": 1,
+          "node": {
+            "minDistance": 5.0
+          }
+        },
+        {
+          "nodeType": "engine:SetAnimationNode",
+          "nodeId": 2,
+          "node": {
+            "play": "engine:Walk.animationPool",
+            "loop": "engine:Walk.animationPool"
+          }
+        },
+        {
+          "nodeType": "engine:WrapperNode",
+          "nodeId": 3,
+          "node": {
+            "child": {
+              "nodeType": "engine:ParallelNode",
+              "nodeId": 4,
+              "node": {
+                "successPolicy": "RequireAll",
+                "failurePolicy": "RequireOne",
+                "children": [
+                  {
+                    "nodeType": "engine:RepeatNode",
+                    "nodeId": 5,
+                    "node": {
+                      "child": {
+                        "nodeType": "Pathfinding:ContinueFollowingCheckNode",
+                        "nodeId": 6,
+                        "node": {
+                          "minDistance": 3.0
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "nodeType": "Pathfinding:FollowNode",
+                    "nodeId": 7,
+                    "node": {}
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "nodeType": "engine:SetAnimationNode",
+          "nodeId": 8,
+          "node": {
+            "play": "engine:Stand.animationPool",
+            "loop": "engine:Stand.animationPool"
+          }
+        }
+      ]
+    }
+  }
+}
