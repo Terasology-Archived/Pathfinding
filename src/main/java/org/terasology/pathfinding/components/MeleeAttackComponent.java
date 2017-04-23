@@ -26,9 +26,9 @@ import java.util.List;
  */
 public class MeleeAttackComponent implements Component {
     /**
-     * A pool of walk animations. It gets currently only used by behavior trees to make a skeletal mesh perform an attack
-     * animation. The animations of the pool will be picked by random. The result is a randomized animation
-     * loop. The same animation can be put multiple times in the pool, so that it will be chosen more frequently.
+     * A pool of attack animations. The animations of the pool will be picked by random. The result is a randomized
+     * animation loop. The same animation can be put multiple times in the pool, so that it will be chosen more
+     * frequently.
      */
     public List<MeshAnimation> animationPool = Lists.newArrayList();
 
