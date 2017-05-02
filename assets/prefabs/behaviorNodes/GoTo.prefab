@@ -1,0 +1,11 @@
+{
+  "BehaviorNode" : {
+    "type"      : "GoToNode",
+    "name"      : "Go To",
+    "category"  : "gooey",
+    "shape"     : "rect",
+    "color"     : [180, 180, 180, 255],
+    "description": "Make the actor use pathfinding algorithms to go to the target set in it's MinionMoveComponent. \nSUCCESS: When target location has been reached. \nRUNNING: When on the way to target location. \nFAILURE: When it was no longer possible to go to the target location.",
+    "textColor" : [  0,   0,   0, 255]
+  }
+}
