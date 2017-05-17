@@ -84,8 +84,8 @@ public class SetTargetToNearbyBlockAwayFromPlayerNode extends Node {
                 if (existingNeighbors.size() > 0) {
                     // Sorting the list of neighboring blocks based on distance from player (farthest first)
                     existingNeighbors.sort((one, two) -> {
-                        double a = one.getBlockPosition().distance(playerPosition);
-                        double b = two.getBlockPosition().distance(playerPosition);
+                        double a = one.getBlockPosition().distanceSquared(playerPosition);
+                        double b = two.getBlockPosition().distanceSquared(playerPosition);
                         return a > b ? -1
                                 : a < b ? 1
                                 : 0;
