@@ -35,6 +35,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
+import static java.lang.Math.min;
+
 
 public class SetTargetToNearbyBlockAwayFromPlayerNode extends Node {
 
@@ -91,7 +93,7 @@ public class SetTargetToNearbyBlockAwayFromPlayerNode extends Node {
                                 : 0;
                     });
                     // Select any of the first 4 neighboring blocks to make path random and not linear
-                    currentBlock = existingNeighbors.get(random.nextInt(4));
+                    currentBlock = existingNeighbors.get(random.nextInt(min(4, existingNeighbors.size())));
                 }
             }
             return currentBlock;
