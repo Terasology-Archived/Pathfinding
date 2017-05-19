@@ -1,0 +1,21 @@
+{
+  "model": {
+    "nodeType": "engine:SequenceNode",
+    "nodeId": 0,
+    "node": {
+        "children": [
+          {
+            "nodeType": "pathfinding:SetTargetToNearbyBlockAwayFromPlayerNode",
+            "nodeId": 1,
+            "node": {}
+          },
+          {
+            "nodeType": "pathfinding:GoToNode",
+            "nodeId": 2,
+            "node": {}
+          }
+      ]
+    }
+  }
+}
+
