@@ -22,18 +22,16 @@ import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
 import org.terasology.logic.location.LocationComponent;
-import org.terasology.math.geom.Vector3f;
 import org.terasology.math.geom.Vector3i;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.components.FleeComponent;
 import org.terasology.registry.In;
-import org.terasology.world.chunks.remoteChunkProvider.RemoteChunkProvider;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+
+import static java.lang.Math.min;
 
 
 public class SetTargetToNearbyBlockAwayFromPlayerNode extends Node {
@@ -91,7 +89,7 @@ public class SetTargetToNearbyBlockAwayFromPlayerNode extends Node {
                                 : 0;
                     });
                     // Select any of the first 4 neighboring blocks to make path random and not linear
-                    currentBlock = existingNeighbors.get(random.nextInt(4));
+                    currentBlock = existingNeighbors.get(random.nextInt(min(4, existingNeighbors.size())));
                 }
             }
             return currentBlock;
