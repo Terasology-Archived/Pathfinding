@@ -21,6 +21,7 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.logic.behavior.tree.Node;
 import org.terasology.logic.behavior.tree.Status;
 import org.terasology.logic.behavior.tree.Task;
+import org.terasology.logic.characters.AliveCharacterComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.geom.Vector3f;
 import org.terasology.network.ClientComponent;
@@ -66,6 +67,10 @@ public class FollowPlayerWithinRangeNode extends Node {
             for (EntityRef client: clients) {
                 ClientComponent clientComponent = client.getComponent(ClientComponent.class);
                 EntityRef character = clientComponent.character;
+                AliveCharacterComponent aliveCharacterComponent = character.getComponent(AliveCharacterComponent.class);
+                if (aliveCharacterComponent == null) {
+                    continue;
+                }
                 LocationComponent locationComponent = character.getComponent(LocationComponent.class);
                 if (locationComponent == null) {
                     continue;
