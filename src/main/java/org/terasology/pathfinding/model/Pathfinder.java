@@ -19,11 +19,11 @@ import com.google.common.collect.Lists;
 import org.terasology.navgraph.NavGraphSystem;
 import org.terasology.navgraph.WalkableBlock;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * @author synopia
+ *
  */
 public class Pathfinder {
     private HAStar haStar;
@@ -41,30 +41,27 @@ public class Pathfinder {
     }
 
     public Path findPath(final WalkableBlock target, final WalkableBlock start) {
-        return findPath(target, Arrays.asList(start)).get(0);
+        return findPath(target, Collections.singletonList(start)).get(0);
     }
 
     public List<Path> findPath(final WalkableBlock target, final List<WalkableBlock> starts) {
         List<Path> result = Lists.newArrayList();
         haStar.reset();
         for (WalkableBlock start : starts) {
-            Path path = cache.findPath(start, target, new PathCache.Callback() {
-                @Override
-                public Path run(WalkableBlock from, WalkableBlock to) {
-                    if (from == null || to == null) {
-                        return Path.INVALID;
-                    }
-                    WalkableBlock refFrom = world.getBlock(from.getBlockPosition());
-                    WalkableBlock refTo = world.getBlock(to.getBlockPosition());
-
-                    Path path;
-                    if (haStar.run(refFrom, refTo)) {
-                        path = haStar.getPath();
-                    } else {
-                        path = Path.INVALID;
-                    }
-                    return path;
+            Path path = cache.findPath(start, target, (from, to) -> {
+                if (from == null || to == null) {
+                    return Path.INVALID;
                 }
+                WalkableBlock refFrom = world.getBlock(from.getBlockPosition());
+                WalkableBlock refTo = world.getBlock(to.getBlockPosition());
+
+                Path path1;
+                if (haStar.run(refFrom, refTo)) {
+                    path1 = haStar.getPath();
+                } else {
+                    path1 = Path.INVALID;
+                }
+                return path1;
             });
             result.add(path);
         }
