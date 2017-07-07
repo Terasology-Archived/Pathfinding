@@ -57,13 +57,10 @@ public class HAStar {
     public HAStar(LineOfSight lineOfSight, boolean useContour) {
         this.lineOfSight = lineOfSight;
         this.useContour = useContour;
-        openList = new BinaryHeap(new Comparator<Integer>() {
-            @Override
-            public int compare(Integer a, Integer b) {
-                float fA = nodes.get(a).f;
-                float fB = nodes.get(b).f;
-                return -(fA < fB ? -1 : (fA > fB ? 1 : 0));
-            }
+        openList = new BinaryHeap((a, b) -> {
+            float fA = nodes.get(a).f;
+            float fB = nodes.get(b).f;
+            return -(fA < fB ? -1 : (fA > fB ? 1 : 0));
         }, MAX_NODES, MAX_NODES);
         if (useContour) {
             localAStar = new HAStar(null, false);
