@@ -1,0 +1,11 @@
+{
+  "BehaviorNode" : {
+    "type"      : "CheckTargetSetNode",
+    "name"      : "Check Target Set",
+    "category"  : "path",
+    "shape"     : "rect",
+    "description": "Checks whether a target is set in the MinionMoveComponent.\nSUCCESS / FAILURE: when target is set or not set.",
+    "color"     : [180, 180, 180, 255],
+    "textColor" : [0, 0, 0, 255]
+  }
+}
