@@ -72,11 +72,6 @@ public class WorkRenderSystem extends BaseComponentSystem implements RenderSyste
     }
 
     @Override
-    public void renderFirstPerson() {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
     public void renderShadows() {
         //To change body of implemented methods use File | Settings | File Templates.
     }
