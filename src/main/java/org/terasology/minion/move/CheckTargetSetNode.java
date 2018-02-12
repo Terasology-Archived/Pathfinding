@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 MovingBlocks
+ * Copyright 2018 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,13 @@
  */
 package org.terasology.minion.move;
 
-import org.terasology.logic.behavior.tree.Node;
-import org.terasology.logic.behavior.tree.Status;
-import org.terasology.logic.behavior.tree.Task;
+//import org.terasology.logic.behavior.tree.Node;
+//import org.terasology.logic.behavior.tree.Status;
+//import org.terasology.logic.behavior.tree.Task;
 
-public class CheckTargetSetNode extends Node {
-    @Override
+public class CheckTargetSetNode { //TODO: Update to BT v2.0
+                            // extends Node {
+/*   @Override
     public Task createTask() {
         return new CheckTargetSetTask(this);
     }
@@ -43,4 +44,5 @@ public class CheckTargetSetNode extends Node {
         public void handle(Status result) {
         }
     }
+    */
 }
