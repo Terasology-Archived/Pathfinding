@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 MovingBlocks
+ * Copyright 2018 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,9 +39,6 @@ import org.terasology.world.chunks.event.OnChunkLoaded;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author synopia
- */
 @RegisterSystem
 @Share(value = NavGraphSystem.class)
 public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscriberSystem, WorldChangeListener {
@@ -156,8 +153,40 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
         return heightMaps.get(neighborPos);
     }
 
+    @Override
+    public void onExtraDataChanged(int i, Vector3i pos, int newData, int oldData) {
+
+    }
+
     public interface NavGraphTask extends Task, Comparable<NavGraphTask> {
         int getPriority();
+    }
+
+    public static class ShutdownTask implements NavGraphTask {
+        @Override
+        public int getPriority() {
+            return -1;
+        }
+
+        @Override
+        public int compareTo(NavGraphTask o) {
+            return Integer.compare(this.getPriority(), o.getPriority());
+        }
+
+        @Override
+        public String getName() {
+            return "Pathfinder:UpdateChunk";
+        }
+
+        @Override
+        public void run() {
+
+        }
+
+        @Override
+        public boolean isTerminateSignal() {
+            return true;
+        }
     }
 
     /**
@@ -199,33 +228,6 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
         @Override
         public int compareTo(NavGraphTask o) {
             return Integer.compare(this.getPriority(), o.getPriority());
-        }
-    }
-
-    public static class ShutdownTask implements NavGraphTask {
-        @Override
-        public int getPriority() {
-            return -1;
-        }
-
-        @Override
-        public int compareTo(NavGraphTask o) {
-            return Integer.compare(this.getPriority(), o.getPriority());
-        }
-
-        @Override
-        public String getName() {
-            return "Pathfinder:UpdateChunk";
-        }
-
-        @Override
-        public void run() {
-
-        }
-
-        @Override
-        public boolean isTerminateSignal() {
-            return true;
         }
     }
 }
