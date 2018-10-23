@@ -33,8 +33,8 @@ public class Floor extends BaseRegion<Floor> {
 
     /**
      * Creates a new Floor object
-     * @param navGraphChunk the navGraphChunk parameter, not null
-     * @param id the id parameter, not null
+     * @param navGraphChunk the chunk where the Floor is being created, not null
+     * @param id the id for the new Floor, not null
      */
     public Floor(NavGraphChunk navGraphChunk, int id) {
         super(id);
@@ -45,32 +45,32 @@ public class Floor extends BaseRegion<Floor> {
 
     /**
      * Returns whether or not there is an overlap
-     * @param region the region parameter, not null
-     * @return if there is an overlap
+     * @param region the region to check if there is overlap with, not null
+     * @return returns true if map and region overlap
      */
     public boolean overlap(Region region) {
         return map.overlap(region.map);
     }
 
     /**
-     * Adds a neighbor block
-     * @param neighbor the neighbor parameter, not null
+     * Adds a neighbor block to neighborRegions
+     * @param neighbor the block that will be set as a neighbor, not null
      */
     public void addNeighborBlock(WalkableBlock neighbor) {
         neighborRegions.add(neighbor.floor);
     }
 
     /**
-     * Removes a neighbor block
-     * @param neighbor the neighbor parameter, not null
+     * Removes a neighbor block from neighborRegions
+     * @param neighbor block will be removed as a NeighborBlock, not null
      */
     public void removeNeighborBlock(WalkableBlock neighbor) {
         neighborRegions.remove(neighbor.floor);
     }
 
     /**
-     * Merges regions
-     * @param neighbor the neighbor parameter, not null
+     * Merges regions and sets this as neighbor's floor
+     * @param neighbor the region thats being merged, not null
      */
     public void merge(Region neighbor) {
         map.merge(neighbor.map);
@@ -84,7 +84,7 @@ public class Floor extends BaseRegion<Floor> {
     }
 
     /**
-     * Resets Entrances
+     * Resets Entrances by filling entranceMap with null and clearing entrances
      */
     public void resetEntrances() {
         Arrays.fill(entranceMap, null);
@@ -93,7 +93,7 @@ public class Floor extends BaseRegion<Floor> {
 
     /**
      * Returns whether or not a block is an entrance
-     * @block the block parameter, not null
+     * @block the block thats being tested, not null
      * @return if it is an entrance
      */
     public boolean isEntrance(WalkableBlock block) {
@@ -102,9 +102,9 @@ public class Floor extends BaseRegion<Floor> {
     }
 
     /**
-     * Returns whether or not a location in entranceMap is an entrance
-     * @param x the x parameter, not null
-     * @param y the y parameter, not null
+     * Returns whether or not entranceMap[x + y * NavGraphChunk.SIZE_Z] is an entrance
+     * @param x the x location in entranceMap, not null
+     * @param y the y location in entranceMap, not null
      * @return if it an entrance
      */
     public boolean isEntrance(int x, int y) {
@@ -112,9 +112,9 @@ public class Floor extends BaseRegion<Floor> {
     }
 
     /**
-     * Sets a location in entranceMap to an entrance
-     * @param x the x parameter, not null
-     * @param y the y parameter, not null
+     * Sets entranceMap[x + y * NavGraphChunk.SIZE_Z] to an entrance
+     * @param x the x location of the Block, not null
+     * @param y the y location of the Block, not null
      * @return Entrance object at (x,y) 
      */
     public Entrance setEntrance(int x, int y) {
@@ -153,9 +153,9 @@ public class Floor extends BaseRegion<Floor> {
     }
 
     /**
-     * Sets a WalkableBlock as an entrance
-     * @param block the block parameter, not null
-     * @param neighbor the neighbor parameter, not null
+     * Sets a WalkableBlock as an entrance and adds neighbor into neighborFloors
+     * @param block the block being set as an entrance, not null
+     * @param neighbor the block being set as the neighbor to block, not null
      */
     public void setEntrance(WalkableBlock block, WalkableBlock neighbor) {
         Vector3i position = ChunkMath.calcBlockPos(block.getBlockPosition());
@@ -164,17 +164,17 @@ public class Floor extends BaseRegion<Floor> {
     }
 
     /**
-     * Returns list of all entrances
-     * @return list of entrances
+     * Returns List of all entrances
+     * @return List of entrances
      */
     public List<Entrance> entrances() {
         return entrances;
     }
 
     /**
-     * Returns the block at the parameters location
-     * @param fx the fx parameter, not null
-     * @param fy the fy parameter, not null
+     * Returns the block at the parameters location with getCell(x,y) and sets this object as the floor of the block
+     * @param fx the x coordinate in the Chunk, not null
+     * @param fy the y coordinate in the Chunk, not null
      * @return The block at (fx,fy)
      */
     WalkableBlock getBlock(int fx, int fy) {
