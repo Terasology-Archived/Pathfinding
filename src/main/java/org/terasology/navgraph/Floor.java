@@ -31,6 +31,11 @@ public class Floor extends BaseRegion<Floor> {
     private Entrance[] entranceMap;
     private List<Entrance> entrances;
 
+    /**
+     * Creates a new Floor object
+     * @param navGraphChunk the navGraphChunk parameter, not null
+     * @param id the id parameter, not null
+     */
     public Floor(NavGraphChunk navGraphChunk, int id) {
         super(id);
         this.navGraphChunk = navGraphChunk;
@@ -38,18 +43,35 @@ public class Floor extends BaseRegion<Floor> {
         entrances = Lists.newArrayList();
     }
 
+    /**
+     * Returns whether or not there is an overlap
+     * @param region the region parameter, not null
+     * @return if there is an overlap
+     */
     public boolean overlap(Region region) {
         return map.overlap(region.map);
     }
 
+    /**
+     * Adds a neighbor block
+     * @param neighbor the neighbor parameter, not null
+     */
     public void addNeighborBlock(WalkableBlock neighbor) {
         neighborRegions.add(neighbor.floor);
     }
 
+    /**
+     * Removes a neighbor block
+     * @param neighbor the neighbor parameter, not null
+     */
     public void removeNeighborBlock(WalkableBlock neighbor) {
         neighborRegions.remove(neighbor.floor);
     }
 
+    /**
+     * Merges regions
+     * @param neighbor the neighbor parameter, not null
+     */
     public void merge(Region neighbor) {
         map.merge(neighbor.map);
         neighbor.floor = this;
@@ -61,20 +83,40 @@ public class Floor extends BaseRegion<Floor> {
         }
     }
 
+    /**
+     * Resets Entrances
+     */
     public void resetEntrances() {
         Arrays.fill(entranceMap, null);
         entrances.clear();
     }
 
+    /**
+     * Returns whether or not a block is an entrance
+     * @block the block parameter, not null
+     * @return if it is an entrance
+     */
     public boolean isEntrance(WalkableBlock block) {
         Vector3i position = ChunkMath.calcBlockPos(block.getBlockPosition());
         return isEntrance(position.x, position.z);
     }
 
+    /**
+     * Returns whether or not a location in entranceMap is an entrance
+     * @param x the x parameter, not null
+     * @param y the y parameter, not null
+     * @return if it an entrance
+     */
     public boolean isEntrance(int x, int y) {
         return entranceMap[x + y * NavGraphChunk.SIZE_Z] != null;
     }
 
+    /**
+     * Sets a location in entranceMap to an entrance
+     * @param x the x parameter, not null
+     * @param y the y parameter, not null
+     * @return Entrance object at (x,y) 
+     */
     public Entrance setEntrance(int x, int y) {
         if (entranceMap[x + y * NavGraphChunk.SIZE_Z] != null) {
             return entranceMap[x + y * NavGraphChunk.SIZE_Z];
@@ -110,16 +152,31 @@ public class Floor extends BaseRegion<Floor> {
         return entrance;
     }
 
+    /**
+     * Sets a WalkableBlock as an entrance
+     * @param block the block parameter, not null
+     * @param neighbor the neighbor parameter, not null
+     */
     public void setEntrance(WalkableBlock block, WalkableBlock neighbor) {
         Vector3i position = ChunkMath.calcBlockPos(block.getBlockPosition());
         Entrance entrance = setEntrance(position.x, position.z);
         entrance.neighborFloors.add(neighbor.floor);
     }
 
+    /**
+     * Returns list of all entrances
+     * @return list of entrances
+     */
     public List<Entrance> entrances() {
         return entrances;
     }
 
+    /**
+     * Returns the block at the parameters location
+     * @param fx the fx parameter, not null
+     * @param fy the fy parameter, not null
+     * @return The block at (fx,fy)
+     */
     WalkableBlock getBlock(int fx, int fy) {
         NavGraphCell cell = navGraphChunk.getCell(fx, fy);
         for (WalkableBlock block : cell.blocks) {
