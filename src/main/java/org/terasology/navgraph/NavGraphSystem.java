@@ -15,6 +15,7 @@
  */
 package org.terasology.navgraph;
 
+import org.terasology.biomesAPI.Biome;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
@@ -32,7 +33,6 @@ import org.terasology.utilities.concurrency.TaskMaster;
 import org.terasology.world.WorldChangeListener;
 import org.terasology.world.WorldComponent;
 import org.terasology.world.WorldProvider;
-import org.terasology.world.biomes.Biome;
 import org.terasology.world.block.Block;
 import org.terasology.world.chunks.event.OnChunkLoaded;
 
@@ -81,12 +81,6 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
 
     @Override
     public void onBlockChanged(Vector3i pos, Block newBlock, Block originalBlock) {
-        Vector3i chunkPos = ChunkMath.calcChunkPos(pos);
-        taskMaster.offer(new UpdateChunkTask(chunkPos));
-    }
-
-    @Override
-    public void onBiomeChanged(Vector3i pos, Biome newBiome, Biome originalBiome) {
         Vector3i chunkPos = ChunkMath.calcChunkPos(pos);
         taskMaster.offer(new UpdateChunkTask(chunkPos));
     }
