@@ -204,7 +204,7 @@ public class PathDebugger extends JFrame {
                 }
             }
             if (path != null) {
-                for (WalkableBlock block : path) {
+                for (WalkableBlock block : path.getNodes()) {
                     if (block.height() != level) {
                         continue;
                     }

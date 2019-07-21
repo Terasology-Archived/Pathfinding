@@ -126,7 +126,7 @@ public class HAStar {
         Node current = nodes.get(end);
         while (current != startNode && current != null) {
             if (current.path != null) {
-                path.addAll(current.path);
+                path.addAll(current.path.getNodes());
                 localPathsUsed++;
             } else {
                 path.add(current.block);

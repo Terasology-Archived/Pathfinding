@@ -22,8 +22,33 @@ import java.util.ArrayList;
 /**
  * @author synopia
  */
-public class Path extends ArrayList<WalkableBlock> {
+public class Path {
     public static final Path INVALID = new Path();
+    private ArrayList<WalkableBlock> nodes = new ArrayList<>();
+
+    public void remove(int index) {
+        nodes.remove(index);
+    }
+
+    public void addAll(ArrayList<WalkableBlock> nodeGroup) {
+        nodes.addAll(nodeGroup);
+    }
+
+    public void add(WalkableBlock node) {
+        nodes.add(node);
+    }
+
+    public int size() {
+        return nodes.size();
+    }
+
+    public ArrayList<WalkableBlock> getNodes() {
+        return nodes;
+    }
+
+    public WalkableBlock get(int index) {
+        return nodes.get(index);
+    }
 
     public WalkableBlock getTarget() {
         if (size() == 0) {
@@ -42,7 +67,7 @@ public class Path extends ArrayList<WalkableBlock> {
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
-        for (WalkableBlock block : this) {
+        for (WalkableBlock block : this.nodes) {
             sb.append(block.getBlockPosition().toString());
             sb.append("->");
         }

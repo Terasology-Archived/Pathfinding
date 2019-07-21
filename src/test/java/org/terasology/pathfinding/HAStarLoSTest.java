@@ -185,7 +185,7 @@ public class HAStarLoSTest {
         HAStar haStar = new HAStar(new LineOfSight2d());
 
         haStar.run(end, start);
-        List<WalkableBlock> path = haStar.getPath();
+        List<WalkableBlock> path = haStar.getPath().getNodes();
         int pos = 1;
         Assert.assertEquals(expected.size(), path.size());
         for (WalkableBlock block : path) {
