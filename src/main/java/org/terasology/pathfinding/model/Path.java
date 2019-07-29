@@ -18,13 +18,18 @@ package org.terasology.pathfinding.model;
 import org.terasology.navgraph.WalkableBlock;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * @author synopia
  */
-public class Path {
+public class Path implements Iterable<WalkableBlock>{
     public static final Path INVALID = new Path();
     private ArrayList<WalkableBlock> nodes = new ArrayList<>();
+
+    public Iterator<WalkableBlock> iterator() {
+        return this.nodes.iterator();
+    }
 
     public void remove(int index) {
         nodes.remove(index);
