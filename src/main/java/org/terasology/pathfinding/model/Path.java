@@ -19,6 +19,7 @@ import org.terasology.navgraph.WalkableBlock;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author synopia
@@ -35,7 +36,7 @@ public class Path implements Iterable<WalkableBlock>{
         nodes.remove(index);
     }
 
-    public void addAll(ArrayList<WalkableBlock> nodeGroup) {
+    public void addAll(List<WalkableBlock> nodeGroup) {
         nodes.addAll(nodeGroup);
     }
 
