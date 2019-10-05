@@ -38,7 +38,7 @@ public class TextWorldBuilder {
     public TextWorldBuilder(WorldProvidingHeadlessEnvironment environment) {
         world = CoreRegistry.get(WorldProvider.class);
         BlockManager blockManager = CoreRegistry.get(BlockManager.class);
-        this.ground = blockManager.getBlock("Core:Dirt");
+        this.ground = blockManager.getBlock("CoreBlocks:Dirt");
         this.air = blockManager.getBlock(BlockManager.AIR_ID);
     }
 
