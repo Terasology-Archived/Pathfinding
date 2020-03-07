@@ -5,7 +5,7 @@
     "displayName" : "Pathfinding framework",
     "description" : "A pathfinding module mainly meant as a library/framework for other modules",
     "dependencies" : [
-        {"id" : "Core", "minVersion" : "2.0.0"}
+        {"id" : "Core", "minVersion" : "3.0.0"}
     ],
     "isServerSideOnly" : true
 }
