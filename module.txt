@@ -4,7 +4,9 @@
     "author" : "synopia",
     "displayName" : "Pathfinding framework",
     "description" : "A pathfinding module mainly meant as a library/framework for other modules",
-    "dependencies" : [],
+    "dependencies" : [
+        {"id" : "CoreWorlds", "minVersion" : "1.0.0"}
+    ],
     "isServerSideOnly" : true,
     "isLibrary": true
 }
