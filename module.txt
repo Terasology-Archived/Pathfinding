@@ -5,6 +5,7 @@
     "displayName": "Pathfinding Framework",
     "description": "A pathfinding module mainly meant as a library/framework for other modules",
     "dependencies": [
+        { "id": "BiomesAPI", "minVersion": "4.0.0" },
         { "id": "CoreAssets", "minVersion": "2.0.1" },
         { "id": "CoreWorlds", "minVersion": "1.1.0" }
     ],
