@@ -53,8 +53,10 @@ public class HAStar {
     private BitSet closedList = new BitSet(16 * 1024);
     private boolean useContour;
     private LineOfSight lineOfSight;
+    private boolean useSlope;
 
-    public HAStar(LineOfSight lineOfSight, boolean useContour) {
+    public HAStar(LineOfSight lineOfSight, boolean useContour, boolean useSlope) {
+        this.useSlope = useSlope;
         this.lineOfSight = lineOfSight;
         this.useContour = useContour;
         openList = new BinaryHeap((a, b) -> {
@@ -63,12 +65,12 @@ public class HAStar {
             return -(fA < fB ? -1 : (fA > fB ? 1 : 0));
         }, MAX_NODES, MAX_NODES);
         if (useContour) {
-            localAStar = new HAStar(null, false);
+            localAStar = new HAStar(null, false, false);
         }
     }
 
     public HAStar(LineOfSight lineOfSight) {
-        this(lineOfSight, true);
+        this(lineOfSight, true, false);
     }
 
     public void reset() {
@@ -195,7 +197,8 @@ public class HAStar {
     }
 
     private void computeCosts(int current, Node currentNode, int successor, Node successorNode) {
-        if (lineOfSight != null && currentNode.p != null && lineOfSight.inSight(currentNode.p.block, successorNode.block)) {
+        if (lineOfSight != null && currentNode.p != null && lineOfSight.inSight(currentNode.p.block,
+                successorNode.block)) {
             float tentativeG = currentNode.p.g + c(currentNode.p.id, successor, true);
             if (tentativeG <= successorNode.g) {
                 successorNode.path = null;
@@ -227,11 +230,24 @@ public class HAStar {
             Vector3i toPos = toNode.block.getBlockPosition();
             int diffX = Math.abs(fromPos.x - toPos.x);
             int diffZ = Math.abs(fromPos.z - toPos.z);
+            int diffY = Math.abs(fromPos.y - toPos.y);
+            logger.error("\n\n\n\nchecking diffY is {} \n\n\n", diffY);
             if (toNode.block.hasNeighbor(fromNode.block)) {
                 if (diffX + diffZ == 1) {
-                    return 1;
+
+                    if (useSlope) {
+                        return 1 * (1 + diffY);
+                    } else {
+                        return 1;
+                    }
+
                 } else {
-                    return BitMap.SQRT_2;
+                    if (useSlope) {
+                        return BitMap.SQRT_2 * (1 + diffY);
+                    } else {
+                        return BitMap.SQRT_2;
+                    }
+
                 }
             }
             if (fromNode.block.floor.navGraphChunk.pathCache.hasPath(fromNode.block, toNode.block)) {
