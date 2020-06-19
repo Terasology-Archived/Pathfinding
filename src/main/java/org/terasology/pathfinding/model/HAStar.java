@@ -27,7 +27,6 @@ import org.terasology.navgraph.Floor;
 import org.terasology.navgraph.WalkableBlock;
 
 import java.util.BitSet;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,11 +53,13 @@ public class HAStar {
     private boolean useContour;
     private LineOfSight lineOfSight;
     private boolean useSlope;
+    private final int beta;
 
     public HAStar(LineOfSight lineOfSight, boolean useContour, boolean useSlope) {
         this.useSlope = useSlope;
         this.lineOfSight = lineOfSight;
         this.useContour = useContour;
+        this.beta = 1;
         openList = new BinaryHeap((a, b) -> {
             float fA = nodes.get(a).f;
             float fB = nodes.get(b).f;
@@ -231,19 +232,18 @@ public class HAStar {
             int diffX = Math.abs(fromPos.x - toPos.x);
             int diffZ = Math.abs(fromPos.z - toPos.z);
             int diffY = Math.abs(fromPos.y - toPos.y);
-            logger.error("\n\n\n\nchecking diffY is {} \n\n\n", diffY);
             if (toNode.block.hasNeighbor(fromNode.block)) {
                 if (diffX + diffZ == 1) {
 
                     if (useSlope) {
-                        return 1 * (1 + diffY);
+                        return 1 * (1 + diffY*beta);
                     } else {
                         return 1;
                     }
 
                 } else {
                     if (useSlope) {
-                        return BitMap.SQRT_2 * (1 + diffY);
+                        return BitMap.SQRT_2 * (1 + diffY*beta);
                     } else {
                         return BitMap.SQRT_2;
                     }
