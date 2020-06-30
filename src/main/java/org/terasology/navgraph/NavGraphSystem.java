@@ -107,13 +107,40 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
 
     public WalkableBlock getBlock(Vector3f pos) {
         Vector3i blockPos = new Vector3i(pos.x + 0.25f, pos.y, pos.z + 0.25f);
+        blockPos.y += 2;
         WalkableBlock block = getBlock(blockPos);
         if (block == null) {
             while (blockPos.y >= (int) pos.y - 4 && block == null) {
+                if (block == null) {
+                    block = getBlock(blockPos);
+                }
+                if (block == null) {
+                    blockPos.x--;
+                    block = getBlock(blockPos);
+                    blockPos.x++;
+
+                }
+                if (block == null) {
+                    blockPos.x++;
+                    block = getBlock(blockPos);
+                    blockPos.x--;
+                }
+                if (block == null) {
+                    blockPos.z--;
+                    block = getBlock(blockPos);
+                    blockPos.z++;
+                }
+                if (block == null) {
+                    blockPos.z++;
+                    block = getBlock(blockPos);
+                    blockPos.z--;
+                }
                 blockPos.y--;
-                block = getBlock(blockPos);
+
             }
         }
+
+
         return block;
     }
 
@@ -131,13 +158,15 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
         }
         NavGraphChunk navGraphChunk = heightMaps.remove(chunkPos);
         if (navGraphChunk != null) {
-            navGraphChunk.disconnectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1), getNeighbor(chunkPos, 1, 0), getNeighbor(chunkPos, 0, 1));
+            navGraphChunk.disconnectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1),
+                    getNeighbor(chunkPos, 1, 0), getNeighbor(chunkPos, 0, 1));
             navGraphChunk.cells = null;
         }
         navGraphChunk = new NavGraphChunk(world, chunkPos);
         navGraphChunk.update();
         heightMaps.put(chunkPos, navGraphChunk);
-        navGraphChunk.connectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1), getNeighbor(chunkPos, 1, 0), getNeighbor(chunkPos, 0, 1));
+        navGraphChunk.connectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1),
+                getNeighbor(chunkPos, 1, 0), getNeighbor(chunkPos, 0, 1));
         return navGraphChunk;
     }
 
