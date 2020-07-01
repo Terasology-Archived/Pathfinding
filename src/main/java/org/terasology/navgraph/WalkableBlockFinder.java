@@ -29,6 +29,13 @@ public class WalkableBlockFinder {
         this.world = world;
     }
 
+    /**
+     * Finds Walkable Blocks in  NavGraphChunk. Blocks are considered Walkable only if there is enough space above them
+     * to allow for walking
+     *
+     * @param map
+     */
+
     public void findWalkableBlocks(NavGraphChunk map) {
         int[] airMap = new int[NavGraphChunk.SIZE_X * NavGraphChunk.SIZE_Z];
         Vector3i blockPos = new Vector3i();
@@ -72,6 +79,16 @@ public class WalkableBlockFinder {
         }
     }
 
+    /**
+     * Connects Cells to adjacent cells if possible
+     *
+     * @param map Bitmap of the NavGraphChunk
+     * @param x x co-ordinate of the block
+     * @param z z co-ordinate of the block
+     * @param block The Walkable Block which we want to connect to its neigbbours
+     * @param direction The direction in which we want to try and connect
+     */
+
     private void connectToDirection(NavGraphChunk map, int x, int z, WalkableBlock block, int direction) {
         int dx = NavGraphChunk.DIRECTIONS[direction][0];
         int dy = NavGraphChunk.DIRECTIONS[direction][1];
@@ -86,6 +103,14 @@ public class WalkableBlockFinder {
             connectBlocks(block, neighborBlock, direction);
         }
     }
+
+    /**
+     * Connects to adjacent blocks iff the difference in height is small and there is enough free space above
+     *
+     * @param block The block which we want to connect
+     * @param neighborBlock The neighbour block that we want to connect to
+     * @param direction The direction in which the neighbour block is located
+     */
 
     private void connectBlocks(WalkableBlock block, WalkableBlock neighborBlock, int direction) {
         int heightDiff = block.height() - neighborBlock.height();

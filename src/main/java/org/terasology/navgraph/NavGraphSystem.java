@@ -67,6 +67,10 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
         taskMaster.shutdown(new ShutdownTask(), false);
     }
 
+    /**
+     * Checks if the terrain has been changed and sends a NavGraphChanged event which rebuilds the NavGraphChunk.
+     * @param delta The time (in seconds) since the last engine update.
+     */
     @Override
     public void update(float delta) {
         if (dirty) {
@@ -79,6 +83,13 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
         }
     }
 
+    /**
+     * Called whenever a Block is changed in the terrain
+     * @param pos position of the changed block
+     * @param newBlock The block it was changed to
+     * @param originalBlock The block it initially was
+     */
+
     @Override
     public void onBlockChanged(Vector3i pos, Block newBlock, Block originalBlock) {
         Vector3i chunkPos = ChunkMath.calcChunkPos(pos);
@@ -90,6 +101,12 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
         taskMaster.offer(new UpdateChunkTask(event.getChunkPos()));
     }
 
+    /**
+     *
+     * @param pos Position of the Walkable Block
+     * @return Walkable Block at that position
+     */
+
     public WalkableBlock getBlock(Vector3i pos) {
         Vector3i chunkPos = ChunkMath.calcChunkPos(pos);
         NavGraphChunk navGraphChunk = heightMaps.get(chunkPos);
@@ -100,10 +117,22 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
         }
     }
 
+    /**
+     * Gives the WalkableBlock on which a minion is
+     * @param minion The minion  Walkable Block
+     * @return a Walkable Block on which the minion is
+     */
+
     public WalkableBlock getBlock(EntityRef minion) {
         Vector3f pos = minion.getComponent(LocationComponent.class).getWorldPosition();
         return getBlock(pos);
     }
+
+    /**
+     * Approximates the Walkable Block based on float coordinates
+     * @param pos The position at which we want the Walkable Block
+     * @return Walkable Block at pos
+     */
 
     public WalkableBlock getBlock(Vector3f pos) {
         Vector3i blockPos = new Vector3i(pos.x + 0.25f, pos.y, pos.z + 0.25f);

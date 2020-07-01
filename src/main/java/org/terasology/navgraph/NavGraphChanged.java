@@ -19,6 +19,7 @@ import org.terasology.entitySystem.event.Event;
 
 /**
  * Created by synopia on 02.02.14.
+ * An Event that is called when the NavGraphChunk is updated either by block placement or removal in the terrain
  */
 public class NavGraphChanged implements Event {
 }

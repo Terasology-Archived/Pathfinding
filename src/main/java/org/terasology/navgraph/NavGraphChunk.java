@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @author synopia
+ * @author synopia Represents a Chunk in the terrain with it's floors and walkable blocks
  */
 public class NavGraphChunk {
     public static final int SIZE_X = ChunkConstants.SIZE_X;
@@ -56,6 +56,13 @@ public class NavGraphChunk {
     /* package protected */ NavGraphCell[] cells = new NavGraphCell[SIZE_X * SIZE_Z];
     private WorldProvider world;
 
+    /**
+     * Creates a new NavGraphChunk and the NavGraphCells that belong to it
+     *
+     * @param world The WorldProvider of the currently rendered world
+     * @param chunkPos Position of the Chunk which the newly created NavGraphChunk will represent
+     */
+
     public NavGraphChunk(WorldProvider world, Vector3i chunkPos) {
         this.world = world;
         this.worldPos = new Vector3i(chunkPos);
@@ -64,6 +71,10 @@ public class NavGraphChunk {
             cells[i] = new NavGraphCell();
         }
     }
+
+    /**
+     * Called when there is a change in terrain It re-marks all the floors within the NavGraphChunk
+     */
 
     public void update() {
         new WalkableBlockFinder(world).findWalkableBlocks(this);
@@ -117,6 +128,10 @@ public class NavGraphChunk {
         }
     }
 
+    /**
+     * Sets all the entrances that connect two floors together
+     */
+
     public void findContour() {
         for (Floor floor : floors) {
             floor.resetEntrances();
@@ -135,6 +150,15 @@ public class NavGraphChunk {
         }
     }
 
+    /**
+     * Connects a block to a block from a different NavGraphChunk
+     *
+     * @param block The block which you want to connect
+     * @param dx The x co-ordinate of the neighbouring block with respect to neighbour chunk
+     * @param dz The z co-ordinate of the neighbouring block with respect to neighbour chunk
+     * @param neighbor The neighbouring NavGraphChunk we want to connect to
+     * @param neighborId The id of the neighbour NavGraphChunk
+     */
     private void connectToNeighbor(WalkableBlock block, int dx, int dz, NavGraphChunk neighbor, int neighborId) {
         if (dx < 0 || dx >= NavGraphChunk.SIZE_X || dz < 0 || dz >= NavGraphChunk.SIZE_Z) {
             return;
@@ -217,6 +241,13 @@ public class NavGraphChunk {
     public WalkableBlock getBlock(int x, int y, int z) {
         return getCell(x - worldPos.x, z - worldPos.z).getBlock(y);
     }
+
+    /**
+     * Returns a floor of a particuar id
+     *
+     * @param id id of the floor we want
+     * @return the floor with corresponding id
+     */
 
     public Floor getFloor(int id) {
         for (Floor floor : floors) {

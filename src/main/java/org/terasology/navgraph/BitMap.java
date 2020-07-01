@@ -20,11 +20,16 @@ import java.util.List;
 
 /**
  * @author synopia
+ * Representation of a any region or floor
  */
 public class BitMap {
     public static final int KERNEL_SIZE = 3;
     public static final float SQRT_2 = (float) Math.sqrt(2);
     BitSet map;
+
+    /**
+     * Creates a new Bitmap
+     */
 
     public BitMap() {
         map = new BitSet(getNumberOfNodes());
@@ -52,6 +57,12 @@ public class BitMap {
         }
         return isPassable(offset(x, y));
     }
+
+    /**
+     * Function that adds all the possible nodes that you could possibly go to from the current position
+     * @param offset Offset of the current position
+     * @param successors The list into which the successor nodes will be added
+     */
 
     public void getSuccessors(int offset, List<Integer> successors) {
         int x = getX(offset);
@@ -83,15 +94,31 @@ public class BitMap {
         }
     }
 
+    /**
+     * Tells you whether there is any overlap between 'this' (the one that called the function) map and 'other' map
+     * @param other The map with which you want to check overlap
+     * @return true if there is any overlap
+     */
+
     public boolean overlap(BitMap other) {
         BitSet temp = (BitSet) map.clone();
         temp.and(other.map);
         return temp.cardinality() > 0;
     }
 
+    /**
+     * Merges 'this' map and 'other' and sets its value to 'this'
+     * @param other Bitmap with which you want to merge
+     */
+
     public void merge(BitMap other) {
         map.or(other.map);
     }
+
+    /**
+     * Gives information about the map with 'X's representing Walkable Blocks and ' 's representing blocked areas
+     * @return
+     */
 
     @Override
     public String toString() {
@@ -114,6 +141,11 @@ public class BitMap {
         return sb.toString();
     }
 
+    /**
+     *
+     * @return Number of Cells in the map
+     */
+
     public int getNumberOfNodes() {
         return getWidth() * getHeight();
     }
@@ -125,6 +157,13 @@ public class BitMap {
     public int getHeight() {
         return NavGraphChunk.SIZE_Z;
     }
+
+    /**
+     *
+     * @param from start position
+     * @param to end postion
+     * @return The Euclidean distance between two neighbouring cells in 2D
+     */
 
     public float exactDistance(int from, int to) {
         int diff = to - from;
