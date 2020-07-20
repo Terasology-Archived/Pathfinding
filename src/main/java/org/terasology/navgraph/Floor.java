@@ -97,7 +97,7 @@ public class Floor extends BaseRegion<Floor> {
      * @return if it is an entrance
      */
     public boolean isEntrance(WalkableBlock block) {
-        Vector3i position = ChunkMath.calcBlockPos(block.getBlockPosition());
+        Vector3i position = ChunkMath.calcRelativeBlockPos(block.getBlockPosition());
         return isEntrance(position.x, position.z);
     }
 
@@ -158,7 +158,7 @@ public class Floor extends BaseRegion<Floor> {
      * @param neighbor the block being set as the neighbor to block
      */
     public void setEntrance(WalkableBlock block, WalkableBlock neighbor) {
-        Vector3i position = ChunkMath.calcBlockPos(block.getBlockPosition());
+        Vector3i position = ChunkMath.calcRelativeBlockPos(block.getBlockPosition());
         Entrance entrance = setEntrance(position.x, position.z);
         entrance.neighborFloors.add(neighbor.floor);
     }

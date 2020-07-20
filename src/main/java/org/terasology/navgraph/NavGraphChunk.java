@@ -83,7 +83,7 @@ public class NavGraphChunk {
 
     public void connectNeighborMaps(NavGraphChunk left, NavGraphChunk up, NavGraphChunk right, NavGraphChunk down) {
         for (WalkableBlock block : borderBlocks) {
-            Vector3i position = ChunkMath.calcBlockPos(block.getBlockPosition());
+            Vector3i position = ChunkMath.calcRelativeBlockPos(block.getBlockPosition());
             int x = position.x;
             int z = position.z;
             if (left != null && x == 0) {
@@ -179,7 +179,7 @@ public class NavGraphChunk {
 
     public void disconnectNeighborMaps(NavGraphChunk left, NavGraphChunk up, NavGraphChunk right, NavGraphChunk down) {
         for (WalkableBlock block : borderBlocks) {
-            Vector3i position = ChunkMath.calcBlockPos(block.getBlockPosition());
+            Vector3i position = ChunkMath.calcRelativeBlockPos(block.getBlockPosition());
             int x = position.x;
             int z = position.z;
             if (left != null && x == 0) {
