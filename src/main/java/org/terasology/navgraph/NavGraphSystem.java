@@ -39,6 +39,8 @@ import org.terasology.world.chunks.event.OnChunkLoaded;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.joml.Math.round;
+
 @RegisterSystem
 @Share(value = NavGraphSystem.class)
 public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscriberSystem, WorldChangeListener {
@@ -106,36 +108,28 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
     }
 
     public WalkableBlock getBlock(Vector3f pos) {
-        Vector3i blockPos = new Vector3i(pos.x + 0.25f, pos.y, pos.z + 0.25f);
-        blockPos.y += 2;
+        Vector3i blockPos = new Vector3i(round(pos.x), round(pos.y), round(pos.z));
+        blockPos.y += 2; //Added in case the height of minion is really low
         WalkableBlock block = getBlock(blockPos);
         if (block == null) {
             while (blockPos.y >= (int) pos.y - 4 && block == null) {
                 if (block == null) {
                     block = getBlock(blockPos);
                 }
-                if (block == null) {
-                    blockPos.x--;
-                    block = getBlock(blockPos);
-                    blockPos.x++;
 
+                // Checking Neighbours as minion could be hanging on the edge of a block
+
+                for (int i = 0; i < 8; i++) {
+                    int dx = NavGraphChunk.DIRECTIONS[i][0];
+                    int dz = NavGraphChunk.DIRECTIONS[i][1];
+                    Vector3i directionVector = new Vector3i(dx, 0, dz);
+                    directionVector.add(blockPos);
+                    block = getBlock(directionVector);
+                    if (block != null) {
+                        break;
+                    }
                 }
-                if (block == null) {
-                    blockPos.x++;
-                    block = getBlock(blockPos);
-                    blockPos.x--;
-                }
-                if (block == null) {
-                    blockPos.z--;
-                    block = getBlock(blockPos);
-                    blockPos.z++;
-                }
-                if (block == null) {
-                    blockPos.z++;
-                    block = getBlock(blockPos);
-                    blockPos.z--;
-                }
-                blockPos.y--;
+
 
             }
         }
