@@ -39,6 +39,8 @@ import org.terasology.world.chunks.event.OnChunkLoaded;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.joml.Math.round;
+
 @RegisterSystem
 @Share(value = NavGraphSystem.class)
 public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscriberSystem, WorldChangeListener {
@@ -106,7 +108,8 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
     }
 
     public WalkableBlock getBlock(Vector3f pos) {
-        Vector3i blockPos = new Vector3i(pos.x + 0.25f, pos.y, pos.z + 0.25f);
+        //Vector3i blockPos = new Vector3i(pos.x + 0.25f, pos.y, pos.z + 0.25f);
+        Vector3i blockPos = new Vector3i(round(pos.x), round(pos.y) , round (pos.z));
         WalkableBlock block = getBlock(blockPos);
         if (block == null) {
             while (blockPos.y >= (int) pos.y - 4 && block == null) {
