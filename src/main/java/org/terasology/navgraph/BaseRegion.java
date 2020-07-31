@@ -30,7 +30,7 @@ public abstract class BaseRegion<N extends BaseRegion> {
 
     /**
      * Creates a BaseRegion
-     * @param id id of the base region
+     * @param id the id of the base region
      */
     protected BaseRegion(int id) {
         this.id = id;
@@ -39,19 +39,17 @@ public abstract class BaseRegion<N extends BaseRegion> {
 
     /**
      * Marks a point in the region as walkable by characters
-     * @param x x co-ordinate of the point with respect to region's top-left corner
-     * @param y y co-ordinate of the point with respect ot region's rop-left corner
+     * @param x the x co-ordinate of the point with respect to region's top-left corner
+     * @param y the y co-ordinate of the point with respect ot region's rop-left corner
      */
-
     public void setPassable(int x, int y) {
         map.setPassable(x, y);
     }
 
     /**
      * Function to get the map representing the region
-     * @return Bitmap of the region
+     * @return bitmap of the region
      */
-
     public BitMap getMap() {
         return map;
     }
@@ -60,16 +58,14 @@ public abstract class BaseRegion<N extends BaseRegion> {
      * Returns neighbours with whom this region shares a side
      * @return set of neighbouring regions
      */
-
     public Set<N> getNeighborRegions() {
         return neighborRegions;
     }
 
     /**
      *
-     * @return The id of the base region along with the number of neighbouring regions
+     * @return the id of the base region along with the number of neighbouring regions
      */
-
     @Override
     public String toString() {
         return id + "\nrc = " + neighborRegions.size();

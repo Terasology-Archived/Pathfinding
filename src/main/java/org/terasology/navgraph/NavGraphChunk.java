@@ -28,7 +28,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @author synopia Represents a Chunk in the terrain with it's floors and walkable blocks
+ * @author synopia
+ * Represents a Chunk in the terrain with it's floors and walkable blocks
  */
 public class NavGraphChunk {
     public static final int SIZE_X = ChunkConstants.SIZE_X;
@@ -59,10 +60,9 @@ public class NavGraphChunk {
     /**
      * Creates a new NavGraphChunk and the NavGraphCells that belong to it
      *
-     * @param world The WorldProvider of the currently rendered world
-     * @param chunkPos Position of the Chunk which the newly created NavGraphChunk will represent
+     * @param world the WorldProvider of the currently rendered world
+     * @param chunkPos position of the Chunk which the newly created NavGraphChunk will represent
      */
-
     public NavGraphChunk(WorldProvider world, Vector3i chunkPos) {
         this.world = world;
         this.worldPos = new Vector3i(chunkPos);
@@ -73,9 +73,9 @@ public class NavGraphChunk {
     }
 
     /**
-     * Called when there is a change in terrain It re-marks all the floors within the NavGraphChunk
+     * Called when there is a change in terrain.
+     * It re-marks all the floors within the NavGraphChunk.
      */
-
     public void update() {
         new WalkableBlockFinder(world).findWalkableBlocks(this);
         new FloorFinder().findFloors(this);
@@ -131,7 +131,6 @@ public class NavGraphChunk {
     /**
      * Sets all the entrances that connect two floors together
      */
-
     public void findContour() {
         for (Floor floor : floors) {
             floor.resetEntrances();
@@ -153,11 +152,11 @@ public class NavGraphChunk {
     /**
      * Connects a block to a block from a different NavGraphChunk
      *
-     * @param block The block which you want to connect
-     * @param dx The x co-ordinate of the neighbouring block with respect to neighbour chunk
-     * @param dz The z co-ordinate of the neighbouring block with respect to neighbour chunk
-     * @param neighbor The neighbouring NavGraphChunk we want to connect to
-     * @param neighborId The id of the neighbour NavGraphChunk
+     * @param block the block which you want to connect
+     * @param dx the x co-ordinate of the neighbouring block with respect to neighbour chunk
+     * @param dz the z co-ordinate of the neighbouring block with respect to neighbour chunk
+     * @param neighbor the neighbouring NavGraphChunk we want to connect to
+     * @param neighborId the id of the neighbour NavGraphChunk
      */
     private void connectToNeighbor(WalkableBlock block, int dx, int dz, NavGraphChunk neighbor, int neighborId) {
         if (dx < 0 || dx >= NavGraphChunk.SIZE_X || dz < 0 || dz >= NavGraphChunk.SIZE_Z) {
@@ -248,7 +247,6 @@ public class NavGraphChunk {
      * @param id id of the floor we want
      * @return the floor with corresponding id
      */
-
     public Floor getFloor(int id) {
         for (Floor floor : floors) {
             if (floor.id == id) {

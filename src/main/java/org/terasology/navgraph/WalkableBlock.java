@@ -18,8 +18,9 @@ package org.terasology.navgraph;
 import org.terasology.math.geom.Vector3i;
 
 /**
- * @author synopia Represents a Block through which characters can walk through. They are blocks which have atleast 2
- *         penetrable blocks above them and are themselves not penetrable
+ * @author synopia
+ * Represents a Block through which characters can walk through. They are blocks which have at least 2
+ * penetrable blocks above them and are themselves not penetrable
  */
 public class WalkableBlock {
     public WalkableBlock[] neighbors = new WalkableBlock[8];
