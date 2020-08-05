@@ -15,11 +15,16 @@
  */
 package org.terasology;
 
+import org.terasology.assets.ResourceUrn;
+import org.terasology.assets.management.AssetManager;
 import org.terasology.math.geom.Vector3i;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockManager;
+import org.terasology.world.block.family.SymmetricFamily;
+import org.terasology.world.block.loader.BlockFamilyDefinition;
+import org.terasology.world.block.loader.BlockFamilyDefinitionData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +43,13 @@ public class TextWorldBuilder {
     public TextWorldBuilder(WorldProvidingHeadlessEnvironment environment) {
         world = CoreRegistry.get(WorldProvider.class);
         BlockManager blockManager = CoreRegistry.get(BlockManager.class);
-        this.ground = blockManager.getBlock("CoreBlocks:Dirt");
+        AssetManager assetManager = CoreRegistry.get(AssetManager.class);
+
+        BlockFamilyDefinitionData data = new BlockFamilyDefinitionData();
+        data.setBlockFamily(SymmetricFamily.class);
+        assetManager.loadAsset(new ResourceUrn("temp:ground"), data, BlockFamilyDefinition.class);
+        this.ground = blockManager.getBlock("temp:ground");
+        this.ground.setPenetrable(false);
         this.air = blockManager.getBlock(BlockManager.AIR_ID);
     }
 
