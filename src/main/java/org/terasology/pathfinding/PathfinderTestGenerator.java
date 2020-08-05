@@ -15,9 +15,15 @@
  */
 package org.terasology.pathfinding;
 
+import org.terasology.assets.Asset;
+import org.terasology.assets.ResourceUrn;
+import org.terasology.assets.management.AssetManager;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockManager;
+import org.terasology.world.block.family.SymmetricFamily;
+import org.terasology.world.block.loader.BlockFamilyDefinition;
+import org.terasology.world.block.loader.BlockFamilyDefinitionData;
 import org.terasology.world.chunks.ChunkConstants;
 import org.terasology.world.chunks.CoreChunk;
 import org.terasology.world.generator.ChunkGenerationPass;
@@ -51,8 +57,13 @@ public class PathfinderTestGenerator implements ChunkGenerationPass {
     @Override
     public void generateChunk(CoreChunk chunk) {
         BlockManager blockManager = CoreRegistry.get(BlockManager.class);
+        AssetManager assetManager = CoreRegistry.get(AssetManager.class);
         air = blockManager.getBlock(BlockManager.AIR_ID);
-        ground = blockManager.getBlock("CoreBlocks:Dirt");
+        BlockFamilyDefinitionData data = new BlockFamilyDefinitionData();
+        data.setBlockFamily(SymmetricFamily.class);
+        assetManager.loadAsset(new ResourceUrn("temp:ground"), data, BlockFamilyDefinition.class);
+        ground = blockManager.getBlock("temp:ground");
+        ground.setPenetrable(false);
 
         generateLevel(chunk, 50);
 
