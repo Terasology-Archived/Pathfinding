@@ -39,6 +39,8 @@ import org.terasology.world.chunks.event.OnChunkLoaded;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.joml.Math.round;
+
 @RegisterSystem
 @Share(value = NavGraphSystem.class)
 public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscriberSystem, WorldChangeListener {
@@ -106,14 +108,33 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
     }
 
     public WalkableBlock getBlock(Vector3f pos) {
-        Vector3i blockPos = new Vector3i(pos.x + 0.25f, pos.y, pos.z + 0.25f);
+        Vector3i blockPos = new Vector3i(round(pos.x), round(pos.y), round(pos.z));
+        blockPos.y += 2; //Added in case the height of minion is really low
         WalkableBlock block = getBlock(blockPos);
         if (block == null) {
             while (blockPos.y >= (int) pos.y - 4 && block == null) {
-                blockPos.y--;
-                block = getBlock(blockPos);
+                if (block == null) {
+                    block = getBlock(blockPos);
+                }
+
+                // Checking Neighbours as minion could be hanging on the edge of a block
+
+                for (int i = 0; i < 8; i++) {
+                    int dx = NavGraphChunk.DIRECTIONS[i][0];
+                    int dz = NavGraphChunk.DIRECTIONS[i][1];
+                    Vector3i directionVector = new Vector3i(dx, 0, dz);
+                    directionVector.add(blockPos);
+                    block = getBlock(directionVector);
+                    if (block != null) {
+                        break;
+                    }
+                }
+
+
             }
         }
+
+
         return block;
     }
 
@@ -131,13 +152,15 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
         }
         NavGraphChunk navGraphChunk = heightMaps.remove(chunkPos);
         if (navGraphChunk != null) {
-            navGraphChunk.disconnectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1), getNeighbor(chunkPos, 1, 0), getNeighbor(chunkPos, 0, 1));
+            navGraphChunk.disconnectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1),
+                    getNeighbor(chunkPos, 1, 0), getNeighbor(chunkPos, 0, 1));
             navGraphChunk.cells = null;
         }
         navGraphChunk = new NavGraphChunk(world, chunkPos);
         navGraphChunk.update();
         heightMaps.put(chunkPos, navGraphChunk);
-        navGraphChunk.connectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1), getNeighbor(chunkPos, 1, 0), getNeighbor(chunkPos, 0, 1));
+        navGraphChunk.connectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1),
+                getNeighbor(chunkPos, 1, 0), getNeighbor(chunkPos, 0, 1));
         return navGraphChunk;
     }
 
