@@ -17,6 +17,7 @@ package org.terasology.navgraph;
 
 /**
  * @author synopia
+ * Represents connected NavGraphCells in the same row (no holes or corners)
  */
 public class Sweep {
     public Region region;

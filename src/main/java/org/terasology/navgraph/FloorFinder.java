@@ -27,6 +27,7 @@ import java.util.Set;
 
 /**
  * @author synopia
+ * Marks all the regions, floors and sweeps in a chunk
  */
 public class FloorFinder {
     private List<Region> regions = Lists.newArrayList();

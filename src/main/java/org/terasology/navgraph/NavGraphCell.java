@@ -20,10 +20,17 @@ import java.util.List;
 
 /**
  * @author synopia
+ * Represents each cell in a region.
  */
 public class NavGraphCell {
     public final List<WalkableBlock> blocks = new ArrayList<WalkableBlock>();
 
+    /**
+     * Adds a Walkable block to a Cell in the map.
+     * Since the cells, are only in 2D, each cell can have multiple WalkableBlocks at different heights
+     *
+     * @param walkableBlock the Walkable Block you want to add to the NavGraphCell
+     */
     public void addBlock(WalkableBlock walkableBlock) {
         if (blocks.size() == 0) {
             blocks.add(walkableBlock);
@@ -32,6 +39,12 @@ public class NavGraphCell {
         }
     }
 
+    /**
+     * Returns a Walkable block at a particular height in the NavGraphCell
+     *
+     * @param height the height of the Walkable Block you want
+     * @return the Walkable Block at some height in this NavGraphCell
+     */
     public WalkableBlock getBlock(int height) {
         for (WalkableBlock block : blocks) {
             if (block.height() == height) {

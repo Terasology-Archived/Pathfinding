@@ -115,7 +115,7 @@ public class Floor extends BaseRegion<Floor> {
      * Sets entranceMap[x + y * NavGraphChunk.SIZE_Z] to an entrance.
      * @param x the x location of the Block
      * @param y the y location of the Block
-     * @return Entrance object at (x,y) 
+     * @return entrance object at (x,y)
      */
     public Entrance setEntrance(int x, int y) {
         if (entranceMap[x + y * NavGraphChunk.SIZE_Z] != null) {
@@ -175,7 +175,7 @@ public class Floor extends BaseRegion<Floor> {
      * Returns the block at the parameters location with getCell(x,y) and sets this object as the floor of the block.
      * @param fx the x coordinate in the Chunk
      * @param fy the y coordinate in the Chunk
-     * @return The block at (fx,fy)
+     * @return the block at (fx,fy)
      */
     WalkableBlock getBlock(int fx, int fy) {
         NavGraphCell cell = navGraphChunk.getCell(fx, fy);
