@@ -19,8 +19,8 @@ import java.util.BitSet;
 import java.util.List;
 
 /**
- * @author synopia
- * Representation of a region or floor
+ * @author synopia Representation of a region or floor {@link Floor} The BitMap consists of a number of bits, each of
+ *         which represent a block. A value of true or 1 means that the block is passable
  */
 public class BitMap {
     public static final int KERNEL_SIZE = 3;
@@ -29,6 +29,8 @@ public class BitMap {
 
     /**
      * Creates a new Bitmap
+     * A bitmap created this way always has a fixed number of nodes, decided by in-game Chunk
+     * constants The default value for all the bits are false or 0.
      */
     public BitMap() {
         map = new BitSet(getNumberOfNodes());
@@ -59,6 +61,7 @@ public class BitMap {
 
     /**
      * Function that adds all the possible nodes that you could possibly go to from the current position
+     *
      * @param offset the offset of the current position
      * @param successors the list into which the successor nodes will be added
      */
@@ -94,6 +97,7 @@ public class BitMap {
 
     /**
      * Tells you whether there is any overlap between 'this' (the one that called the function) map and 'other' map
+     *
      * @param other the map with which you want to check overlap
      * @return true if there is any overlap
      */
@@ -105,6 +109,7 @@ public class BitMap {
 
     /**
      * Merges 'this' map and 'other' and sets its value to 'this'
+     *
      * @param other bitmap with which you want to merge
      */
     public void merge(BitMap other) {
@@ -113,6 +118,7 @@ public class BitMap {
 
     /**
      * Gives information about the map with 'X's representing Walkable Blocks and spaces representing blocked areas
+     *
      * @return
      */
     @Override
@@ -138,6 +144,7 @@ public class BitMap {
 
     /**
      * Function that return number of nodes in the bitmap
+     *
      * @return number of cells in the map
      */
     public int getNumberOfNodes() {
@@ -153,7 +160,6 @@ public class BitMap {
     }
 
     /**
-     *
      * @param from start position
      * @param to end postion
      * @return the Euclidean distance between two neighbouring cells in 2D
