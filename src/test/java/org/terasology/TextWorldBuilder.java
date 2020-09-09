@@ -1,30 +1,17 @@
-/*
- * Copyright 2014 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology;
 
+import org.terasology.engine.registry.CoreRegistry;
+import org.terasology.engine.world.WorldProvider;
+import org.terasology.engine.world.block.Block;
+import org.terasology.engine.world.block.BlockManager;
+import org.terasology.engine.world.block.family.SymmetricFamily;
+import org.terasology.engine.world.block.loader.BlockFamilyDefinition;
+import org.terasology.engine.world.block.loader.BlockFamilyDefinitionData;
 import org.terasology.gestalt.assets.ResourceUrn;
 import org.terasology.gestalt.assets.management.AssetManager;
 import org.terasology.math.geom.Vector3i;
-import org.terasology.registry.CoreRegistry;
-import org.terasology.world.WorldProvider;
-import org.terasology.world.block.Block;
-import org.terasology.world.block.BlockManager;
-import org.terasology.world.block.family.SymmetricFamily;
-import org.terasology.world.block.loader.BlockFamilyDefinition;
-import org.terasology.world.block.loader.BlockFamilyDefinitionData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,12 +20,12 @@ import java.util.List;
  * Created by synopia on 11.02.14.
  */
 public class TextWorldBuilder {
+    private final WorldProvider world;
+    private final Block ground;
+    private final Block air;
     private int sizeX;
     private int sizeY;
     private int sizeZ;
-    private WorldProvider world;
-    private Block ground;
-    private Block air;
 
     public TextWorldBuilder(WorldProvidingHeadlessEnvironment environment) {
         world = CoreRegistry.get(WorldProvider.class);
@@ -51,6 +38,45 @@ public class TextWorldBuilder {
         this.ground = blockManager.getBlock("temp:ground");
         this.ground.setPenetrable(false);
         this.air = blockManager.getBlock(BlockManager.AIR_ID);
+    }
+
+    public static String[][] split(String separator, String... lines) {
+        List<List<String>> table = new ArrayList<>();
+        for (String line : lines) {
+            if (line == null || line.length() == 0) {
+                continue;
+            }
+            String[] parts = line.split(separator);
+            for (int i = table.size(); i < parts.length; i++) {
+                table.add(new ArrayList<String>());
+            }
+            for (int i = 0; i < parts.length; i++) {
+                table.get(i).add(parts[i]);
+            }
+        }
+        String[][] result = new String[table.size()][lines.length];
+        for (int i = 0; i < table.size(); i++) {
+            List<String> col = table.get(i);
+            for (int j = 0; j < col.size(); j++) {
+                result[i][j] = col.get(j);
+            }
+        }
+        return result;
+    }
+
+    public static String[] combine(String separator, String[][] table) {
+        String[] result = new String[table[0].length];
+        for (int z = 0; z < table[0].length; z++) {
+            StringBuilder line = new StringBuilder();
+            for (int y = 0; y < table.length; y++) {
+                if (y != 0) {
+                    line.append(separator);
+                }
+                line.append(table[y][z]);
+            }
+            result[z] = line.toString();
+        }
+        return result;
     }
 
     public void setGround(int x, int y, int z) {
@@ -126,45 +152,6 @@ public class TextWorldBuilder {
         sizeX++;
         sizeY++;
         sizeZ++;
-    }
-
-    public static String[][] split(String separator, String... lines) {
-        List<List<String>> table = new ArrayList<>();
-        for (String line : lines) {
-            if (line == null || line.length() == 0) {
-                continue;
-            }
-            String[] parts = line.split(separator);
-            for (int i = table.size(); i < parts.length; i++) {
-                table.add(new ArrayList<String>());
-            }
-            for (int i = 0; i < parts.length; i++) {
-                table.get(i).add(parts[i]);
-            }
-        }
-        String[][] result = new String[table.size()][lines.length];
-        for (int i = 0; i < table.size(); i++) {
-            List<String> col = table.get(i);
-            for (int j = 0; j < col.size(); j++) {
-                result[i][j] = col.get(j);
-            }
-        }
-        return result;
-    }
-
-    public static String[] combine(String separator, String[][] table) {
-        String[] result = new String[table[0].length];
-        for (int z = 0; z < table[0].length; z++) {
-            StringBuilder line = new StringBuilder();
-            for (int y = 0; y < table.length; y++) {
-                if (y != 0) {
-                    line.append(separator);
-                }
-                line.append(table[y][z]);
-            }
-            result[z] = line.toString();
-        }
-        return result;
     }
 
     public interface Runner {

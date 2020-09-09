@@ -1,31 +1,17 @@
-/*
- * Copyright 2015 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 
 package org.terasology.pathfinding;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.terasology.pathfinding.GeneralPathFinder.DefaultEdge;
+import org.terasology.pathfinding.GeneralPathFinder.Edge;
+import org.terasology.pathfinding.GeneralPathFinder.Path;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.terasology.pathfinding.GeneralPathFinder;
-import org.terasology.pathfinding.GeneralPathFinder.DefaultEdge;
-import org.terasology.pathfinding.GeneralPathFinder.Edge;
-import org.terasology.pathfinding.GeneralPathFinder.Path;
 
 
 /**
@@ -46,17 +32,17 @@ public class GeneralPathFinderTest {
     private final Vertex lon = new Vertex("London");  // not in the graph
 
     private final Collection<Edge<Vertex>> edges = Collections.unmodifiableList(Arrays.asList(
-        new DefaultEdge<Vertex>(fra, man, 85),
-        new DefaultEdge<Vertex>(fra, wrz, 217),
-        new DefaultEdge<Vertex>(fra, kas, 173),
-        new DefaultEdge<Vertex>(man, kar, 80),
-        new DefaultEdge<Vertex>(wrz, erf, 186),
-        new DefaultEdge<Vertex>(wrz, nrn, 103),
-        new DefaultEdge<Vertex>(stu, nrn, 183),
-        new DefaultEdge<Vertex>(kar, aug, 250),
-        new DefaultEdge<Vertex>(kas, muc, 502),
-        new DefaultEdge<Vertex>(aug, muc, 84),
-        new DefaultEdge<Vertex>(nrn, muc, 167)));
+            new DefaultEdge<Vertex>(fra, man, 85),
+            new DefaultEdge<Vertex>(fra, wrz, 217),
+            new DefaultEdge<Vertex>(fra, kas, 173),
+            new DefaultEdge<Vertex>(man, kar, 80),
+            new DefaultEdge<Vertex>(wrz, erf, 186),
+            new DefaultEdge<Vertex>(wrz, nrn, 103),
+            new DefaultEdge<Vertex>(stu, nrn, 183),
+            new DefaultEdge<Vertex>(kar, aug, 250),
+            new DefaultEdge<Vertex>(kas, muc, 502),
+            new DefaultEdge<Vertex>(aug, muc, 84),
+            new DefaultEdge<Vertex>(nrn, muc, 167)));
 
     @Test
     public void testUnconstrainedFraMuc() {

@@ -1,18 +1,5 @@
-/*
- * Copyright 2015 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 
 package org.terasology.pathfinding;
 
@@ -30,14 +17,14 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * Performs single pair shortest path computations without heuristics. Based on the choice of cost
- * and heuristic function, this is equivalent to <b>Dijkstra's algorithm</b> (cost only, no heuristic),
+ * Performs single pair shortest path computations without heuristics. Based on the choice of cost and heuristic
+ * function, this is equivalent to <b>Dijkstra's algorithm</b> (cost only, no heuristic),
  * <b>Best-First-Search</b> (no cost, heuristic only) and <b>A*</b> (both cost and heuristic).
  * As Best-First-Search ignores the distance already traveled it does not necessarily generate the shortest path.
  * <p>
- * Only monotonous heuristic functions that never over-estimate the distance to the end node can be used.
- * One prominent example is the Euclidean distance (the beeline).
- * Admissible function that are not monotonous are not supported.
+ * Only monotonous heuristic functions that never over-estimate the distance to the end node can be used. One prominent
+ * example is the Euclidean distance (the beeline). Admissible function that are not monotonous are not supported.
+ *
  * @param <V> the vertex class
  */
 public class GeneralPathFinder<V> {
@@ -64,15 +51,16 @@ public class GeneralPathFinder<V> {
 
     /**
      * @param edgeFunc a function that maps a vertex to all connected edges. Must not return <code>null</code>
-     *                 for every reachable vertex.
+     *         for every reachable vertex.
      */
     public GeneralPathFinder(Function<V, ? extends Collection<? extends Edge<V>>> edgeFunc) {
         this.edgeFunc = edgeFunc;
     }
 
     /**
-     * Searches for the shortest path between two vertices.
-     * Does not use a heuristic, i.e. it is equivalent to Dijkstra's algorithm.
+     * Searches for the shortest path between two vertices. Does not use a heuristic, i.e. it is equivalent to
+     * Dijkstra's algorithm.
+     *
      * @param start the start vertex
      * @param end the target vertex
      * @return the shortest path between the two, if it exists
@@ -82,9 +70,10 @@ public class GeneralPathFinder<V> {
     }
 
     /**
-     * Searches for the shortest path between two vertices up to a certain maximum distance around start.
-     * A monotonous heuristic is used to estimate the distance to the end node.
-     * This is equivalent to the A* algorithm if edge costs are sensible, Best-First-Search otherwise.
+     * Searches for the shortest path between two vertices up to a certain maximum distance around start. A monotonous
+     * heuristic is used to estimate the distance to the end node. This is equivalent to the A* algorithm if edge costs
+     * are sensible, Best-First-Search otherwise.
+     *
      * @param start the start vertex
      * @param end the target vertex
      * @param heuristic a heuristic function that estimates the cost to <code>end</code>.
@@ -95,8 +84,9 @@ public class GeneralPathFinder<V> {
     }
 
     /**
-     * Searches for the shortest path between two vertices up to a certain maximum distance around start.
-     * Does not use a heuristic, i.e. it is equivalent to Dijkstra's algorithm.
+     * Searches for the shortest path between two vertices up to a certain maximum distance around start. Does not use a
+     * heuristic, i.e. it is equivalent to Dijkstra's algorithm.
+     *
      * @param start the start vertex
      * @param end the target vertex
      * @param maxDist the threshold distance
@@ -107,10 +97,10 @@ public class GeneralPathFinder<V> {
     }
 
     /**
-     * Searches for the shortest path between two vertices up to a certain maximum distance around start.
-     * A monotonous heuristic is used to estimate the distance to the end node.
-     * This is equivalent to the A* algorithm if edge costs are sensible, Best-First-Search otherwise.
-     * The function must not over-estimate the distance to the end node.
+     * Searches for the shortest path between two vertices up to a certain maximum distance around start. A monotonous
+     * heuristic is used to estimate the distance to the end node. This is equivalent to the A* algorithm if edge costs
+     * are sensible, Best-First-Search otherwise. The function must not over-estimate the distance to the end node.
+     *
      * @param start the start vertex
      * @param end the target vertex
      * @param maxDist the threshold distance
@@ -139,7 +129,7 @@ public class GeneralPathFinder<V> {
 
             V v = queue.poll();                                   // vertex with smallest cost/distance
 
-            if (!seen.contains(v))  {
+            if (!seen.contains(v)) {
                 seen.add(v);
 
                 double dist = dists.get(v);
@@ -187,6 +177,44 @@ public class GeneralPathFinder<V> {
         return path;
     }
 
+    /**
+     * Describes a weighted edge. No assumptions on directions are made.
+     *
+     * @param <V> the vertex class
+     */
+    public interface Edge<V> {
+
+        /**
+         * @return one end of the vertex / the start vertex for directed edges
+         */
+        V getStart();
+
+        /**
+         * @return one end of the vertex / the end vertex for directed edges
+         */
+        V getEnd();
+
+        /**
+         * @param v one vertex of the edge
+         * @return the opposing vertex of the edge
+         * @throws IllegalArgumentException e if <code>v</code> is not part of the edge
+         */
+        default V getOther(V v) {
+            if (getStart().equals(v)) {
+                return getEnd();
+            }
+            if (getEnd().equals(v)) {
+                return getStart();
+            }
+            throw new IllegalArgumentException("Vertex not part of the edge");
+        }
+
+        /**
+         * @return a positive number that describes the weight/cost/length of the edge
+         */
+        double getCost();
+    }
+
     public static final class Path<V> {
 
         private final List<V> sequence;                      // unmodifiable!
@@ -227,6 +255,7 @@ public class GeneralPathFinder<V> {
 
         /**
          * Returns the distance between a given vertex and the start vertex.
+         *
          * @param v the vertex of interest
          * @return the distance to start
          * @throws IllegalArgumentException if <code>v</code> does not lie on the path and no entry is present
@@ -241,45 +270,9 @@ public class GeneralPathFinder<V> {
     }
 
     /**
-     * Describes a weighted edge. No assumptions on directions are made.
-     * @param <V> the vertex class
-     */
-    public interface Edge<V> {
-
-        /**
-         * @return one end of the vertex / the start vertex for directed edges
-         */
-        V getStart();
-
-        /**
-         * @return one end of the vertex / the end vertex for directed edges
-         */
-        V getEnd();
-
-        /**
-         * @param v one vertex of the edge
-         * @return the opposing vertex of the edge
-         * @throws IllegalArgumentException e if <code>v</code> is not part of the edge
-         */
-        default V getOther(V v) {
-            if (getStart().equals(v)) {
-                return getEnd();
-            }
-            if (getEnd().equals(v)) {
-                return getStart();
-            }
-            throw new IllegalArgumentException("Vertex not part of the edge");
-        }
-
-        /**
-         * @return a positive number that describes the weight/cost/length of the edge
-         */
-        double getCost();
-    }
-
-    /**
-     * The default implementation of {@link PathFinder.Edge}.
-     * Stores all parameter in fields and provides them through getters.
+     * The default implementation of {@link PathFinder.Edge}. Stores all parameter in fields and provides them through
+     * getters.
+     *
      * @param <V> the vertex class.
      */
     public static class DefaultEdge<V> implements Edge<V> {

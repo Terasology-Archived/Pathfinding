@@ -1,25 +1,13 @@
-/*
- * Copyright 2014 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.pathfinding;
 
 import com.google.common.collect.Sets;
 import org.terasology.WorldProvidingHeadlessEnvironment;
-import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
-import org.terasology.engine.ComponentSystemManager;
-import org.terasology.engine.SimpleUri;
+import org.terasology.coreworlds.generator.AbstractBaseWorldGenerator;
+import org.terasology.engine.core.ComponentSystemManager;
+import org.terasology.engine.core.SimpleUri;
+import org.terasology.engine.registry.CoreRegistry;
 import org.terasology.math.geom.Vector3i;
 import org.terasology.navgraph.Entrance;
 import org.terasology.navgraph.Floor;
@@ -29,7 +17,6 @@ import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.LineOfSight;
 import org.terasology.pathfinding.model.LineOfSight2d;
 import org.terasology.pathfinding.model.Path;
-import org.terasology.registry.CoreRegistry;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -46,18 +33,18 @@ import java.util.Set;
  * @author synopia
  */
 public class PathDebugger extends JFrame {
-    private WorldProvidingHeadlessEnvironment env;
+    private final WorldProvidingHeadlessEnvironment env;
     private final int mapWidth;
     private final int mapHeight;
+    private final NavGraphSystem world;
+    private final PathfinderSystem pathfinderSystem;
+    private final transient LineOfSight lineOfSight;
     private int level;
     private WalkableBlock hovered;
     private WalkableBlock start;
     private WalkableBlock target;
     private Path path;
-    private final NavGraphSystem world;
     private boolean isSight;
-    private final PathfinderSystem pathfinderSystem;
-    private transient LineOfSight lineOfSight;
 
     public PathDebugger() throws HeadlessException {
         env = new WorldProvidingHeadlessEnvironment();
@@ -89,6 +76,13 @@ public class PathDebugger extends JFrame {
         add(new DebugPanel());
     }
 
+    public static void main(String[] args) {
+        PathDebugger debugger = new PathDebugger();
+        debugger.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        debugger.pack();
+        debugger.setVisible(true);
+    }
+
     private boolean isEntrance(WalkableBlock block) {
         boolean isEntrance = false;
         for (Entrance entrance : block.floor.entrances()) {
@@ -98,13 +92,6 @@ public class PathDebugger extends JFrame {
             }
         }
         return isEntrance;
-    }
-
-    public static void main(String[] args) {
-        PathDebugger debugger = new PathDebugger();
-        debugger.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        debugger.pack();
-        debugger.setVisible(true);
     }
 
     private final class DebugPanel extends JPanel {

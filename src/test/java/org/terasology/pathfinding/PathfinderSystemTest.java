@@ -1,41 +1,28 @@
-/*
- * Copyright 2017 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.pathfinding;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
-import org.junit.Assert;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.terasology.WorldProvidingHeadlessEnvironment;
-import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
-import org.terasology.engine.ComponentSystemManager;
-import org.terasology.engine.SimpleUri;
-import org.terasology.entitySystem.entity.EntityManager;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.entity.internal.PojoEntityManager;
-import org.terasology.entitySystem.event.internal.EventSystem;
-import org.terasology.logic.characters.CharacterComponent;
+import org.terasology.coreworlds.generator.AbstractBaseWorldGenerator;
+import org.terasology.engine.core.ComponentSystemManager;
+import org.terasology.engine.core.SimpleUri;
+import org.terasology.engine.entitySystem.entity.EntityManager;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.entity.internal.PojoEntityManager;
+import org.terasology.engine.entitySystem.event.internal.EventSystem;
+import org.terasology.engine.logic.characters.CharacterComponent;
+import org.terasology.engine.registry.CoreRegistry;
+import org.terasology.engine.world.chunks.event.OnChunkLoaded;
 import org.terasology.math.geom.Vector3i;
 import org.terasology.navgraph.NavGraphSystem;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.Pathfinder;
-import org.terasology.registry.CoreRegistry;
-import org.terasology.world.chunks.event.OnChunkLoaded;
 
 import static org.mockito.Mockito.mock;
 
@@ -56,9 +43,12 @@ public class PathfinderSystemTest {
         entityRef.addComponent(new CharacterComponent());
 
         navGraphSystem.chunkReady(mock(OnChunkLoaded.class), entityRef);
-        ListenableFuture f1 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
-        ListenableFuture f2 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
-        ListenableFuture f3 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
+        ListenableFuture f1 = pathfinderSystem.requestPath(entityRef, new Vector3i(),
+                Lists.newArrayList(new Vector3i()));
+        ListenableFuture f2 = pathfinderSystem.requestPath(entityRef, new Vector3i(),
+                Lists.newArrayList(new Vector3i()));
+        ListenableFuture f3 = pathfinderSystem.requestPath(entityRef, new Vector3i(),
+                Lists.newArrayList(new Vector3i()));
         while (pathfinderSystem.getPathsSearched() != 3) {
             Thread.sleep(10);
             eventSystem.process();
@@ -72,9 +62,12 @@ public class PathfinderSystemTest {
     public void updateChunkAfterPathRequests() throws InterruptedException {
         EntityRef entityRef = entityManager.create();
         entityRef.addComponent(new CharacterComponent());
-        ListenableFuture f1 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
-        ListenableFuture f2 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
-        ListenableFuture f3 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
+        ListenableFuture f1 = pathfinderSystem.requestPath(entityRef, new Vector3i(),
+                Lists.newArrayList(new Vector3i()));
+        ListenableFuture f2 = pathfinderSystem.requestPath(entityRef, new Vector3i(),
+                Lists.newArrayList(new Vector3i()));
+        ListenableFuture f3 = pathfinderSystem.requestPath(entityRef, new Vector3i(),
+                Lists.newArrayList(new Vector3i()));
         navGraphSystem.chunkReady(mock(OnChunkLoaded.class), entityRef);
         while (pathfinderSystem.getPathsSearched() != 3) {
             Thread.sleep(50);

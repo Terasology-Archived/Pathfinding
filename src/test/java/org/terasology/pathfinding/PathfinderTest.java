@@ -1,18 +1,5 @@
-/*
- * Copyright 2017 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.pathfinding;
 
 import org.junit.Assert;
@@ -20,8 +7,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.terasology.TextWorldBuilder;
 import org.terasology.WorldProvidingHeadlessEnvironment;
-import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
-import org.terasology.engine.SimpleUri;
+import org.terasology.coreworlds.generator.AbstractBaseWorldGenerator;
+import org.terasology.engine.core.SimpleUri;
+import org.terasology.engine.registry.InjectionHelper;
 import org.terasology.gestalt.naming.Name;
 import org.terasology.math.geom.Vector3i;
 import org.terasology.navgraph.NavGraphChunk;
@@ -29,7 +17,6 @@ import org.terasology.navgraph.NavGraphSystem;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.Pathfinder;
-import org.terasology.registry.InjectionHelper;
 
 /**
  * @author synopia
@@ -51,7 +38,8 @@ public class PathfinderTest {
         world.updateChunk(new Vector3i(1, 0, 2));
         world.updateChunk(new Vector3i(2, 0, 2));
 
-        Path path = pathfinder.findPath(world.getBlock(new Vector3i(14 + 16, 45, 12)), world.getBlock(new Vector3i(0, 51, 1)));
+        Path path = pathfinder.findPath(world.getBlock(new Vector3i(14 + 16, 45, 12)), world.getBlock(new Vector3i(0,
+                51, 1)));
         Assert.assertEquals(0, path.size());
 
         builder.setAir(7, 50, 7);
@@ -65,7 +53,8 @@ public class PathfinderTest {
         world.updateChunk(new Vector3i(0, 0, 0));
         world.updateChunk(new Vector3i(1, 0, 0));
 
-        path = pathfinder.findPath(world.getBlock(new Vector3i(14 + 16, 45, 12)), world.getBlock(new Vector3i(0, 51, 1)));
+        path = pathfinder.findPath(world.getBlock(new Vector3i(14 + 16, 45, 12)), world.getBlock(new Vector3i(0, 51,
+                1)));
         Assert.assertTrue(0 < path.size());
     }
 
@@ -83,7 +72,8 @@ public class PathfinderTest {
         NavGraphChunk map = world.updateChunk(new Vector3i(chunkX, 0, chunkZ));
 
         WalkableBlock startBlock = world.getBlock(new Vector3i(0 + x, 51, 1 + z));
-        WalkableBlock targetBlock = world.getBlock(new Vector3i(x + NavGraphChunk.SIZE_X - 2, 45, z + NavGraphChunk.SIZE_Z - 4));
+        WalkableBlock targetBlock = world.getBlock(new Vector3i(x + NavGraphChunk.SIZE_X - 2, 45,
+                z + NavGraphChunk.SIZE_Z - 4));
 
         Assert.assertEquals(map, startBlock.floor.navGraphChunk);
         Assert.assertEquals(map, targetBlock.floor.navGraphChunk);

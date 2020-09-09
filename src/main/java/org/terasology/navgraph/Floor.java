@@ -1,23 +1,9 @@
-/*
- * Copyright 2014 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.navgraph;
 
 import com.google.common.collect.Lists;
-
-import org.terasology.math.ChunkMath;
+import org.terasology.engine.math.ChunkMath;
 import org.terasology.math.geom.Vector3i;
 
 import java.util.Arrays;
@@ -27,12 +13,13 @@ import java.util.List;
  * @author synopia
  */
 public class Floor extends BaseRegion<Floor> {
+    private final Entrance[] entranceMap;
+    private final List<Entrance> entrances;
     public NavGraphChunk navGraphChunk;
-    private Entrance[] entranceMap;
-    private List<Entrance> entrances;
 
     /**
      * Creates a new Floor object.
+     *
      * @param navGraphChunk the chunk where the Floor is being created
      * @param id the id for the new Floor
      */
@@ -45,6 +32,7 @@ public class Floor extends BaseRegion<Floor> {
 
     /**
      * Returns whether or not there is an overlap.
+     *
      * @param region the region to check if there is overlap with
      * @return returns true if map and region overlap
      */
@@ -54,6 +42,7 @@ public class Floor extends BaseRegion<Floor> {
 
     /**
      * Adds a neighbor block to neighborRegions.
+     *
      * @param neighbor the block that will be set as a neighbor
      */
     public void addNeighborBlock(WalkableBlock neighbor) {
@@ -62,6 +51,7 @@ public class Floor extends BaseRegion<Floor> {
 
     /**
      * Removes a neighbor block from neighborRegions.
+     *
      * @param neighbor block will be removed as a NeighborBlock
      */
     public void removeNeighborBlock(WalkableBlock neighbor) {
@@ -70,6 +60,7 @@ public class Floor extends BaseRegion<Floor> {
 
     /**
      * Merges regions and sets this as neighbor's floor.
+     *
      * @param neighbor the region thats being merged
      */
     public void merge(Region neighbor) {
@@ -93,8 +84,9 @@ public class Floor extends BaseRegion<Floor> {
 
     /**
      * Returns whether or not a block is an entrance.
-     * @block the block thats being tested
+     *
      * @return if it is an entrance
+     * @block the block thats being tested
      */
     public boolean isEntrance(WalkableBlock block) {
         Vector3i position = ChunkMath.calcRelativeBlockPos(block.getBlockPosition());
@@ -103,6 +95,7 @@ public class Floor extends BaseRegion<Floor> {
 
     /**
      * Returns whether or not entranceMap[x + y * NavGraphChunk.SIZE_Z] is an entrance.
+     *
      * @param x the x location in entranceMap
      * @param y the y location in entranceMap
      * @return if it an entrance
@@ -113,9 +106,10 @@ public class Floor extends BaseRegion<Floor> {
 
     /**
      * Sets entranceMap[x + y * NavGraphChunk.SIZE_Z] to an entrance.
+     *
      * @param x the x location of the Block
      * @param y the y location of the Block
-     * @return Entrance object at (x,y) 
+     * @return Entrance object at (x,y)
      */
     public Entrance setEntrance(int x, int y) {
         if (entranceMap[x + y * NavGraphChunk.SIZE_Z] != null) {
@@ -154,6 +148,7 @@ public class Floor extends BaseRegion<Floor> {
 
     /**
      * Sets a WalkableBlock as an entrance and adds neighbor into neighborFloors.
+     *
      * @param block the block being set as an entrance
      * @param neighbor the block being set as the neighbor to block
      */
@@ -165,6 +160,7 @@ public class Floor extends BaseRegion<Floor> {
 
     /**
      * Returns List of all entrances.
+     *
      * @return List of entrances
      */
     public List<Entrance> entrances() {
@@ -173,6 +169,7 @@ public class Floor extends BaseRegion<Floor> {
 
     /**
      * Returns the block at the parameters location with getCell(x,y) and sets this object as the floor of the block.
+     *
      * @param fx the x coordinate in the Chunk
      * @param fy the y coordinate in the Chunk
      * @return The block at (fx,fy)

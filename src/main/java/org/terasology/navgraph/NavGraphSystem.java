@@ -1,40 +1,26 @@
-/*
- * Copyright 2018 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.navgraph;
 
-import org.terasology.biomesAPI.Biome;
-import org.terasology.entitySystem.entity.EntityManager;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
-import org.terasology.logic.location.LocationComponent;
-import org.terasology.math.ChunkMath;
+import org.terasology.engine.entitySystem.entity.EntityManager;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.event.ReceiveEvent;
+import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
+import org.terasology.engine.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.entitySystem.systems.UpdateSubscriberSystem;
+import org.terasology.engine.logic.location.LocationComponent;
+import org.terasology.engine.math.ChunkMath;
+import org.terasology.engine.registry.In;
+import org.terasology.engine.registry.Share;
+import org.terasology.engine.utilities.concurrency.Task;
+import org.terasology.engine.utilities.concurrency.TaskMaster;
+import org.terasology.engine.world.WorldChangeListener;
+import org.terasology.engine.world.WorldComponent;
+import org.terasology.engine.world.WorldProvider;
+import org.terasology.engine.world.block.Block;
+import org.terasology.engine.world.chunks.event.OnChunkLoaded;
 import org.terasology.math.geom.Vector3f;
 import org.terasology.math.geom.Vector3i;
-import org.terasology.registry.In;
-import org.terasology.registry.Share;
-import org.terasology.utilities.concurrency.Task;
-import org.terasology.utilities.concurrency.TaskMaster;
-import org.terasology.world.WorldChangeListener;
-import org.terasology.world.WorldComponent;
-import org.terasology.world.WorldProvider;
-import org.terasology.world.block.Block;
-import org.terasology.world.chunks.event.OnChunkLoaded;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,19 +29,16 @@ import java.util.Map;
 @Share(value = NavGraphSystem.class)
 public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscriberSystem, WorldChangeListener {
     private static final float EVENT_COOLDOWN = 0.4f;
-
+    private final Map<Vector3i, NavGraphChunk> heightMaps = new HashMap<>();
+    private final TaskMaster<NavGraphTask> taskMaster = TaskMaster.createPriorityTaskMaster("Pathfinder", 1, 1024);
+    private final Map<Vector3i, NavGraphChunk> maps = new HashMap<>();
     @In
     private WorldProvider world;
     @In
     private EntityManager entityManager;
-
-    private Map<Vector3i, NavGraphChunk> heightMaps = new HashMap<>();
-    private TaskMaster<NavGraphTask> taskMaster = TaskMaster.createPriorityTaskMaster("Pathfinder", 1, 1024);
     private boolean dirty;
     private float coolDown = EVENT_COOLDOWN;
     private int chunkUpdates;
-
-    private Map<Vector3i, NavGraphChunk> maps = new HashMap<>();
 
     @Override
     public void initialise() {
@@ -131,13 +114,15 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
         }
         NavGraphChunk navGraphChunk = heightMaps.remove(chunkPos);
         if (navGraphChunk != null) {
-            navGraphChunk.disconnectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1), getNeighbor(chunkPos, 1, 0), getNeighbor(chunkPos, 0, 1));
+            navGraphChunk.disconnectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1),
+                    getNeighbor(chunkPos, 1, 0), getNeighbor(chunkPos, 0, 1));
             navGraphChunk.cells = null;
         }
         navGraphChunk = new NavGraphChunk(world, chunkPos);
         navGraphChunk.update();
         heightMaps.put(chunkPos, navGraphChunk);
-        navGraphChunk.connectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1), getNeighbor(chunkPos, 1, 0), getNeighbor(chunkPos, 0, 1));
+        navGraphChunk.connectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1),
+                getNeighbor(chunkPos, 1, 0), getNeighbor(chunkPos, 0, 1));
         return navGraphChunk;
     }
 

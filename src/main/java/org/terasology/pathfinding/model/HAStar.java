@@ -1,18 +1,5 @@
-/*
- * Copyright 2014 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.pathfinding.model;
 
 import com.google.common.collect.Lists;
@@ -27,7 +14,6 @@ import org.terasology.navgraph.Floor;
 import org.terasology.navgraph.WalkableBlock;
 
 import java.util.BitSet;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,18 +27,18 @@ public class HAStar {
     private Path localPath;
     private HAStar localAStar;
 
-    private List<Node> nodes = Lists.newArrayList();
+    private final List<Node> nodes = Lists.newArrayList();
 
-    private Map<WalkableBlock, Integer> nodeMap = Maps.newHashMap();
+    private final Map<WalkableBlock, Integer> nodeMap = Maps.newHashMap();
     private int start;
     private int end;
     private int cacheHits;
     private int localPathsUsed;
-    private BinaryHeap openList;
+    private final BinaryHeap openList;
 
-    private BitSet closedList = new BitSet(16 * 1024);
-    private boolean useContour;
-    private LineOfSight lineOfSight;
+    private final BitSet closedList = new BitSet(16 * 1024);
+    private final boolean useContour;
+    private final LineOfSight lineOfSight;
 
     public HAStar(LineOfSight lineOfSight, boolean useContour) {
         this.lineOfSight = lineOfSight;
@@ -195,7 +181,8 @@ public class HAStar {
     }
 
     private void computeCosts(int current, Node currentNode, int successor, Node successorNode) {
-        if (lineOfSight != null && currentNode.p != null && lineOfSight.inSight(currentNode.p.block, successorNode.block)) {
+        if (lineOfSight != null && currentNode.p != null && lineOfSight.inSight(currentNode.p.block,
+                successorNode.block)) {
             float tentativeG = currentNode.p.g + c(currentNode.p.id, successor, true);
             if (tentativeG <= successorNode.g) {
                 successorNode.path = null;
