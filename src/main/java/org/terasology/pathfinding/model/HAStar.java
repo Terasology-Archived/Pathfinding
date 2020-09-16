@@ -8,10 +8,10 @@ import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.math.geom.Vector3i;
-import org.terasology.navgraph.BitMap;
-import org.terasology.navgraph.Entrance;
-import org.terasology.navgraph.Floor;
-import org.terasology.navgraph.WalkableBlock;
+import org.terasology.pathfinding.navgraph.BitMap;
+import org.terasology.pathfinding.navgraph.Entrance;
+import org.terasology.pathfinding.navgraph.Floor;
+import org.terasology.pathfinding.navgraph.WalkableBlock;
 
 import java.util.BitSet;
 import java.util.List;

@@ -15,12 +15,12 @@ import org.terasology.engine.registry.In;
 import org.terasology.engine.registry.Share;
 import org.terasology.math.geom.Vector3f;
 import org.terasology.math.geom.Vector3i;
-import org.terasology.navgraph.NavGraphSystem;
-import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.model.LineOfSight;
 import org.terasology.pathfinding.model.LineOfSight2d;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.Pathfinder;
+import org.terasology.pathfinding.navgraph.NavGraphSystem;
+import org.terasology.pathfinding.navgraph.WalkableBlock;
 
 import java.util.List;
 

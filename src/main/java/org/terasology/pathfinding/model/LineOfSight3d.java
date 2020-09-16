@@ -8,7 +8,7 @@ import org.terasology.engine.registry.In;
 import org.terasology.engine.world.WorldProvider;
 import org.terasology.engine.world.block.Block;
 import org.terasology.math.geom.Vector3i;
-import org.terasology.navgraph.WalkableBlock;
+import org.terasology.pathfinding.navgraph.WalkableBlock;
 
 /**
  * Created by synopia on 01.02.14.

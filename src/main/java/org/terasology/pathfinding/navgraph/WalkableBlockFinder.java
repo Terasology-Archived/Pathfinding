@@ -1,6 +1,6 @@
 // Copyright 2020 The Terasology Foundation
 // SPDX-License-Identifier: Apache-2.0
-package org.terasology.navgraph;
+package org.terasology.pathfinding.navgraph;
 
 import org.terasology.engine.world.WorldProvider;
 import org.terasology.engine.world.block.Block;

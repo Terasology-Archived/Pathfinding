@@ -9,14 +9,14 @@ import org.terasology.engine.core.ComponentSystemManager;
 import org.terasology.engine.core.SimpleUri;
 import org.terasology.engine.registry.CoreRegistry;
 import org.terasology.math.geom.Vector3i;
-import org.terasology.navgraph.Entrance;
-import org.terasology.navgraph.Floor;
-import org.terasology.navgraph.NavGraphSystem;
-import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.LineOfSight;
 import org.terasology.pathfinding.model.LineOfSight2d;
 import org.terasology.pathfinding.model.Path;
+import org.terasology.pathfinding.navgraph.Entrance;
+import org.terasology.pathfinding.navgraph.Floor;
+import org.terasology.pathfinding.navgraph.NavGraphSystem;
+import org.terasology.pathfinding.navgraph.WalkableBlock;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;

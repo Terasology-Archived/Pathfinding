@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.pathfinding.model;
 
-import org.terasology.navgraph.WalkableBlock;
+import org.terasology.pathfinding.navgraph.WalkableBlock;
 
 import java.util.ArrayList;
 import java.util.Iterator;

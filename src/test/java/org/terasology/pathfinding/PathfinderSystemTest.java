@@ -20,9 +20,9 @@ import org.terasology.engine.logic.characters.CharacterComponent;
 import org.terasology.engine.registry.CoreRegistry;
 import org.terasology.engine.world.chunks.event.OnChunkLoaded;
 import org.terasology.math.geom.Vector3i;
-import org.terasology.navgraph.NavGraphSystem;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.Pathfinder;
+import org.terasology.pathfinding.navgraph.NavGraphSystem;
 
 import static org.mockito.Mockito.mock;
 

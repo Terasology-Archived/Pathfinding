@@ -12,10 +12,10 @@ import org.terasology.engine.registry.CoreRegistry;
 import org.terasology.engine.world.WorldProvider;
 import org.terasology.gestalt.naming.Name;
 import org.terasology.math.geom.Vector3i;
-import org.terasology.navgraph.NavGraphChunk;
-import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.model.HAStar;
 import org.terasology.pathfinding.model.LineOfSight;
+import org.terasology.pathfinding.navgraph.NavGraphChunk;
+import org.terasology.pathfinding.navgraph.WalkableBlock;
 
 import java.util.HashMap;
 import java.util.List;

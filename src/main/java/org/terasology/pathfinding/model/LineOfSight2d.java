@@ -4,7 +4,7 @@ package org.terasology.pathfinding.model;
 
 import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
 import org.terasology.engine.entitySystem.systems.RegisterSystem;
-import org.terasology.navgraph.WalkableBlock;
+import org.terasology.pathfinding.navgraph.WalkableBlock;
 
 /**
  * Created by synopia on 01.02.14.

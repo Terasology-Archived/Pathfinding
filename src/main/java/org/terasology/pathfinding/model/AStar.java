@@ -1,22 +1,9 @@
-/*
- * Copyright 2014 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.pathfinding.model;
 
 import com.google.common.collect.Lists;
-import org.terasology.navgraph.BitMap;
+import org.terasology.pathfinding.navgraph.BitMap;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -26,18 +13,18 @@ import java.util.List;
  * @author synopia
  */
 public class AStar {
-    private BitMap graph;
-    private float[] gMap;
-    private float[] fMap;
-    private int[] pMap;
-    private List<Integer> successors = Lists.newArrayList();
+    private final BitMap graph;
+    private final float[] gMap;
+    private final float[] fMap;
+    private final int[] pMap;
+    private final List<Integer> successors = Lists.newArrayList();
 
     private int start;
     private int end;
 
-    private BinaryHeap openList;
+    private final BinaryHeap openList;
 
-    private List<Integer> closedList = Lists.newArrayList();
+    private final List<Integer> closedList = Lists.newArrayList();
 
     public AStar(BitMap graph) {
         this.graph = graph;

@@ -12,11 +12,11 @@ import org.terasology.engine.core.SimpleUri;
 import org.terasology.engine.registry.InjectionHelper;
 import org.terasology.gestalt.naming.Name;
 import org.terasology.math.geom.Vector3i;
-import org.terasology.navgraph.NavGraphChunk;
-import org.terasology.navgraph.NavGraphSystem;
-import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.Pathfinder;
+import org.terasology.pathfinding.navgraph.NavGraphChunk;
+import org.terasology.pathfinding.navgraph.NavGraphSystem;
+import org.terasology.pathfinding.navgraph.WalkableBlock;
 
 /**
  * @author synopia

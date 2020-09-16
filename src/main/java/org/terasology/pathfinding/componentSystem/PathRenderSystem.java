@@ -10,8 +10,8 @@ import org.terasology.engine.entitySystem.systems.RenderSystem;
 import org.terasology.engine.registry.Share;
 import org.terasology.engine.rendering.world.selection.BlockSelectionRenderer;
 import org.terasology.engine.utilities.Assets;
-import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.model.Path;
+import org.terasology.pathfinding.navgraph.WalkableBlock;
 
 import java.util.List;
 
