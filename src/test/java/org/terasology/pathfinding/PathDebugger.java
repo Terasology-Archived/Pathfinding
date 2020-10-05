@@ -2,12 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.pathfinding;
 
+import com.badlogic.gdx.physics.bullet.Bullet;
 import com.google.common.collect.Sets;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.joml.Vector3i;
+import org.junit.jupiter.api.BeforeEach;
 import org.terasology.WorldProvidingHeadlessEnvironment;
 import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
 import org.terasology.engine.ComponentSystemManager;
 import org.terasology.engine.SimpleUri;
+import org.terasology.engine.paths.PathManager;
 import org.terasology.navgraph.Entrance;
 import org.terasology.navgraph.Floor;
 import org.terasology.navgraph.NavGraphSystem;
@@ -27,6 +33,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
+import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.util.Set;
 
 /**
@@ -47,7 +55,16 @@ public class PathDebugger extends JFrame {
     private transient LineOfSight lineOfSight;
 
     //TODO: MP - native dependency to bullet makes this hard to run
-    public PathDebugger() throws HeadlessException {
+    public PathDebugger() throws HeadlessException, IOException {
+        // Hack to get natives to load for bullet
+        final JavaArchive homeArchive = ShrinkWrap.create(JavaArchive.class);
+        final FileSystem vfs = ShrinkWrapFileSystems.newFileSystem(homeArchive);
+        PathManager.getInstance().useOverrideHomePath(vfs.getPath(""));
+
+        Bullet.init();
+
+
+
         env = new WorldProvidingHeadlessEnvironment();
         env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
             @Override
@@ -88,7 +105,7 @@ public class PathDebugger extends JFrame {
         return isEntrance;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         PathDebugger debugger = new PathDebugger();
         debugger.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         debugger.pack();

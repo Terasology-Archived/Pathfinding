@@ -2,6 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.pathfinding;
 
+import com.badlogic.gdx.physics.bullet.Bullet;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.joml.Vector3i;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +14,7 @@ import org.terasology.TextWorldBuilder;
 import org.terasology.WorldProvidingHeadlessEnvironment;
 import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
 import org.terasology.engine.SimpleUri;
+import org.terasology.engine.paths.PathManager;
 import org.terasology.naming.Name;
 import org.terasology.navgraph.NavGraphChunk;
 import org.terasology.navgraph.NavGraphSystem;
@@ -18,6 +23,8 @@ import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.Pathfinder;
 import org.terasology.registry.InjectionHelper;
 
+import java.nio.file.FileSystem;
+
 /**
  * @author synopia
  */
@@ -25,6 +32,17 @@ public class PathfinderTest {
     private Pathfinder pathfinder;
     private NavGraphSystem world;
     private TextWorldBuilder builder;
+
+    @BeforeEach
+    public void before() throws Exception {
+        // Hack to get natives to load for bullet
+        final JavaArchive homeArchive = ShrinkWrap.create(JavaArchive.class);
+        final FileSystem vfs = ShrinkWrapFileSystems.newFileSystem(homeArchive);
+        PathManager.getInstance().useOverrideHomePath(vfs.getPath(""));
+
+        Bullet.init();
+    }
+
 
     @Test
     public void test() {

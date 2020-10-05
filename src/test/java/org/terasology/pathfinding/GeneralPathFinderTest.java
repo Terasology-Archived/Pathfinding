@@ -2,12 +2,19 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.pathfinding;
 
+import com.badlogic.gdx.physics.bullet.Bullet;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.terasology.engine.paths.PathManager;
 import org.terasology.pathfinding.GeneralPathFinder.DefaultEdge;
 import org.terasology.pathfinding.GeneralPathFinder.Edge;
 import org.terasology.pathfinding.GeneralPathFinder.Path;
 
+import java.nio.file.FileSystem;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,6 +24,15 @@ import java.util.Collections;
  * Tests the {@link org.terasology.pathfinding.model.Pathfinder} class.
  */
 public class GeneralPathFinderTest {
+    @BeforeEach
+    public void before() throws Exception {
+        // Hack to get natives to load for bullet
+        final JavaArchive homeArchive = ShrinkWrap.create(JavaArchive.class);
+        final FileSystem vfs = ShrinkWrapFileSystems.newFileSystem(homeArchive);
+        PathManager.getInstance().useOverrideHomePath(vfs.getPath(""));
+
+        Bullet.init();
+    }
 
     private final Vertex fra = new Vertex("Frankfurt");
     private final Vertex man = new Vertex("Mannheim");

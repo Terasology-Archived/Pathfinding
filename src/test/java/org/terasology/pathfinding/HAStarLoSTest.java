@@ -2,13 +2,19 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.pathfinding;
 
+import com.badlogic.gdx.physics.bullet.Bullet;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.joml.Vector3i;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.terasology.TextWorldBuilder;
 import org.terasology.WorldProvidingHeadlessEnvironment;
 import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
 import org.terasology.engine.SimpleUri;
+import org.terasology.engine.paths.PathManager;
 import org.terasology.naming.Name;
 import org.terasology.navgraph.NavGraphChunk;
 import org.terasology.navgraph.WalkableBlock;
@@ -17,6 +23,7 @@ import org.terasology.pathfinding.model.LineOfSight2d;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.WorldProvider;
 
+import java.nio.file.FileSystem;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +34,16 @@ import java.util.Map;
 public class HAStarLoSTest {
     private WalkableBlock start;
     private WalkableBlock end;
+
+    @BeforeEach
+    public void before() throws Exception {
+        // Hack to get natives to load for bullet
+        final JavaArchive homeArchive = ShrinkWrap.create(JavaArchive.class);
+        final FileSystem vfs = ShrinkWrapFileSystems.newFileSystem(homeArchive);
+        PathManager.getInstance().useOverrideHomePath(vfs.getPath(""));
+
+        Bullet.init();
+    }
 
     @Test
     public void flat() {

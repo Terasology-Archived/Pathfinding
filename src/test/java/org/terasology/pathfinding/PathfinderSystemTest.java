@@ -2,8 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.pathfinding;
 
+import com.badlogic.gdx.physics.bullet.Bullet;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.joml.Vector3i;
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
@@ -13,6 +17,7 @@ import org.terasology.WorldProvidingHeadlessEnvironment;
 import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
 import org.terasology.engine.ComponentSystemManager;
 import org.terasology.engine.SimpleUri;
+import org.terasology.engine.paths.PathManager;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.internal.PojoEntityManager;
@@ -24,18 +29,30 @@ import org.terasology.pathfinding.model.Pathfinder;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.chunks.event.OnChunkLoaded;
 
+import java.nio.file.FileSystem;
+
 import static org.mockito.Mockito.mock;
 
 /**
  * @author synopia
  */
 public class PathfinderSystemTest {
-
     private PojoEntityManager entityManager;
     private EventSystem eventSystem;
     private NavGraphSystem navGraphSystem;
     private PathfinderSystem pathfinderSystem;
     private WorldProvidingHeadlessEnvironment environment;
+
+    @BeforeEach
+    public void before() throws Exception {
+        // Hack to get natives to load for bullet
+        final JavaArchive homeArchive = ShrinkWrap.create(JavaArchive.class);
+        final FileSystem vfs = ShrinkWrapFileSystems.newFileSystem(homeArchive);
+        PathManager.getInstance().useOverrideHomePath(vfs.getPath(""));
+
+        Bullet.init();
+    }
+
 
     @Test
     public void updateChunkBeforePathRequests() throws InterruptedException {
