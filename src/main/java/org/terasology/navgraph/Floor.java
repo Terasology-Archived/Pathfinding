@@ -1,25 +1,11 @@
-/*
- * Copyright 2014 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.navgraph;
 
 import com.google.common.collect.Lists;
 
+import org.joml.Vector3i;
 import org.terasology.math.ChunkMath;
-import org.terasology.math.geom.Vector3i;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -97,7 +83,7 @@ public class Floor extends BaseRegion<Floor> {
      * @return if it is an entrance
      */
     public boolean isEntrance(WalkableBlock block) {
-        Vector3i position = ChunkMath.calcRelativeBlockPos(block.getBlockPosition());
+        Vector3i position = ChunkMath.calcRelativeBlockPos(block.getBlockPosition(), new Vector3i());
         return isEntrance(position.x, position.z);
     }
 
@@ -115,7 +101,7 @@ public class Floor extends BaseRegion<Floor> {
      * Sets entranceMap[x + y * NavGraphChunk.SIZE_Z] to an entrance.
      * @param x the x location of the Block
      * @param y the y location of the Block
-     * @return Entrance object at (x,y) 
+     * @return Entrance object at (x,y)
      */
     public Entrance setEntrance(int x, int y) {
         if (entranceMap[x + y * NavGraphChunk.SIZE_Z] != null) {
@@ -158,7 +144,7 @@ public class Floor extends BaseRegion<Floor> {
      * @param neighbor the block being set as the neighbor to block
      */
     public void setEntrance(WalkableBlock block, WalkableBlock neighbor) {
-        Vector3i position = ChunkMath.calcRelativeBlockPos(block.getBlockPosition());
+        Vector3i position = ChunkMath.calcRelativeBlockPos(block.getBlockPosition(), new Vector3i());
         Entrance entrance = setEntrance(position.x, position.z);
         entrance.neighborFloors.add(neighbor.floor);
     }
