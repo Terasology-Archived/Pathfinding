@@ -122,8 +122,6 @@ public class HAStarTest {
 
 
     private void executeExample(String[] ground, String[] pathData) {
-
-
         WorldProvidingHeadlessEnvironment env = new WorldProvidingHeadlessEnvironment(new Name("Pathfinding"));
         env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
             @Override
