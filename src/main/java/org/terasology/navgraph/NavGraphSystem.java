@@ -4,6 +4,7 @@ package org.terasology.navgraph;
 
 import org.joml.RoundingMode;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
 import org.terasology.entitySystem.entity.EntityManager;
@@ -90,11 +91,11 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
         return getBlock(pos);
     }
 
-    public WalkableBlock getBlock(Vector3f pos) {
-        Vector3i blockPos = new Vector3i(new Vector3f(pos.x + 0.25f, pos.y, pos.z + 0.25f), RoundingMode.FLOOR);
+    public WalkableBlock getBlock(Vector3fc pos) {
+        Vector3i blockPos = new Vector3i(new Vector3f(pos.x() + 0.25f, pos.y(), pos.z() + 0.25f), RoundingMode.FLOOR);
         WalkableBlock block = getBlock(blockPos);
         if (block == null) {
-            while (blockPos.y >= (int) pos.y - 4 && block == null) {
+            while (blockPos.y >= (int) pos.y() - 4 && block == null) {
                 blockPos.y--;
                 block = getBlock(blockPos);
             }
