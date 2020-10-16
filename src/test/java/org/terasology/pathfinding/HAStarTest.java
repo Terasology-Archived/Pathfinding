@@ -3,9 +3,6 @@
 package org.terasology.pathfinding;
 
 import com.badlogic.gdx.physics.bullet.Bullet;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.joml.Vector3i;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +20,6 @@ import org.terasology.pathfinding.model.LineOfSight;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.WorldProvider;
 
-import java.nio.file.FileSystem;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,10 +34,7 @@ public class HAStarTest {
     @BeforeEach
     public void before() throws Exception {
         // Hack to get natives to load for bullet
-        final JavaArchive homeArchive = ShrinkWrap.create(JavaArchive.class);
-        final FileSystem vfs = ShrinkWrapFileSystems.newFileSystem(homeArchive);
-        PathManager.getInstance().useOverrideHomePath(vfs.getPath(""));
-
+        PathManager.getInstance().useDefaultHomePath();
         Bullet.init();
     }
 

@@ -4,11 +4,7 @@ package org.terasology.pathfinding;
 
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.google.common.collect.Sets;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.joml.Vector3i;
-import org.junit.jupiter.api.BeforeEach;
 import org.terasology.WorldProvidingHeadlessEnvironment;
 import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
 import org.terasology.engine.ComponentSystemManager;
@@ -34,7 +30,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.io.IOException;
-import java.nio.file.FileSystem;
 import java.util.Set;
 
 /**
@@ -57,13 +52,8 @@ public class PathDebugger extends JFrame {
     //TODO: MP - native dependency to bullet makes this hard to run
     public PathDebugger() throws HeadlessException, IOException {
         // Hack to get natives to load for bullet
-        final JavaArchive homeArchive = ShrinkWrap.create(JavaArchive.class);
-        final FileSystem vfs = ShrinkWrapFileSystems.newFileSystem(homeArchive);
-        PathManager.getInstance().useOverrideHomePath(vfs.getPath(""));
-
+        PathManager.getInstance().useDefaultHomePath();
         Bullet.init();
-
-
 
         env = new WorldProvidingHeadlessEnvironment();
         env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {

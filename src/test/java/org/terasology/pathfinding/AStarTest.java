@@ -4,9 +4,6 @@ package org.terasology.pathfinding;
 
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.google.common.collect.Lists;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +11,6 @@ import org.terasology.engine.paths.PathManager;
 import org.terasology.navgraph.BitMap;
 import org.terasology.pathfinding.model.AStar;
 
-import java.nio.file.FileSystem;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,11 +20,7 @@ import java.util.List;
 public class AStarTest {
     @BeforeEach
     public void before() throws Exception {
-        // Hack to get natives to load for bullet
-        final JavaArchive homeArchive = ShrinkWrap.create(JavaArchive.class);
-        final FileSystem vfs = ShrinkWrapFileSystems.newFileSystem(homeArchive);
-        PathManager.getInstance().useOverrideHomePath(vfs.getPath(""));
-
+        PathManager.getInstance().useDefaultHomePath();
         Bullet.init();
     }
 

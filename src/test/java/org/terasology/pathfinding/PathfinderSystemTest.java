@@ -5,9 +5,6 @@ package org.terasology.pathfinding;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.joml.Vector3i;
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
@@ -29,8 +26,6 @@ import org.terasology.pathfinding.model.Pathfinder;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.chunks.event.OnChunkLoaded;
 
-import java.nio.file.FileSystem;
-
 import static org.mockito.Mockito.mock;
 
 /**
@@ -46,10 +41,7 @@ public class PathfinderSystemTest {
     @BeforeEach
     public void before() throws Exception {
         // Hack to get natives to load for bullet
-        final JavaArchive homeArchive = ShrinkWrap.create(JavaArchive.class);
-        final FileSystem vfs = ShrinkWrapFileSystems.newFileSystem(homeArchive);
-        PathManager.getInstance().useOverrideHomePath(vfs.getPath(""));
-
+        PathManager.getInstance().useDefaultHomePath();
         Bullet.init();
     }
 

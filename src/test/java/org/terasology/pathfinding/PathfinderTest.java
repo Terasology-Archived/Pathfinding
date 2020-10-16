@@ -3,9 +3,6 @@
 package org.terasology.pathfinding;
 
 import com.badlogic.gdx.physics.bullet.Bullet;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.nio.file.ShrinkWrapFileSystems;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.joml.Vector3i;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,8 +20,6 @@ import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.Pathfinder;
 import org.terasology.registry.InjectionHelper;
 
-import java.nio.file.FileSystem;
-
 /**
  * @author synopia
  */
@@ -36,10 +31,7 @@ public class PathfinderTest {
     @BeforeEach
     public void before() throws Exception {
         // Hack to get natives to load for bullet
-        final JavaArchive homeArchive = ShrinkWrap.create(JavaArchive.class);
-        final FileSystem vfs = ShrinkWrapFileSystems.newFileSystem(homeArchive);
-        PathManager.getInstance().useOverrideHomePath(vfs.getPath(""));
-
+        PathManager.getInstance().useDefaultHomePath();
         Bullet.init();
     }
 
