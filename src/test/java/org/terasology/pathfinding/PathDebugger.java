@@ -1,26 +1,15 @@
-/*
- * Copyright 2014 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.pathfinding;
 
+import com.badlogic.gdx.physics.bullet.Bullet;
 import com.google.common.collect.Sets;
+import org.joml.Vector3i;
 import org.terasology.WorldProvidingHeadlessEnvironment;
 import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
 import org.terasology.engine.ComponentSystemManager;
 import org.terasology.engine.SimpleUri;
-import org.terasology.math.geom.Vector3i;
+import org.terasology.engine.paths.PathManager;
 import org.terasology.navgraph.Entrance;
 import org.terasology.navgraph.Floor;
 import org.terasology.navgraph.NavGraphSystem;
@@ -40,6 +29,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
+import java.io.IOException;
 import java.util.Set;
 
 /**
@@ -59,7 +49,12 @@ public class PathDebugger extends JFrame {
     private final PathfinderSystem pathfinderSystem;
     private transient LineOfSight lineOfSight;
 
-    public PathDebugger() throws HeadlessException {
+    //TODO: MP - native dependency to bullet makes this hard to run
+    public PathDebugger() throws HeadlessException, IOException {
+        // Hack to get natives to load for bullet
+        PathManager.getInstance().useDefaultHomePath();
+        Bullet.init();
+
         env = new WorldProvidingHeadlessEnvironment();
         env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
             @Override
@@ -100,7 +95,7 @@ public class PathDebugger extends JFrame {
         return isEntrance;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         PathDebugger debugger = new PathDebugger();
         debugger.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         debugger.pack();

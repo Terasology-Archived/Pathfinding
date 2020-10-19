@@ -1,37 +1,32 @@
-/*
- * Copyright 2015 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.pathfinding;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.terasology.pathfinding.GeneralPathFinder;
+import com.badlogic.gdx.physics.bullet.Bullet;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.terasology.engine.paths.PathManager;
 import org.terasology.pathfinding.GeneralPathFinder.DefaultEdge;
 import org.terasology.pathfinding.GeneralPathFinder.Edge;
 import org.terasology.pathfinding.GeneralPathFinder.Path;
 
+import java.nio.file.FileSystem;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
 
 /**
- * Tests the {@link PathFinder} class.
+ * Tests the {@link org.terasology.pathfinding.model.Pathfinder} class.
  */
 public class GeneralPathFinderTest {
+    @BeforeEach
+    public void before() throws Exception {
+        // Hack to get natives to load for bullet
+        PathManager.getInstance().useDefaultHomePath();
+        Bullet.init();
+    }
 
     private final Vertex fra = new Vertex("Frankfurt");
     private final Vertex man = new Vertex("Mannheim");
@@ -63,15 +58,15 @@ public class GeneralPathFinderTest {
         GeneralPathFinder<Vertex> dijkstra = new GeneralPathFinder<Vertex>(edges, true);
         Path<Vertex> path = dijkstra.computePath(fra, muc, Double.MAX_VALUE).get();
 
-        Assert.assertEquals(487, path.getLength(), 0.01);
-        Assert.assertEquals(fra, path.getStart());
-        Assert.assertEquals(fra, path.getSequence().get(0));
-        Assert.assertEquals(wrz, path.getSequence().get(1));
-        Assert.assertEquals(nrn, path.getSequence().get(2));
-        Assert.assertEquals(muc, path.getEnd());
-        Assert.assertEquals(muc, path.getSequence().get(3));
+        Assertions.assertEquals(487, path.getLength(), 0.01);
+        Assertions.assertEquals(fra, path.getStart());
+        Assertions.assertEquals(fra, path.getSequence().get(0));
+        Assertions.assertEquals(wrz, path.getSequence().get(1));
+        Assertions.assertEquals(nrn, path.getSequence().get(2));
+        Assertions.assertEquals(muc, path.getEnd());
+        Assertions.assertEquals(muc, path.getSequence().get(3));
 
-        Assert.assertEquals(path.getLength(), path.getDistance(muc), 0.01);
+        Assertions.assertEquals(path.getLength(), path.getDistance(muc), 0.01);
     }
 
     @Test
@@ -79,41 +74,41 @@ public class GeneralPathFinderTest {
         GeneralPathFinder<Vertex> dijkstra = new GeneralPathFinder<Vertex>(edges, false);
         Path<Vertex> path = dijkstra.computePath(muc, fra, Double.MAX_VALUE).get();
 
-        Assert.assertEquals(487, path.getLength(), 0.01);
-        Assert.assertEquals(muc, path.getStart());
-        Assert.assertEquals(wrz, path.getSequence().get(2));
-        Assert.assertEquals(nrn, path.getSequence().get(1));
-        Assert.assertEquals(fra, path.getEnd());
+        Assertions.assertEquals(487, path.getLength(), 0.01);
+        Assertions.assertEquals(muc, path.getStart());
+        Assertions.assertEquals(wrz, path.getSequence().get(2));
+        Assertions.assertEquals(nrn, path.getSequence().get(1));
+        Assertions.assertEquals(fra, path.getEnd());
     }
 
     @Test
     public void testConstrainedFraMuc() {
         GeneralPathFinder<Vertex> dijkstra = new GeneralPathFinder<Vertex>(edges, true);
-        Assert.assertFalse(dijkstra.computePath(fra, muc, 450).isPresent());
+        Assertions.assertFalse(dijkstra.computePath(fra, muc, 450).isPresent());
     }
 
     @Test
     public void testDirectedMucFra() {
         GeneralPathFinder<Vertex> dijkstra = new GeneralPathFinder<Vertex>(edges, true);
-        Assert.assertFalse(dijkstra.computePath(muc, fra, Double.MAX_VALUE).isPresent());
+        Assertions.assertFalse(dijkstra.computePath(muc, fra, Double.MAX_VALUE).isPresent());
     }
 
     @Test
     public void testDegenerated() {
         GeneralPathFinder<Vertex> dijkstra = new GeneralPathFinder<Vertex>(Collections.emptyList(), true);
-        Assert.assertFalse(dijkstra.computePath(muc, fra, Double.MAX_VALUE).isPresent());
+        Assertions.assertFalse(dijkstra.computePath(muc, fra, Double.MAX_VALUE).isPresent());
 
         Path<Vertex> singleVertexPath = dijkstra.computePath(muc, muc, Double.MAX_VALUE).get();
-        Assert.assertEquals(muc, singleVertexPath.getStart());
-        Assert.assertEquals(muc, singleVertexPath.getEnd());
-        Assert.assertEquals(0, singleVertexPath.getLength(), 0);
+        Assertions.assertEquals(muc, singleVertexPath.getStart());
+        Assertions.assertEquals(muc, singleVertexPath.getEnd());
+        Assertions.assertEquals(0, singleVertexPath.getLength(), 0);
     }
 
     @Test
     public void testDisconnected() {
         GeneralPathFinder<Vertex> dijkstra = new GeneralPathFinder<Vertex>(edges, true);
-        Assert.assertFalse(dijkstra.computePath(muc, lon, Double.MAX_VALUE).isPresent());
-        Assert.assertFalse(dijkstra.computePath(lon, fra, Double.MAX_VALUE).isPresent());
+        Assertions.assertFalse(dijkstra.computePath(muc, lon, Double.MAX_VALUE).isPresent());
+        Assertions.assertFalse(dijkstra.computePath(lon, fra, Double.MAX_VALUE).isPresent());
     }
 
     private static class Vertex {

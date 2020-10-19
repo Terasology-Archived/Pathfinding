@@ -1,28 +1,17 @@
-/*
- * Copyright 2017 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.pathfinding;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import com.badlogic.gdx.physics.bullet.Bullet;
+import org.joml.Vector3i;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.terasology.TextWorldBuilder;
 import org.terasology.WorldProvidingHeadlessEnvironment;
 import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
 import org.terasology.engine.SimpleUri;
-import org.terasology.math.geom.Vector3i;
+import org.terasology.engine.paths.PathManager;
 import org.terasology.naming.Name;
 import org.terasology.navgraph.NavGraphChunk;
 import org.terasology.navgraph.NavGraphSystem;
@@ -39,6 +28,13 @@ public class PathfinderTest {
     private NavGraphSystem world;
     private TextWorldBuilder builder;
 
+    @BeforeEach
+    public void before() throws Exception {
+        // Hack to get natives to load for bullet
+        PathManager.getInstance().useDefaultHomePath();
+        Bullet.init();
+    }
+
     @Test
     public void test() {
         world.updateChunk(new Vector3i(0, 0, 0));
@@ -52,7 +48,7 @@ public class PathfinderTest {
         world.updateChunk(new Vector3i(2, 0, 2));
 
         Path path = pathfinder.findPath(world.getBlock(new Vector3i(14 + 16, 45, 12)), world.getBlock(new Vector3i(0, 51, 1)));
-        Assert.assertEquals(0, path.size());
+        Assertions.assertEquals(0, path.size());
 
         builder.setAir(7, 50, 7);
         builder.setAir(7, 50, 8);
@@ -66,7 +62,7 @@ public class PathfinderTest {
         world.updateChunk(new Vector3i(1, 0, 0));
 
         path = pathfinder.findPath(world.getBlock(new Vector3i(14 + 16, 45, 12)), world.getBlock(new Vector3i(0, 51, 1)));
-        Assert.assertTrue(0 < path.size());
+        Assertions.assertTrue(0 < path.size());
     }
 
     @Test
@@ -85,12 +81,12 @@ public class PathfinderTest {
         WalkableBlock startBlock = world.getBlock(new Vector3i(0 + x, 51, 1 + z));
         WalkableBlock targetBlock = world.getBlock(new Vector3i(x + NavGraphChunk.SIZE_X - 2, 45, z + NavGraphChunk.SIZE_Z - 4));
 
-        Assert.assertEquals(map, startBlock.floor.navGraphChunk);
-        Assert.assertEquals(map, targetBlock.floor.navGraphChunk);
-        Assert.assertEquals(map.getBlock(x + 0, 51, z + 1), startBlock);
-        Assert.assertEquals(map.getBlock(x + 30, 45, z + 28), targetBlock);
+        Assertions.assertEquals(map, startBlock.floor.navGraphChunk);
+        Assertions.assertEquals(map, targetBlock.floor.navGraphChunk);
+        Assertions.assertEquals(map.getBlock(x + 0, 51, z + 1), startBlock);
+        Assertions.assertEquals(map.getBlock(x + 30, 45, z + 28), targetBlock);
         Path path = pathfinder.findPath(targetBlock, startBlock);
-        Assert.assertEquals(0, path.size());
+        Assertions.assertEquals(0, path.size());
 
         builder.setAir(x + 7, 50, z + 7);
         builder.setAir(x + 7, 50, z + 8);
@@ -98,10 +94,10 @@ public class PathfinderTest {
         world.updateChunk(new Vector3i(chunkX, 0, chunkZ));
         pathfinder.clearCache();
         path = pathfinder.findPath(targetBlock, startBlock);
-        Assert.assertTrue(0 < path.size());
+        Assertions.assertTrue(0 < path.size());
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         WorldProvidingHeadlessEnvironment env = new WorldProvidingHeadlessEnvironment(new Name("Pathfinding"));
         env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {

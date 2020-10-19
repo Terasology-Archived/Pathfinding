@@ -1,21 +1,12 @@
-/*
- * Copyright 2018 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.navgraph;
 
-import org.terasology.biomesAPI.Biome;
+import org.joml.RoundingMode;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
+import org.joml.Vector3i;
+import org.joml.Vector3ic;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
@@ -24,8 +15,7 @@ import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.ChunkMath;
-import org.terasology.math.geom.Vector3f;
-import org.terasology.math.geom.Vector3i;
+import org.terasology.math.JomlUtil;
 import org.terasology.registry.In;
 import org.terasology.registry.Share;
 import org.terasology.utilities.concurrency.Task;
@@ -79,37 +69,33 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
         }
     }
 
-    @Override
-    public void onBlockChanged(Vector3i pos, Block newBlock, Block originalBlock) {
-        Vector3i chunkPos = ChunkMath.calcChunkPos(pos);
-        taskMaster.offer(new UpdateChunkTask(chunkPos));
-    }
+
 
     @ReceiveEvent(components = WorldComponent.class)
     public void chunkReady(OnChunkLoaded event, EntityRef worldEntity) {
-        taskMaster.offer(new UpdateChunkTask(event.getChunkPos()));
+        taskMaster.offer(new UpdateChunkTask(event.getChunkPos() == null ? null : JomlUtil.from(event.getChunkPos())));
     }
 
-    public WalkableBlock getBlock(Vector3i pos) {
-        Vector3i chunkPos = ChunkMath.calcChunkPos(pos);
+    public WalkableBlock getBlock(Vector3ic pos) {
+        Vector3i chunkPos = ChunkMath.calcChunkPos(pos, new Vector3i());
         NavGraphChunk navGraphChunk = heightMaps.get(chunkPos);
         if (navGraphChunk != null) {
-            return navGraphChunk.getBlock(pos.x, pos.y, pos.z);
+            return navGraphChunk.getBlock(pos.x(), pos.y(), pos.z());
         } else {
             return null;
         }
     }
 
     public WalkableBlock getBlock(EntityRef minion) {
-        Vector3f pos = minion.getComponent(LocationComponent.class).getWorldPosition();
+        Vector3f pos = minion.getComponent(LocationComponent.class).getWorldPosition(new Vector3f());
         return getBlock(pos);
     }
 
-    public WalkableBlock getBlock(Vector3f pos) {
-        Vector3i blockPos = new Vector3i(pos.x + 0.25f, pos.y, pos.z + 0.25f);
+    public WalkableBlock getBlock(Vector3fc pos) {
+        Vector3i blockPos = new Vector3i(new Vector3f(pos.x() + 0.25f, pos.y(), pos.z() + 0.25f), RoundingMode.FLOOR);
         WalkableBlock block = getBlock(blockPos);
         if (block == null) {
-            while (blockPos.y >= (int) pos.y - 4 && block == null) {
+            while (blockPos.y >= (int) pos.y() - 4 && block == null) {
                 blockPos.y--;
                 block = getBlock(blockPos);
             }
@@ -148,9 +134,16 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
     }
 
     @Override
-    public void onExtraDataChanged(int i, Vector3i pos, int newData, int oldData) {
+    public void onExtraDataChanged(int i, Vector3ic pos, int newData, int oldData) {
 
     }
+
+    @Override
+    public void onBlockChanged(Vector3ic pos, Block newBlock, Block originalBlock) {
+        org.joml.Vector3i chunkPos = ChunkMath.calcChunkPos(pos, new org.joml.Vector3i());
+        taskMaster.offer(new UpdateChunkTask(chunkPos));
+    }
+
 
     public interface NavGraphTask extends Task, Comparable<NavGraphTask> {
         int getPriority();
