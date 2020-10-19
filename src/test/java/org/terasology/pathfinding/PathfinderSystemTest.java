@@ -45,7 +45,6 @@ public class PathfinderSystemTest {
         Bullet.init();
     }
 
-
     @Test
     public void updateChunkBeforePathRequests() throws InterruptedException {
         EntityRef entityRef = entityManager.create();

@@ -35,7 +35,6 @@ public class PathfinderTest {
         Bullet.init();
     }
 
-
     @Test
     public void test() {
         world.updateChunk(new Vector3i(0, 0, 0));
