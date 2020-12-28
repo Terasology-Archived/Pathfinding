@@ -1,6 +1,6 @@
 {
     "id": "Pathfinding",
-    "version": "1.0.0",
+    "version": "1.0.1-SNAPSHOT",
     "author": "synopia",
     "displayName": "Pathfinding Framework",
     "description": "A pathfinding module mainly meant as a library/framework for other modules",
