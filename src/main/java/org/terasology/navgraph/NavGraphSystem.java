@@ -73,7 +73,7 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
 
     @ReceiveEvent(components = WorldComponent.class)
     public void chunkReady(OnChunkLoaded event, EntityRef worldEntity) {
-        taskMaster.offer(new UpdateChunkTask(event.getChunkPos() == null ? null : JomlUtil.from(event.getChunkPos())));
+        taskMaster.offer(new UpdateChunkTask(event.getChunkPos()));
     }
 
     public WalkableBlock getBlock(Vector3ic pos) {
@@ -184,8 +184,8 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
     private final class UpdateChunkTask implements NavGraphTask {
         public Vector3i chunkPos;
 
-        private UpdateChunkTask(Vector3i chunkPos) {
-            this.chunkPos = chunkPos;
+        private UpdateChunkTask(Vector3ic chunkPos) {
+            this.chunkPos = new Vector3i(chunkPos);
         }
 
         @Override
