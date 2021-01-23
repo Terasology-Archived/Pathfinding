@@ -40,7 +40,7 @@ public class PathRenderSystem extends BaseComponentSystem implements RenderSyste
         selectionRenderer.beginRenderOverlay();
         for (Path path : paths) {
             for (WalkableBlock block : path) {
-                selectionRenderer.renderMark2(JomlUtil.from(block.getBlockPosition()));
+                selectionRenderer.renderMark2(block.getBlockPosition());
             }
         }
         selectionRenderer.endRenderOverlay();
