@@ -3,9 +3,9 @@
 package org.terasology.navgraph;
 
 import com.google.common.collect.Lists;
-
 import org.joml.Vector3i;
-import org.terasology.math.ChunkMath;
+import org.terasology.world.chunks.Chunks;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -83,7 +83,7 @@ public class Floor extends BaseRegion<Floor> {
      * @return if it is an entrance
      */
     public boolean isEntrance(WalkableBlock block) {
-        Vector3i position = ChunkMath.calcRelativeBlockPos(block.getBlockPosition(), new Vector3i());
+        Vector3i position = Chunks.toRelative(block.getBlockPosition(), new Vector3i());
         return isEntrance(position.x, position.z);
     }
 
@@ -144,7 +144,7 @@ public class Floor extends BaseRegion<Floor> {
      * @param neighbor the block being set as the neighbor to block
      */
     public void setEntrance(WalkableBlock block, WalkableBlock neighbor) {
-        Vector3i position = ChunkMath.calcRelativeBlockPos(block.getBlockPosition(), new Vector3i());
+        Vector3i position = Chunks.toRelative(block.getBlockPosition(), new Vector3i());
         Entrance entrance = setEntrance(position.x, position.z);
         entrance.neighborFloors.add(neighbor.floor);
     }
