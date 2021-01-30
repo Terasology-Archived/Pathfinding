@@ -20,7 +20,6 @@ import org.terasology.pathfinding.model.LineOfSight2d;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.WorldProvider;
 
-import java.nio.file.FileSystem;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

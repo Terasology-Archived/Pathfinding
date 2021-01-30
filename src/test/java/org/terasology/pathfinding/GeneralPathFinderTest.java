@@ -11,7 +11,6 @@ import org.terasology.pathfinding.GeneralPathFinder.DefaultEdge;
 import org.terasology.pathfinding.GeneralPathFinder.Edge;
 import org.terasology.pathfinding.GeneralPathFinder.Path;
 
-import java.nio.file.FileSystem;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
