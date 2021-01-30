@@ -4,16 +4,16 @@ package org.terasology.navgraph;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
-import org.terasology.math.ChunkMath;
 import org.terasology.pathfinding.model.PathCache;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.chunks.ChunkConstants;
+import org.terasology.world.chunks.Chunks;
 
 import java.util.List;
 import java.util.Set;
+
 
 /**
  * @author synopia
@@ -60,7 +60,7 @@ public class NavGraphChunk {
 
     public void connectNeighborMaps(NavGraphChunk left, NavGraphChunk up, NavGraphChunk right, NavGraphChunk down) {
         for (WalkableBlock block : borderBlocks) {
-            Vector3i position = ChunkMath.calcRelativeBlockPos(block.getBlockPosition(), new Vector3i());
+            Vector3i position = Chunks.toRelative(block.getBlockPosition(), new Vector3i());
             int x = position.x;
             int z = position.z;
             if (left != null && x == 0) {
@@ -143,7 +143,7 @@ public class NavGraphChunk {
 
     public void disconnectNeighborMaps(NavGraphChunk left, NavGraphChunk up, NavGraphChunk right, NavGraphChunk down) {
         for (WalkableBlock block : borderBlocks) {
-            Vector3i position = ChunkMath.calcRelativeBlockPos(block.getBlockPosition(), new Vector3i());
+            Vector3i position = Chunks.toRelative(block.getBlockPosition(), new Vector3i());
             int x = position.x;
             int z = position.z;
             if (left != null && x == 0) {

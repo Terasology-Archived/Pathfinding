@@ -14,8 +14,6 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.logic.location.LocationComponent;
-import org.terasology.math.ChunkMath;
-import org.terasology.math.JomlUtil;
 import org.terasology.registry.In;
 import org.terasology.registry.Share;
 import org.terasology.utilities.concurrency.Task;
@@ -24,6 +22,7 @@ import org.terasology.world.WorldChangeListener;
 import org.terasology.world.WorldComponent;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.block.Block;
+import org.terasology.world.chunks.Chunks;
 import org.terasology.world.chunks.event.OnChunkLoaded;
 
 import java.util.HashMap;
@@ -77,7 +76,7 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
     }
 
     public WalkableBlock getBlock(Vector3ic pos) {
-        Vector3i chunkPos = ChunkMath.calcChunkPos(pos, new Vector3i());
+        Vector3i chunkPos = Chunks.toRelative(pos, new Vector3i());
         NavGraphChunk navGraphChunk = heightMaps.get(chunkPos);
         if (navGraphChunk != null) {
             return navGraphChunk.getBlock(pos.x(), pos.y(), pos.z());
@@ -140,7 +139,7 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
 
     @Override
     public void onBlockChanged(Vector3ic pos, Block newBlock, Block originalBlock) {
-        org.joml.Vector3i chunkPos = ChunkMath.calcChunkPos(pos, new org.joml.Vector3i());
+        Vector3i chunkPos = Chunks.toRelative(pos, new Vector3i());
         taskMaster.offer(new UpdateChunkTask(chunkPos));
     }
 
