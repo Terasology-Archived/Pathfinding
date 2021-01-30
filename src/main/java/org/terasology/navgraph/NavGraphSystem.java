@@ -139,7 +139,7 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
 
     @Override
     public void onBlockChanged(Vector3ic pos, Block newBlock, Block originalBlock) {
-        org.joml.Vector3i chunkPos = Chunks.toRelative(pos, new org.joml.Vector3i());
+        Vector3i chunkPos = Chunks.toRelative(pos, new Vector3i());
         taskMaster.offer(new UpdateChunkTask(chunkPos));
     }
 
