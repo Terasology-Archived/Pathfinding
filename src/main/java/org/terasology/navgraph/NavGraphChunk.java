@@ -1,4 +1,4 @@
-// Copyright 2020 The Terasology Foundation
+// Copyright 2021 The Terasology Foundation
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.navgraph;
 
@@ -8,7 +8,6 @@ import org.joml.Vector3i;
 import org.joml.Vector3ic;
 import org.terasology.pathfinding.model.PathCache;
 import org.terasology.world.WorldProvider;
-import org.terasology.world.chunks.ChunkConstants;
 import org.terasology.world.chunks.Chunks;
 
 import java.util.List;
@@ -19,9 +18,9 @@ import java.util.Set;
  * @author synopia
  */
 public class NavGraphChunk {
-    public static final int SIZE_X = ChunkConstants.SIZE_X;
-    public static final int SIZE_Y = ChunkConstants.SIZE_Y;
-    public static final int SIZE_Z = ChunkConstants.SIZE_Z;
+    public static final int SIZE_X = Chunks.SIZE_X;
+    public static final int SIZE_Y = Chunks.SIZE_Y;
+    public static final int SIZE_Z = Chunks.SIZE_Z;
     public static final int DIR_LEFT = 0;
     public static final int DIR_LU = 1;
     public static final int DIR_UP = 2;
