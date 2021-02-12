@@ -76,7 +76,7 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
     }
 
     public WalkableBlock getBlock(Vector3ic pos) {
-        Vector3i chunkPos = Chunks.toRelative(pos, new Vector3i());
+        Vector3i chunkPos = Chunks.toChunkPos(pos, new Vector3i());
         NavGraphChunk navGraphChunk = heightMaps.get(chunkPos);
         if (navGraphChunk != null) {
             return navGraphChunk.getBlock(pos.x(), pos.y(), pos.z());
@@ -139,7 +139,7 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
 
     @Override
     public void onBlockChanged(Vector3ic pos, Block newBlock, Block originalBlock) {
-        Vector3i chunkPos = Chunks.toRelative(pos, new Vector3i());
+        Vector3i chunkPos = Chunks.toChunkPos(pos, new Vector3i());
         taskMaster.offer(new UpdateChunkTask(chunkPos));
     }
 
