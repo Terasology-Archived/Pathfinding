@@ -3,7 +3,6 @@
 package org.terasology.navgraph;
 
 import org.joml.Vector3i;
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.terasology.TextWorldBuilder;
@@ -13,6 +12,11 @@ import org.terasology.engine.SimpleUri;
 import org.terasology.naming.Name;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.WorldProvider;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author synopia
@@ -35,8 +39,8 @@ public class WalkableBlockFinderTest {
         WalkableBlock lu = chunk.getBlock(0, 0, 0);
         WalkableBlock ld = chunk.getBlock(0, 0, 2);
 
-        Assert.assertFalse(sut.hasNeighbor(lu));
-        Assert.assertFalse(sut.hasNeighbor(ld));
+        assertFalse(sut.hasNeighbor(lu));
+        assertFalse(sut.hasNeighbor(ld));
     }
 
     @Test
@@ -53,8 +57,8 @@ public class WalkableBlockFinderTest {
         WalkableBlock left = chunk.getBlock(2, 1, 1);
         WalkableBlock right = chunk.getBlock(3, 2, 1);
 
-        Assert.assertFalse(left.hasNeighbor(right));
-        Assert.assertFalse(right.hasNeighbor(left));
+        assertFalse(left.hasNeighbor(right));
+        assertFalse(right.hasNeighbor(left));
     }
 
     @Test
@@ -72,21 +76,21 @@ public class WalkableBlockFinderTest {
         WalkableBlock right = chunk.getBlock(2, 0, 1);
         WalkableBlock down = chunk.getBlock(1, 0, 2);
 
-        Assert.assertTrue(left.hasNeighbor(up));
-        Assert.assertTrue(left.hasNeighbor(down));
-        Assert.assertFalse(left.hasNeighbor(right));
+        assertTrue(left.hasNeighbor(up));
+        assertTrue(left.hasNeighbor(down));
+        assertFalse(left.hasNeighbor(right));
 
-        Assert.assertTrue(up.hasNeighbor(left));
-        Assert.assertTrue(up.hasNeighbor(right));
-        Assert.assertFalse(up.hasNeighbor(down));
+        assertTrue(up.hasNeighbor(left));
+        assertTrue(up.hasNeighbor(right));
+        assertFalse(up.hasNeighbor(down));
 
-        Assert.assertTrue(right.hasNeighbor(up));
-        Assert.assertTrue(right.hasNeighbor(down));
-        Assert.assertFalse(right.hasNeighbor(left));
+        assertTrue(right.hasNeighbor(up));
+        assertTrue(right.hasNeighbor(down));
+        assertFalse(right.hasNeighbor(left));
 
-        Assert.assertTrue(down.hasNeighbor(left));
-        Assert.assertTrue(down.hasNeighbor(right));
-        Assert.assertFalse(down.hasNeighbor(up));
+        assertTrue(down.hasNeighbor(left));
+        assertTrue(down.hasNeighbor(right));
+        assertFalse(down.hasNeighbor(up));
     }
 
     @Test
@@ -193,10 +197,10 @@ public class WalkableBlockFinderTest {
     }
 
     private void assertNeighbors(WalkableBlock block, WalkableBlock left, WalkableBlock up, WalkableBlock right, WalkableBlock down) {
-        Assert.assertSame(left, block.neighbors[NavGraphChunk.DIR_LEFT]);
-        Assert.assertSame(up, block.neighbors[NavGraphChunk.DIR_UP]);
-        Assert.assertSame(right, block.neighbors[NavGraphChunk.DIR_RIGHT]);
-        Assert.assertSame(down, block.neighbors[NavGraphChunk.DIR_DOWN]);
+        assertSame(left, block.neighbors[NavGraphChunk.DIR_LEFT]);
+        assertSame(up, block.neighbors[NavGraphChunk.DIR_UP]);
+        assertSame(right, block.neighbors[NavGraphChunk.DIR_RIGHT]);
+        assertSame(down, block.neighbors[NavGraphChunk.DIR_DOWN]);
     }
 
     private void assertWalkableBlocks(String[] data, String[] walkable) {
@@ -212,7 +216,7 @@ public class WalkableBlockFinderTest {
             }
         });
 
-        Assert.assertArrayEquals(walkable, evaluate);
+        assertArrayEquals(walkable, evaluate);
 
     }
 
