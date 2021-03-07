@@ -3,12 +3,12 @@
 package org.terasology.pathfinding.model;
 
 import org.joml.Vector3i;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
+import org.terasology.engine.entitySystem.systems.RegisterSystem;
 import org.terasology.navgraph.WalkableBlock;
-import org.terasology.registry.In;
-import org.terasology.world.WorldProvider;
-import org.terasology.world.block.Block;
+import org.terasology.engine.registry.In;
+import org.terasology.engine.world.WorldProvider;
+import org.terasology.engine.world.block.Block;
 
 /**
  * Created by synopia on 01.02.14.

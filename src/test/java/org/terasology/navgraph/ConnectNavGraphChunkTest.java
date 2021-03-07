@@ -8,11 +8,11 @@ import org.junit.jupiter.api.Test;
 import org.terasology.TextWorldBuilder;
 import org.terasology.WorldProvidingHeadlessEnvironment;
 import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
-import org.terasology.engine.SimpleUri;
+import org.terasology.engine.core.SimpleUri;
 import org.terasology.naming.Name;
 import org.terasology.pathfinding.PathfinderTestGenerator;
-import org.terasology.registry.CoreRegistry;
-import org.terasology.world.WorldProvider;
+import org.terasology.engine.registry.CoreRegistry;
+import org.terasology.engine.world.WorldProvider;
 
 import java.util.HashSet;
 import java.util.Set;

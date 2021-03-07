@@ -4,7 +4,7 @@ package org.terasology.navgraph;
 
 import com.google.common.collect.Lists;
 import org.joml.Vector3i;
-import org.terasology.world.chunks.Chunks;
+import org.terasology.engine.world.chunks.Chunks;
 
 import java.util.Arrays;
 import java.util.List;

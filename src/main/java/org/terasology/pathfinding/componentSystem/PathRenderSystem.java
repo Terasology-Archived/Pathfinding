@@ -3,15 +3,15 @@
 package org.terasology.pathfinding.componentSystem;
 
 import com.google.common.collect.Lists;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterMode;
-import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.entitySystem.systems.RenderSystem;
+import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
+import org.terasology.engine.entitySystem.systems.RegisterMode;
+import org.terasology.engine.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.entitySystem.systems.RenderSystem;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.model.Path;
-import org.terasology.registry.Share;
-import org.terasology.rendering.world.selection.BlockSelectionRenderer;
-import org.terasology.utilities.Assets;
+import org.terasology.engine.registry.Share;
+import org.terasology.engine.rendering.world.selection.BlockSelectionRenderer;
+import org.terasology.engine.utilities.Assets;
 
 import java.util.List;
 

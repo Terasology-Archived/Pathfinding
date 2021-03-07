@@ -7,8 +7,8 @@ import com.google.common.collect.Sets;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
 import org.terasology.pathfinding.model.PathCache;
-import org.terasology.world.WorldProvider;
-import org.terasology.world.chunks.Chunks;
+import org.terasology.engine.world.WorldProvider;
+import org.terasology.engine.world.chunks.Chunks;
 
 import java.util.List;
 import java.util.Set;

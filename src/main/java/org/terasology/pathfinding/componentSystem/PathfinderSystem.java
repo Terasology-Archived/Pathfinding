@@ -8,19 +8,19 @@ import org.joml.Vector3f;
 import org.joml.Vector3i;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterMode;
-import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
+import org.terasology.engine.entitySystem.systems.RegisterMode;
+import org.terasology.engine.entitySystem.systems.RegisterSystem;
 import org.terasology.navgraph.NavGraphSystem;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.model.LineOfSight;
 import org.terasology.pathfinding.model.LineOfSight2d;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.Pathfinder;
-import org.terasology.registry.CoreRegistry;
-import org.terasology.registry.In;
-import org.terasology.registry.Share;
+import org.terasology.engine.registry.CoreRegistry;
+import org.terasology.engine.registry.In;
+import org.terasology.engine.registry.Share;
 
 import java.util.List;
 

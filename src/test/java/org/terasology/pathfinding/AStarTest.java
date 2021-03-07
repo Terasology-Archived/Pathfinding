@@ -7,7 +7,7 @@ import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.terasology.engine.paths.PathManager;
+import org.terasology.engine.core.paths.PathManager;
 import org.terasology.navgraph.BitMap;
 import org.terasology.pathfinding.model.AStar;
 

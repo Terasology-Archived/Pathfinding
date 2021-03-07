@@ -4,15 +4,15 @@ package org.terasology.pathfinding;
 
 import org.terasology.assets.ResourceUrn;
 import org.terasology.assets.management.AssetManager;
-import org.terasology.registry.CoreRegistry;
-import org.terasology.world.block.Block;
-import org.terasology.world.block.BlockManager;
-import org.terasology.world.block.family.SymmetricFamily;
-import org.terasology.world.block.loader.BlockFamilyDefinition;
-import org.terasology.world.block.loader.BlockFamilyDefinitionData;
-import org.terasology.world.chunks.Chunks;
-import org.terasology.world.chunks.CoreChunk;
-import org.terasology.world.generator.ChunkGenerationPass;
+import org.terasology.engine.registry.CoreRegistry;
+import org.terasology.engine.world.block.Block;
+import org.terasology.engine.world.block.BlockManager;
+import org.terasology.engine.world.block.family.SymmetricFamily;
+import org.terasology.engine.world.block.loader.BlockFamilyDefinition;
+import org.terasology.engine.world.block.loader.BlockFamilyDefinitionData;
+import org.terasology.engine.world.chunks.Chunks;
+import org.terasology.engine.world.chunks.CoreChunk;
+import org.terasology.engine.world.generator.ChunkGenerationPass;
 
 import java.util.Map;
 

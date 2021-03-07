@@ -5,12 +5,12 @@ package org.terasology.pathfinding;
 import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
 import org.terasology.core.world.generator.facetProviders.FlatSurfaceHeightProvider;
 import org.terasology.core.world.generator.facetProviders.SeaLevelProvider;
-import org.terasology.engine.SimpleUri;
-import org.terasology.registry.CoreRegistry;
-import org.terasology.world.generation.World;
-import org.terasology.world.generation.WorldBuilder;
-import org.terasology.world.generator.RegisterWorldGenerator;
-import org.terasology.world.generator.plugin.WorldGeneratorPluginLibrary;
+import org.terasology.engine.core.SimpleUri;
+import org.terasology.engine.registry.CoreRegistry;
+import org.terasology.engine.world.generation.World;
+import org.terasology.engine.world.generation.WorldBuilder;
+import org.terasology.engine.world.generator.RegisterWorldGenerator;
+import org.terasology.engine.world.generator.plugin.WorldGeneratorPluginLibrary;
 
 /**
  * @author synopia
