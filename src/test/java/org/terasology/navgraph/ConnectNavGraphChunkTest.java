@@ -3,7 +3,6 @@
 package org.terasology.navgraph;
 
 import org.joml.Vector3i;
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.terasology.TextWorldBuilder;
@@ -17,6 +16,10 @@ import org.terasology.world.WorldProvider;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author synopia
@@ -150,7 +153,7 @@ public class ConnectNavGraphChunkTest {
                     return isEntrance(center.getCell(x, z).getBlock(y)) ? 'C' : ' ';
                 }
             }, 0, 51, 0, 32, 1, 32);
-            Assert.assertArrayEquals(contours, actual);
+            assertArrayEquals(contours, actual);
         }
     }
 
@@ -158,9 +161,9 @@ public class ConnectNavGraphChunkTest {
     private <T> void assertSet(Set<T> set, T... items) {
         Set<T> rest = new HashSet<T>(set);
         for (T item : items) {
-            Assert.assertTrue(rest.remove(item));
+            assertTrue(rest.remove(item));
         }
-        Assert.assertEquals(0, rest.size());
+        assertEquals(0, rest.size());
 
     }
 

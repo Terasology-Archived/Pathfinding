@@ -6,7 +6,6 @@ import com.badlogic.gdx.physics.bullet.Bullet;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.joml.Vector3i;
-import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +25,7 @@ import org.terasology.pathfinding.model.Pathfinder;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.chunks.event.OnChunkLoaded;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -58,9 +58,9 @@ public class PathfinderSystemTest {
             Thread.sleep(10);
             eventSystem.process();
         }
-        Assert.assertTrue(f1.isDone());
-        Assert.assertTrue(f2.isDone());
-        Assert.assertTrue(f3.isDone());
+        assertTrue(f1.isDone());
+        assertTrue(f2.isDone());
+        assertTrue(f3.isDone());
     }
 
     @Test
@@ -75,9 +75,9 @@ public class PathfinderSystemTest {
             Thread.sleep(50);
             eventSystem.process();
         }
-        Assert.assertTrue(f1.isDone());
-        Assert.assertTrue(f2.isDone());
-        Assert.assertTrue(f3.isDone());
+        assertTrue(f1.isDone());
+        assertTrue(f2.isDone());
+        assertTrue(f3.isDone());
     }
 
     @AfterEach
