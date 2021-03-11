@@ -8,17 +8,17 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.terasology.TextWorldBuilder;
-import org.terasology.WorldProvidingHeadlessEnvironment;
 import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
+import org.terasology.engine.WorldProvidingHeadlessEnvironment;
 import org.terasology.engine.core.SimpleUri;
 import org.terasology.engine.core.paths.PathManager;
+import org.terasology.engine.registry.InjectionHelper;
 import org.terasology.naming.Name;
 import org.terasology.navgraph.NavGraphChunk;
 import org.terasology.navgraph.NavGraphSystem;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.Pathfinder;
-import org.terasology.engine.registry.InjectionHelper;
 
 /**
  * @author synopia
