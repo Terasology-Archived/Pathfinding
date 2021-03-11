@@ -6,12 +6,12 @@ import org.joml.Vector3i;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.terasology.TextWorldBuilder;
-import org.terasology.WorldProvidingHeadlessEnvironment;
 import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
+import org.terasology.engine.WorldProvidingHeadlessEnvironment;
 import org.terasology.engine.core.SimpleUri;
-import org.terasology.naming.Name;
 import org.terasology.engine.registry.CoreRegistry;
 import org.terasology.engine.world.WorldProvider;
+import org.terasology.naming.Name;
 
 import java.util.HashSet;
 import java.util.Set;
