@@ -3,12 +3,16 @@
 package org.terasology.navgraph;
 
 import org.joml.Vector3i;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.terasology.TextWorldBuilder;
 import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
 import org.terasology.engine.WorldProvidingHeadlessEnvironment;
 import org.terasology.engine.core.SimpleUri;
+import org.terasology.engine.core.module.ModuleManager;
 import org.terasology.engine.registry.CoreRegistry;
 import org.terasology.engine.world.WorldProvider;
 import org.terasology.naming.Name;
@@ -24,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author synopia
  */
+@ResourceLock(Resources.SYSTEM_PROPERTIES)
 public class ConnectNavGraphChunkTest {
     private static final String[] CONTOUR_EXPECTED = new String[]{
             "               C                ",
@@ -62,6 +67,8 @@ public class ConnectNavGraphChunkTest {
 
     private WorldProvider world;
     private TextWorldBuilder builder;
+
+    private String originalLoadClasspathSetting;
 
     @Test
     public void test1() {
@@ -127,6 +134,9 @@ public class ConnectNavGraphChunkTest {
 
     @BeforeEach
     public void setup() {
+        originalLoadClasspathSetting = System.getProperty(ModuleManager.LOAD_CLASSPATH_MODULES_PROPERTY);
+        System.setProperty(ModuleManager.LOAD_CLASSPATH_MODULES_PROPERTY, "true");
+
         WorldProvidingHeadlessEnvironment env = new WorldProvidingHeadlessEnvironment(new Name("Pathfinding"));
         env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
             @Override
@@ -136,6 +146,15 @@ public class ConnectNavGraphChunkTest {
         });
         builder = new TextWorldBuilder(env);
         world = CoreRegistry.get(WorldProvider.class);
+    }
+
+    @AfterEach
+    public void resetModuleManagerProperty() {
+        if (originalLoadClasspathSetting == null) {
+            System.clearProperty(ModuleManager.LOAD_CLASSPATH_MODULES_PROPERTY);
+        } else {
+            System.setProperty(ModuleManager.LOAD_CLASSPATH_MODULES_PROPERTY, originalLoadClasspathSetting);
+        }
     }
 
     private void assertCenter(final NavGraphChunk center, NavGraphChunk left, NavGraphChunk up, NavGraphChunk right, NavGraphChunk down, String[] contours) {
