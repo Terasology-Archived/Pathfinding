@@ -10,8 +10,8 @@ import org.terasology.engine.world.block.BlockManager;
 import org.terasology.engine.world.block.family.SymmetricFamily;
 import org.terasology.engine.world.block.loader.BlockFamilyDefinition;
 import org.terasology.engine.world.block.loader.BlockFamilyDefinitionData;
+import org.terasology.engine.world.chunks.Chunk;
 import org.terasology.engine.world.chunks.Chunks;
-import org.terasology.engine.world.chunks.CoreChunk;
 import org.terasology.engine.world.generator.ChunkGenerationPass;
 
 import java.util.Map;
@@ -41,7 +41,7 @@ public class PathfinderTestGenerator implements ChunkGenerationPass {
     }
 
     @Override
-    public void generateChunk(CoreChunk chunk) {
+    public void generateChunk(Chunk chunk) {
         BlockManager blockManager = CoreRegistry.get(BlockManager.class);
         AssetManager assetManager = CoreRegistry.get(AssetManager.class);
         air = blockManager.getBlock(BlockManager.AIR_ID);
@@ -59,7 +59,7 @@ public class PathfinderTestGenerator implements ChunkGenerationPass {
         }
     }
 
-    private void generateLevel(CoreChunk chunk, int groundHeight) {
+    private void generateLevel(Chunk chunk, int groundHeight) {
         for (int x = 0; x < Chunks.SIZE_X; x++) {
             for (int z = 0; z < Chunks.SIZE_Z; z++) {
                 chunk.setBlock(x, groundHeight, z, ground);
@@ -79,7 +79,7 @@ public class PathfinderTestGenerator implements ChunkGenerationPass {
         }
     }
 
-    private void generateStairs(CoreChunk chunk, int groundHeight) {
+    private void generateStairs(Chunk chunk, int groundHeight) {
         for (int height = groundHeight + 1; height < groundHeight + 4; height++) {
             for (int x = 0; x < Chunks.SIZE_X; x++) {
                 chunk.setBlock(x, height, 0, ground);
@@ -110,7 +110,7 @@ public class PathfinderTestGenerator implements ChunkGenerationPass {
         buildWalkable(chunk, 9, height + 3, 8);
     }
 
-    private void buildWalkable(CoreChunk chunk, int x, int y, int z) {
+    private void buildWalkable(Chunk chunk, int x, int y, int z) {
         chunk.setBlock(x, y, z, ground);
         chunk.setBlock(x, y + 1, z, air);
         chunk.setBlock(x, y + 2, z, air);
