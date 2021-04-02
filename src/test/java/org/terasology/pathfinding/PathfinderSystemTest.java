@@ -50,7 +50,9 @@ public class PathfinderSystemTest {
         EntityRef entityRef = entityManager.create();
         entityRef.addComponent(new CharacterComponent());
 
-        navGraphSystem.chunkReady(mock(OnChunkLoaded.class), entityRef);
+        OnChunkLoaded chunkLoadedDummyEvent = new OnChunkLoaded(new Vector3i());
+
+        navGraphSystem.chunkReady(chunkLoadedDummyEvent, entityRef);
         ListenableFuture f1 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
         ListenableFuture f2 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
         ListenableFuture f3 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
@@ -67,10 +69,13 @@ public class PathfinderSystemTest {
     public void updateChunkAfterPathRequests() throws InterruptedException {
         EntityRef entityRef = entityManager.create();
         entityRef.addComponent(new CharacterComponent());
+
+        OnChunkLoaded chunkLoadedDummyEvent = new OnChunkLoaded(new Vector3i());
+
         ListenableFuture f1 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
         ListenableFuture f2 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
         ListenableFuture f3 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
-        navGraphSystem.chunkReady(mock(OnChunkLoaded.class), entityRef);
+        navGraphSystem.chunkReady(chunkLoadedDummyEvent, entityRef);
         while (pathfinderSystem.getPathsSearched() != 3) {
             Thread.sleep(50);
             eventSystem.process();
