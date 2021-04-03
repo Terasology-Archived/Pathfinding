@@ -11,7 +11,7 @@ import org.terasology.engine.WorldProvidingHeadlessEnvironment;
 import org.terasology.engine.core.SimpleUri;
 import org.terasology.engine.registry.CoreRegistry;
 import org.terasology.engine.world.WorldProvider;
-import org.terasology.naming.Name;
+import org.terasology.gestalt.naming.Name;
 
 /**
  * @author synopia
