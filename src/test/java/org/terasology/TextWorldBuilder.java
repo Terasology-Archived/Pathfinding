@@ -3,8 +3,8 @@
 package org.terasology;
 
 import org.joml.Vector3i;
-import org.terasology.assets.ResourceUrn;
-import org.terasology.assets.management.AssetManager;
+import org.terasology.gestalt.assets.ResourceUrn;
+import org.terasology.gestalt.assets.management.AssetManager;
 import org.terasology.engine.WorldProvidingHeadlessEnvironment;
 import org.terasology.engine.registry.CoreRegistry;
 import org.terasology.engine.world.WorldProvider;

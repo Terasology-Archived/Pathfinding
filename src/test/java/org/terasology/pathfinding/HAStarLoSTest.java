@@ -14,7 +14,7 @@ import org.terasology.engine.core.SimpleUri;
 import org.terasology.engine.core.paths.PathManager;
 import org.terasology.engine.registry.CoreRegistry;
 import org.terasology.engine.world.WorldProvider;
-import org.terasology.naming.Name;
+import org.terasology.gestalt.naming.Name;
 import org.terasology.navgraph.NavGraphChunk;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.model.HAStar;
