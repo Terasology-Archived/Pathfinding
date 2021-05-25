@@ -6,7 +6,7 @@ import com.badlogic.gdx.physics.bullet.Bullet;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.terasology.engine.core.paths.PathManager;
+import org.terasology.engine.core.PathManager;
 import org.terasology.pathfinding.GeneralPathFinder.DefaultEdge;
 import org.terasology.pathfinding.GeneralPathFinder.Edge;
 import org.terasology.pathfinding.GeneralPathFinder.Path;

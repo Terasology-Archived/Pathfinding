@@ -11,7 +11,7 @@ import org.terasology.TextWorldBuilder;
 import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
 import org.terasology.engine.WorldProvidingHeadlessEnvironment;
 import org.terasology.engine.core.SimpleUri;
-import org.terasology.engine.core.paths.PathManager;
+import org.terasology.engine.core.PathManager;
 import org.terasology.engine.registry.InjectionHelper;
 import org.terasology.gestalt.naming.Name;
 import org.terasology.navgraph.NavGraphChunk;

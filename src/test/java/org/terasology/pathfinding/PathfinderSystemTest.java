@@ -13,7 +13,7 @@ import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
 import org.terasology.engine.WorldProvidingHeadlessEnvironment;
 import org.terasology.engine.core.ComponentSystemManager;
 import org.terasology.engine.core.SimpleUri;
-import org.terasology.engine.core.paths.PathManager;
+import org.terasology.engine.core.PathManager;
 import org.terasology.engine.entitySystem.entity.EntityManager;
 import org.terasology.engine.entitySystem.entity.EntityRef;
 import org.terasology.engine.entitySystem.entity.internal.PojoEntityManager;
