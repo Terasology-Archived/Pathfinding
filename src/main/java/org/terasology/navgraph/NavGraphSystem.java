@@ -2,11 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.navgraph;
 
+import com.google.common.collect.Sets;
+import io.reactivex.rxjava3.core.BackpressureStrategy;
+import io.reactivex.rxjava3.subjects.PublishSubject;
 import org.joml.RoundingMode;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
+import org.terasology.engine.core.GameThread;
 import org.terasology.engine.entitySystem.entity.EntityManager;
 import org.terasology.engine.entitySystem.entity.EntityRef;
 import org.terasology.engine.entitySystem.event.ReceiveEvent;
@@ -16,17 +20,17 @@ import org.terasology.engine.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.engine.logic.location.LocationComponent;
 import org.terasology.engine.registry.In;
 import org.terasology.engine.registry.Share;
-import org.terasology.engine.utilities.concurrency.Task;
-import org.terasology.engine.utilities.concurrency.TaskMaster;
 import org.terasology.engine.world.WorldChangeListener;
 import org.terasology.engine.world.WorldComponent;
 import org.terasology.engine.world.WorldProvider;
 import org.terasology.engine.world.block.Block;
 import org.terasology.engine.world.chunks.Chunks;
+import org.terasology.engine.world.chunks.event.BeforeChunkUnload;
 import org.terasology.engine.world.chunks.event.OnChunkLoaded;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @RegisterSystem
 @Share(value = NavGraphSystem.class)
@@ -39,12 +43,27 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
     private EntityManager entityManager;
 
     private Map<Vector3i, NavGraphChunk> heightMaps = new HashMap<>();
-    private TaskMaster<NavGraphTask> taskMaster = TaskMaster.createPriorityTaskMaster("Pathfinder", 1, 1024);
     private boolean dirty;
     private float coolDown = EVENT_COOLDOWN;
     private int chunkUpdates;
 
     private Map<Vector3i, NavGraphChunk> maps = new HashMap<>();
+    private PublishSubject<Vector3i> chunkProcessingPublisher = PublishSubject.<Vector3i>create();
+    private final Set<Vector3i> chunkProcessing = Sets.newHashSet();
+    public NavGraphSystem() {
+        chunkProcessingPublisher
+                .toFlowable(BackpressureStrategy.BUFFER)
+                .distinct(k -> k, () -> chunkProcessing)
+                .parallel().runOn(GameThread.computation())
+                .map(this::updateChunk)
+                .sequential()
+                .observeOn(GameThread.main())
+                .doOnNext(k -> chunkProcessing.remove(k.worldPos))
+                .subscribe(navGraphChunk -> {
+                    maps.put(navGraphChunk.worldPos, navGraphChunk);
+                    dirty = true;
+                });
+    }
 
     @Override
     public void initialise() {
@@ -53,7 +72,6 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
 
     @Override
     public void shutdown() {
-        taskMaster.shutdown(new ShutdownTask(), false);
     }
 
     @Override
@@ -68,12 +86,16 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
         }
     }
 
-
-
     @ReceiveEvent(components = WorldComponent.class)
     public void chunkReady(OnChunkLoaded event, EntityRef worldEntity) {
-        taskMaster.offer(new UpdateChunkTask(event.getChunkPos()));
+        chunkProcessingPublisher.onNext(new Vector3i(event.getChunkPos()));
     }
+
+    @ReceiveEvent(components = WorldComponent.class)
+    public void chunkReady(BeforeChunkUnload event, EntityRef worldEntity) {
+        maps.remove(new Vector3i(event.getChunkPos()));
+    }
+
 
     public WalkableBlock getBlock(Vector3ic pos) {
         Vector3i chunkPos = Chunks.toChunkPos(pos, new Vector3i());
@@ -100,10 +122,6 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
             }
         }
         return block;
-    }
-
-    public void offer(NavGraphTask task) {
-        taskMaster.offer(task);
     }
 
     public int getChunkUpdates() {
@@ -139,81 +157,6 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
 
     @Override
     public void onBlockChanged(Vector3ic pos, Block newBlock, Block originalBlock) {
-        Vector3i chunkPos = Chunks.toChunkPos(pos, new Vector3i());
-        taskMaster.offer(new UpdateChunkTask(chunkPos));
-    }
-
-
-    public interface NavGraphTask extends Task, Comparable<NavGraphTask> {
-        int getPriority();
-    }
-
-    public static class ShutdownTask implements NavGraphTask {
-        @Override
-        public int getPriority() {
-            return -1;
-        }
-
-        @Override
-        public int compareTo(NavGraphTask o) {
-            return Integer.compare(this.getPriority(), o.getPriority());
-        }
-
-        @Override
-        public String getName() {
-            return "Pathfinder:UpdateChunk";
-        }
-
-        @Override
-        public void run() {
-
-        }
-
-        @Override
-        public boolean isTerminateSignal() {
-            return true;
-        }
-    }
-
-    /**
-     * Task to update a chunk
-     * <p/>
-     * Note: this class has a natural ordering that is inconsistent with equals.
-     */
-    private final class UpdateChunkTask implements NavGraphTask {
-        public Vector3i chunkPos;
-
-        private UpdateChunkTask(Vector3ic chunkPos) {
-            this.chunkPos = new Vector3i(chunkPos);
-        }
-
-        @Override
-        public String getName() {
-            return "Pathfinder:UpdateChunk";
-        }
-
-        @Override
-        public void run() {
-            chunkUpdates++;
-            maps.remove(chunkPos);
-            NavGraphChunk map = updateChunk(chunkPos);
-            maps.put(chunkPos, map);
-            dirty = true;
-        }
-
-        @Override
-        public int getPriority() {
-            return 0;
-        }
-
-        @Override
-        public boolean isTerminateSignal() {
-            return false;
-        }
-
-        @Override
-        public int compareTo(NavGraphTask o) {
-            return Integer.compare(this.getPriority(), o.getPriority());
-        }
+        chunkProcessingPublisher.onNext(Chunks.toChunkPos(pos, new Vector3i()));
     }
 }
