@@ -3,14 +3,12 @@
 package org.terasology.navgraph;
 
 import com.google.common.collect.Sets;
-import io.reactivex.rxjava3.core.BackpressureStrategy;
-import io.reactivex.rxjava3.subjects.PublishSubject;
 import org.joml.RoundingMode;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
-import org.terasology.engine.core.GameThread;
+import org.terasology.engine.core.GameScheduler;
 import org.terasology.engine.entitySystem.entity.EntityManager;
 import org.terasology.engine.entitySystem.entity.EntityRef;
 import org.terasology.engine.entitySystem.event.ReceiveEvent;
@@ -27,6 +25,7 @@ import org.terasology.engine.world.block.Block;
 import org.terasology.engine.world.chunks.Chunks;
 import org.terasology.engine.world.chunks.event.BeforeChunkUnload;
 import org.terasology.engine.world.chunks.event.OnChunkLoaded;
+import reactor.core.publisher.Sinks;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,16 +47,15 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
     private int chunkUpdates;
 
     private Map<Vector3i, NavGraphChunk> maps = new HashMap<>();
-    private PublishSubject<Vector3i> chunkProcessingPublisher = PublishSubject.<Vector3i>create();
+    private Sinks.Many<Vector3i> chunkProcessingPublisher = Sinks.many().unicast().onBackpressureBuffer();
     private final Set<Vector3i> chunkProcessing = Sets.newHashSet();
     public NavGraphSystem() {
-        chunkProcessingPublisher
-                .toFlowable(BackpressureStrategy.BUFFER)
+        chunkProcessingPublisher.asFlux()
                 .distinct(k -> k, () -> chunkProcessing)
-                .parallel().runOn(GameThread.computation())
+                .parallel().runOn(GameScheduler.parallel())
                 .map(this::updateChunk)
                 .sequential()
-                .observeOn(GameThread.main())
+                .publishOn(GameScheduler.gameMain())
                 .doOnNext(k -> chunkProcessing.remove(k.worldPos))
                 .subscribe(navGraphChunk -> {
                     maps.put(navGraphChunk.worldPos, navGraphChunk);
@@ -88,7 +86,7 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
 
     @ReceiveEvent(components = WorldComponent.class)
     public void chunkReady(OnChunkLoaded event, EntityRef worldEntity) {
-        chunkProcessingPublisher.onNext(new Vector3i(event.getChunkPos()));
+        chunkProcessingPublisher.tryEmitNext(new Vector3i(event.getChunkPos()));
     }
 
     @ReceiveEvent(components = WorldComponent.class)
@@ -157,6 +155,6 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
 
     @Override
     public void onBlockChanged(Vector3ic pos, Block newBlock, Block originalBlock) {
-        chunkProcessingPublisher.onNext(Chunks.toChunkPos(pos, new Vector3i()));
+        chunkProcessingPublisher.tryEmitNext(Chunks.toChunkPos(pos, new Vector3i()));
     }
 }

@@ -3,34 +3,27 @@
 package org.terasology.pathfinding.componentSystem;
 
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.SettableFuture;
-import io.reactivex.rxjava3.core.Maybe;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Single;
-import io.reactivex.rxjava3.functions.Consumer;
-import io.reactivex.rxjava3.functions.Function;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.engine.core.GameThread;
+import org.terasology.engine.core.GameScheduler;
 import org.terasology.engine.entitySystem.entity.EntityRef;
 import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
 import org.terasology.engine.entitySystem.systems.RegisterMode;
 import org.terasology.engine.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.registry.CoreRegistry;
+import org.terasology.engine.registry.In;
+import org.terasology.engine.registry.Share;
 import org.terasology.navgraph.NavGraphSystem;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.model.LineOfSight;
 import org.terasology.pathfinding.model.LineOfSight2d;
 import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.Pathfinder;
-import org.terasology.engine.registry.CoreRegistry;
-import org.terasology.engine.registry.In;
-import org.terasology.engine.registry.Share;
+import reactor.core.publisher.Mono;
 
-import javax.swing.text.html.Option;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -86,15 +79,14 @@ public class PathfinderSystem extends BaseComponentSystem {
         }
     }
 
-    public Maybe<List<Path>> requestPath(EntityRef requestor, Vector3i target, List<Vector3i> start) {
+    public Mono<List<Path>> requestPath(EntityRef requestor, Vector3i target, List<Vector3i> start) {
         return requestPath(new RequestPath(requestor, target, start));
     }
 
-    public Maybe<List<Path>> requestPath(RequestPath requestPath) {
-        return Single
-            .just(requestPath)
-            .observeOn(GameThread.computation())
-            .<List<Path>>mapOptional(requestPath1 -> {
+    public Mono<List<Path>> requestPath(RequestPath requestPath) {
+        return Mono.fromCallable(() -> requestPath)
+            .publishOn(GameScheduler.parallel())
+            .<List<Path>>mapNotNull(requestPath1 -> {
                 pathsSearched.incrementAndGet();
                 List<WalkableBlock> startBlocks = Lists.newArrayList();
                 for (Vector3i pos : requestPath1.start) {
@@ -104,10 +96,9 @@ public class PathfinderSystem extends BaseComponentSystem {
                 }
                 WalkableBlock targetBlock = navGraphSystem.getBlock(requestPath1.target);
                 if (targetBlock != null && startBlocks.size() > 0) {
-                    return Optional.of(pathfinder.findPath(targetBlock, startBlocks));
+                    return pathfinder.findPath(targetBlock, startBlocks);
                 }
-                return Optional.empty();
-
+                return null;
             });
     }
 

@@ -4,7 +4,6 @@ package org.terasology.pathfinding;
 
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.google.common.collect.Lists;
-import io.reactivex.rxjava3.core.Maybe;
 import org.joml.Vector3i;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,8 +26,10 @@ import org.terasology.pathfinding.model.Path;
 import org.terasology.pathfinding.model.Pathfinder;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -56,16 +57,16 @@ public class PathfinderSystemTest {
         OnChunkLoaded chunkLoadedDummyEvent = new OnChunkLoaded(new Vector3i());
 
         navGraphSystem.chunkReady(chunkLoadedDummyEvent, entityRef);
-        Maybe<List<Path>> f1 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
-        Maybe<List<Path>> f2 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
-        Maybe<List<Path>> f3 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
+        Optional<List<Path>> f1 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i())).blockOptional();
+        Optional<List<Path>> f2 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i())).blockOptional();
+        Optional<List<Path>> f3 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i())).blockOptional();
         while (pathfinderSystem.getPathsSearched() != 3) {
             Thread.sleep(10);
             eventSystem.process();
         }
-        assertFalse(f1.isEmpty().blockingGet());
-        assertFalse(f2.isEmpty().blockingGet());
-        assertFalse(f3.isEmpty().blockingGet());
+        assertTrue(f1.isPresent());
+        assertFalse(f2.isPresent());
+        assertFalse(f3.isPresent());
     }
 
     @Test
@@ -75,17 +76,17 @@ public class PathfinderSystemTest {
 
         OnChunkLoaded chunkLoadedDummyEvent = new OnChunkLoaded(new Vector3i());
 
-        Maybe<List<Path>> f1 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
-        Maybe<List<Path>> f2 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
-        Maybe<List<Path>> f3 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i()));
+        Optional<List<Path>> f1 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i())).blockOptional();
+        Optional<List<Path>> f2 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i())).blockOptional();
+        Optional<List<Path>> f3 = pathfinderSystem.requestPath(entityRef, new Vector3i(), Lists.newArrayList(new Vector3i())).blockOptional();
         navGraphSystem.chunkReady(chunkLoadedDummyEvent, entityRef);
         while (pathfinderSystem.getPathsSearched() != 3) {
             Thread.sleep(50);
             eventSystem.process();
         }
-        assertFalse(f1.isEmpty().blockingGet());
-        assertFalse(f2.isEmpty().blockingGet());
-        assertFalse(f3.isEmpty().blockingGet());
+        assertTrue(f1.isPresent());
+        assertTrue(f2.isPresent());
+        assertTrue(f3.isPresent());
     }
 
     @AfterEach
