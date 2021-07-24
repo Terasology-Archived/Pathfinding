@@ -1,4 +1,4 @@
-// Copyright 2020 The Terasology Foundation
+// Copyright 2021 The Terasology Foundation
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.navgraph;
 
@@ -412,7 +412,7 @@ public class ContourFinderTest {
 
             }
         });
-        TextWorldBuilder builder = new TextWorldBuilder(env);
+        TextWorldBuilder builder = new TextWorldBuilder();
         builder.setGround(ground);
         final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
         chunk.update();

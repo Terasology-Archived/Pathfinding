@@ -1,4 +1,4 @@
-// Copyright 2020 The Terasology Foundation
+// Copyright 2021 The Terasology Foundation
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.pathfinding;
 
@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.terasology.TextWorldBuilder;
 import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
 import org.terasology.engine.WorldProvidingHeadlessEnvironment;
-import org.terasology.engine.core.SimpleUri;
 import org.terasology.engine.core.PathManager;
+import org.terasology.engine.core.SimpleUri;
 import org.terasology.engine.registry.CoreRegistry;
 import org.terasology.engine.world.WorldProvider;
 import org.terasology.gestalt.naming.Name;
@@ -145,7 +145,7 @@ public class HAStarLoSTest {
 
             }
         });
-        TextWorldBuilder builder = new TextWorldBuilder(env);
+        TextWorldBuilder builder = new TextWorldBuilder();
         builder.setGround(ground);
         final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
         chunk.update();

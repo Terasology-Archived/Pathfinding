@@ -1,4 +1,4 @@
-// Copyright 2020 The Terasology Foundation
+// Copyright 2021 The Terasology Foundation
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.navgraph;
 
@@ -134,7 +134,7 @@ public class ConnectNavGraphChunkTest {
                 register(new PathfinderTestGenerator());
             }
         });
-        builder = new TextWorldBuilder(env);
+        builder = new TextWorldBuilder();
         world = CoreRegistry.get(WorldProvider.class);
     }
 
