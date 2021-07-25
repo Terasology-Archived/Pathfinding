@@ -4,7 +4,6 @@ package org.terasology;
 
 import org.joml.Vector3i;
 import org.terasology.engine.context.Context;
-import org.terasology.engine.registry.CoreRegistry;
 import org.terasology.engine.world.WorldProvider;
 import org.terasology.engine.world.block.Block;
 import org.terasology.engine.world.block.BlockManager;
@@ -29,9 +28,9 @@ public class TextWorldBuilder {
     private Block air;
 
     public TextWorldBuilder(Context context) {
-        world = CoreRegistry.get(WorldProvider.class);
-        BlockManager blockManager = CoreRegistry.get(BlockManager.class);
-        AssetManager assetManager = CoreRegistry.get(AssetManager.class);
+        world = context.get(WorldProvider.class);
+        BlockManager blockManager = context.get(BlockManager.class);
+        AssetManager assetManager = context.get(AssetManager.class);
 
         BlockFamilyDefinitionData data = new BlockFamilyDefinitionData();
         data.setBlockFamily(SymmetricFamily.class);
@@ -41,6 +40,7 @@ public class TextWorldBuilder {
         this.air = blockManager.getBlock(BlockManager.AIR_ID);
     }
 
+    @Deprecated
     public TextWorldBuilder() {
         this(null);
     }
