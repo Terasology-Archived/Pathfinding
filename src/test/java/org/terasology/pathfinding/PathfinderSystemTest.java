@@ -15,7 +15,6 @@ import org.terasology.engine.entitySystem.entity.EntityRef;
 import org.terasology.engine.entitySystem.entity.internal.PojoEntityManager;
 import org.terasology.engine.entitySystem.event.internal.EventSystem;
 import org.terasology.engine.logic.characters.CharacterComponent;
-import org.terasology.engine.registry.CoreRegistry;
 import org.terasology.engine.world.chunks.event.OnChunkLoaded;
 import org.terasology.moduletestingenvironment.MTEExtension;
 import org.terasology.moduletestingenvironment.extension.Dependencies;
@@ -79,12 +78,11 @@ public class PathfinderSystemTest {
     }
 
     @BeforeEach
-    public void setup() {
-        entityManager = (PojoEntityManager) CoreRegistry.get(EntityManager.class);
-        eventSystem = CoreRegistry.get(EventSystem.class);
+    public void setup(EntityManager entityManager, EventSystem eventSystem, ComponentSystemManager componentSystemManager) {
+        this.entityManager = (PojoEntityManager) entityManager;
+        this.eventSystem = eventSystem;
         navGraphSystem = new NavGraphSystem();
-        CoreRegistry.get(ComponentSystemManager.class).register(navGraphSystem);
-        CoreRegistry.put(NavGraphSystem.class, navGraphSystem);
+        componentSystemManager.register(navGraphSystem);
 
         pathfinderSystem = new PathfinderSystem() {
             @Override
@@ -92,7 +90,6 @@ public class PathfinderSystemTest {
                 return mock(Pathfinder.class);
             }
         };
-        CoreRegistry.get(ComponentSystemManager.class).register(pathfinderSystem);
-        CoreRegistry.put(PathfinderSystem.class, pathfinderSystem);
+        componentSystemManager.register(pathfinderSystem);
     }
 }
