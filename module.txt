@@ -8,7 +8,7 @@
         { "id": "BiomesAPI", "minVersion": "4.0.0" },
         { "id": "CoreAssets", "minVersion": "2.0.1" },
         { "id": "CoreWorlds", "minVersion": "1.1.0", "maxVersion": "3.0.0" },
-        { "id": "ModuleTestingEnvironment", "minVersion": "0.3.0", "optional": "true" }
+        { "id": "ModuleTestingEnvironment", "minVersion": "0.3.1", "optional": "true" }
     ],
     "isServerSideOnly": true,
     "isLibrary": true
