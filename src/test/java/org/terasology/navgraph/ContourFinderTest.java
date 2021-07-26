@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.terasology.TextWorldBuilder;
 import org.terasology.engine.context.Context;
-import org.terasology.engine.registry.CoreRegistry;
 import org.terasology.engine.world.WorldProvider;
 import org.terasology.moduletestingenvironment.MTEExtension;
 import org.terasology.moduletestingenvironment.ModuleTestingHelper;
@@ -424,7 +423,7 @@ public class ContourFinderTest {
 
     private void assertContour(String[] ground, String[] contour) {
         builder.setGround(ground);
-        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+        final NavGraphChunk chunk = new NavGraphChunk(worldProvider, chunkLocation);
         chunk.update();
 
         builder.parse(new TextWorldBuilder.Runner() {
