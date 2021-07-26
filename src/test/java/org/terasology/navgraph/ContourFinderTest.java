@@ -3,20 +3,31 @@
 package org.terasology.navgraph;
 
 import org.joml.Vector3i;
+import org.joml.Vector3ic;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.terasology.TextWorldBuilder;
-import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
-import org.terasology.engine.WorldProvidingHeadlessEnvironment;
-import org.terasology.engine.core.SimpleUri;
+import org.terasology.engine.context.Context;
 import org.terasology.engine.registry.CoreRegistry;
 import org.terasology.engine.world.WorldProvider;
-import org.terasology.gestalt.naming.Name;
+import org.terasology.moduletestingenvironment.MTEExtension;
+import org.terasology.moduletestingenvironment.ModuleTestingHelper;
+import org.terasology.moduletestingenvironment.extension.Dependencies;
 
 /**
  * @author synopia
  */
+@Tag("MteTest")
+@ExtendWith(MTEExtension.class)
+@Dependencies("Pathfinding")
 public class ContourFinderTest {
+    TextWorldBuilder builder;
+    WorldProvider worldProvider;
+    Vector3ic chunkLocation = new Vector3i(0, 0, 0);
+
     @Test
     public void testStairs() {
         assertContour(new String[]{
@@ -404,15 +415,14 @@ public class ContourFinderTest {
         });
     }
 
-    private void assertContour(String[] ground, String[] contour) {
-        WorldProvidingHeadlessEnvironment env = new WorldProvidingHeadlessEnvironment(new Name("Pathfinding"));
-        env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
-            @Override
-            public void initialize() {
+    @BeforeEach
+    public void setup(Context context, WorldProvider worldProvider, ModuleTestingHelper mteHelp) {
+        builder = new TextWorldBuilder(context);
+        this.worldProvider = worldProvider;
+        mteHelp.forceAndWaitForGeneration(chunkLocation);
+    }
 
-            }
-        });
-        TextWorldBuilder builder = new TextWorldBuilder();
+    private void assertContour(String[] ground, String[] contour) {
         builder.setGround(ground);
         final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
         chunk.update();
