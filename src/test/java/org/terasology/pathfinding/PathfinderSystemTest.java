@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.joml.Vector3i;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.terasology.engine.core.ComponentSystemManager;
@@ -28,6 +29,7 @@ import static org.mockito.Mockito.mock;
 /**
  * @author synopia
  */
+@Tag("MteTest")
 @ExtendWith(MTEExtension.class)
 @Dependencies("Pathfinding")
 public class PathfinderSystemTest {

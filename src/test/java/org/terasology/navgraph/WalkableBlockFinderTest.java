@@ -5,6 +5,7 @@ package org.terasology.navgraph;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.terasology.TextWorldBuilder;
@@ -22,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author synopia
  */
+@Tag("MteTest")
 @ExtendWith(MTEExtension.class)
 @Dependencies("Pathfinding")
 public class WalkableBlockFinderTest {

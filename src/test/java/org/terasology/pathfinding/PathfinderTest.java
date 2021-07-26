@@ -5,6 +5,7 @@ package org.terasology.pathfinding;
 import org.joml.Vector3i;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.terasology.TextWorldBuilder;
@@ -22,6 +23,7 @@ import org.terasology.pathfinding.model.Pathfinder;
 /**
  * @author synopia
  */
+@Tag("MteTest")
 @ExtendWith(MTEExtension.class)
 @Dependencies("Pathfinding")
 @UseWorldGenerator("Pathfinding:pathfinder")
@@ -32,14 +34,6 @@ public class PathfinderTest {
 
     @BeforeEach
     public void setup(Context context) {
-        // FIXME / Work in Progress: Need to re-install this bit
-//        env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
-//            @Override
-//            public void initialize() {
-//                register(new PathfinderTestGenerator(true));
-//            }
-//        });
-
         builder = new TextWorldBuilder(context);
 
         world = new NavGraphSystem();
