@@ -3,15 +3,18 @@
 package org.terasology.navgraph;
 
 import org.joml.Vector3i;
+import org.joml.Vector3ic;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.terasology.TextWorldBuilder;
-import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
-import org.terasology.engine.WorldProvidingHeadlessEnvironment;
-import org.terasology.engine.core.SimpleUri;
-import org.terasology.engine.registry.CoreRegistry;
+import org.terasology.engine.context.Context;
 import org.terasology.engine.world.WorldProvider;
-import org.terasology.gestalt.naming.Name;
+import org.terasology.moduletestingenvironment.MTEExtension;
+import org.terasology.moduletestingenvironment.ModuleTestingHelper;
+import org.terasology.moduletestingenvironment.extension.Dependencies;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,8 +22,14 @@ import java.util.Set;
 /**
  * @author synopia
  */
-
+@Tag("MteTest")
+@ExtendWith(MTEExtension.class)
+@Dependencies("Pathfinding")
 public class FloorFinderTest {
+    TextWorldBuilder builder;
+    WorldProvider worldProvider;
+    Vector3ic chunkLocation = new Vector3i(0, 0, 0);
+
     @Test
     public void stairs3() {
         assertFloors(new String[]{
@@ -292,6 +301,13 @@ public class FloorFinderTest {
         });
     }
 
+    @BeforeEach
+    public void setup(Context context, WorldProvider worldProvider, ModuleTestingHelper mteHelp) {
+        builder = new TextWorldBuilder(context);
+        this.worldProvider = worldProvider;
+        mteHelp.forceAndWaitForGeneration(chunkLocation);
+    }
+
     private void assertFloors(String[] data, String[] floors) {
         assertFloors(data, floors, null);
     }
@@ -301,18 +317,10 @@ public class FloorFinderTest {
     }
 
     private void assertFloors(String[] data, String[] floors, String[] contour, int[][] connections) {
-        WorldProvidingHeadlessEnvironment env = new WorldProvidingHeadlessEnvironment(new Name("Pathfinding"));
-        env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
-            @Override
-            public void initialize() {
-
-            }
-        });
-        TextWorldBuilder builder = new TextWorldBuilder();
         builder.setGround(data);
-        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+        final NavGraphChunk chunk = new NavGraphChunk(worldProvider, chunkLocation);
 
-        new WalkableBlockFinder(CoreRegistry.get(WorldProvider.class)).findWalkableBlocks(chunk);
+        new WalkableBlockFinder(worldProvider).findWalkableBlocks(chunk);
         final FloorFinder finder = new FloorFinder();
         finder.findFloors(chunk);
         chunk.findContour();
