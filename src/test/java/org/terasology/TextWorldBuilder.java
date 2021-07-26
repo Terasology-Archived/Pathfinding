@@ -40,11 +40,6 @@ public class TextWorldBuilder {
         this.air = blockManager.getBlock(BlockManager.AIR_ID);
     }
 
-    @Deprecated
-    public TextWorldBuilder() {
-        this(null);
-    }
-
     public void setGround(int x, int y, int z) {
         world.setBlock(new Vector3i(x, y, z), ground);
     }
