@@ -51,6 +51,9 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
     private final Set<Vector3i> chunkProcessing = Sets.newHashSet();
     public NavGraphSystem() {
         chunkProcessingPublisher.asFlux()
+                .name("nav-graph")
+                .tag("monitor", "display-metric")
+                .metrics()
                 .distinct(k -> k, () -> chunkProcessing)
                 .parallel().runOn(GameScheduler.parallel())
                 .map(this::updateChunk)
