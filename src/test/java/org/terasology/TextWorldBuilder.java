@@ -1,18 +1,17 @@
-// Copyright 2020 The Terasology Foundation
+// Copyright 2021 The Terasology Foundation
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology;
 
 import org.joml.Vector3i;
-import org.terasology.gestalt.assets.ResourceUrn;
-import org.terasology.gestalt.assets.management.AssetManager;
-import org.terasology.engine.WorldProvidingHeadlessEnvironment;
-import org.terasology.engine.registry.CoreRegistry;
+import org.terasology.engine.context.Context;
 import org.terasology.engine.world.WorldProvider;
 import org.terasology.engine.world.block.Block;
 import org.terasology.engine.world.block.BlockManager;
 import org.terasology.engine.world.block.family.SymmetricFamily;
 import org.terasology.engine.world.block.loader.BlockFamilyDefinition;
 import org.terasology.engine.world.block.loader.BlockFamilyDefinitionData;
+import org.terasology.gestalt.assets.ResourceUrn;
+import org.terasology.gestalt.assets.management.AssetManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,10 +27,10 @@ public class TextWorldBuilder {
     private Block ground;
     private Block air;
 
-    public TextWorldBuilder(WorldProvidingHeadlessEnvironment environment) {
-        world = CoreRegistry.get(WorldProvider.class);
-        BlockManager blockManager = CoreRegistry.get(BlockManager.class);
-        AssetManager assetManager = CoreRegistry.get(AssetManager.class);
+    public TextWorldBuilder(Context context) {
+        world = context.get(WorldProvider.class);
+        BlockManager blockManager = context.get(BlockManager.class);
+        AssetManager assetManager = context.get(AssetManager.class);
 
         BlockFamilyDefinitionData data = new BlockFamilyDefinitionData();
         data.setBlockFamily(SymmetricFamily.class);

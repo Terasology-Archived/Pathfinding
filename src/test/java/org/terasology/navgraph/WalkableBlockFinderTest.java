@@ -1,17 +1,19 @@
-// Copyright 2020 The Terasology Foundation
+// Copyright 2021 The Terasology Foundation
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.navgraph;
 
 import org.joml.Vector3i;
+import org.joml.Vector3ic;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.terasology.TextWorldBuilder;
-import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
-import org.terasology.engine.WorldProvidingHeadlessEnvironment;
-import org.terasology.engine.core.SimpleUri;
-import org.terasology.engine.registry.CoreRegistry;
+import org.terasology.engine.context.Context;
 import org.terasology.engine.world.WorldProvider;
-import org.terasology.gestalt.naming.Name;
+import org.terasology.moduletestingenvironment.MTEExtension;
+import org.terasology.moduletestingenvironment.ModuleTestingHelper;
+import org.terasology.moduletestingenvironment.extension.Dependencies;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -21,9 +23,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author synopia
  */
+@Tag("MteTest")
+@ExtendWith(MTEExtension.class)
+@Dependencies("Pathfinding")
 public class WalkableBlockFinderTest {
 
-    private TextWorldBuilder builder;
+    TextWorldBuilder builder;
+    WorldProvider worldProvider;
+
+    Vector3ic chunkLocation = new Vector3i(0, 0, 0);
 
     @Test
     public void testNeighbors4() {
@@ -32,7 +40,7 @@ public class WalkableBlockFinderTest {
                 "XXX|X  |X  |",
                 "XXX|   |   |"
         );
-        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+        final NavGraphChunk chunk = new NavGraphChunk(worldProvider, chunkLocation);
         chunk.update();
 
         WalkableBlock sut = chunk.getBlock(1, 0, 1);
@@ -51,7 +59,7 @@ public class WalkableBlockFinderTest {
                 "XX    |  X   |   X  |    X |  X  X|",
                 "XXXXXX|      |      |      |XXXXXX|"
         );
-        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+        final NavGraphChunk chunk = new NavGraphChunk(worldProvider, chunkLocation);
         chunk.update();
 
         WalkableBlock left = chunk.getBlock(2, 1, 1);
@@ -68,7 +76,7 @@ public class WalkableBlockFinderTest {
                 "X X",
                 " X "
         );
-        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+        final NavGraphChunk chunk = new NavGraphChunk(worldProvider, chunkLocation);
         chunk.update();
 
         WalkableBlock left = chunk.getBlock(0, 0, 1);
@@ -171,8 +179,8 @@ public class WalkableBlockFinderTest {
 
     private void assertNeighbors3x3(String... data) {
         builder.setGround(data);
-        WalkableBlockFinder finder = new WalkableBlockFinder(CoreRegistry.get(WorldProvider.class));
-        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+        WalkableBlockFinder finder = new WalkableBlockFinder(worldProvider);
+        final NavGraphChunk chunk = new NavGraphChunk(worldProvider, chunkLocation);
         finder.findWalkableBlocks(chunk);
 
         WalkableBlock lu = chunk.getCell(0, 0).blocks.get(0);
@@ -205,8 +213,8 @@ public class WalkableBlockFinderTest {
 
     private void assertWalkableBlocks(String[] data, String[] walkable) {
         builder.setGround(data);
-        WalkableBlockFinder finder = new WalkableBlockFinder(CoreRegistry.get(WorldProvider.class));
-        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+        WalkableBlockFinder finder = new WalkableBlockFinder(worldProvider);
+        final NavGraphChunk chunk = new NavGraphChunk(worldProvider, chunkLocation);
         finder.findWalkableBlocks(chunk);
 
         String[] evaluate = builder.evaluate(new TextWorldBuilder.Runner() {
@@ -221,14 +229,9 @@ public class WalkableBlockFinderTest {
     }
 
     @BeforeEach
-    public void setup() {
-        WorldProvidingHeadlessEnvironment env = new WorldProvidingHeadlessEnvironment(new Name("Pathfinding"));
-        env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
-            @Override
-            public void initialize() {
-
-            }
-        });
-        builder = new TextWorldBuilder(env);
+    public void setup(Context context, WorldProvider worldProvider, ModuleTestingHelper mteHelp) {
+        builder = new TextWorldBuilder(context);
+        this.worldProvider = worldProvider;
+        mteHelp.forceAndWaitForGeneration(chunkLocation);
     }
 }
