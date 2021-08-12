@@ -38,9 +38,9 @@ public class Entrance {
         int y2 = Math.max(area.maxY(), y);
 
         if (type == Type.VERTICAL) {
-            return y2 - y1 == 0 && area.getSizeX() + 1 == x2 - x1;
+            return y2 - y1 == 0 && area.getSizeX() == x2 - x1;
         } else if (type == Type.HORIZONTAL) {
-            return x2 - x1 == 0 && area.getSizeY() + 1 == y2 - y1;
+            return x2 - x1 == 0 && area.getSizeY() == y2 - y1;
         } else {
             return x2 - x1 <= 1 && y2 - y1 <= 1;
         }
