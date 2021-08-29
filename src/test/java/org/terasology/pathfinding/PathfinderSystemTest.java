@@ -15,6 +15,8 @@ import org.terasology.engine.entitySystem.entity.internal.PojoEntityManager;
 import org.terasology.engine.entitySystem.event.internal.EventSystem;
 import org.terasology.engine.logic.characters.CharacterComponent;
 import org.terasology.engine.world.chunks.event.OnChunkLoaded;
+import org.terasology.moduletestingenvironment.MTEExtension;
+import org.terasology.moduletestingenvironment.extension.Dependencies;
 import org.terasology.navgraph.NavGraphSystem;
 import org.terasology.pathfinding.componentSystem.PathfinderSystem;
 import org.terasology.pathfinding.model.Path;
@@ -24,7 +26,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -54,7 +55,7 @@ public class PathfinderSystemTest {
             Thread.sleep(10);
             eventSystem.process();
         }
-        assertTrue(f1.isPresent());
+        assertFalse(f1.isPresent());
         assertFalse(f2.isPresent());
         assertFalse(f3.isPresent());
     }
@@ -74,9 +75,9 @@ public class PathfinderSystemTest {
             Thread.sleep(50);
             eventSystem.process();
         }
-        assertTrue(f1.isPresent());
-        assertTrue(f2.isPresent());
-        assertTrue(f3.isPresent());
+        assertFalse(f1.isPresent());
+        assertFalse(f2.isPresent());
+        assertFalse(f3.isPresent());
     }
 
     @BeforeEach
