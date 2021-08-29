@@ -1,19 +1,19 @@
-// Copyright 2020 The Terasology Foundation
+// Copyright 2021 The Terasology Foundation
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.pathfinding;
 
-import com.badlogic.gdx.physics.bullet.Bullet;
 import org.joml.Vector3i;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.terasology.TextWorldBuilder;
-import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
-import org.terasology.engine.WorldProvidingHeadlessEnvironment;
-import org.terasology.engine.core.SimpleUri;
-import org.terasology.engine.core.PathManager;
+import org.terasology.engine.context.Context;
 import org.terasology.engine.registry.InjectionHelper;
-import org.terasology.gestalt.naming.Name;
+import org.terasology.moduletestingenvironment.MTEExtension;
+import org.terasology.moduletestingenvironment.extension.Dependencies;
+import org.terasology.moduletestingenvironment.extension.UseWorldGenerator;
 import org.terasology.navgraph.NavGraphChunk;
 import org.terasology.navgraph.NavGraphSystem;
 import org.terasology.navgraph.WalkableBlock;
@@ -23,16 +23,23 @@ import org.terasology.pathfinding.model.Pathfinder;
 /**
  * @author synopia
  */
+@Tag("MteTest")
+@ExtendWith(MTEExtension.class)
+@Dependencies("Pathfinding")
+@UseWorldGenerator("Pathfinding:pathfinder")
 public class PathfinderTest {
     private Pathfinder pathfinder;
     private NavGraphSystem world;
     private TextWorldBuilder builder;
 
     @BeforeEach
-    public void before() throws Exception {
-        // Hack to get natives to load for bullet
-        PathManager.getInstance().useDefaultHomePath();
-        Bullet.init();
+    public void setup(Context context) {
+        builder = new TextWorldBuilder(context);
+
+        world = new NavGraphSystem();
+        InjectionHelper.inject(world);
+
+        pathfinder = new Pathfinder(world, null);
     }
 
     @Test
@@ -96,22 +103,4 @@ public class PathfinderTest {
         path = pathfinder.findPath(targetBlock, startBlock);
         Assertions.assertTrue(0 < path.size());
     }
-
-    @BeforeEach
-    public void setup() {
-        WorldProvidingHeadlessEnvironment env = new WorldProvidingHeadlessEnvironment(new Name("Pathfinding"));
-        env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
-            @Override
-            public void initialize() {
-                register(new PathfinderTestGenerator(true));
-            }
-        });
-        builder = new TextWorldBuilder(env);
-
-        world = new NavGraphSystem();
-        InjectionHelper.inject(world);
-
-        pathfinder = new Pathfinder(world, null);
-    }
-
 }
