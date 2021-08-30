@@ -4,6 +4,7 @@ package org.terasology.pathfinding;
 
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -44,6 +45,11 @@ public class HAStarTest {
         builder = new TextWorldBuilder(context);
         chunk = new NavGraphChunk(worldProvider, chunkLocation);
         mteHelp.forceAndWaitForGeneration(chunkLocation);
+    }
+    
+    @AfterEach
+    public void reset(){
+        builder.reset();
     }
 
     @Test

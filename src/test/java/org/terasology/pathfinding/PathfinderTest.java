@@ -3,6 +3,7 @@
 package org.terasology.pathfinding;
 
 import org.joml.Vector3i;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -40,6 +41,11 @@ public class PathfinderTest {
         InjectionHelper.inject(world);
 
         pathfinder = new Pathfinder(world, null);
+    }
+
+    @AfterEach
+    public void reset(){
+        builder.reset();
     }
 
     @Test
