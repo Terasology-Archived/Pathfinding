@@ -1,40 +1,38 @@
-/*
- * Copyright 2014 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2021 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.navgraph;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.joml.Vector3i;
+import org.joml.Vector3ic;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.terasology.TextWorldBuilder;
-import org.terasology.WorldProvidingHeadlessEnvironment;
-import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
-import org.terasology.engine.SimpleUri;
-import org.terasology.math.geom.Vector3i;
-import org.terasology.naming.Name;
-import org.terasology.pathfinding.PathfinderTestGenerator;
-import org.terasology.registry.CoreRegistry;
-import org.terasology.world.WorldProvider;
+import org.terasology.engine.context.Context;
+import org.terasology.engine.world.WorldProvider;
+import org.terasology.moduletestingenvironment.MTEExtension;
+import org.terasology.moduletestingenvironment.ModuleTestingHelper;
+import org.terasology.moduletestingenvironment.extension.Dependencies;
 
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * @author synopia
  */
+@Tag("MteTest")
+@ExtendWith(MTEExtension.class)
+@Dependencies("Pathfinding")
 public class ConnectNavGraphChunkTest {
+    TextWorldBuilder builder;
+    WorldProvider world;
+    Vector3ic chunkLocation = new Vector3i(0, 0, 0);
+
     private static final String[] CONTOUR_EXPECTED = new String[]{
             "               C                ",
             "                                ",
@@ -69,9 +67,6 @@ public class ConnectNavGraphChunkTest {
             "                                ",
             "                C               ",
     };
-
-    private WorldProvider world;
-    private TextWorldBuilder builder;
 
     @Test
     public void test1() {
@@ -135,17 +130,11 @@ public class ConnectNavGraphChunkTest {
         assertCenter(center, left, up, right, down, CONTOUR_EXPECTED);
     }
 
-    @Before
-    public void setup() {
-        WorldProvidingHeadlessEnvironment env = new WorldProvidingHeadlessEnvironment(new Name("Pathfinding"));
-        env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
-            @Override
-            public void initialize() {
-                register(new PathfinderTestGenerator());
-            }
-        });
-        builder = new TextWorldBuilder(env);
-        world = CoreRegistry.get(WorldProvider.class);
+    @BeforeEach
+    public void setup(Context context, WorldProvider worldProvider, ModuleTestingHelper mteHelp) {
+        builder = new TextWorldBuilder(context);
+        world = worldProvider;
+        mteHelp.forceAndWaitForGeneration(chunkLocation);
     }
 
     private void assertCenter(final NavGraphChunk center, NavGraphChunk left, NavGraphChunk up, NavGraphChunk right, NavGraphChunk down, String[] contours) {
@@ -163,7 +152,7 @@ public class ConnectNavGraphChunkTest {
                     return isEntrance(center.getCell(x, z).getBlock(y)) ? 'C' : ' ';
                 }
             }, 0, 51, 0, 32, 1, 32);
-            Assert.assertArrayEquals(contours, actual);
+            assertArrayEquals(contours, actual);
         }
     }
 
@@ -171,9 +160,9 @@ public class ConnectNavGraphChunkTest {
     private <T> void assertSet(Set<T> set, T... items) {
         Set<T> rest = new HashSet<T>(set);
         for (T item : items) {
-            Assert.assertTrue(rest.remove(item));
+            assertTrue(rest.remove(item));
         }
-        Assert.assertEquals(0, rest.size());
+        assertEquals(0, rest.size());
 
     }
 

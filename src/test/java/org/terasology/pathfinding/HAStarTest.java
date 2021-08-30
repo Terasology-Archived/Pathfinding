@@ -1,34 +1,25 @@
-/*
- * Copyright 2014 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2021 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.pathfinding;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.joml.Vector3i;
+import org.joml.Vector3ic;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.terasology.TextWorldBuilder;
-import org.terasology.WorldProvidingHeadlessEnvironment;
-import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
-import org.terasology.engine.SimpleUri;
-import org.terasology.math.geom.Vector3i;
-import org.terasology.naming.Name;
+import org.terasology.engine.context.Context;
+import org.terasology.engine.world.WorldProvider;
+import org.terasology.moduletestingenvironment.MTEExtension;
+import org.terasology.moduletestingenvironment.ModuleTestingHelper;
+import org.terasology.moduletestingenvironment.extension.Dependencies;
+import org.terasology.moduletestingenvironment.extension.UseWorldGenerator;
 import org.terasology.navgraph.NavGraphChunk;
 import org.terasology.navgraph.WalkableBlock;
 import org.terasology.pathfinding.model.HAStar;
 import org.terasology.pathfinding.model.LineOfSight;
-import org.terasology.registry.CoreRegistry;
-import org.terasology.world.WorldProvider;
 
 import java.util.HashMap;
 import java.util.List;
@@ -37,9 +28,23 @@ import java.util.Map;
 /**
  * @author synopia
  */
+@Tag("MteTest")
+@ExtendWith(MTEExtension.class)
+@Dependencies("Pathfinding")
+@UseWorldGenerator("ModuleTestingEnvironment:empty")
 public class HAStarTest {
     private WalkableBlock start;
     private WalkableBlock end;
+    TextWorldBuilder builder;
+    NavGraphChunk chunk;
+    Vector3ic chunkLocation = new Vector3i(0, 0, 0);
+
+    @BeforeEach
+    public void newWorldBuilder(Context context, WorldProvider worldProvider, ModuleTestingHelper mteHelp) {
+        builder = new TextWorldBuilder(context);
+        chunk = new NavGraphChunk(worldProvider, chunkLocation);
+        mteHelp.forceAndWaitForGeneration(chunkLocation);
+    }
 
     @Test
     public void stairs2() {
@@ -116,17 +121,9 @@ public class HAStarTest {
 
     }
 
-    private void executeExample(String[] ground, String[] pathData) {
-        WorldProvidingHeadlessEnvironment env = new WorldProvidingHeadlessEnvironment(new Name("Pathfinding"));
-        env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
-            @Override
-            public void initialize() {
 
-            }
-        });
-        TextWorldBuilder builder = new TextWorldBuilder(env);
+    private void executeExample(String[] ground, String[] pathData) {
         builder.setGround(ground);
-        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
         chunk.update();
 
         final Map<Integer, Vector3i> expected = new HashMap<Integer, Vector3i>();
@@ -198,10 +195,10 @@ public class HAStarTest {
         haStar.run(end, start);
         List<WalkableBlock> path = haStar.getPath().getNodes();
         int pos = 1;
-        Assert.assertEquals(expected.size(), path.size());
+        Assertions.assertEquals(expected.size(), path.size());
         for (WalkableBlock block : path) {
             Vector3i p = expected.get(pos);
-            Assert.assertEquals(p, block.getBlockPosition());
+            Assertions.assertEquals(p, block.getBlockPosition());
             pos++;
         }
     }

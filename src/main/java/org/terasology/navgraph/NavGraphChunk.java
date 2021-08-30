@@ -1,39 +1,26 @@
-/*
- * Copyright 2014 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2021 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.navgraph;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
-import org.terasology.math.ChunkMath;
-import org.terasology.math.geom.Vector3i;
+import org.joml.Vector3i;
+import org.joml.Vector3ic;
 import org.terasology.pathfinding.model.PathCache;
-import org.terasology.world.WorldProvider;
-import org.terasology.world.chunks.ChunkConstants;
+import org.terasology.engine.world.WorldProvider;
+import org.terasology.engine.world.chunks.Chunks;
 
 import java.util.List;
 import java.util.Set;
+
 
 /**
  * @author synopia
  */
 public class NavGraphChunk {
-    public static final int SIZE_X = ChunkConstants.SIZE_X;
-    public static final int SIZE_Y = ChunkConstants.SIZE_Y;
-    public static final int SIZE_Z = ChunkConstants.SIZE_Z;
+    public static final int SIZE_X = Chunks.SIZE_X;
+    public static final int SIZE_Y = Chunks.SIZE_Y;
+    public static final int SIZE_Z = Chunks.SIZE_Z;
     public static final int DIR_LEFT = 0;
     public static final int DIR_LU = 1;
     public static final int DIR_UP = 2;
@@ -56,7 +43,7 @@ public class NavGraphChunk {
     /* package protected */ NavGraphCell[] cells = new NavGraphCell[SIZE_X * SIZE_Z];
     private WorldProvider world;
 
-    public NavGraphChunk(WorldProvider world, Vector3i chunkPos) {
+    public NavGraphChunk(WorldProvider world, Vector3ic chunkPos) {
         this.world = world;
         this.worldPos = new Vector3i(chunkPos);
         worldPos.mul(SIZE_X, SIZE_Y, SIZE_Z);
@@ -72,7 +59,7 @@ public class NavGraphChunk {
 
     public void connectNeighborMaps(NavGraphChunk left, NavGraphChunk up, NavGraphChunk right, NavGraphChunk down) {
         for (WalkableBlock block : borderBlocks) {
-            Vector3i position = ChunkMath.calcRelativeBlockPos(block.getBlockPosition());
+            Vector3i position = Chunks.toRelative(block.getBlockPosition(), new Vector3i());
             int x = position.x;
             int z = position.z;
             if (left != null && x == 0) {
@@ -155,7 +142,7 @@ public class NavGraphChunk {
 
     public void disconnectNeighborMaps(NavGraphChunk left, NavGraphChunk up, NavGraphChunk right, NavGraphChunk down) {
         for (WalkableBlock block : borderBlocks) {
-            Vector3i position = ChunkMath.calcRelativeBlockPos(block.getBlockPosition());
+            Vector3i position = Chunks.toRelative(block.getBlockPosition(), new Vector3i());
             int x = position.x;
             int z = position.z;
             if (left != null && x == 0) {

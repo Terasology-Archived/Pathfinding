@@ -1,45 +1,31 @@
-/*
- * Copyright 2018 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.navgraph;
 
+import org.joml.Vector3f;
+import org.joml.Vector3i;
+import org.joml.Vector3ic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.biomesAPI.Biome;
-import org.terasology.entitySystem.entity.EntityManager;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
-import org.terasology.logic.location.LocationComponent;
-import org.terasology.math.ChunkMath;
-import org.terasology.math.geom.Vector3f;
-import org.terasology.math.geom.Vector3i;
-import org.terasology.registry.In;
-import org.terasology.registry.Share;
-import org.terasology.utilities.concurrency.Task;
-import org.terasology.utilities.concurrency.TaskMaster;
-import org.terasology.world.WorldChangeListener;
-import org.terasology.world.WorldComponent;
-import org.terasology.world.WorldProvider;
-import org.terasology.world.block.Block;
-import org.terasology.world.chunks.event.OnChunkLoaded;
+import org.terasology.engine.entitySystem.entity.EntityManager;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.event.ReceiveEvent;
+import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
+import org.terasology.engine.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.entitySystem.systems.UpdateSubscriberSystem;
+import org.terasology.engine.logic.location.LocationComponent;
+import org.terasology.engine.registry.In;
+import org.terasology.engine.registry.Share;
+import org.terasology.engine.utilities.concurrency.Task;
+import org.terasology.engine.utilities.concurrency.TaskMaster;
+import org.terasology.engine.world.WorldChangeListener;
+import org.terasology.engine.world.WorldComponent;
+import org.terasology.engine.world.WorldProvider;
+import org.terasology.engine.world.block.Block;
+import org.terasology.engine.world.chunks.Chunks;
+import org.terasology.engine.world.chunks.event.OnChunkLoaded;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -91,35 +77,29 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
         }
     }
 
-    @Override
-    public void onBlockChanged(Vector3i pos, Block newBlock, Block originalBlock) {
-        Vector3i chunkPos = ChunkMath.calcChunkPos(pos);
-        taskMaster.offer(new UpdateChunkTask(chunkPos));
-    }
 
     @ReceiveEvent(components = WorldComponent.class)
     public void chunkReady(OnChunkLoaded event, EntityRef worldEntity) {
         taskMaster.offer(new UpdateChunkTask(event.getChunkPos()));
     }
 
-    public WalkableBlock getBlock(Vector3i pos) {
-        Vector3i chunkPos = ChunkMath.calcChunkPos(pos);
+    public WalkableBlock getBlock(Vector3ic pos) {
+        Vector3i chunkPos = Chunks.toChunkPos(pos, new Vector3i());
         NavGraphChunk navGraphChunk = heightMaps.get(chunkPos);
         if (navGraphChunk != null) {
-            return navGraphChunk.getBlock(pos.x, pos.y, pos.z);
+            return navGraphChunk.getBlock(pos.x(), pos.y(), pos.z());
         } else {
             return null;
         }
     }
 
     public WalkableBlock getBlock(EntityRef minion) {
-        Vector3f pos = minion.getComponent(LocationComponent.class).getWorldPosition();
+        Vector3f pos = minion.getComponent(LocationComponent.class).getWorldPosition(new Vector3f());
         return getBlock(pos);
     }
 
     /**
-     * Custom comparator that sorts the nearest blocks based on how close they are to the
-     * location of the entity
+     * Custom comparator that sorts the nearest blocks based on how close they are to the location of the entity
      */
     static class SurroundingBlockComparator implements Comparator<Vector3f> {
         //Stores the point for which we are finding the closest blocks
@@ -170,13 +150,10 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
 
             for (Vector3f blockPosition : blockPosList) {
 
-                //iterating through the block positions based on proximity to pos
-
                 block = getBlock(new Vector3i(round(blockPosition.x), blockPos.y, round(blockPosition.z)));
                 if (block != null) {
                     return block;
                 }
-
             }
 
             blockPos.y--;
@@ -219,9 +196,16 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
     }
 
     @Override
-    public void onExtraDataChanged(int i, Vector3i pos, int newData, int oldData) {
+    public void onExtraDataChanged(int i, Vector3ic pos, int newData, int oldData) {
 
     }
+
+    @Override
+    public void onBlockChanged(Vector3ic pos, Block newBlock, Block originalBlock) {
+        Vector3i chunkPos = Chunks.toChunkPos(pos, new Vector3i());
+        taskMaster.offer(new UpdateChunkTask(chunkPos));
+    }
+
 
     public interface NavGraphTask extends Task, Comparable<NavGraphTask> {
         int getPriority();
@@ -262,8 +246,8 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
     private final class UpdateChunkTask implements NavGraphTask {
         public Vector3i chunkPos;
 
-        private UpdateChunkTask(Vector3i chunkPos) {
-            this.chunkPos = chunkPos;
+        private UpdateChunkTask(Vector3ic chunkPos) {
+            this.chunkPos = new Vector3i(chunkPos);
         }
 
         @Override

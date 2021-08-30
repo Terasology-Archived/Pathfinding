@@ -261,7 +261,7 @@ Each tick, the `update` methods is called for all active tasks.
 ## Example Node and Task
 
 <pre>
-import org.terasology.rendering.nui.properties.Range;
+import org.terasology.engine.rendering.nui.properties.Range;
 
 public class TimerNode extends DecoratorNode {
     @Range(min = 0, max = 20)

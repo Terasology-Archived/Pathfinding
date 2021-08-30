@@ -1,26 +1,18 @@
-/*
- * Copyright 2014 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2021 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.pathfinding;
 
-import org.terasology.registry.CoreRegistry;
-import org.terasology.world.block.Block;
-import org.terasology.world.block.BlockManager;
-import org.terasology.world.chunks.ChunkConstants;
-import org.terasology.world.chunks.CoreChunk;
-import org.terasology.world.generator.ChunkGenerationPass;
+import org.terasology.gestalt.assets.ResourceUrn;
+import org.terasology.gestalt.assets.management.AssetManager;
+import org.terasology.engine.registry.CoreRegistry;
+import org.terasology.engine.world.block.Block;
+import org.terasology.engine.world.block.BlockManager;
+import org.terasology.engine.world.block.family.SymmetricFamily;
+import org.terasology.engine.world.block.loader.BlockFamilyDefinition;
+import org.terasology.engine.world.block.loader.BlockFamilyDefinitionData;
+import org.terasology.engine.world.chunks.Chunk;
+import org.terasology.engine.world.chunks.Chunks;
+import org.terasology.engine.world.generator.ChunkGenerationPass;
 
 import java.util.Map;
 
@@ -49,10 +41,15 @@ public class PathfinderTestGenerator implements ChunkGenerationPass {
     }
 
     @Override
-    public void generateChunk(CoreChunk chunk) {
+    public void generateChunk(Chunk chunk) {
         BlockManager blockManager = CoreRegistry.get(BlockManager.class);
+        AssetManager assetManager = CoreRegistry.get(AssetManager.class);
         air = blockManager.getBlock(BlockManager.AIR_ID);
-        ground = blockManager.getBlock("CoreBlocks:Dirt");
+        BlockFamilyDefinitionData data = new BlockFamilyDefinitionData();
+        data.setBlockFamily(SymmetricFamily.class);
+        assetManager.loadAsset(new ResourceUrn("temp:ground"), data, BlockFamilyDefinition.class);
+        ground = blockManager.getBlock("temp:ground");
+        ground.setPenetrable(false);
 
         generateLevel(chunk, 50);
 
@@ -62,9 +59,9 @@ public class PathfinderTestGenerator implements ChunkGenerationPass {
         }
     }
 
-    private void generateLevel(CoreChunk chunk, int groundHeight) {
-        for (int x = 0; x < ChunkConstants.SIZE_X; x++) {
-            for (int z = 0; z < ChunkConstants.SIZE_Z; z++) {
+    private void generateLevel(Chunk chunk, int groundHeight) {
+        for (int x = 0; x < Chunks.SIZE_X; x++) {
+            for (int z = 0; z < Chunks.SIZE_Z; z++) {
                 chunk.setBlock(x, groundHeight, z, ground);
 
                 for (int y = groundHeight + 1; y < groundHeight + 4; y++) {
@@ -72,36 +69,36 @@ public class PathfinderTestGenerator implements ChunkGenerationPass {
                 }
             }
         }
-        for (int x = 0; x < ChunkConstants.SIZE_X; x++) {
+        for (int x = 0; x < Chunks.SIZE_X; x++) {
             chunk.setBlock(x, groundHeight + 1, 0, ground);
-            chunk.setBlock(x, groundHeight + 1, ChunkConstants.SIZE_Z - 1, ground);
+            chunk.setBlock(x, groundHeight + 1, Chunks.SIZE_Z - 1, ground);
         }
-        for (int z = 0; z < ChunkConstants.SIZE_Z; z++) {
+        for (int z = 0; z < Chunks.SIZE_Z; z++) {
             chunk.setBlock(0, groundHeight + 1, z, ground);
-            chunk.setBlock(ChunkConstants.SIZE_X - 1, groundHeight + 1, z, ground);
+            chunk.setBlock(Chunks.SIZE_X - 1, groundHeight + 1, z, ground);
         }
     }
 
-    private void generateStairs(CoreChunk chunk, int groundHeight) {
+    private void generateStairs(Chunk chunk, int groundHeight) {
         for (int height = groundHeight + 1; height < groundHeight + 4; height++) {
-            for (int x = 0; x < ChunkConstants.SIZE_X; x++) {
+            for (int x = 0; x < Chunks.SIZE_X; x++) {
                 chunk.setBlock(x, height, 0, ground);
-                chunk.setBlock(x, height, ChunkConstants.SIZE_Z - 1, ground);
+                chunk.setBlock(x, height, Chunks.SIZE_Z - 1, ground);
             }
-            for (int z = 0; z < ChunkConstants.SIZE_Z; z++) {
+            for (int z = 0; z < Chunks.SIZE_Z; z++) {
                 chunk.setBlock(0, height, z, ground);
-                chunk.setBlock(ChunkConstants.SIZE_X - 1, height, z, ground);
+                chunk.setBlock(Chunks.SIZE_X - 1, height, z, ground);
             }
         }
         int height = groundHeight + 1;
         chunk.setBlock(7, height, 0, air);
         chunk.setBlock(8, height, 0, air);
-        chunk.setBlock(7, height, ChunkConstants.SIZE_Z - 1, air);
-        chunk.setBlock(8, height, ChunkConstants.SIZE_Z - 1, air);
+        chunk.setBlock(7, height, Chunks.SIZE_Z - 1, air);
+        chunk.setBlock(8, height, Chunks.SIZE_Z - 1, air);
         chunk.setBlock(0, height, 7, air);
         chunk.setBlock(0, height, 8, air);
-        chunk.setBlock(ChunkConstants.SIZE_X - 1, height, 7, air);
-        chunk.setBlock(ChunkConstants.SIZE_X - 1, height, 8, air);
+        chunk.setBlock(Chunks.SIZE_X - 1, height, 7, air);
+        chunk.setBlock(Chunks.SIZE_X - 1, height, 8, air);
 
         buildWalkable(chunk, 6, height, 7);
         buildWalkable(chunk, 6, height, 8);
@@ -113,7 +110,7 @@ public class PathfinderTestGenerator implements ChunkGenerationPass {
         buildWalkable(chunk, 9, height + 3, 8);
     }
 
-    private void buildWalkable(CoreChunk chunk, int x, int y, int z) {
+    private void buildWalkable(Chunk chunk, int x, int y, int z) {
         chunk.setBlock(x, y, z, ground);
         chunk.setBlock(x, y + 1, z, air);
         chunk.setBlock(x, y + 2, z, air);

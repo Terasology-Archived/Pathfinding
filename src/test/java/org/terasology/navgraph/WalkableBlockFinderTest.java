@@ -1,38 +1,37 @@
-/*
- * Copyright 2014 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2021 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.navgraph;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.joml.Vector3i;
+import org.joml.Vector3ic;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.terasology.TextWorldBuilder;
-import org.terasology.WorldProvidingHeadlessEnvironment;
-import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
-import org.terasology.engine.SimpleUri;
-import org.terasology.math.geom.Vector3i;
-import org.terasology.naming.Name;
-import org.terasology.registry.CoreRegistry;
-import org.terasology.world.WorldProvider;
+import org.terasology.engine.context.Context;
+import org.terasology.engine.world.WorldProvider;
+import org.terasology.moduletestingenvironment.MTEExtension;
+import org.terasology.moduletestingenvironment.ModuleTestingHelper;
+import org.terasology.moduletestingenvironment.extension.Dependencies;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author synopia
  */
+@Tag("MteTest")
+@ExtendWith(MTEExtension.class)
+@Dependencies("Pathfinding")
 public class WalkableBlockFinderTest {
 
-    private TextWorldBuilder builder;
+    TextWorldBuilder builder;
+    WorldProvider worldProvider;
+
+    Vector3ic chunkLocation = new Vector3i(0, 0, 0);
 
     @Test
     public void testNeighbors4() {
@@ -41,15 +40,15 @@ public class WalkableBlockFinderTest {
                 "XXX|X  |X  |",
                 "XXX|   |   |"
         );
-        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+        final NavGraphChunk chunk = new NavGraphChunk(worldProvider, chunkLocation);
         chunk.update();
 
         WalkableBlock sut = chunk.getBlock(1, 0, 1);
         WalkableBlock lu = chunk.getBlock(0, 0, 0);
         WalkableBlock ld = chunk.getBlock(0, 0, 2);
 
-        Assert.assertFalse(sut.hasNeighbor(lu));
-        Assert.assertFalse(sut.hasNeighbor(ld));
+        assertFalse(sut.hasNeighbor(lu));
+        assertFalse(sut.hasNeighbor(ld));
     }
 
     @Test
@@ -60,14 +59,14 @@ public class WalkableBlockFinderTest {
                 "XX    |  X   |   X  |    X |  X  X|",
                 "XXXXXX|      |      |      |XXXXXX|"
         );
-        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+        final NavGraphChunk chunk = new NavGraphChunk(worldProvider, chunkLocation);
         chunk.update();
 
         WalkableBlock left = chunk.getBlock(2, 1, 1);
         WalkableBlock right = chunk.getBlock(3, 2, 1);
 
-        Assert.assertFalse(left.hasNeighbor(right));
-        Assert.assertFalse(right.hasNeighbor(left));
+        assertFalse(left.hasNeighbor(right));
+        assertFalse(right.hasNeighbor(left));
     }
 
     @Test
@@ -77,7 +76,7 @@ public class WalkableBlockFinderTest {
                 "X X",
                 " X "
         );
-        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+        final NavGraphChunk chunk = new NavGraphChunk(worldProvider, chunkLocation);
         chunk.update();
 
         WalkableBlock left = chunk.getBlock(0, 0, 1);
@@ -85,21 +84,21 @@ public class WalkableBlockFinderTest {
         WalkableBlock right = chunk.getBlock(2, 0, 1);
         WalkableBlock down = chunk.getBlock(1, 0, 2);
 
-        Assert.assertTrue(left.hasNeighbor(up));
-        Assert.assertTrue(left.hasNeighbor(down));
-        Assert.assertFalse(left.hasNeighbor(right));
+        assertTrue(left.hasNeighbor(up));
+        assertTrue(left.hasNeighbor(down));
+        assertFalse(left.hasNeighbor(right));
 
-        Assert.assertTrue(up.hasNeighbor(left));
-        Assert.assertTrue(up.hasNeighbor(right));
-        Assert.assertFalse(up.hasNeighbor(down));
+        assertTrue(up.hasNeighbor(left));
+        assertTrue(up.hasNeighbor(right));
+        assertFalse(up.hasNeighbor(down));
 
-        Assert.assertTrue(right.hasNeighbor(up));
-        Assert.assertTrue(right.hasNeighbor(down));
-        Assert.assertFalse(right.hasNeighbor(left));
+        assertTrue(right.hasNeighbor(up));
+        assertTrue(right.hasNeighbor(down));
+        assertFalse(right.hasNeighbor(left));
 
-        Assert.assertTrue(down.hasNeighbor(left));
-        Assert.assertTrue(down.hasNeighbor(right));
-        Assert.assertFalse(down.hasNeighbor(up));
+        assertTrue(down.hasNeighbor(left));
+        assertTrue(down.hasNeighbor(right));
+        assertFalse(down.hasNeighbor(up));
     }
 
     @Test
@@ -180,8 +179,8 @@ public class WalkableBlockFinderTest {
 
     private void assertNeighbors3x3(String... data) {
         builder.setGround(data);
-        WalkableBlockFinder finder = new WalkableBlockFinder(CoreRegistry.get(WorldProvider.class));
-        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+        WalkableBlockFinder finder = new WalkableBlockFinder(worldProvider);
+        final NavGraphChunk chunk = new NavGraphChunk(worldProvider, chunkLocation);
         finder.findWalkableBlocks(chunk);
 
         WalkableBlock lu = chunk.getCell(0, 0).blocks.get(0);
@@ -206,16 +205,16 @@ public class WalkableBlockFinderTest {
     }
 
     private void assertNeighbors(WalkableBlock block, WalkableBlock left, WalkableBlock up, WalkableBlock right, WalkableBlock down) {
-        Assert.assertSame(left, block.neighbors[NavGraphChunk.DIR_LEFT]);
-        Assert.assertSame(up, block.neighbors[NavGraphChunk.DIR_UP]);
-        Assert.assertSame(right, block.neighbors[NavGraphChunk.DIR_RIGHT]);
-        Assert.assertSame(down, block.neighbors[NavGraphChunk.DIR_DOWN]);
+        assertSame(left, block.neighbors[NavGraphChunk.DIR_LEFT]);
+        assertSame(up, block.neighbors[NavGraphChunk.DIR_UP]);
+        assertSame(right, block.neighbors[NavGraphChunk.DIR_RIGHT]);
+        assertSame(down, block.neighbors[NavGraphChunk.DIR_DOWN]);
     }
 
     private void assertWalkableBlocks(String[] data, String[] walkable) {
         builder.setGround(data);
-        WalkableBlockFinder finder = new WalkableBlockFinder(CoreRegistry.get(WorldProvider.class));
-        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+        WalkableBlockFinder finder = new WalkableBlockFinder(worldProvider);
+        final NavGraphChunk chunk = new NavGraphChunk(worldProvider, chunkLocation);
         finder.findWalkableBlocks(chunk);
 
         String[] evaluate = builder.evaluate(new TextWorldBuilder.Runner() {
@@ -225,19 +224,14 @@ public class WalkableBlockFinderTest {
             }
         });
 
-        Assert.assertArrayEquals(walkable, evaluate);
+        assertArrayEquals(walkable, evaluate);
 
     }
 
-    @Before
-    public void setup() {
-        WorldProvidingHeadlessEnvironment env = new WorldProvidingHeadlessEnvironment(new Name("Pathfinding"));
-        env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
-            @Override
-            public void initialize() {
-
-            }
-        });
-        builder = new TextWorldBuilder(env);
+    @BeforeEach
+    public void setup(Context context, WorldProvider worldProvider, ModuleTestingHelper mteHelp) {
+        builder = new TextWorldBuilder(context);
+        this.worldProvider = worldProvider;
+        mteHelp.forceAndWaitForGeneration(chunkLocation);
     }
 }

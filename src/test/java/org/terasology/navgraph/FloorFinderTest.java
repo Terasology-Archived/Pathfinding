@@ -1,30 +1,20 @@
-/*
- * Copyright 2014 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2021 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.navgraph;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.joml.Vector3i;
+import org.joml.Vector3ic;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.terasology.TextWorldBuilder;
-import org.terasology.WorldProvidingHeadlessEnvironment;
-import org.terasology.core.world.generator.AbstractBaseWorldGenerator;
-import org.terasology.engine.SimpleUri;
-import org.terasology.math.geom.Vector3i;
-import org.terasology.naming.Name;
-import org.terasology.registry.CoreRegistry;
-import org.terasology.world.WorldProvider;
+import org.terasology.engine.context.Context;
+import org.terasology.engine.world.WorldProvider;
+import org.terasology.moduletestingenvironment.MTEExtension;
+import org.terasology.moduletestingenvironment.ModuleTestingHelper;
+import org.terasology.moduletestingenvironment.extension.Dependencies;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -32,101 +22,107 @@ import java.util.Set;
 /**
  * @author synopia
  */
-
+@Tag("MteTest")
+@ExtendWith(MTEExtension.class)
+@Dependencies("Pathfinding")
 public class FloorFinderTest {
+    TextWorldBuilder builder;
+    WorldProvider worldProvider;
+    Vector3ic chunkLocation = new Vector3i(0, 0, 0);
+
     @Test
     public void stairs3() {
         assertFloors(new String[]{
-                "XXXXXXXXX|         |         |         |         |XXXXXXXXX",
-                "XXXXXXXXX|   XX    |         |         |         |XXX  XXXX",
-                "XXXXXXXXX|         |   XX    |         |         |XXX  XXXX",
-                "XXXXXXXXX|         |         |   XX    |         |XXX  XXXX",
-                "XXXXXXXXX|         |         |         |   XX    |XXX  XXXX",
-                "XXXXXXXXX|         |         |         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |         |         |XXXXXXXXX",
+            "XXXXXXXXX|   XX    |         |         |         |XXX  XXXX",
+            "XXXXXXXXX|         |   XX    |         |         |XXX  XXXX",
+            "XXXXXXXXX|         |         |   XX    |         |XXX  XXXX",
+            "XXXXXXXXX|         |         |         |   XX    |XXX  XXXX",
+            "XXXXXXXXX|         |         |         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |         |         |XXXXXXXXX",
         }, new String[]{
-                "000000000|         |         |         |         |111111111",
-                "000  0000|   00    |         |         |         |111  1111",
-                "000  0000|         |   00    |         |         |111  1111",
-                "222222222|         |         |   00    |         |111  1111",
-                "222222222|         |         |         |   00    |000  0000",
-                "222222222|         |         |         |         |000000000",
-                "222222222|         |         |         |         |000000000",
-                "222222222|         |         |         |         |000000000",
+            "000000000|         |         |         |         |111111111",
+            "000  0000|   00    |         |         |         |111  1111",
+            "000  0000|         |   00    |         |         |111  1111",
+            "222222222|         |         |   00    |         |111  1111",
+            "222222222|         |         |         |   00    |000  0000",
+            "222222222|         |         |         |         |000000000",
+            "222222222|         |         |         |         |000000000",
+            "222222222|         |         |         |         |000000000",
         }, new String[]{
-                "IIIIIIIII|         |         |         |         |IIIIIIIII",
-                "III  IIII|   II    |         |         |         |III  IIII",
-                "CCC  CCCC|         |   II    |         |         |III  IIII",
-                "CCCIICCCC|         |         |   II    |         |CCC  CCCC",
-                "IIIIIIIII|         |         |         |   II    |CCC  CCCC",
-                "IIIIIIIII|         |         |         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |         |         |IIIIIIIII",
+            "III  IIII|   II    |         |         |         |III  IIII",
+            "CCC  CCCC|         |   II    |         |         |III  IIII",
+            "CCCIICCCC|         |         |   II    |         |CCC  CCCC",
+            "IIIIIIIII|         |         |         |   II    |CCC  CCCC",
+            "IIIIIIIII|         |         |         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |         |         |IIIIIIIII",
         }, new int[][]{{1, 2}, {0}, {0}});
     }
 
     @Test
     public void stairs2() {
         assertFloors(new String[]{
-                "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXX XXXXX|         |         |XXXXX XXX",
-                "XXX XXXXX|   X     |         |XXX XXXXX|     X   |         |XXXXX XXX",
-                "XXX XXXXX|         |   X     |XXX XXXXX|         |     X   |XXXXX XXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXX XXXXX|         |         |XXXXX XXX",
+            "XXX XXXXX|   X     |         |XXX XXXXX|     X   |         |XXXXX XXX",
+            "XXX XXXXX|         |   X     |XXX XXXXX|         |     X   |XXXXX XXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
         }, new String[]{
-                "000000000|         |         |111111111|         |         |222222222",
-                "000000000|         |         |111111111|         |         |222222222",
-                "000000000|         |         |111111111|         |         |222222222",
-                "000000000|         |         |111 11111|         |         |22222 222",
-                "000 00000|   0     |         |111 1 111|     1   |         |22222 222",
-                "000 00000|         |   1     |111 1 111|         |     2   |22222 222",
-                "000000000|         |         |111111111|         |         |222222222",
-                "000000000|         |         |111111111|         |         |222222222",
+            "000000000|         |         |111111111|         |         |222222222",
+            "000000000|         |         |111111111|         |         |222222222",
+            "000000000|         |         |111111111|         |         |222222222",
+            "000000000|         |         |111 11111|         |         |22222 222",
+            "000 00000|   0     |         |111 1 111|     1   |         |22222 222",
+            "000 00000|         |   1     |111 1 111|         |     2   |22222 222",
+            "000000000|         |         |111111111|         |         |222222222",
+            "000000000|         |         |111111111|         |         |222222222",
         }, new String[]{
-                "IIIIIIIII|         |         |IIIIIIIII|         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |IIIIIIIII|         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |IIIIIIIII|         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |III IIIII|         |         |IIIII III",
-                "III IIIII|   C     |         |III I III|     C   |         |IIIII III",
-                "III IIIII|         |   C     |III I III|         |     C   |IIIII III",
-                "IIIIIIIII|         |         |IIIIIIIII|         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |III IIIII|         |         |IIIII III",
+            "III IIIII|   C     |         |III I III|     C   |         |IIIII III",
+            "III IIIII|         |   C     |III I III|         |     C   |IIIII III",
+            "IIIIIIIII|         |         |IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII|         |         |IIIIIIIII",
         }, new int[][]{{1}, {0, 2}, {1}});
     }
 
     @Test
     public void stairsClosed2() {
         assertFloors(new String[]{
-                "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXX XXXXX|         |         |XXXXX XXX",
-                "XXX XXXXX|   X     |         |XXX XXXXX|     X   |         |XXXXX XXX",
-                "XXX XXXXX|         |   X     |XXXXXXXXX|         |     X   |XXXXX XXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXX XXXXX|         |         |XXXXX XXX",
+            "XXX XXXXX|   X     |         |XXX XXXXX|     X   |         |XXXXX XXX",
+            "XXX XXXXX|         |   X     |XXXXXXXXX|         |     X   |XXXXX XXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX|         |         |XXXXXXXXX",
         }, new String[]{
-                "000000000|         |         |111111111|         |         |222222222",
-                "000000000|         |         |111111111|         |         |222222222",
-                "000000000|         |         |111111111|         |         |222222222",
-                "000000000|         |         |111 11111|         |         |22222 222",
-                "000 00000|   0     |         |111 1 111|     1   |         |22222 222",
-                "000 00000|         |         |11111 111|         |     2   |22222 222",
-                "000000000|         |         |111111111|         |         |222222222",
-                "000000000|         |         |111111111|         |         |222222222",
+            "000000000|         |         |111111111|         |         |222222222",
+            "000000000|         |         |111111111|         |         |222222222",
+            "000000000|         |         |111111111|         |         |222222222",
+            "000000000|         |         |111 11111|         |         |22222 222",
+            "000 00000|   0     |         |111 1 111|     1   |         |22222 222",
+            "000 00000|         |         |11111 111|         |     2   |22222 222",
+            "000000000|         |         |111111111|         |         |222222222",
+            "000000000|         |         |111111111|         |         |222222222",
         }, new String[]{
-                "IIIIIIIII|         |         |IIIIIIIII|         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |IIIIIIIII|         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |IIIIIIIII|         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |III IIIII|         |         |IIIII III",
-                "III IIIII|   I     |         |III I III|     C   |         |IIIII III",
-                "III IIIII|         |         |IIIII III|         |     C   |IIIII III",
-                "IIIIIIIII|         |         |IIIIIIIII|         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |III IIIII|         |         |IIIII III",
+            "III IIIII|   I     |         |III I III|     C   |         |IIIII III",
+            "III IIIII|         |         |IIIII III|         |     C   |IIIII III",
+            "IIIIIIIII|         |         |IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII|         |         |IIIIIIIII",
         }, new int[][]{{}, {2}, {1}});
     }
 
@@ -134,131 +130,131 @@ public class FloorFinderTest {
     @Test
     public void testUnconnected() {
         assertFloors(new String[]{
-                "XXX|   |   |XXX",
-                "XXX|   |   |XXX",
-                "XXX|   |   |XXX"
+            "XXX|   |   |XXX",
+            "XXX|   |   |XXX",
+            "XXX|   |   |XXX"
         }, new String[]{
-                "000|   |   |111",
-                "000|   |   |111",
-                "000|   |   |111"
+            "000|   |   |111",
+            "000|   |   |111",
+            "000|   |   |111"
         }, new String[]{
-                "III|   |   |III",
-                "III|   |   |III",
-                "III|   |   |III",
+            "III|   |   |III",
+            "III|   |   |III",
+            "III|   |   |III",
         }, new int[][]{{}, {}});
     }
 
     @Test
     public void testStairs() {
         assertFloors(new String[]{
-                "XXXX|    |    |XXXX",
-                "X XX| X  |  X |   X",
-                "XXXX|    |    |XXXX"
+            "XXXX|    |    |XXXX",
+            "X XX| X  |  X |   X",
+            "XXXX|    |    |XXXX"
         }, new String[]{
-                "0000|    |    |1111",
-                "0  2| 0  |  0 |   0",
-                "0000|    |    |3333"
+            "0000|    |    |1111",
+            "0  2| 0  |  0 |   0",
+            "0000|    |    |3333"
         }, new String[]{
-                "IIIC|    |    |IICC",
-                "I  C| I  |  C |   C",
-                "IIIC|    |    |IICC"
+            "IIIC|    |    |IICC",
+            "I  C| I  |  C |   C",
+            "IIIC|    |    |IICC"
         }, new int[][]{{1, 2, 3}, {0}, {0}, {0}});
     }
 
     @Test
     public void bigTest() {
         assertFloors(new String[]{
-                "XXXXXXXXX|         |         ",
-                "XXXXXXXXX|         |         ",
-                "XXXXXXXXX|         |         ",
-                "XXXXXXXXX|   XXX   |   XXX   ",
-                "XXXXXXXXX|   XXX   |   XXX   ",
-                "XXXXXXXXX|   XXX   |   XXX   ",
-                "XXXXXXXXX|         |         ",
-                "XXXXXXXXX|         |         ",
-                "XXXXXXXXX|         |         ",
+            "XXXXXXXXX|         |         ",
+            "XXXXXXXXX|         |         ",
+            "XXXXXXXXX|         |         ",
+            "XXXXXXXXX|   XXX   |   XXX   ",
+            "XXXXXXXXX|   XXX   |   XXX   ",
+            "XXXXXXXXX|   XXX   |   XXX   ",
+            "XXXXXXXXX|         |         ",
+            "XXXXXXXXX|         |         ",
+            "XXXXXXXXX|         |         ",
         }, new String[]{
-                "000000000|         |         ",
-                "000000000|         |         ",
-                "000000000|         |         ",
-                "000   000|         |   111   ",
-                "000   000|         |   111   ",
-                "000   000|         |   111   ",
-                "000000000|         |         ",
-                "000000000|         |         ",
-                "000000000|         |         ",
+            "000000000|         |         ",
+            "000000000|         |         ",
+            "000000000|         |         ",
+            "000   000|         |   111   ",
+            "000   000|         |   111   ",
+            "000   000|         |   111   ",
+            "000000000|         |         ",
+            "000000000|         |         ",
+            "000000000|         |         ",
         }, new String[]{
-                "IIIIIIIII|         |         ",
-                "IIIIIIIII|         |         ",
-                "IIIIIIIII|         |         ",
-                "III   III|         |   III   ",
-                "III   III|         |   III   ",
-                "III   III|         |   III   ",
-                "IIIIIIIII|         |         ",
-                "IIIIIIIII|         |         ",
-                "IIIIIIIII|         |         ",
+            "IIIIIIIII|         |         ",
+            "IIIIIIIII|         |         ",
+            "IIIIIIIII|         |         ",
+            "III   III|         |   III   ",
+            "III   III|         |   III   ",
+            "III   III|         |   III   ",
+            "IIIIIIIII|         |         ",
+            "IIIIIIIII|         |         ",
+            "IIIIIIIII|         |         ",
         });
         assertFloors(new String[]{
-                "XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX",
         }, new String[]{
-                "000000000|         |         |111111111",
-                "000000000|         |         |111111111",
-                "000000000|         |         |111111111",
-                "000000000|         |         |111111111",
-                "000000000|         |         |111111111",
-                "000000000|         |         |111111111",
-                "000000000|         |         |111111111",
-                "000000000|         |         |111111111",
-                "000000000|         |         |111111111",
+            "000000000|         |         |111111111",
+            "000000000|         |         |111111111",
+            "000000000|         |         |111111111",
+            "000000000|         |         |111111111",
+            "000000000|         |         |111111111",
+            "000000000|         |         |111111111",
+            "000000000|         |         |111111111",
+            "000000000|         |         |111111111",
+            "000000000|         |         |111111111",
         }, new String[]{
-                "IIIIIIIII|         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII",
         });
         assertFloors(new String[]{
-                "XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXX   XXX",
-                "XXX   XXX|   XXX   |         |XXX   XXX",
-                "XXX   XXX|         |   XXX   |XXX   XXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX",
-                "XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXX   XXX",
+            "XXX   XXX|   XXX   |         |XXX   XXX",
+            "XXX   XXX|         |   XXX   |XXX   XXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX",
+            "XXXXXXXXX|         |         |XXXXXXXXX",
         }, new String[]{
-                "000000000|         |         |111111111",
-                "000000000|         |         |111111111",
-                "000000000|         |         |111111111",
-                "000000000|         |         |111   111",
-                "000   000|   000   |         |111   111",
-                "000   000|         |   111   |111   111",
-                "000000000|         |         |111111111",
-                "000000000|         |         |111111111",
-                "000000000|         |         |111111111",
+            "000000000|         |         |111111111",
+            "000000000|         |         |111111111",
+            "000000000|         |         |111111111",
+            "000000000|         |         |111   111",
+            "000   000|   000   |         |111   111",
+            "000   000|         |   111   |111   111",
+            "000000000|         |         |111111111",
+            "000000000|         |         |111111111",
+            "000000000|         |         |111111111",
         }, new String[]{
-                "IIIIIIIII|         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |III   III",
-                "III   III|   CCC   |         |III   III",
-                "III   III|         |   CCC   |III   III",
-                "IIIIIIIII|         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |IIIIIIIII",
-                "IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |III   III",
+            "III   III|   CCC   |         |III   III",
+            "III   III|         |   CCC   |III   III",
+            "IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII",
+            "IIIIIIIII|         |         |IIIIIIIII",
         });
     }
 
@@ -268,41 +264,48 @@ public class FloorFinderTest {
         assertFloors(new String[]{"X"}, new String[]{"0"});
         assertFloors(new String[]{"XX", "XX"}, new String[]{"00", "00"});
         assertFloors(new String[]{
-                "XXX",
-                "XX ",
-                "XXX"
+            "XXX",
+            "XX ",
+            "XXX"
         }, new String[]{
-                "000",
-                "00 ",
-                "000"
+            "000",
+            "00 ",
+            "000"
         });
         assertFloors(new String[]{
-                "XXX",
-                " XX",
-                "XXX"
+            "XXX",
+            " XX",
+            "XXX"
         }, new String[]{
-                "000",
-                " 00",
-                "000"
+            "000",
+            " 00",
+            "000"
         });
         assertFloors(new String[]{
-                "XXX",
-                "X X",
-                "XXX"
+            "XXX",
+            "X X",
+            "XXX"
         }, new String[]{
-                "000",
-                "0 0",
-                "000"
+            "000",
+            "0 0",
+            "000"
         });
         assertFloors(new String[]{
-                "X X X",
-                "XXXXX",
-                "X X X"
+            "X X X",
+            "XXXXX",
+            "X X X"
         }, new String[]{
-                "0 0 0",
-                "00000",
-                "0 0 0"
+            "0 0 0",
+            "00000",
+            "0 0 0"
         });
+    }
+
+    @BeforeEach
+    public void setup(Context context, WorldProvider worldProvider, ModuleTestingHelper mteHelp) {
+        builder = new TextWorldBuilder(context);
+        this.worldProvider = worldProvider;
+        mteHelp.forceAndWaitForGeneration(chunkLocation);
     }
 
     private void assertFloors(String[] data, String[] floors) {
@@ -314,18 +317,10 @@ public class FloorFinderTest {
     }
 
     private void assertFloors(String[] data, String[] floors, String[] contour, int[][] connections) {
-        WorldProvidingHeadlessEnvironment env = new WorldProvidingHeadlessEnvironment(new Name("Pathfinding"));
-        env.setupWorldProvider(new AbstractBaseWorldGenerator(new SimpleUri("")) {
-            @Override
-            public void initialize() {
-
-            }
-        });
-        TextWorldBuilder builder = new TextWorldBuilder(env);
         builder.setGround(data);
-        final NavGraphChunk chunk = new NavGraphChunk(CoreRegistry.get(WorldProvider.class), new Vector3i());
+        final NavGraphChunk chunk = new NavGraphChunk(worldProvider, chunkLocation);
 
-        new WalkableBlockFinder(CoreRegistry.get(WorldProvider.class)).findWalkableBlocks(chunk);
+        new WalkableBlockFinder(worldProvider).findWalkableBlocks(chunk);
         final FloorFinder finder = new FloorFinder();
         finder.findFloors(chunk);
         chunk.findContour();
@@ -339,7 +334,7 @@ public class FloorFinderTest {
                 return ' ';
             }
         });
-        Assert.assertArrayEquals(floors, actual);
+        Assertions.assertArrayEquals(floors, actual);
         if (contour != null) {
             actual = builder.evaluate(new TextWorldBuilder.Runner() {
                 @Override
@@ -354,7 +349,7 @@ public class FloorFinderTest {
                     return ' ';
                 }
             });
-            Assert.assertArrayEquals(contour, actual);
+            Assertions.assertArrayEquals(contour, actual);
         }
         if (connections != null) {
             for (Floor floor : chunk.floors) {
@@ -363,11 +358,10 @@ public class FloorFinderTest {
                     all.add(neighbor.id);
                 }
                 for (int id : connections[floor.id]) {
-                    Assert.assertTrue("floor " + id + " not found in neighbors of floor " + floor.id, all.remove(id));
+                    Assertions.assertTrue(all.remove(id), "floor " + id + " not found in neighbors of floor " + floor.id);
                 }
-                Assert.assertEquals("floor " + floor.id + " remains connections " + all.toString(), 0, all.size());
+                Assertions.assertEquals(0, all.size(), "floor " + floor.id + " remains connections " + all.toString());
             }
         }
     }
-
 }
