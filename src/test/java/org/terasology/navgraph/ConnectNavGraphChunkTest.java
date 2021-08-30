@@ -26,9 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author synopia
  */
-@Tag("MteTest")
-@ExtendWith(MTEExtension.class)
-@Dependencies("Pathfinding")
+//@Tag("MteTest")
+//@ExtendWith(MTEExtension.class)
+//@Dependencies("Pathfinding")
 public class ConnectNavGraphChunkTest {
     TextWorldBuilder builder;
     WorldProvider world;
