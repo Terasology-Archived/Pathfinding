@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.navgraph;
 
-import org.joml.RoundingMode;
 import org.joml.Vector3f;
-import org.joml.Vector3fc;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terasology.engine.entitySystem.entity.EntityManager;
 import org.terasology.engine.entitySystem.entity.EntityRef;
 import org.terasology.engine.entitySystem.event.ReceiveEvent;
@@ -25,13 +25,22 @@ import org.terasology.engine.world.block.Block;
 import org.terasology.engine.world.chunks.Chunks;
 import org.terasology.engine.world.chunks.event.OnChunkLoaded;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.joml.Math.ceil;
+import static org.joml.Math.floor;
+import static org.joml.Math.round;
 
 @RegisterSystem
 @Share(value = NavGraphSystem.class)
 public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscriberSystem, WorldChangeListener {
     private static final float EVENT_COOLDOWN = 0.4f;
+
+    Logger logger = LoggerFactory.getLogger(NavGraphSystem.class);
 
     @In
     private WorldProvider world;
@@ -69,7 +78,6 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
     }
 
 
-
     @ReceiveEvent(components = WorldComponent.class)
     public void chunkReady(OnChunkLoaded event, EntityRef worldEntity) {
         taskMaster.offer(new UpdateChunkTask(event.getChunkPos()));
@@ -90,16 +98,69 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
         return getBlock(pos);
     }
 
-    public WalkableBlock getBlock(Vector3fc pos) {
-        Vector3i blockPos = new Vector3i(new Vector3f(pos.x() + 0.25f, pos.y(), pos.z() + 0.25f), RoundingMode.FLOOR);
-        WalkableBlock block = getBlock(blockPos);
-        if (block == null) {
-            while (blockPos.y >= (int) pos.y() - 4 && block == null) {
-                blockPos.y--;
-                block = getBlock(blockPos);
-            }
+    /**
+     * Custom comparator that sorts the nearest blocks based on how close they are to the location of the entity
+     */
+    static class SurroundingBlockComparator implements Comparator<Vector3f> {
+        //Stores the point for which we are finding the closest blocks
+        Vector3f pos;
+
+        public SurroundingBlockComparator(Vector3f pos) {
+            this.pos = pos;
+
         }
-        return block;
+
+        @Override
+        public int compare(Vector3f o1, Vector3f o2) {
+            //Comparing distances to find out which should come before
+            if (o1.distanceSquared(pos) < o2.distanceSquared(pos)) {
+                return -1;
+            } else {
+                return 1;
+            }
+
+        }
+    }
+
+    public WalkableBlock getBlock(Vector3f pos) {
+
+        //Stores closest block
+        Vector3i blockPos = new Vector3i(round(pos.x), round(pos.y), round(pos.z));
+
+        //computing all the possible closest blocks
+        int floorValueX = (int) floor(pos.x);
+        int floorValueZ = (int) floor(pos.z);
+        int ceilValueX = (int) ceil(pos.x);
+        int ceilValueZ = (int) ceil(pos.z);
+
+        WalkableBlock block;
+
+        //ArrayList to store all the possible blockPositions around pos
+        ArrayList<Vector3f> blockPosList = new ArrayList<>();
+        blockPosList.add(new Vector3f(floorValueX, blockPos.y, floorValueZ));
+        blockPosList.add(new Vector3f(ceilValueX, blockPos.y, floorValueZ));
+        blockPosList.add(new Vector3f(floorValueX, blockPos.y, ceilValueZ));
+        blockPosList.add(new Vector3f(ceilValueX, blockPos.y, ceilValueZ));
+
+        //Sorting the ArrayList based on the custom comparator defined above
+        Collections.sort(blockPosList, new SurroundingBlockComparator(pos));
+
+
+        while (blockPos.y >= (int) pos.y - 4) {
+
+            for (Vector3f blockPosition : blockPosList) {
+
+                block = getBlock(new Vector3i(round(blockPosition.x), blockPos.y, round(blockPosition.z)));
+                if (block != null) {
+                    return block;
+                }
+            }
+
+            blockPos.y--;
+
+        }
+
+        return null;
     }
 
     public void offer(NavGraphTask task) {
@@ -116,13 +177,15 @@ public class NavGraphSystem extends BaseComponentSystem implements UpdateSubscri
         }
         NavGraphChunk navGraphChunk = heightMaps.remove(chunkPos);
         if (navGraphChunk != null) {
-            navGraphChunk.disconnectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1), getNeighbor(chunkPos, 1, 0), getNeighbor(chunkPos, 0, 1));
+            navGraphChunk.disconnectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1),
+                    getNeighbor(chunkPos, 1, 0), getNeighbor(chunkPos, 0, 1));
             navGraphChunk.cells = null;
         }
         navGraphChunk = new NavGraphChunk(world, chunkPos);
         navGraphChunk.update();
         heightMaps.put(chunkPos, navGraphChunk);
-        navGraphChunk.connectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1), getNeighbor(chunkPos, 1, 0), getNeighbor(chunkPos, 0, 1));
+        navGraphChunk.connectNeighborMaps(getNeighbor(chunkPos, -1, 0), getNeighbor(chunkPos, 0, -1),
+                getNeighbor(chunkPos, 1, 0), getNeighbor(chunkPos, 0, 1));
         return navGraphChunk;
     }
 
