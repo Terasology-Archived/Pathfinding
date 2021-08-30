@@ -42,11 +42,10 @@ public class HAStarTest {
 
     @BeforeEach
     public void newWorldBuilder(Context context, WorldProvider worldProvider, ModuleTestingHelper mteHelp) {
-        builder = new TextWorldBuilder(context);
+        builder = new TextWorldBuilder(context, mteHelp);
         chunk = new NavGraphChunk(worldProvider, chunkLocation);
-        mteHelp.forceAndWaitForGeneration(chunkLocation);
     }
-    
+
     @AfterEach
     public void reset(){
         builder.reset();

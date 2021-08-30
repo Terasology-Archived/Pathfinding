@@ -304,9 +304,8 @@ public class FloorFinderTest {
 
     @BeforeEach
     public void setup(Context context, WorldProvider worldProvider, ModuleTestingHelper mteHelp) {
-        builder = new TextWorldBuilder(context);
+        builder = new TextWorldBuilder(context, mteHelp);
         this.worldProvider = worldProvider;
-        mteHelp.forceAndWaitForGeneration(chunkLocation);
     }
 
     @AfterEach
