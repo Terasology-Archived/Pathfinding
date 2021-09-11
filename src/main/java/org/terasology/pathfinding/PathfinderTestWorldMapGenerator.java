@@ -1,4 +1,4 @@
-// Copyright 2020 The Terasology Foundation
+// Copyright 2021 The Terasology Foundation
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.pathfinding;
 
@@ -17,6 +17,9 @@ import org.terasology.engine.world.generator.plugin.WorldGeneratorPluginLibrary;
  */
 @RegisterWorldGenerator(id = "pathfinder", displayName = "Pathfinder TestWorld")
 public class PathfinderTestWorldMapGenerator extends AbstractBaseWorldGenerator {
+    public static final int SURFACE_HEIGHT = 50;
+    public static final int SEA_HEIGHT = 2;
+
     private World world;
     private WorldBuilder worldBuilder;
 
@@ -33,9 +36,9 @@ public class PathfinderTestWorldMapGenerator extends AbstractBaseWorldGenerator 
     @Override
     public void setWorldSeed(String seed) {
         worldBuilder = new WorldBuilder(CoreRegistry.get(WorldGeneratorPluginLibrary.class))
-                .addProvider(new FlatSurfaceHeightProvider(50))
-                .addProvider(new SeaLevelProvider(2))
-                .setSeaLevel(2);
+                .addProvider(new FlatSurfaceHeightProvider(SURFACE_HEIGHT))
+                .addProvider(new SeaLevelProvider(SEA_HEIGHT))
+                .setSeaLevel(SEA_HEIGHT);
         worldBuilder.setSeed(seed.hashCode());
         world = null;
         super.setWorldSeed(seed);
