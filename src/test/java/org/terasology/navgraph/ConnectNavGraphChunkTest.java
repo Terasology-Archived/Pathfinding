@@ -21,6 +21,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.terasology.pathfinding.PathfinderTestWorldMapGenerator.SURFACE_HEIGHT;
 
 @Tag("MteTest")
 @ExtendWith(MTEExtension.class)
@@ -144,9 +145,14 @@ public class ConnectNavGraphChunkTest {
         assertSet(centerFloor.getNeighborRegions(), upFloor, leftFloor, rightFloor, downFloor);
 
         if (contours != null) {
+            int width = contours[0].length();
+            int depth = contours.length;
+
             String[] actual = builder.evaluate((x, y, z, value) ->
-                    isEntrance(center.getCell(x, z).getBlock(y))
-                            ? 'C' : ' ', 0, 51, 0, 32, 1, 32);
+                    isEntrance(center.getCell(x, z).getBlock(y)) ? 'C' : ' ',
+                    0,
+                    SURFACE_HEIGHT + 1, 0, width, 1, depth
+            );
             assertArrayEquals(contours, actual);
         }
     }
