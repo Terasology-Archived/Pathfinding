@@ -21,18 +21,12 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.terasology.pathfinding.PathfinderTestWorldMapGenerator.SURFACE_HEIGHT;
 
-/**
- * @author synopia
- */
 @Tag("MteTest")
 @ExtendWith(MTEExtension.class)
 @Dependencies("Pathfinding")
 public class ConnectNavGraphChunkTest {
-    TextWorldBuilder builder;
-    WorldProvider world;
-    Vector3ic chunkLocation = new Vector3i(0, 0, 0);
-
     private static final String[] CONTOUR_EXPECTED = new String[]{
             "               C                ",
             "                                ",
@@ -67,6 +61,10 @@ public class ConnectNavGraphChunkTest {
             "                                ",
             "                C               ",
     };
+
+    TextWorldBuilder builder;
+    WorldProvider world;
+    Vector3ic chunkLocation = new Vector3i(0, 0, 0);
 
     @Test
     public void test1() {
@@ -137,7 +135,8 @@ public class ConnectNavGraphChunkTest {
         mteHelp.forceAndWaitForGeneration(chunkLocation);
     }
 
-    private void assertCenter(final NavGraphChunk center, NavGraphChunk left, NavGraphChunk up, NavGraphChunk right, NavGraphChunk down, String[] contours) {
+    private void assertCenter(final NavGraphChunk center, NavGraphChunk left, NavGraphChunk up, NavGraphChunk right, NavGraphChunk down,
+                              String[] contours) {
         final Floor centerFloor = center.getFloor(0);
         Floor upFloor = up.getFloor(0);
         Floor downFloor = down.getFloor(0);
@@ -146,12 +145,13 @@ public class ConnectNavGraphChunkTest {
         assertSet(centerFloor.getNeighborRegions(), upFloor, leftFloor, rightFloor, downFloor);
 
         if (contours != null) {
-            String[] actual = builder.evaluate(new TextWorldBuilder.Runner() {
-                @Override
-                public char run(int x, int y, int z, char value) {
-                    return isEntrance(center.getCell(x, z).getBlock(y)) ? 'C' : ' ';
-                }
-            }, 0, 51, 0, 32, 1, 32);
+            int width = contours[0].length();
+            int depth = contours.length;
+
+            String[] actual = builder.evaluate((x, y, z, value) ->
+                    isEntrance(center.getCell(x, z).getBlock(y)) ? 'C' : ' ',
+                    0, SURFACE_HEIGHT + 1, 0, width, 1, depth
+            );
             assertArrayEquals(contours, actual);
         }
     }
