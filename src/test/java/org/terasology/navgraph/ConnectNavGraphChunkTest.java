@@ -150,8 +150,7 @@ public class ConnectNavGraphChunkTest {
 
             String[] actual = builder.evaluate((x, y, z, value) ->
                     isEntrance(center.getCell(x, z).getBlock(y)) ? 'C' : ' ',
-                    0,
-                    SURFACE_HEIGHT + 1, 0, width, 1, depth
+                    0, SURFACE_HEIGHT + 1, 0, width, 1, depth
             );
             assertArrayEquals(contours, actual);
         }
