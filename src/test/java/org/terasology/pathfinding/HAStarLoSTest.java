@@ -4,6 +4,7 @@ package org.terasology.pathfinding;
 
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -138,9 +139,13 @@ public class HAStarLoSTest {
 
     @BeforeEach
     public void setup(Context context, WorldProvider worldProvider, ModuleTestingHelper mteHelp) {
-        builder = new TextWorldBuilder(context);
+        builder = new TextWorldBuilder(context, mteHelp);
         this.worldProvider = worldProvider;
-        mteHelp.forceAndWaitForGeneration(chunkLocation);
+    }
+
+    @AfterEach
+    public void reset(){
+        builder.reset();
     }
 
     private void executeExample(String[] ground, String[] pathData) {

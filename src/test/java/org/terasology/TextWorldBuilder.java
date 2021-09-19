@@ -3,18 +3,24 @@
 package org.terasology;
 
 import org.joml.Vector3i;
+import org.joml.Vector3ic;
 import org.terasology.engine.context.Context;
 import org.terasology.engine.world.WorldProvider;
 import org.terasology.engine.world.block.Block;
+import org.terasology.engine.world.block.BlockArea;
 import org.terasology.engine.world.block.BlockManager;
+import org.terasology.engine.world.block.BlockRegion;
 import org.terasology.engine.world.block.family.SymmetricFamily;
 import org.terasology.engine.world.block.loader.BlockFamilyDefinition;
 import org.terasology.engine.world.block.loader.BlockFamilyDefinitionData;
 import org.terasology.gestalt.assets.ResourceUrn;
 import org.terasology.gestalt.assets.management.AssetManager;
+import org.terasology.joml.geom.Rectanglei;
+import org.terasology.moduletestingenvironment.ModuleTestingHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Created by synopia on 11.02.14.
@@ -26,11 +32,14 @@ public class TextWorldBuilder {
     private WorldProvider world;
     private Block ground;
     private Block air;
+    private BlockRegion resetArea = new BlockRegion(BlockRegion.INVALID);
+    private ModuleTestingHelper helper;
 
-    public TextWorldBuilder(Context context) {
+    public TextWorldBuilder(Context context, ModuleTestingHelper helper) {
         world = context.get(WorldProvider.class);
         BlockManager blockManager = context.get(BlockManager.class);
         AssetManager assetManager = context.get(AssetManager.class);
+        this.helper = helper;
 
         BlockFamilyDefinitionData data = new BlockFamilyDefinitionData();
         data.setBlockFamily(SymmetricFamily.class);
@@ -40,12 +49,22 @@ public class TextWorldBuilder {
         this.air = blockManager.getBlock(BlockManager.AIR_ID);
     }
 
+    public void reset() {
+        if(resetArea.isValid()) {
+            resetArea.forEach(pos -> setAir(pos.x(), pos.y(), pos.z()));
+            resetArea.set(BlockRegion.INVALID);
+        }
+    }
+
     public void setGround(int x, int y, int z) {
+        resetArea.union(x, y, z);
         world.setBlock(new Vector3i(x, y, z), ground);
+        this.helper.forceAndWaitForGeneration(new Vector3i(x, y, z));
     }
 
     public void setAir(int x, int y, int z) {
         world.setBlock(new Vector3i(x, y, z), air);
+        this.helper.forceAndWaitForGeneration(new Vector3i(x, y, z));
     }
 
     public void setGround(String... lines) {

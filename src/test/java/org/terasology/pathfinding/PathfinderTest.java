@@ -3,6 +3,7 @@
 package org.terasology.pathfinding;
 
 import org.joml.Vector3i;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -12,6 +13,7 @@ import org.terasology.TextWorldBuilder;
 import org.terasology.engine.context.Context;
 import org.terasology.engine.registry.InjectionHelper;
 import org.terasology.moduletestingenvironment.MTEExtension;
+import org.terasology.moduletestingenvironment.ModuleTestingHelper;
 import org.terasology.moduletestingenvironment.extension.Dependencies;
 import org.terasology.moduletestingenvironment.extension.UseWorldGenerator;
 import org.terasology.navgraph.NavGraphChunk;
@@ -33,13 +35,18 @@ public class PathfinderTest {
     private TextWorldBuilder builder;
 
     @BeforeEach
-    public void setup(Context context) {
-        builder = new TextWorldBuilder(context);
+    public void setup(Context context, ModuleTestingHelper helper) {
+        builder = new TextWorldBuilder(context, helper);
 
         world = new NavGraphSystem();
         InjectionHelper.inject(world);
 
         pathfinder = new Pathfinder(world, null);
+    }
+
+    @AfterEach
+    public void reset(){
+        builder.reset();
     }
 
     @Test
