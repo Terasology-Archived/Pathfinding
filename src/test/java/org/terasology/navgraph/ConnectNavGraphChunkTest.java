@@ -11,9 +11,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.terasology.TextWorldBuilder;
 import org.terasology.engine.context.Context;
 import org.terasology.engine.world.WorldProvider;
+import org.terasology.engine.world.block.BlockRegion;
 import org.terasology.moduletestingenvironment.MTEExtension;
 import org.terasology.moduletestingenvironment.ModuleTestingHelper;
 import org.terasology.moduletestingenvironment.extension.Dependencies;
+import org.terasology.moduletestingenvironment.extension.UseWorldGenerator;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,6 +28,7 @@ import static org.terasology.pathfinding.PathfinderTestWorldMapGenerator.SURFACE
 @Tag("MteTest")
 @ExtendWith(MTEExtension.class)
 @Dependencies("Pathfinding")
+@UseWorldGenerator("Pathfinding:pathfinder")
 public class ConnectNavGraphChunkTest {
     private static final String[] CONTOUR_EXPECTED = new String[]{
             "               C                ",
@@ -64,11 +67,11 @@ public class ConnectNavGraphChunkTest {
 
     TextWorldBuilder builder;
     WorldProvider world;
-    Vector3ic chunkLocation = new Vector3i(0, 0, 0);
+    Vector3ic chunkLocation = new Vector3i(1, 0, 1);
 
     @Test
     public void test1() {
-        NavGraphChunk center = new NavGraphChunk(world, new Vector3i(1, 0, 1));
+        NavGraphChunk center = new NavGraphChunk(world, chunkLocation);
         NavGraphChunk up = new NavGraphChunk(world, new Vector3i(1, 0, 0));
         NavGraphChunk down = new NavGraphChunk(world, new Vector3i(1, 0, 2));
         NavGraphChunk left = new NavGraphChunk(world, new Vector3i(0, 0, 1));
@@ -84,7 +87,7 @@ public class ConnectNavGraphChunkTest {
         assertCenter(center, left, up, right, down, CONTOUR_EXPECTED);
 
         center.disconnectNeighborMaps(left, up, right, down);
-        center = new NavGraphChunk(world, new Vector3i(1, 0, 1));
+        center = new NavGraphChunk(world, chunkLocation);
         center.update();
         center.connectNeighborMaps(left, up, right, down);
         assertCenter(center, left, up, right, down, CONTOUR_EXPECTED);
@@ -92,7 +95,7 @@ public class ConnectNavGraphChunkTest {
 
     @Test
     public void test2() {
-        NavGraphChunk center = new NavGraphChunk(world, new Vector3i(1, 0, 1));
+        NavGraphChunk center = new NavGraphChunk(world, chunkLocation);
         NavGraphChunk up = new NavGraphChunk(world, new Vector3i(1, 0, 0));
         NavGraphChunk down = new NavGraphChunk(world, new Vector3i(1, 0, 2));
         NavGraphChunk left = new NavGraphChunk(world, new Vector3i(0, 0, 1));
@@ -132,7 +135,8 @@ public class ConnectNavGraphChunkTest {
     public void setup(Context context, WorldProvider worldProvider, ModuleTestingHelper mteHelp) {
         builder = new TextWorldBuilder(context);
         world = worldProvider;
-        mteHelp.forceAndWaitForGeneration(chunkLocation);
+        mteHelp.runUntil(mteHelp.makeChunksRelevant(
+                new BlockRegion(chunkLocation).expand(2, 0, 2)));
     }
 
     private void assertCenter(final NavGraphChunk center, NavGraphChunk left, NavGraphChunk up, NavGraphChunk right, NavGraphChunk down,
