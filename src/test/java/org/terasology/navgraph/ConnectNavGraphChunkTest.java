@@ -11,9 +11,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.terasology.TextWorldBuilder;
 import org.terasology.engine.context.Context;
 import org.terasology.engine.world.WorldProvider;
+import org.terasology.engine.world.block.BlockRegion;
 import org.terasology.moduletestingenvironment.MTEExtension;
 import org.terasology.moduletestingenvironment.ModuleTestingHelper;
 import org.terasology.moduletestingenvironment.extension.Dependencies;
+import org.terasology.moduletestingenvironment.extension.UseWorldGenerator;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -21,18 +23,13 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.terasology.pathfinding.PathfinderTestWorldMapGenerator.SURFACE_HEIGHT;
 
-/**
- * @author synopia
- */
 @Tag("MteTest")
 @ExtendWith(MTEExtension.class)
 @Dependencies("Pathfinding")
+@UseWorldGenerator("Pathfinding:pathfinder")
 public class ConnectNavGraphChunkTest {
-    TextWorldBuilder builder;
-    WorldProvider world;
-    Vector3ic chunkLocation = new Vector3i(0, 0, 0);
-
     private static final String[] CONTOUR_EXPECTED = new String[]{
             "               C                ",
             "                                ",
@@ -68,9 +65,13 @@ public class ConnectNavGraphChunkTest {
             "                C               ",
     };
 
+    TextWorldBuilder builder;
+    WorldProvider world;
+    Vector3ic chunkLocation = new Vector3i(1, 0, 1);
+
     @Test
     public void test1() {
-        NavGraphChunk center = new NavGraphChunk(world, new Vector3i(1, 0, 1));
+        NavGraphChunk center = new NavGraphChunk(world, chunkLocation);
         NavGraphChunk up = new NavGraphChunk(world, new Vector3i(1, 0, 0));
         NavGraphChunk down = new NavGraphChunk(world, new Vector3i(1, 0, 2));
         NavGraphChunk left = new NavGraphChunk(world, new Vector3i(0, 0, 1));
@@ -86,7 +87,7 @@ public class ConnectNavGraphChunkTest {
         assertCenter(center, left, up, right, down, CONTOUR_EXPECTED);
 
         center.disconnectNeighborMaps(left, up, right, down);
-        center = new NavGraphChunk(world, new Vector3i(1, 0, 1));
+        center = new NavGraphChunk(world, chunkLocation);
         center.update();
         center.connectNeighborMaps(left, up, right, down);
         assertCenter(center, left, up, right, down, CONTOUR_EXPECTED);
@@ -94,7 +95,7 @@ public class ConnectNavGraphChunkTest {
 
     @Test
     public void test2() {
-        NavGraphChunk center = new NavGraphChunk(world, new Vector3i(1, 0, 1));
+        NavGraphChunk center = new NavGraphChunk(world, chunkLocation);
         NavGraphChunk up = new NavGraphChunk(world, new Vector3i(1, 0, 0));
         NavGraphChunk down = new NavGraphChunk(world, new Vector3i(1, 0, 2));
         NavGraphChunk left = new NavGraphChunk(world, new Vector3i(0, 0, 1));
@@ -134,10 +135,12 @@ public class ConnectNavGraphChunkTest {
     public void setup(Context context, WorldProvider worldProvider, ModuleTestingHelper mteHelp) {
         builder = new TextWorldBuilder(context);
         world = worldProvider;
-        mteHelp.forceAndWaitForGeneration(chunkLocation);
+        mteHelp.runUntil(mteHelp.makeChunksRelevant(
+                new BlockRegion(chunkLocation).expand(2, 0, 2)));
     }
 
-    private void assertCenter(final NavGraphChunk center, NavGraphChunk left, NavGraphChunk up, NavGraphChunk right, NavGraphChunk down, String[] contours) {
+    private void assertCenter(final NavGraphChunk center, NavGraphChunk left, NavGraphChunk up, NavGraphChunk right, NavGraphChunk down,
+                              String[] contours) {
         final Floor centerFloor = center.getFloor(0);
         Floor upFloor = up.getFloor(0);
         Floor downFloor = down.getFloor(0);
@@ -146,12 +149,13 @@ public class ConnectNavGraphChunkTest {
         assertSet(centerFloor.getNeighborRegions(), upFloor, leftFloor, rightFloor, downFloor);
 
         if (contours != null) {
-            String[] actual = builder.evaluate(new TextWorldBuilder.Runner() {
-                @Override
-                public char run(int x, int y, int z, char value) {
-                    return isEntrance(center.getCell(x, z).getBlock(y)) ? 'C' : ' ';
-                }
-            }, 0, 51, 0, 32, 1, 32);
+            int width = contours[0].length();
+            int depth = contours.length;
+
+            String[] actual = builder.evaluate((x, y, z, value) ->
+                    isEntrance(center.getCell(x, z).getBlock(y)) ? 'C' : ' ',
+                    0, SURFACE_HEIGHT + 1, 0, width, 1, depth
+            );
             assertArrayEquals(contours, actual);
         }
     }
